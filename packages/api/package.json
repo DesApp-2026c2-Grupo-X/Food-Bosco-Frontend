@@ -18,7 +18,9 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
-    "@repo/domain": "*"
+    "@apollo/client": "^3.14.0",
+    "@repo/domain": "*",
+    "graphql": "^16.11.0"
   },
   "peerDependencies": {
     "react": "^19.2.0",

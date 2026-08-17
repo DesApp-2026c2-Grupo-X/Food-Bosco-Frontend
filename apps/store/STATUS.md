@@ -12,11 +12,11 @@
 
 Monorepo con tres partes:
 
-| Parte       | Carpeta             | Stack                 | Estado actual                                               |
-| ----------- | ------------------- | --------------------- | ----------------------------------------------------------- |
-| Backend     | `api/`              | NestJS (Node + TS)    | **Estructura completa, lógica de negocio = stubs** (ver §9) |
-| App cliente | `client/apps/store` | Vite + React + Chakra | **100% funcional como SPA mock-first** (este doc)           |
-| App admin   | `client/apps/admin` | Vite + React + Chakra | **Placeholder** ("Admin" centrado)                          |
+| Parte       | Carpeta              | Stack                 | Estado actual                                               |
+| ----------- | -------------------- | --------------------- | ----------------------------------------------------------- |
+| Backend     | `api/`               | NestJS (Node + TS)    | **Estructura completa, lógica de negocio = stubs** (ver §9) |
+| App cliente | `client/apps/store`  | Vite + React + Chakra | **100% funcional como SPA mock-first** (este doc)           |
+| App branch  | `client/apps/branch` | Vite + React + Chakra | **Placeholder** ("Branch" centrado)                         |
 
 - **Hoy el store NO consume el backend.** Todo funciona con datos mock y estado local. El backend expone endpoints pero sus servicios devuelven `null`/`[]`.
 - El backend usa repositorios **en memoria** (sin ORM/BD real) y **no tiene JWT ni roles** todavía.
@@ -112,8 +112,8 @@ Definidas en `App.tsx` (usa `useRoutes`; las rutas de auth se agregan con `authR
   - Acciones: `login(email, role?)`, `register(input)`, `logout()`, `setBypassAuth(v)`.
   - `login`/`register` simulan latencia (600ms) y setean `user` (login usa `MOCK_USER`).
 - **UI de auth:** paquete `@repo/auth` (`packages/auth/`): `LoginPage`, `RegisterPage`, `ForgotPasswordPage`, `ResetPasswordPage`, `AuthLayout`, `authRoutes`, `authRouteObjects`, `useAuthRedirect`.
-  - Cada app monta las rutas públicas con `authRouteObjects({ adminUrl, logoLight, logoDark })` dentro de su router (`useRoutes`).
-  - `useAuthRedirect` reemplaza el viejo `redirectByRole`: client → navega a `from` o `defaultPath`; admin → `window.location.assign(adminUrl)` si se configuró.
+  - Cada app monta las rutas públicas con `authRouteObjects({ branchUrl, logoLight, logoDark })` dentro de su router (`useRoutes`).
+  - `useAuthRedirect` reemplaza el viejo `redirectByRole`: client → navega a `from` o `defaultPath`; admin → `window.location.assign(branchUrl)` si se configuró.
 - **Protección:** `RequireAuth` en `@repo/components` (recibe `loginPath` relativo `/login` y `mockAuth`).
   - Si `!user` y no hay bypass → `<Navigate to="/login" replace state={{ from: location }} />`.
   - **Flag `?forceAuth=true`** desactiva la protección (toggle de desarrollo); se persiste en `bypassAuth`.
@@ -386,7 +386,7 @@ Según el relevamiento de código:
 
 ---
 
-## 10. Para el admin (`client/apps/admin`)
+## 10. Para la app branch (`client/apps/branch`)
 
 Hoy es un placeholder. Al desarrollarlo:
 
@@ -420,13 +420,13 @@ Hoy es un placeholder. Al desarrollarlo:
 cd api && npm install && npm run start:dev
 
 # Frontend (monorepo)
-cd client && npm install && npm run dev          # store 5173 + admin 5174
+cd client && npm install && npm run dev          # store 5173 + branch 5174
 # o solo el store:
 npm run dev -- --filter=@repo/store
 ```
 
 - Tienda: http://localhost:5173
-- Admin: http://localhost:5174
+- Branch: http://localhost:5174
 - API: http://localhost:3000
 
 > Sin el proxy `/api`, el store funciona 100% con mocks (no requiere levantar la API).

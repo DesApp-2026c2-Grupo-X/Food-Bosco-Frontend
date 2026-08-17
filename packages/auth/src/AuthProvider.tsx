@@ -7,13 +7,15 @@ export interface AuthProviderProps extends AuthAppConfig {
 
 export const AuthProvider = ({
   defaultPath = '/',
+  branchUrl,
   adminUrl,
+  riderUrl,
   redirectByRole,
   children,
 }: AuthProviderProps) => {
   const value = useMemo(
-    () => ({ defaultPath, adminUrl, redirectByRole }),
-    [defaultPath, adminUrl, redirectByRole],
+    () => ({ defaultPath, branchUrl, adminUrl, riderUrl, redirectByRole }),
+    [defaultPath, branchUrl, adminUrl, riderUrl, redirectByRole],
   )
   return <AuthConfigContext.Provider value={value}>{children}</AuthConfigContext.Provider>
 }

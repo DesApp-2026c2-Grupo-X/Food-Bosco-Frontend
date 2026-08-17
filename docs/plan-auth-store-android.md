@@ -9,9 +9,9 @@
 - La UI de auth quedó en **`packages/auth` (`@repo/auth`)**; `apps/auth` fue **eliminada** (no hay shell web standalone).
 - Las rutas se componen con **`useRoutes`** + `authRouteObjects(config)` (objetos de ruta), no con un componente `<AuthRoutes />` declarativo.
 - El logo se pasa **por props** (`logoLight`/`logoDark`) desde la app que monta el paquete (sigue el patrón de `@repo/components/Logo`: los assets viven en las apps).
-- `redirectByRole` fue reemplazado por **`useAuthRedirect`** + config por contexto (`AuthProvider`, `defaultPath` / `adminUrl` / `redirectByRole`).
+- `redirectByRole` fue reemplazado por **`useAuthRedirect`** + config por contexto (`AuthProvider`, `defaultPath` / `branchUrl` / `redirectByRole`).
 - `RequireAuth` quedó sin cambios; el store le pasa `loginPath={authRoutes.login}` (relativo).
-- `apps/store` monta `authRouteObjects({ adminUrl: ADMIN_URL, logoLight, logoDark })` y protege el resto con `RequireAuth`.
+- `apps/store` monta `authRouteObjects({ branchUrl: BRANCH_URL, logoLight, logoDark })` y protege el resto con `RequireAuth`.
 
 ---
 
@@ -59,7 +59,7 @@ packages/
 │   └── package.json           # name: "@repo/auth"
 apps/
 ├── store/                    # shell Capacitor: monta @repo/auth + sus rutas
-└── admin/                    # (futuro) monta @repo/auth igual que el store
+└── branch/                    # (futuro) monta @repo/auth igual que el store
 ```
 
 **Conflicto de nombre a resolver:** `apps/auth/package.json` ya usa `"name": "@repo/auth"`. Al moverlo a `packages/auth` se conserva el nombre `@repo/auth`. La carpeta `apps/auth` **se elimina**, o bien se deja como shell web con otro nombre (ver §8).
@@ -125,7 +125,7 @@ No requiere cambios. Ya soporta `loginPath` relativo y `mockAuth`. Solo cambia e
 Hoy (`apps/auth/src/config.ts` + `useLogin`):
 
 ```ts
-redirectByRole(role) // window.location.assign(role === 'admin' ? ADMIN_URL : STORE_URL)
+redirectByRole(role) // window.location.assign(role === 'admin' ? BRANCH_URL : STORE_URL)
 ```
 
 En el modelo embebido esto ya no aplica para el store (no hay que salir de la app). Se reemplaza por:
@@ -133,11 +133,11 @@ En el modelo embebido esto ya no aplica para el store (no hay que salir de la ap
 ```ts
 const redirect = useAuthRedirect() // en @repo/auth
 // tras login exitoso:
-redirect(user.role) // client → navigate(from ?? '/'); admin → window.location.assign(VITE_ADMIN_URL)
+redirect(user.role) // client → navigate(from ?? '/'); admin → window.location.assign(VITE_BRANCH_URL)
 ```
 
 - **`client`:** `useNavigate()` a `location.state.from` (que `RequireAuth` ya setea) o a `/`.
-- **`admin`:** sigue siendo redirección absoluta a `VITE_ADMIN_URL`, porque admin es otra app. `VITE_ADMIN_URL` pasa a resolverse en el build del store (moverla a `apps/store/.env*`).
+- **`admin`:** sigue siendo redirección absoluta a `VITE_BRANCH_URL`, porque admin es otra app. `VITE_BRANCH_URL` pasa a resolverse en el build del store (moverla a `apps/store/.env*`).
 - `VITE_STORE_URL` deja de necesitarse para el store embebido (solo la usaría una SPA de auth web si se mantiene).
 
 ---
@@ -173,7 +173,7 @@ Ambos son compatibles con este plan; la diferencia es si se conserva o no la SPA
 - **Nombre del paquete:** mantener `@repo/auth` (mover de `apps/auth`) vs. `@repo/auth-ui`.
 - **`BrowserRouter` en Capacitor** (§5.3): posible cambio a `HashRouter`.
 - **Login sigue siendo mock** hasta que el backend tenga JWT. Este plan deja la estructura lista para enchufar el login real en `useAuthStore` sin tocar UI ni rutas.
-- **Admin embebido:** el mismo `@repo/auth` se monta en `apps/admin` cuando se desarrolle; solo cambia la redirección de rol (admin se queda en la misma app).
+- **Admin embebido:** el mismo `@repo/auth` se monta en `apps/branch` cuando se desarrolle; solo cambia la redirección de rol (admin se queda en la misma app).
 
 ---
 

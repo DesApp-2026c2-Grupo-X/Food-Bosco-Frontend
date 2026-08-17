@@ -1,11 +1,11 @@
 ---
 name: frontend-components
-description: Reglas de creación de componentes frontend (client/): estructura de carpetas con named exports, separación lógica/presentación (SOC), uso exclusivo de componentes de Chakra UI en lugar de divs custom, estado global con Zustand, layouts en la carpeta layouts/ (nada suelto en el router) y componentes que pueden existir en ambas apps (store y admin). Aplicar antes de escribir o modificar cualquier componente React.
+description: Reglas de creación de componentes frontend (client/): estructura de carpetas con named exports, separación lógica/presentación (SOC), uso exclusivo de componentes de Chakra UI en lugar de divs custom, estado global con Zustand, layouts en la carpeta layouts/ (nada suelto en el router) y componentes que pueden existir en ambas apps (store y branch). Aplicar antes de escribir o modificar cualquier componente React.
 ---
 
 # Componentes frontend
 
-Reglas para crear y mantener componentes React en `client/` (apps/store y apps/admin).
+Reglas para crear y mantener componentes React en `client/` (apps/store y apps/branch).
 
 ## Estructura de carpetas
 

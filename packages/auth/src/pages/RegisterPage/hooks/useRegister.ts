@@ -37,7 +37,7 @@ export const useRegister = () => {
         phone: values.phone.trim(),
         password: values.password,
       })
-      redirect('client')
+      redirect('customer')
     } finally {
       setSubmitting(false)
     }

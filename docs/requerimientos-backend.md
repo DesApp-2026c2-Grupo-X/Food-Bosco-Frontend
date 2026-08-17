@@ -30,7 +30,7 @@
 
 # 1. Objetivo y alcance
 
-El backend da soporte a los cinco frontends (`apps/auth`, `apps/store`, `apps/admin`, `apps/admin-global`, `apps/rider`). Todos consumen un **único endpoint GraphQL** expuesto por el **Apollo Gateway**.
+El backend da soporte a los cinco frontends (`apps/auth`, `apps/store`, `apps/branch`, `apps/admin`, `apps/rider`). Todos consumen un **único endpoint GraphQL** expuesto por el **Apollo Gateway**.
 
 Se implementa como un conjunto de **3 servicios** más una capa de entrada:
 
@@ -89,8 +89,8 @@ flowchart TB
     subgraph CLIENTS["Frontends"]
         AUTH_APP["apps/auth"]
         STORE["apps/store"]
-        ADMIN["apps/admin"]
-        ADMIN_GLOBAL["apps/admin-global"]
+        ADMIN["apps/branch"]
+        ADMIN_GLOBAL["apps/admin"]
         RIDER["apps/rider"]
     end
 
