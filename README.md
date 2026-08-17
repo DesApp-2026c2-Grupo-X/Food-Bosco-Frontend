@@ -22,17 +22,9 @@ npm run format     # Prettier sobre todo el repo
 npm run format:check
 ```
 
-## Estructura
+## Android
 
-```text
-apps/
-├── store/    # aplicación de la tienda
-└── admin/    # aplicación de administración
-
-packages/
-├── eslint-config/       # config ESLint compartida (@repo/eslint-config)
-└── typescript-config/   # config TypeScript compartida (@repo/typescript-config)
-
-plan/         # documentación funcional de referencia (versión antigua, no es especificación de estructura)
-agent-local/  # recursos del agente (no versionado)
+```bash
+npm run store:android        # prepara y corre la app store en Android (--run)
+npm run store:android:build  # solo prepara/build para Android
 ```
