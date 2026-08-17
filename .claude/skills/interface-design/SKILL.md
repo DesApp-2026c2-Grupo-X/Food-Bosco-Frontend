@@ -3,6 +3,9 @@ name: interface-design
 description: Craft-first interface design for dashboards, admin panels, SaaS apps, tools, settings pages, data interfaces, and interactive products. Use when designing, building, reviewing, auditing, or refining product UI where visual craft, layout hierarchy, tokens, states, visual direction, or design-system consistency matter. Not for marketing pages, landing pages, campaigns, or brand-only work.
 ---
 
+> ⚠️ **Skill orientativo.** La fuente de verdad de diseño de este proyecto es `client/docs/ui-manifesto.md`. Ante cualquier conflicto, gana el manifesto.
+
+
 # Interface Design
 
 Build product interfaces with the craft of a top design team — Linear, Vercel, Stripe, Apple. The difference between those and generic output is not talent. It is that every decision was *decided*, the hierarchy is unmistakable, and a hundred small details are correct at once. This skill is how you get there.
