@@ -1,4 +1,4 @@
-export const routes = {
+export const authRoutes = {
   login: '/login',
   register: '/register',
   forgotPassword: '/forgot-password',

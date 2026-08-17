@@ -1,9 +1,10 @@
-import { Routes, Route } from 'react-router-dom'
+import { useRoutes } from 'react-router-dom'
 import { StoreLayout } from './layouts/StoreLayout'
 import { RequireAuth } from '@repo/components'
-import { routes } from './routes'
-import { AUTH_URL, MOCK_AUTH } from './config'
+import { authRouteObjects, authRoutes } from '@repo/auth'
+import { ADMIN_URL, MOCK_AUTH } from './config'
 import { useNativeSystemBars } from './hooks/useNativeSystemBars'
+import { routes } from './routes'
 import { HomePage } from './pages/HomePage'
 import { CatalogPage } from './pages/CatalogPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
@@ -15,27 +16,34 @@ import { OrderDetailPage } from './pages/OrderDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { EditProfilePage } from './pages/EditProfilePage'
 import { AddressesPage } from './pages/AddressesPage'
+import logoLight from './assets/logo-light.svg'
+import logoDark from './assets/logo-dark.svg'
 
 export const App = () => {
   useNativeSystemBars()
 
-  return (
-    <Routes>
-      <Route element={<RequireAuth loginPath={`${AUTH_URL}/login`} mockAuth={MOCK_AUTH} />}>
-        <Route element={<StoreLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path={routes.catalog} element={<CatalogPage />} />
-          <Route path={routes.product} element={<ProductDetailPage />} />
-          <Route path={routes.cart} element={<CartPage />} />
-          <Route path={routes.checkout} element={<CheckoutPage />} />
-          <Route path={routes.branches} element={<SucursalesPage />} />
-          <Route path={routes.orders} element={<OrdersPage />} />
-          <Route path={routes.orderDetail} element={<OrderDetailPage />} />
-          <Route path={routes.profile} element={<ProfilePage />} />
-          <Route path={routes.profileEdit} element={<EditProfilePage />} />
-          <Route path={routes.profileAddresses} element={<AddressesPage />} />
-        </Route>
-      </Route>
-    </Routes>
-  )
+  return useRoutes([
+    ...authRouteObjects({ adminUrl: ADMIN_URL, logoLight, logoDark }),
+    {
+      element: <RequireAuth loginPath={authRoutes.login} mockAuth={MOCK_AUTH} />,
+      children: [
+        {
+          element: <StoreLayout />,
+          children: [
+            { index: true, element: <HomePage /> },
+            { path: routes.catalog, element: <CatalogPage /> },
+            { path: routes.product, element: <ProductDetailPage /> },
+            { path: routes.cart, element: <CartPage /> },
+            { path: routes.checkout, element: <CheckoutPage /> },
+            { path: routes.branches, element: <SucursalesPage /> },
+            { path: routes.orders, element: <OrdersPage /> },
+            { path: routes.orderDetail, element: <OrderDetailPage /> },
+            { path: routes.profile, element: <ProfilePage /> },
+            { path: routes.profileEdit, element: <EditProfilePage /> },
+            { path: routes.profileAddresses, element: <AddressesPage /> },
+          ],
+        },
+      ],
+    },
+  ])
 }

@@ -18,6 +18,7 @@
     "@gravity-ui/icons": "^2.21.0",
     "@hookform/resolvers": "^5.7.1",
     "@repo/api": "*",
+    "@repo/auth": "*",
     "@repo/components": "*",
     "@repo/domain": "*",
     "@repo/theme": "*",

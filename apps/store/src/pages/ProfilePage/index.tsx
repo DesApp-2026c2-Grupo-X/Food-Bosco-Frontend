@@ -1,5 +1,6 @@
 import { Avatar, Box, Text } from '@chakra-ui/react'
 import Moon from '@gravity-ui/icons/Moon'
+import { useNavigate } from 'react-router-dom'
 import {
   ColorModeButton,
   Muted,
@@ -9,7 +10,7 @@ import {
   Strong,
   Subtle,
 } from '@repo/components'
-import { AUTH_URL } from '../../config'
+import { authRoutes } from '@repo/auth'
 import { useAuthStore } from '@repo/api'
 import { useProfile } from '@repo/api'
 import { ProfileNav } from './ProfileNav'
@@ -18,11 +19,12 @@ import type { ProfilePageProps } from './types'
 export const ProfilePage = ({ userId }: ProfilePageProps) => {
   const { user } = useProfile(userId)
   const logout = useAuthStore((state) => state.logout)
+  const navigate = useNavigate()
   const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
 
   const handleLogout = () => {
     logout()
-    window.location.assign(`${AUTH_URL}/login`)
+    navigate(authRoutes.login, { replace: true })
   }
 
   return (

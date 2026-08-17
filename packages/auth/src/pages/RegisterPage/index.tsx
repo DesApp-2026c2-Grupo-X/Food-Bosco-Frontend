@@ -2,7 +2,7 @@ import { VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
 import { FormField, FormPasswordField, Muted, PrimaryButton, TextLink } from '@repo/components'
 import { PageHeader } from '../../components/PageHeader'
-import { routes } from '../../routes'
+import { authRoutes } from '../../routes'
 import { useRegister } from './hooks/useRegister'
 
 export const RegisterPage = () => {
@@ -72,7 +72,7 @@ export const RegisterPage = () => {
       </form>
 
       <Muted fontSize="sm" textAlign="center">
-        ¿Ya tenés cuenta? <TextLink to={routes.login}>Ingresá</TextLink>
+        ¿Ya tenés cuenta? <TextLink to={authRoutes.login}>Ingresá</TextLink>
       </Muted>
     </VStack>
   )

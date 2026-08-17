@@ -3,7 +3,7 @@ import { FormProvider } from 'react-hook-form'
 import { FormField, Muted, PrimaryButton, TextLink } from '@repo/components'
 import { AuthSuccess } from '../../components/AuthSuccess'
 import { PageHeader } from '../../components/PageHeader'
-import { routes } from '../../routes'
+import { authRoutes } from '../../routes'
 import { useForgotPassword } from './hooks/useForgotPassword'
 
 export const ForgotPasswordPage = () => {
@@ -15,7 +15,7 @@ export const ForgotPasswordPage = () => {
         title="Revisá tu email"
         description={`Te enviamos un enlace para restablecer tu contraseña a ${form.getValues('email')}.`}
         buttonLabel="Volver al login"
-        to={routes.login}
+        to={authRoutes.login}
       />
     )
   }
@@ -51,7 +51,7 @@ export const ForgotPasswordPage = () => {
       </form>
 
       <Muted fontSize="sm" textAlign="center">
-        <TextLink to={routes.login}>Volver al login</TextLink>
+        <TextLink to={authRoutes.login}>Volver al login</TextLink>
       </Muted>
     </VStack>
   )

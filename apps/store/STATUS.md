@@ -51,7 +51,7 @@ npm run android       # vite build --mode native && cap sync android && cap open
 ### Android (Capacitor)
 
 - El store puede empaquetarse como app Android con **Capacitor 8** (`capacitor.config.ts` + `android/`).
-- El build nativo usa `.env.native` → `VITE_MOCK_AUTH=true` (auth mockeado en la app; el webview remoto con auth real es un pendiente futuro).
+- El build nativo usa `.env.native` → `VITE_MOCK_AUTH=false`, así que la app **pide login**. La UI de auth vive en `@repo/auth` (`packages/auth/`) y se monta dentro del store; el login en sí sigue mockeado hasta que el backend tenga JWT.
 - **Requisitos:** JDK 17 o 21 (vía SDKMAN: `sdk env` con el `.sdkmanrc` del repo, `java=21.0.8-ms`) + Android SDK (`ANDROID_HOME`). Java 25 rompe Gradle 8.14.3.
 - `npm run android` builda con mock auth, sincroniza y abre Android Studio.
 
@@ -61,10 +61,9 @@ Estructura:
 src/
 ├── components/   # componentes reutilizables (index.tsx + types.ts + hooks/ opcional)
 ├── pages/        # pantallas (index.tsx + hooks/ para lógica + subcomponentes planos)
-├── layouts/      # StoreLayout (tienda) y AuthLayout (auth)
+├── layouts/      # StoreLayout (tienda). El AuthLayout vive en @repo/auth
 ├── hooks/        # hooks globales con SWR (useCatalog, useProduct, useProfile, useOrder)
-├── hoc/          # RequireAuth (protección de rutas)
-├── stores/       # Zustand (cartStore, addressStore, authStore)
+├── stores/       # Zustand (cartStore, addressStore). La sesión (authStore) vive en @repo/api
 ├── types/        # tipos del dominio
 └── utils/        # mocks y helpers
 ```
@@ -75,9 +74,9 @@ Convención de componentes: **named exports**, un archivo `index.tsx` que export
 
 ## 3. Rutas implementadas
 
-Definidas en `App.tsx`.
+Definidas en `App.tsx` (usa `useRoutes`; las rutas de auth se agregan con `authRouteObjects` de `@repo/auth`).
 
-**Auth (públicas, dentro de `AuthLayout`):**
+**Auth (públicas, dentro de `AuthLayout`, desde `@repo/auth`):**
 
 | Ruta                             | Página               | Notas                                          |
 | -------------------------------- | -------------------- | ---------------------------------------------- |
@@ -106,31 +105,19 @@ Definidas en `App.tsx`.
 
 ## 4. Feature inventory
 
-### 4.1 Autenticación (mock)
+### 4.1 Autenticación (mock, UI en `@repo/auth`)
 
-- **Store:** `stores/authStore.ts` (Zustand + `persist`, key `store-auth`).
+- **Sesión:** `useAuthStore` en `@repo/api` (`packages/api/src/stores/authStore.ts`, Zustand + `persist`, key `store-auth`).
   - Estado: `user: User | null`, `bypassAuth: boolean`.
-  - Acciones: `login(email, password)`, `register(input)`, `logout()`, `setBypassAuth(v)`.
-  - `login`/`register` simulan latencia (600ms) y setean `user` (login usa `MOCK_USER` de `utils/user.ts`, reemplazando el email).
-  - `partialize`: persiste solo `{ user, bypassAuth }`.
-- **HOC:** `hoc/RequireAuth.tsx` protege las rutas de tienda.
+  - Acciones: `login(email, role?)`, `register(input)`, `logout()`, `setBypassAuth(v)`.
+  - `login`/`register` simulan latencia (600ms) y setean `user` (login usa `MOCK_USER`).
+- **UI de auth:** paquete `@repo/auth` (`packages/auth/`): `LoginPage`, `RegisterPage`, `ForgotPasswordPage`, `ResetPasswordPage`, `AuthLayout`, `authRoutes`, `authRouteObjects`, `useAuthRedirect`.
+  - Cada app monta las rutas públicas con `authRouteObjects({ adminUrl, logoLight, logoDark })` dentro de su router (`useRoutes`).
+  - `useAuthRedirect` reemplaza el viejo `redirectByRole`: client → navega a `from` o `defaultPath`; admin → `window.location.assign(adminUrl)` si se configuró.
+- **Protección:** `RequireAuth` en `@repo/components` (recibe `loginPath` relativo `/login` y `mockAuth`).
   - Si `!user` y no hay bypass → `<Navigate to="/login" replace state={{ from: location }} />`.
-  - **Flag `?forceAuth=true` desactiva la protección** (acceso sin login); `?forceAuth=false` la reactiva. El valor se persiste en `bypassAuth`, así que se "forwardea" entre navegación y recargas.
-  - Lógica exacta:
-    ```tsx
-    const param = new URLSearchParams(location.search).get('forceAuth')
-    useEffect(() => {
-      if (param === 'true') setBypassAuth(true)
-      if (param === 'false') setBypassAuth(false)
-    }, [param, setBypassAuth])
-    const effectiveBypass = param === 'false' ? false : param === 'true' ? true : bypassAuth
-    if (!user && !effectiveBypass)
-      return <Navigate to="/login" replace state={{ from: location }} />
-    return <Outlet />
-    ```
-  - **Semántica (ojo):** por defecto las rutas piden login; `?forceAuth=true` es el toggle de desarrollo para desactivarlo.
-- **Páginas:** `LoginPage`, `RegisterPage`, `ForgotPasswordPage`, `ResetPasswordPage`, cada una con su hook (`hooks/useLogin.ts`, `useRegister.ts`, `useForgotPassword.ts`, `useResetPassword.ts`).
-  - Validación client-side: password mínimo 6 chars; en registro también validar que ambas passwords coincidan.
+  - **Flag `?forceAuth=true`** desactiva la protección (toggle de desarrollo); se persiste en `bypassAuth`.
+  - `mockAuth=true` fuerza bypass; hoy `.env.native` usa `false`, así que la app Android pide login.
 - **Logout:** botón "Cerrar sesión" en `ProfilePage` (`logout()` + `navigate("/login")`).
 
 ### 4.2 Direcciones
