@@ -4,12 +4,13 @@ import { useState } from 'react'
 import type { z } from 'zod'
 import { registerSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
-import { redirectByRole } from '../../../config'
+import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
 
 type RegisterValues = z.infer<typeof registerSchema>
 
 export const useRegister = () => {
   const register = useAuthStore((state) => state.register)
+  const redirect = useAuthRedirect()
   const [submitting, setSubmitting] = useState(false)
 
   const form = useForm<RegisterValues>({
@@ -36,7 +37,7 @@ export const useRegister = () => {
         phone: values.phone.trim(),
         password: values.password,
       })
-      redirectByRole('client')
+      redirect('client')
     } finally {
       setSubmitting(false)
     }

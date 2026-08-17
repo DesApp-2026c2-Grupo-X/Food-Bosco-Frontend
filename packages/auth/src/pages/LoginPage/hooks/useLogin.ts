@@ -5,12 +5,13 @@ import type { z } from 'zod'
 import { loginSchema } from '@repo/domain'
 import type { UserRole } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
-import { redirectByRole } from '../../../config'
+import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
 
 type LoginValues = z.infer<typeof loginSchema>
 
 export const useLogin = () => {
   const login = useAuthStore((state) => state.login)
+  const redirect = useAuthRedirect()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -26,7 +27,7 @@ export const useLogin = () => {
     setError(null)
     try {
       await login(values.email.trim())
-      redirectByRole(useAuthStore.getState().user?.role)
+      redirect(useAuthStore.getState().user?.role)
     } catch {
       setError('No pudimos iniciar sesión. Revisá tus datos.')
     } finally {
@@ -37,7 +38,7 @@ export const useLogin = () => {
   const mockLogin = async (role: UserRole) => {
     setError(null)
     await login(`mock-${role}@unahur.edu.ar`, role)
-    redirectByRole(role)
+    redirect(role)
   }
 
   return { form, submitting, error, onSubmit, mockLogin }

@@ -3,7 +3,7 @@ import { FormProvider } from 'react-hook-form'
 import { FormPasswordField, PrimaryButton } from '@repo/components'
 import { AuthSuccess } from '../../components/AuthSuccess'
 import { PageHeader } from '../../components/PageHeader'
-import { routes } from '../../routes'
+import { authRoutes } from '../../routes'
 import { useResetPassword } from './hooks/useResetPassword'
 
 export const ResetPasswordPage = () => {
@@ -15,7 +15,7 @@ export const ResetPasswordPage = () => {
         title="Contraseña restablecida"
         description="Ya podés ingresar con tu nueva contraseña."
         buttonLabel="Ir al login"
-        to={routes.login}
+        to={authRoutes.login}
       />
     )
   }

@@ -9,7 +9,7 @@ import {
   TextLink,
 } from '@repo/components'
 import { PageHeader } from '../../components/PageHeader'
-import { routes } from '../../routes'
+import { authRoutes } from '../../routes'
 import { useLogin } from './hooks/useLogin'
 
 export const LoginPage = () => {
@@ -55,8 +55,8 @@ export const LoginPage = () => {
       </form>
 
       <HStack justify="space-between" fontSize="sm" flexWrap="wrap" gap="2">
-        <TextLink to={routes.forgotPassword}>Olvidé mi contraseña</TextLink>
-        <TextLink to={routes.register}>Crear cuenta</TextLink>
+        <TextLink to={authRoutes.forgotPassword}>Olvidé mi contraseña</TextLink>
+        <TextLink to={authRoutes.register}>Crear cuenta</TextLink>
       </HStack>
 
       <Box>
