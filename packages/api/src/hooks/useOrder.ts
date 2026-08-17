@@ -1,7 +1,7 @@
-import useSWR from "swr"
-import type { Order } from "@repo/domain"
-import { getJson } from "../client/rest"
-import { getOrderById } from "../mocks/orders"
+import useSWR from 'swr'
+import type { Order } from '@repo/domain'
+import { getJson } from '../client/rest'
+import { getOrderById } from '../mocks/orders'
 
 interface UseOrderReturn {
   order: Order | null
@@ -13,7 +13,7 @@ export const useOrder = (orderId: string | undefined): UseOrderReturn => {
     orderId ? `/api/orders/${orderId}` : null,
     async (url: string) => {
       const json = await getJson<Order>(url)
-      if (json && typeof json === "object" && "id" in json) {
+      if (json && typeof json === 'object' && 'id' in json) {
         return json
       }
       return orderId ? getOrderById(orderId) : null

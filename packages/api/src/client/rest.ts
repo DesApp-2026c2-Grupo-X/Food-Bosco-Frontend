@@ -6,8 +6,8 @@ export const getJson = async <T>(url: string): Promise<T | null> => {
 
 export const patchJson = async <T>(url: string, body: unknown): Promise<T | null> => {
   const res = await fetch(url, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   }).catch(() => null)
   if (!res || !res.ok) return null

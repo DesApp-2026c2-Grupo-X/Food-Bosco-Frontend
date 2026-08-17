@@ -1,3 +1,3 @@
-import type { TextProps } from "@chakra-ui/react"
+import type { TextProps } from '@chakra-ui/react'
 
 export type PriceProps = TextProps

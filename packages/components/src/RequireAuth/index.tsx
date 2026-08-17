@@ -1,7 +1,7 @@
-import { useEffect } from "react"
-import { Navigate, Outlet, useLocation } from "react-router-dom"
-import { useAuthStore } from "@repo/api"
-import type { RequireAuthProps } from "./types"
+import { useEffect } from 'react'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useAuthStore } from '@repo/api'
+import type { RequireAuthProps } from './types'
 
 const isAbsoluteUrl = (url: string) => /^https?:\/\//.test(url)
 
@@ -11,18 +11,18 @@ export const RequireAuth = ({ loginPath, roles, mockAuth }: RequireAuthProps) =>
   const setBypassAuth = useAuthStore((state) => state.setBypassAuth)
   const location = useLocation()
 
-  const param = new URLSearchParams(location.search).get("forceAuth")
+  const param = new URLSearchParams(location.search).get('forceAuth')
 
   useEffect(() => {
-    if (param === "true") setBypassAuth(true)
-    if (param === "false") setBypassAuth(false)
+    if (param === 'true') setBypassAuth(true)
+    if (param === 'false') setBypassAuth(false)
   }, [param, setBypassAuth])
 
   const effectiveBypass = mockAuth
     ? true
-    : param === "false"
+    : param === 'false'
       ? false
-      : param === "true"
+      : param === 'true'
         ? true
         : bypassAuth
 

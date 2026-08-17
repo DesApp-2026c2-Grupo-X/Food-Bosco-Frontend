@@ -1,8 +1,8 @@
-import { Image } from "@chakra-ui/react"
-import { useColorModeValue } from "../ColorModeProvider/hooks/useColorModeValue"
-import type { LogoProps } from "./types"
+import { Image } from '@chakra-ui/react'
+import { useColorModeValue } from '../ColorModeProvider/hooks/useColorModeValue'
+import type { LogoProps } from './types'
 
-export const Logo = ({ lightSrc, darkSrc, height = "40px", className }: LogoProps) => {
+export const Logo = ({ lightSrc, darkSrc, height = '40px', className }: LogoProps) => {
   const src = useColorModeValue(lightSrc, darkSrc)
   return (
     <Image

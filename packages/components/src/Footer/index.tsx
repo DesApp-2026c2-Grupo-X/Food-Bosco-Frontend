@@ -1,18 +1,15 @@
-import { Box, HStack, Link as ChakraLink, Text } from "@chakra-ui/react"
-import { Link } from "react-router-dom"
-import type { FooterProps } from "./types"
+import { Box, HStack, Link as ChakraLink, Text } from '@chakra-ui/react'
+import { Link } from 'react-router-dom'
+import type { FooterProps } from './types'
 
-export const Footer = ({
-  brand = "UNaHur · Comida al instante",
-  links = [],
-}: FooterProps) => (
+export const Footer = ({ brand = 'UNaHur · Comida al instante', links = [] }: FooterProps) => (
   <Box
     as="footer"
     borderTop="1px"
     borderColor="border.subtle"
     paddingTop="8"
     paddingBottom="2"
-    display={{ base: "none", md: "flex" }}
+    display={{ base: 'none', md: 'flex' }}
     justifyContent="space-between"
     gap="4"
     color="fg.muted"

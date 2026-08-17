@@ -1,6 +1,6 @@
-import { Box } from "@chakra-ui/react"
-import { useEffect, useState } from "react"
-import type { ReactNode } from "react"
+import { Box } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 
 interface SplashScreenProps {
   logo?: ReactNode

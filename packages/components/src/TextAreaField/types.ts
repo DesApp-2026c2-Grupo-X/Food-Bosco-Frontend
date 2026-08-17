@@ -1,4 +1,4 @@
-import type { TextareaProps } from "@chakra-ui/react"
+import type { TextareaProps } from '@chakra-ui/react'
 
 export interface TextAreaFieldProps extends TextareaProps {
   label: string

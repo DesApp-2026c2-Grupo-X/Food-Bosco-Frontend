@@ -1,7 +1,7 @@
-import { Text } from "@chakra-ui/react"
-import type { EyebrowProps } from "./types"
+import { Text } from '@chakra-ui/react'
+import type { EyebrowProps } from './types'
 
-export const Eyebrow = ({ color = "brand.600", ...props }: EyebrowProps) => (
+export const Eyebrow = ({ color = 'brand.600', ...props }: EyebrowProps) => (
   <Text
     fontSize="xs"
     fontWeight="semibold"

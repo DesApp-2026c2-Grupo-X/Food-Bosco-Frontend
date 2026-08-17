@@ -1,7 +1,7 @@
-import { Button, HStack, Text } from "@chakra-ui/react"
-import Minus from "@gravity-ui/icons/Minus"
-import Plus from "@gravity-ui/icons/Plus"
-import type { QuantityStepperProps } from "./types"
+import { Button, HStack, Text } from '@chakra-ui/react'
+import Minus from '@gravity-ui/icons/Minus'
+import Plus from '@gravity-ui/icons/Plus'
+import type { QuantityStepperProps } from './types'
 
 export const QuantityStepper = ({ value, onChange, min = 1, max = 99 }: QuantityStepperProps) => {
   return (
@@ -16,12 +16,7 @@ export const QuantityStepper = ({ value, onChange, min = 1, max = 99 }: Quantity
       >
         <Minus width={14} height={14} />
       </Button>
-      <Text
-        minWidth="6"
-        textAlign="center"
-        fontWeight="semibold"
-        fontVariantNumeric="tabular-nums"
-      >
+      <Text minWidth="6" textAlign="center" fontWeight="semibold" fontVariantNumeric="tabular-nums">
         {value}
       </Text>
       <Button

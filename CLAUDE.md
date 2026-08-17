@@ -31,14 +31,14 @@ src/
 
 ## Paquetes compartidos (`packages/`)
 
-| Paquete | Uso |
-|---|---|
-| `@repo/components` | Componentes UI genéricos + UI de dominio (Logo, EmptyState, OrderStatusBadge, ...). |
-| `@repo/domain` | Tipos y constantes de dominio (Order, Address, Product, ORDER_STATUS_LABELS, formatPrice, ...). TS puro. |
-| `@repo/api` | Capa de datos: hooks SWR + adaptador REST (GraphQL a futuro) + mocks. |
-| `@repo/theme` | Tokens semánticos de Chakra (`defineConfig` → `config`). |
-| `@repo/eslint-config` | Config ESLint compartida (`base`, `react-internal`). |
-| `@repo/typescript-config` | Config TypeScript compartida (`vite.json`, `react-library.json`, `base.json`). |
+| Paquete                   | Uso                                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `@repo/components`        | Componentes UI genéricos + UI de dominio (Logo, EmptyState, OrderStatusBadge, ...).                      |
+| `@repo/domain`            | Tipos y constantes de dominio (Order, Address, Product, ORDER_STATUS_LABELS, formatPrice, ...). TS puro. |
+| `@repo/api`               | Capa de datos: hooks SWR + adaptador REST (GraphQL a futuro) + mocks.                                    |
+| `@repo/theme`             | Tokens semánticos de Chakra (`defineConfig` → `config`).                                                 |
+| `@repo/eslint-config`     | Config ESLint compartida (`base`, `react-internal`).                                                     |
+| `@repo/typescript-config` | Config TypeScript compartida (`vite.json`, `react-library.json`, `base.json`).                           |
 
 ## Configuración de calidad
 

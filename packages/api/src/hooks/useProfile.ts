@@ -1,7 +1,7 @@
-import useSWR from "swr"
-import type { UpdateProfileInput, User } from "@repo/domain"
-import { getJson, patchJson } from "../client/rest"
-import { MOCK_USER } from "../mocks/user"
+import useSWR from 'swr'
+import type { UpdateProfileInput, User } from '@repo/domain'
+import { getJson, patchJson } from '../client/rest'
+import { MOCK_USER } from '../mocks/user'
 
 interface UseProfileReturn {
   user: User | undefined

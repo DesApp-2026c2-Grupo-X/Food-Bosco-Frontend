@@ -1,3 +1,3 @@
-import type { InputProps } from "@chakra-ui/react"
+import type { InputProps } from '@chakra-ui/react'
 
 export type SearchInputProps = InputProps

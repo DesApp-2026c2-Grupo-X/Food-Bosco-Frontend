@@ -82,26 +82,26 @@ Una app de delivery **cálida, vibrante y cercana**, como la comida recién hech
 
 Definida en `@repo/theme` (`packages/theme/src/config.ts`) como tokens semánticos de Chakra. Cada app consume ese `config` en `src/theme.ts` (`createSystem(defaultConfig, config)`).
 
-| Token | Claro | Oscuro | Uso |
-|---|---|---|---|
-| `bg` | `#FFFFFF` | `#000000` | Fondo de página (blanco puro en claro, **negro puro** en oscuro) |
-| `bg.panel` | `#FFFFFF` | `#0A0A0A` | Tarjetas, header, dock |
-| `bg.muted` | `#FFF1E5` | `#1A1A1A` | Fondo suave de inputs/cards destacados |
-| `bg.subtle` | `#FFF9F4` | `#121212` | Fondo secundario / secciones |
-| `fg` | `#1C1917` | `#F5F5F5` | Texto principal |
-| `fg.muted` | `#6B7280` | `#A1A1A1` | Texto secundario |
-| `fg.subtle` | `#9CA3AF` | `#737373` | Texto terciario |
-| `border.subtle` | `#FBE4D2` | `#262626` | Bordes finos |
-| `border.muted` | `#F6D6BE` | `#333333` | Bordes de separación |
-| `border.emphasized` | `#EBC2A2` | `#404040` | Bordes de énfasis |
-| `brand.500` | `#EA580C` | `#EA580C` | Elementos destacados, item activo |
-| `brand.600` | `#C2410C` | `#C2410C` | Botón primario |
-| `brand.700` | `#9A3412` | `#9A3412` | Hover / estados fuertes |
-| `accent.500` | `#F59E0B` | `#F59E0B` | Indicadores secundarios |
-| `success` | `#15803D` | `#4ADE80` | Confirmaciones / entregado |
-| `warning` | `#B45309` | `#FBBF24` | Pendiente |
-| `danger` | `#B91C1C` | `#F87171` | Errores / cancelado |
-| `info` | `#1D4ED8` | `#60A5FA` | Confirmado / en camino |
+| Token               | Claro     | Oscuro    | Uso                                                              |
+| ------------------- | --------- | --------- | ---------------------------------------------------------------- |
+| `bg`                | `#FFFFFF` | `#000000` | Fondo de página (blanco puro en claro, **negro puro** en oscuro) |
+| `bg.panel`          | `#FFFFFF` | `#0A0A0A` | Tarjetas, header, dock                                           |
+| `bg.muted`          | `#FFF1E5` | `#1A1A1A` | Fondo suave de inputs/cards destacados                           |
+| `bg.subtle`         | `#FFF9F4` | `#121212` | Fondo secundario / secciones                                     |
+| `fg`                | `#1C1917` | `#F5F5F5` | Texto principal                                                  |
+| `fg.muted`          | `#6B7280` | `#A1A1A1` | Texto secundario                                                 |
+| `fg.subtle`         | `#9CA3AF` | `#737373` | Texto terciario                                                  |
+| `border.subtle`     | `#FBE4D2` | `#262626` | Bordes finos                                                     |
+| `border.muted`      | `#F6D6BE` | `#333333` | Bordes de separación                                             |
+| `border.emphasized` | `#EBC2A2` | `#404040` | Bordes de énfasis                                                |
+| `brand.500`         | `#EA580C` | `#EA580C` | Elementos destacados, item activo                                |
+| `brand.600`         | `#C2410C` | `#C2410C` | Botón primario                                                   |
+| `brand.700`         | `#9A3412` | `#9A3412` | Hover / estados fuertes                                          |
+| `accent.500`        | `#F59E0B` | `#F59E0B` | Indicadores secundarios                                          |
+| `success`           | `#15803D` | `#4ADE80` | Confirmaciones / entregado                                       |
+| `warning`           | `#B45309` | `#FBBF24` | Pendiente                                                        |
+| `danger`            | `#B91C1C` | `#F87171` | Errores / cancelado                                              |
+| `info`              | `#1D4ED8` | `#60A5FA` | Confirmado / en camino                                           |
 
 **Reglas de color:**
 
@@ -155,15 +155,15 @@ Definida en `@repo/theme` (`packages/theme/src/config.ts`) como tokens semántic
 
 Traducción + apariencia compartidas entre store y admin. Usar `OrderStatusBadge` (color + punto + texto) y, en seguimiento, un timeline.
 
-| Estado | Etiqueta | Tratamiento |
-|---|---|---|
-| `PENDING` | Pendiente | `warning` |
-| `CONFIRMED` | Confirmado | `info` |
-| `PREPARING` | En preparación | `brand` (orange) |
-| `READY_FOR_DELIVERY` | Listo para entregar | `purple` |
-| `ON_THE_WAY` | En camino | `info` |
-| `DELIVERED` | Entregado | `success` |
-| `CANCELLED` | Cancelado | `danger` |
+| Estado               | Etiqueta            | Tratamiento      |
+| -------------------- | ------------------- | ---------------- |
+| `PENDING`            | Pendiente           | `warning`        |
+| `CONFIRMED`          | Confirmado          | `info`           |
+| `PREPARING`          | En preparación      | `brand` (orange) |
+| `READY_FOR_DELIVERY` | Listo para entregar | `purple`         |
+| `ON_THE_WAY`         | En camino           | `info`           |
+| `DELIVERED`          | Entregado           | `success`        |
+| `CANCELLED`          | Cancelado           | `danger`         |
 
 ### 5.7 Iconografía y flechas
 
@@ -200,16 +200,16 @@ Dos contenedores de página, unificados en `@repo/components`. **Ninguna página
 
 **Un mismo look = un mismo token.** No volver a componer Chakra a mano si existe el token.
 
-| Categoría | Tokens |
-|---|---|
-| Tipografía | `PageTitle`, `SectionTitle`, `Eyebrow`, `Lead`, `Strong`, `Muted`, `Subtle`, `Price`, `TextLink` |
-| Botones | `PrimaryButton`, `SecondaryButton`, `InverseButton`, `GhostButton`, `OutlineButton` |
+| Categoría   | Tokens                                                                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tipografía  | `PageTitle`, `SectionTitle`, `Eyebrow`, `Lead`, `Strong`, `Muted`, `Subtle`, `Price`, `TextLink`                                                        |
+| Botones     | `PrimaryButton`, `SecondaryButton`, `InverseButton`, `GhostButton`, `OutlineButton`                                                                     |
 | Formularios | `TextField`, `PasswordField`, `TextAreaField`, `PasswordInput`, `SearchInput` + `FormField`, `FormPasswordField`, `FormTextAreaField` (React Hook Form) |
-| Layout | `PageContainer`, `WidePageContainer`, `Footer`, `ResponsiveModal` (dialog + bottom-sheet), `SidePanel` |
-| Navegación | `MobileNav`, `ChipCarousel` |
-| Feedback | `EmptyState`, `SplashScreen` |
-| Dominio | `OrderStatusBadge`, `OrderTimeline` |
-| Base | `Logo`, `BackButton`, `ColorModeProvider`/`ColorModeButton`, `QuantityStepper`, `Chip`, `SectionHeader`, `RequireAuth` |
+| Layout      | `PageContainer`, `WidePageContainer`, `Footer`, `ResponsiveModal` (dialog + bottom-sheet), `SidePanel`                                                  |
+| Navegación  | `MobileNav`, `ChipCarousel`                                                                                                                             |
+| Feedback    | `EmptyState`, `SplashScreen`                                                                                                                            |
+| Dominio     | `OrderStatusBadge`, `OrderTimeline`                                                                                                                     |
+| Base        | `Logo`, `BackButton`, `ColorModeProvider`/`ColorModeButton`, `QuantityStepper`, `Chip`, `SectionHeader`, `RequireAuth`                                  |
 
 - **Botones** ya traen `size`/`radius`/colores; solo `children` + props semánticas (`asChild`, `type`, `disabled`, `loading`, `width`, `onClick`). No re-estilizar.
 - **Campos** (`TextField`/`PasswordField`/`TextAreaField`) ya traen `size="lg"`, `borderRadius="xl"`, `bg="bg.panel"` y el patrón de validación (`required` + `invalid` + `errorText`).
@@ -222,28 +222,28 @@ Dos contenedores de página, unificados en `@repo/components`. **Ninguna página
 
 ### 6.1 Apps
 
-| App | Puerto (dev) | Rol |
-|---|---|---|
-| `apps/auth` | 5175 | Autenticación (login/registro/recuperar). Tras el login redirige a `store` o `admin` según el `role` del auth API (`src/config.ts`, `VITE_STORE_URL`/`VITE_ADMIN_URL`). |
-| `apps/store` | 5173 | Cliente (catálogo, carrito, pedidos, perfil). |
-| `apps/admin` | 5174 | Administración (aún base). |
+| App          | Puerto (dev) | Rol                                                                                                                                                                     |
+| ------------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/auth`  | 5175         | Autenticación (login/registro/recuperar). Tras el login redirige a `store` o `admin` según el `role` del auth API (`src/config.ts`, `VITE_STORE_URL`/`VITE_ADMIN_URL`). |
+| `apps/store` | 5173         | Cliente (catálogo, carrito, pedidos, perfil).                                                                                                                           |
+| `apps/admin` | 5174         | Administración (aún base).                                                                                                                                              |
 
 ### 6.2 Rutas de la tienda (`apps/store/src/App.tsx`)
 
-| Ruta | Página |
-|---|---|
-| `/` | HomePage (storefront) |
-| `/catalogo` | CatalogPage (búsqueda + filtro por categoría via `?cat=<id>`) |
-| `/productos/:productId` | ProductDetailPage (configurador) |
-| `/carrito` | CartPage |
-| `/checkout` | CheckoutPage (carga de dirección + confirmación) |
-| `/sucursales` | SucursalesPage (lista, datos mock) |
-| `/pedidos` | OrdersPage (timeline + historial) |
-| `/pedidos/:orderId` | OrderDetailPage (detalle con mapa de seguimiento para activos) |
-| `/perfil` | ProfilePage |
-| `/perfil/editar` | EditProfilePage |
-| `/perfil/direcciones` | AddressesPage (CRUD de direcciones guardadas) |
-| `/login` / `/registro` / `/recuperar-contrasena` / `/restablecer-contrasena/:token` | páginas de auth |
+| Ruta                                                                                | Página                                                         |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `/`                                                                                 | HomePage (storefront)                                          |
+| `/catalogo`                                                                         | CatalogPage (búsqueda + filtro por categoría via `?cat=<id>`)  |
+| `/productos/:productId`                                                             | ProductDetailPage (configurador)                               |
+| `/carrito`                                                                          | CartPage                                                       |
+| `/checkout`                                                                         | CheckoutPage (carga de dirección + confirmación)               |
+| `/sucursales`                                                                       | SucursalesPage (lista, datos mock)                             |
+| `/pedidos`                                                                          | OrdersPage (timeline + historial)                              |
+| `/pedidos/:orderId`                                                                 | OrderDetailPage (detalle con mapa de seguimiento para activos) |
+| `/perfil`                                                                           | ProfilePage                                                    |
+| `/perfil/editar`                                                                    | EditProfilePage                                                |
+| `/perfil/direcciones`                                                               | AddressesPage (CRUD de direcciones guardadas)                  |
+| `/login` / `/registro` / `/recuperar-contrasena` / `/restablecer-contrasena/:token` | páginas de auth                                                |
 
 Las rutas de tienda están protegidas por el HOC `RequireAuth` (salvo las de auth). Por defecto exigen sesión; `?forceAuth=true` desactiva la protección (el flag se persiste y se forwardea entre la navegación), y `?forceAuth=false` la reactiva.
 
@@ -342,41 +342,41 @@ Aparece al cargar la app si no hay una dirección seleccionada; se reabre desde 
 
 ## 8. Medidas y tokens rápidos (cheat-sheet)
 
-| Decisión | Valor |
-|---|---|
-| Ancho máximo de contenido | `Container maxW="1200px"` |
-| Contenedores de página | `PageContainer` (`maxW="2xl"`) · `WidePageContainer` (full-width) |
-| Header height | `h="16"` (64px) |
-| Logo | `height="40px"` |
-| Radio — píldoras/botones/chips/nav activo | `full` |
-| Radio — inputs / opciones / cards chicas | `xl` |
-| Radio — cards | `2xl` |
-| Radio — hero / banner | `3xl` |
-| Glow ember | `blur(80–90px)`, `opacity(0.12–0.35)` |
-| Elevación (claro) | borde `border.subtle` + `boxShadow` suave (`sm`/`md`/`lg`) |
-| Elevación (oscuro) | solo bordes `border.*`, sin sombras |
-| Botón primario | `PrimaryButton` (bg `brand.600` blanco, píldora, hover `brand.700`) |
-| Nav activo | píldora `brand.500` / texto blanco |
-| Espaciado base | 4px, múltiplos |
-| Grilla productos | `SimpleGrid` base 2 / md 3 / lg 4, gap `3` → `5` |
-| Escala tipo | 2xs (nav/timeline) · xs (tags) · sm (secundario) · md/lg (título de card) · xl (valores) · 2xl–4xl (títulos) · 6xl (hero) |
+| Decisión                                  | Valor                                                                                                                     |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Ancho máximo de contenido                 | `Container maxW="1200px"`                                                                                                 |
+| Contenedores de página                    | `PageContainer` (`maxW="2xl"`) · `WidePageContainer` (full-width)                                                         |
+| Header height                             | `h="16"` (64px)                                                                                                           |
+| Logo                                      | `height="40px"`                                                                                                           |
+| Radio — píldoras/botones/chips/nav activo | `full`                                                                                                                    |
+| Radio — inputs / opciones / cards chicas  | `xl`                                                                                                                      |
+| Radio — cards                             | `2xl`                                                                                                                     |
+| Radio — hero / banner                     | `3xl`                                                                                                                     |
+| Glow ember                                | `blur(80–90px)`, `opacity(0.12–0.35)`                                                                                     |
+| Elevación (claro)                         | borde `border.subtle` + `boxShadow` suave (`sm`/`md`/`lg`)                                                                |
+| Elevación (oscuro)                        | solo bordes `border.*`, sin sombras                                                                                       |
+| Botón primario                            | `PrimaryButton` (bg `brand.600` blanco, píldora, hover `brand.700`)                                                       |
+| Nav activo                                | píldora `brand.500` / texto blanco                                                                                        |
+| Espaciado base                            | 4px, múltiplos                                                                                                            |
+| Grilla productos                          | `SimpleGrid` base 2 / md 3 / lg 4, gap `3` → `5`                                                                          |
+| Escala tipo                               | 2xs (nav/timeline) · xs (tags) · sm (secundario) · md/lg (título de card) · xl (valores) · 2xl–4xl (títulos) · 6xl (hero) |
 
 ---
 
 ## 9. Decisiones tomadas y su porqué
 
-| Decisión | Porqué |
-|---|---|
-| Footer solo desktop | En mobile el dock + contenido alcanzan; el footer es ruido y quita protagonismo. |
+| Decisión                                                              | Porqué                                                                                                                             |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Footer solo desktop                                                   | En mobile el dock + contenido alcanzan; el footer es ruido y quita protagonismo.                                                   |
 | Header mobile = logo + selector de dirección (solo Inicio y Catálogo) | Menos UI. Carrito va en el dock; el toggle dark va en Perfil. El selector de dirección es una acción contextual de descubrimiento. |
-| Toggle dark en Perfil (mobile) | No es una acción frecuente; disclosure progresivo. |
-| Dark = negro + grises (no marrón) | El marrón ensucia en oscuro; el "calor" lo aporta el naranja sobre negro. |
-| Chevrons simples (`Chevron*`) | Las flechas dobles (`ArrowChevron*`) se ven raras. |
-| Dirección cargada en checkout | Verdad de producto: la entrega es a la dirección del cliente. El selector persiste y precarga el checkout. |
-| Mock de respuestas | La API aún es stub; `SWR + fallback` mantiene el contrato y permite reemplazar por datos reales sin tocar la UI. |
-| Fotografía Unsplash art-directed | La imagen forma parte de la composición, no es un thumbnail decorativo. |
-| Menos cards | Estructura con tipografía, espacio y fondo antes que contenedores. |
-| Tokens de UI en `@repo/components` | Una sola identidad compartida entre apps; no repetir estilos a mano. |
+| Toggle dark en Perfil (mobile)                                        | No es una acción frecuente; disclosure progresivo.                                                                                 |
+| Dark = negro + grises (no marrón)                                     | El marrón ensucia en oscuro; el "calor" lo aporta el naranja sobre negro.                                                          |
+| Chevrons simples (`Chevron*`)                                         | Las flechas dobles (`ArrowChevron*`) se ven raras.                                                                                 |
+| Dirección cargada en checkout                                         | Verdad de producto: la entrega es a la dirección del cliente. El selector persiste y precarga el checkout.                         |
+| Mock de respuestas                                                    | La API aún es stub; `SWR + fallback` mantiene el contrato y permite reemplazar por datos reales sin tocar la UI.                   |
+| Fotografía Unsplash art-directed                                      | La imagen forma parte de la composición, no es un thumbnail decorativo.                                                            |
+| Menos cards                                                           | Estructura con tipografía, espacio y fondo antes que contenedores.                                                                 |
+| Tokens de UI en `@repo/components`                                    | Una sola identidad compartida entre apps; no repetir estilos a mano.                                                               |
 
 ---
 

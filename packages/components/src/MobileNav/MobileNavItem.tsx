@@ -1,6 +1,6 @@
-import { Badge, Box, Link as ChakraLink, Text } from "@chakra-ui/react"
-import { NavLink } from "react-router-dom"
-import type { MobileNavItem as MobileNavItemType } from "./types"
+import { Badge, Box, Link as ChakraLink, Text } from '@chakra-ui/react'
+import { NavLink } from 'react-router-dom'
+import type { MobileNavItem as MobileNavItemType } from './types'
 
 interface MobileNavItemProps {
   item: MobileNavItemType
@@ -23,12 +23,12 @@ export const MobileNavItem = ({ item, isActive }: MobileNavItemProps) => {
           paddingX="3.5"
           paddingY="2"
           borderRadius="full"
-          bg={isActive ? "brand.500" : "transparent"}
-          color={isActive ? "white" : "fg.muted"}
+          bg={isActive ? 'brand.500' : 'transparent'}
+          color={isActive ? 'white' : 'fg.muted'}
           transition="background-color 150ms, color 150ms"
         >
           <IconComponent width={20} height={20} />
-          <Text fontSize="2xs" fontWeight={isActive ? "semibold" : "medium"} lineHeight="1">
+          <Text fontSize="2xs" fontWeight={isActive ? 'semibold' : 'medium'} lineHeight="1">
             {label}
           </Text>
           {showBadge ? (
@@ -41,8 +41,8 @@ export const MobileNavItem = ({ item, isActive }: MobileNavItemProps) => {
               paddingX="1"
               borderRadius="full"
               fontSize="2xs"
-              bg={isActive ? "white" : "brand.500"}
-              color={isActive ? "brand.600" : "white"}
+              bg={isActive ? 'white' : 'brand.500'}
+              color={isActive ? 'brand.600' : 'white'}
               display="flex"
               alignItems="center"
               justifyContent="center"

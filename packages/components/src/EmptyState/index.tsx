@@ -1,5 +1,5 @@
-import { Box, Text, VStack } from "@chakra-ui/react"
-import type { EmptyStateProps } from "./types"
+import { Box, Text, VStack } from '@chakra-ui/react'
+import type { EmptyStateProps } from './types'
 
 export const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => {
   return (

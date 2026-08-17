@@ -5,7 +5,7 @@ export interface Category {
   active: boolean
 }
 
-export type ProductOptionType = "single" | "multiple"
+export type ProductOptionType = 'single' | 'multiple'
 
 export interface ProductOption {
   id: number

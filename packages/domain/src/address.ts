@@ -6,4 +6,4 @@ export interface Address {
   reference?: string
 }
 
-export type AddressInput = Omit<Address, "id">
+export type AddressInput = Omit<Address, 'id'>

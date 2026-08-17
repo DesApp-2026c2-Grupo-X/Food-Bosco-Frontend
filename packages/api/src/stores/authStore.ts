@@ -1,7 +1,7 @@
-import { create } from "zustand"
-import { createJSONStorage, persist } from "zustand/middleware"
-import type { RegisterInput, User, UserRole } from "@repo/domain"
-import { MOCK_USER } from "../mocks/user"
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import type { RegisterInput, User, UserRole } from '@repo/domain'
+import { MOCK_USER } from '../mocks/user'
 
 interface AuthState {
   user: User | null
@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       bypassAuth: false,
 
-      login: async (email, role = "client") => {
+      login: async (email, role = 'client') => {
         await delay(600)
         set({ user: { ...MOCK_USER, email, role } })
       },
@@ -31,7 +31,7 @@ export const useAuthStore = create<AuthState>()(
           user: {
             id: Date.now(),
             email: input.email,
-            role: "client",
+            role: 'client',
             firstName: input.firstName,
             lastName: input.lastName,
             phone: input.phone,
@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthState>()(
       setBypassAuth: (value) => set({ bypassAuth: value }),
     }),
     {
-      name: "store-auth",
+      name: 'store-auth',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ user: state.user, bypassAuth: state.bypassAuth }),
     },

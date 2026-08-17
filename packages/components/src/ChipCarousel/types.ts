@@ -1,4 +1,4 @@
-import type { FlexProps } from "@chakra-ui/react"
+import type { FlexProps } from '@chakra-ui/react'
 
 export interface ChipCarouselItem {
   id: string | number

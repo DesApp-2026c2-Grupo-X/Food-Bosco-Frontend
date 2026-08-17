@@ -1,3 +1,3 @@
-import type { StackProps } from "@chakra-ui/react"
+import type { StackProps } from '@chakra-ui/react'
 
 export type WidePageContainerProps = StackProps

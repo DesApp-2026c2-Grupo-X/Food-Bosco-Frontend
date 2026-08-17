@@ -1,11 +1,11 @@
 export type OrderStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "PREPARING"
-  | "READY_FOR_DELIVERY"
-  | "ON_THE_WAY"
-  | "DELIVERED"
-  | "CANCELLED"
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'PREPARING'
+  | 'READY_FOR_DELIVERY'
+  | 'ON_THE_WAY'
+  | 'DELIVERED'
+  | 'CANCELLED'
 
 export interface OrderItem {
   id: string

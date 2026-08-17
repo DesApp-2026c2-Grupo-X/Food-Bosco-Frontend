@@ -1,6 +1,6 @@
-import { Badge, Box } from "@chakra-ui/react"
-import { ORDER_STATUS_LABELS, ORDER_STATUS_PALETTE } from "@repo/domain"
-import type { OrderStatusBadgeProps } from "./types"
+import { Badge, Box } from '@chakra-ui/react'
+import { ORDER_STATUS_LABELS, ORDER_STATUS_PALETTE } from '@repo/domain'
+import type { OrderStatusBadgeProps } from './types'
 
 export const OrderStatusBadge = ({ status }: OrderStatusBadgeProps) => {
   return (

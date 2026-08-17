@@ -1,4 +1,4 @@
-import type { PasswordInputProps } from "../PasswordInput/types"
+import type { PasswordInputProps } from '../PasswordInput/types'
 
 export interface PasswordFieldProps extends PasswordInputProps {
   label: string

@@ -1,15 +1,15 @@
-import { IconButton } from "@chakra-ui/react"
-import Moon from "@gravity-ui/icons/Moon"
-import Sun from "@gravity-ui/icons/Sun"
-import { useColorMode } from "./hooks/useColorMode"
+import { IconButton } from '@chakra-ui/react'
+import Moon from '@gravity-ui/icons/Moon'
+import Sun from '@gravity-ui/icons/Sun'
+import { useColorMode } from './hooks/useColorMode'
 
 export const ColorModeButton = () => {
   const { colorMode, toggleColorMode } = useColorMode()
-  const isDark = colorMode === "dark"
+  const isDark = colorMode === 'dark'
 
   return (
     <IconButton
-      aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
       variant="ghost"
       onClick={toggleColorMode}
     >

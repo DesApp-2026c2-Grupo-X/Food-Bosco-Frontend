@@ -12,11 +12,11 @@ import {
   DrawerRoot,
   Portal,
   useMediaQuery,
-} from "@chakra-ui/react"
-import type { ResponsiveModalProps } from "./types"
+} from '@chakra-ui/react'
+import type { ResponsiveModalProps } from './types'
 
 export const ResponsiveModal = ({ open, onClose, children }: ResponsiveModalProps) => {
-  const [isDesktop] = useMediaQuery(["(min-width: 48em)"], { ssr: false })
+  const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
 
   if (isDesktop) {
     return (
