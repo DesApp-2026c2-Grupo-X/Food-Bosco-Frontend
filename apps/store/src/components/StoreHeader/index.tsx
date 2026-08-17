@@ -17,7 +17,13 @@ export const StoreHeader = ({ onOpenLocation }: StoreHeaderProps) => {
   const showMobileLocation = MOBILE_LOCATION_PATHS.includes(pathname)
 
   return (
-    <Box as="header" bg="bg" borderBottom="1px" borderColor="border.subtle">
+    <Box
+      as="header"
+      bg="bg"
+      borderBottom="1px"
+      borderColor="border.subtle"
+      pt="env(safe-area-inset-top)"
+    >
       <Container maxW="1200px">
         <Flex h="16" align="center" justify="space-between" gap="4">
           <ChakraLink asChild>

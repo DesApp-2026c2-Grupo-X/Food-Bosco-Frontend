@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Tienda</string>
-    <string name="title_activity_main">Tienda</string>
+    <string name="app_name">FoodBosco</string>
+    <string name="title_activity_main">FoodBosco</string>
     <string name="package_name">ar.unahur.desa.store</string>
     <string name="custom_url_scheme">ar.unahur.desa.store</string>
 </resources>

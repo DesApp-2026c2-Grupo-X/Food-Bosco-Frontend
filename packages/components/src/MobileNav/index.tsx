@@ -12,7 +12,7 @@ export const MobileNav = ({ items, ariaLabel = 'Navegación principal' }: Mobile
   return (
     <Box
       position="fixed"
-      bottom="4"
+      bottom="6"
       left="0"
       right="0"
       display={{ base: 'flex', md: 'none' }}

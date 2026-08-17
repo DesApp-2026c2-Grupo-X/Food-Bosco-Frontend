@@ -52,8 +52,8 @@ export const AuthLayout = ({ image, leading }: AuthLayoutProps) => {
         alignItems="center"
         justifyContent={{ base: 'flex-start', md: 'center' }}
         paddingX="5"
-        paddingTop={{ base: '4', md: '8' }}
-        paddingBottom={{ base: 'calc(env(safe-area-inset-bottom) + 1.5rem)', md: '8' }}
+        paddingTop={{ base: 'calc(env(safe-area-inset-top) + 1rem)', md: '8' }}
+        paddingBottom={{ base: '8', md: '8' }}
       >
         <Box width="full" maxW="sm">
           {leading ? (

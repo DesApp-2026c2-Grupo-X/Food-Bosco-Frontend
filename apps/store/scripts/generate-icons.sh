@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Genera launcher icons y splash desde assets/icon.png.
+# Genera launcher icons y splash desde assets/icon.png (Android + iOS).
 # Requiere ImageMagick (magick).
 
 cd "$(dirname "$0")/.."
 
 SRC="assets/icon.png"
 RES="android/app/src/main/res"
+IOS="ios/App/App/Assets.xcassets"
+
+[ -f "$SRC" ] || { echo "❌ No existe $SRC" >&2; exit 1; }
 
 for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
   case $d in
@@ -34,4 +37,15 @@ done
 
 magick -size 720x1280 xc:white \( "$SRC" -resize 240x240 \) -gravity center -composite "$RES/drawable/splash.png"
 
-echo "✅ launcher icons + splash generados"
+# --- iOS ---------------------------------------------------------------------
+# App icon (1024x1024, sin alpha → fondo blanco). iOS rechaza transparencia.
+ICON="$IOS/AppIcon.appiconset/AppIcon-512@2x.png"
+magick "$SRC" -resize 1024x1024 -background white -alpha remove -alpha off "$ICON"
+
+# Splash (blanco + logo centrado, cubre todas las variantes 1x/2x/3x)
+SPLASH_SZ=700
+for f in "$IOS"/Splash.imageset/splash-2732x2732.png "$IOS"/Splash.imageset/splash-2732x2732-1.png "$IOS"/Splash.imageset/splash-2732x2732-2.png; do
+  magick -size 2732x2732 xc:white \( "$SRC" -resize "${SPLASH_SZ}x${SPLASH_SZ}" \) -gravity center -composite "$f"
+done
+
+echo "✅ launcher icons + splash generados (Android + iOS)"
