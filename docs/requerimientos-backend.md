@@ -3,10 +3,10 @@
 **Proyecto:** Plataforma de pedidos para una cadena de comidas rápidas
 **Documento:** requerimientos funcionales y no funcionales del backend
 **Arquitectura:** 3 servicios + Apollo Gateway (GraphQL Federation) + MongoDB
-**Fuente de verdad funcional:** `client/docs/requerimientos-funcionales.md`
+**Fuente de verdad funcional:** `docs/requerimientos-funcionales.md`
 **Versión:** 2.0
 
-> Este documento define el alcance del **backend** como un conjunto de **3 servicios** detrás de un **Apollo Gateway** (Apollo Federation), expuesto directamente a los cinco frontends. Cada servicio es dueño de sus dominios y de sus **colecciones** dentro de una única base **MongoDB** (`fastfood`). La propuesta de arquitectura está en `plan/backend-microservicios-propuesta.md`.
+> Este documento define el alcance del **backend** como un conjunto de **3 servicios** detrás de un **Apollo Gateway** (Apollo Federation), expuesto directamente a los cinco frontends. Cada servicio es dueño de sus dominios y de sus **colecciones** dentro de una única base **MongoDB** (`fastfood`).
 
 ---
 

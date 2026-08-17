@@ -24,6 +24,7 @@ import { SectionHeader } from '@repo/components'
 import { routes } from '../../routes'
 import { useCatalog } from '@repo/api'
 import { useProfile } from '@repo/api'
+import { useAddressStore } from '../../stores/addressStore'
 
 const STEPS = [
   { icon: LayoutCells, title: 'Elegí', text: 'Explorá el catálogo y encontrá tu antojo.' },
@@ -33,52 +34,13 @@ const STEPS = [
 
 export const HomePage = () => {
   const { user } = useProfile()
-  const { categories, products } = useCatalog()
-  const navigate = useNavigate()
-
-  const featured = products.slice(0, 8)
+  const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
 
   return (
     <WidePageContainer>
       <Hero userFirstName={user?.firstName} />
 
-      <Box>
-        <SectionHeader
-          label="Catálogo"
-          title="Explorá por categoría"
-          action={
-            <TextLink to={routes.catalog} fontSize="sm">
-              Ver todo
-            </TextLink>
-          }
-        />
-        <ChipCarousel
-          marginTop="4"
-          items={categories.map((category) => ({
-            id: category.id,
-            label: category.name,
-            active: false,
-            onClick: () => navigate(`${routes.catalog}?cat=${category.id}`),
-          }))}
-        />
-      </Box>
-
-      <Box>
-        <SectionHeader
-          label="Destacados"
-          title="Los más pedidos"
-          action={
-            <TextLink to={routes.catalog} fontSize="sm">
-              Ver todo el catálogo
-            </TextLink>
-          }
-        />
-        <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gap={{ base: '3', md: '5' }} marginTop="6">
-          {featured.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </SimpleGrid>
-      </Box>
+      {selectedAddressId != null ? <HomeCatalog /> : null}
 
       <DeliveryBanner />
 
@@ -121,6 +83,54 @@ export const HomePage = () => {
         ]}
       />
     </WidePageContainer>
+  )
+}
+
+const HomeCatalog = () => {
+  const { categories, products } = useCatalog()
+  const navigate = useNavigate()
+  const featured = products.slice(0, 8)
+
+  return (
+    <>
+      <Box>
+        <SectionHeader
+          label="Catálogo"
+          title="Explorá por categoría"
+          action={
+            <TextLink to={routes.catalog} fontSize="sm">
+              Ver todo
+            </TextLink>
+          }
+        />
+        <ChipCarousel
+          marginTop="4"
+          items={categories.map((category) => ({
+            id: category.id,
+            label: category.name,
+            active: false,
+            onClick: () => navigate(`${routes.catalog}?cat=${category.id}`),
+          }))}
+        />
+      </Box>
+
+      <Box>
+        <SectionHeader
+          label="Destacados"
+          title="Los más pedidos"
+          action={
+            <TextLink to={routes.catalog} fontSize="sm">
+              Ver todo el catálogo
+            </TextLink>
+          }
+        />
+        <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gap={{ base: '3', md: '5' }} marginTop="6">
+          {featured.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </SimpleGrid>
+      </Box>
+    </>
   )
 }
 

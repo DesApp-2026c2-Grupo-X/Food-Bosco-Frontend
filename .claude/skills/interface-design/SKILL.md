@@ -3,7 +3,7 @@ name: interface-design
 description: Craft-first interface design for dashboards, admin panels, SaaS apps, tools, settings pages, data interfaces, and interactive products. Use when designing, building, reviewing, auditing, or refining product UI where visual craft, layout hierarchy, tokens, states, visual direction, or design-system consistency matter. Not for marketing pages, landing pages, campaigns, or brand-only work.
 ---
 
-> ⚠️ **Skill orientativo.** La fuente de verdad de diseño de este proyecto es `client/docs/ui-manifesto.md`. Ante cualquier conflicto, gana el manifesto.
+> ⚠️ **Skill orientativo.** La fuente de verdad de diseño de este proyecto es `docs/ui-manifesto.md`. Ante cualquier conflicto, gana el manifesto.
 
 
 # Interface Design

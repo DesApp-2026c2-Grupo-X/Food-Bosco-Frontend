@@ -15,22 +15,27 @@ import {
 } from '@chakra-ui/react'
 import type { ResponsiveModalProps } from './types'
 
-export const ResponsiveModal = ({ open, onClose, children }: ResponsiveModalProps) => {
+export const ResponsiveModal = ({
+  open,
+  onClose,
+  children,
+  closable = true,
+}: ResponsiveModalProps) => {
   const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
+
+  const handleOpenChange = (details: { open: boolean }) => {
+    if (!details.open && closable) onClose()
+  }
 
   if (isDesktop) {
     return (
-      <DialogRoot
-        open={open}
-        onOpenChange={(details) => !details.open && onClose()}
-        placement="center"
-      >
+      <DialogRoot open={open} onOpenChange={handleOpenChange} placement="center">
         <Portal>
           <DialogBackdrop />
           <DialogPositioner>
             <DialogContent borderRadius="3xl" maxW="md">
               <Box padding="6">{children}</Box>
-              <DialogCloseTrigger />
+              {closable ? <DialogCloseTrigger /> : null}
             </DialogContent>
           </DialogPositioner>
         </Portal>
@@ -39,11 +44,7 @@ export const ResponsiveModal = ({ open, onClose, children }: ResponsiveModalProp
   }
 
   return (
-    <DrawerRoot
-      open={open}
-      onOpenChange={(details) => !details.open && onClose()}
-      placement="bottom"
-    >
+    <DrawerRoot open={open} onOpenChange={handleOpenChange} placement="bottom">
       <Portal>
         <DrawerBackdrop />
         <DrawerPositioner>
@@ -65,7 +66,7 @@ export const ResponsiveModal = ({ open, onClose, children }: ResponsiveModalProp
             <Box padding="6" paddingTop="4">
               {children}
             </Box>
-            <DrawerCloseTrigger />
+            {closable ? <DrawerCloseTrigger /> : null}
           </DrawerContent>
         </DrawerPositioner>
       </Portal>

@@ -4,7 +4,7 @@
 > **Actualizado:** agosto 2026.
 > **Alcance:** estado completo de la app de tienda (store), cómo está armada, qué es mock vs. real, y el mapa para conectar la API real y desarrollar la app de administración.
 >
-> Fuentes de verdad del proyecto: `plan/api/base.md` (espec funcional), `plan/api/avance.md` (avance backend), `client/docs/ui-manifesto.md` (identidad visual + sistema), `client/docs/requerimientos-funcionales.md` (espec funcional frontend), `plan/division-de-tareas.md` (reparto de trabajo).
+> Fuentes de verdad del proyecto: `docs/requerimientos-backend.md` (espec backend), `docs/ui-manifesto.md` (identidad visual + sistema), `docs/requerimientos-funcionales.md` (espec funcional frontend).
 
 ---
 
@@ -328,7 +328,7 @@ URLs usadas hoy: `useCatalog` → `/api/catalog`; `useProduct` → `/api/product
 
 ### 9.1 Estado del backend (`api/`)
 
-Según `plan/api/avance.md` + relevamiento de código:
+Según el relevamiento de código:
 
 - **Listo:** capas (`config`, `controller`, `dto`, `exception`, `service`, `model`, `repository`, `module`), patrón **Controller → Orchestrator → Service → Repository**, repositorios en memoria, modelos = interfaces del DER, DTOs, y todos los endpoints (controllers).
 - **Pendiente:** lógica de negocio (servicios/orchestrators = stubs que devuelven `null`/`[]`), ORM/BD real, JWT/guards/roles, seed del admin inicial, tests de negocio.
@@ -391,7 +391,7 @@ Según `plan/api/avance.md` + relevamiento de código:
 Hoy es un placeholder. Al desarrollarlo:
 
 - **Reutilizable del store:** el tema Chakra "Calor" (`theme.ts` es copiable), componentes base (`Logo`, `PasswordInput`, `BackButton`, `EmptyState`), y el patrón de auth (mismo JWT, rol `admin`). Considerar mover a un paquete compartido (`client/packages/`).
-- **Pantallas a construir** (según `plan/api/base.md` y `division-de-tareas.md`):
+- **Pantallas a construir** (según `docs/requerimientos-backend.md`):
   - ABM categorías, productos + configuraciones, sucursales + horarios, stock, promociones, administradores.
   - Gestión de pedidos: consultar y **cambiar estado** (respetando la máquina de estados) — endpoint `admin/orders`.
   - Reportes: más/menos vendidos, sin stock, mayor facturación — `admin/reports`.

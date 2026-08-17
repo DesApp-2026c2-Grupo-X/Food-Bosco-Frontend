@@ -40,7 +40,7 @@ export const StoreLayout = () => {
         <Outlet />
       </Container>
       <MobileStoreNavigation />
-      <AddressPickerModal open={open} onClose={onClose} />
+      <AddressPickerModal open={open} onClose={onClose} closable={selectedAddressId != null} />
     </Box>
   )
 }

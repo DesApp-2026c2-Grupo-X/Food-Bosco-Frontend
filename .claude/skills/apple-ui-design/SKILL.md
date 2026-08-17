@@ -3,7 +3,7 @@ name: apple-ui-design
 description: Apple-inspired clean, minimal, premium UI design. Use when building modern interfaces requiring exceptional UX, clean aesthetics, or Apple-like polish. Triggers on: clean UI, modern design, Apple style, minimal, premium, user-friendly, UX.
 ---
 
-> ⚠️ **Skill orientativo.** La fuente de verdad de diseño de este proyecto es `client/docs/ui-manifesto.md`. Ante cualquier conflicto, gana el manifesto.
+> ⚠️ **Skill orientativo.** La fuente de verdad de diseño de este proyecto es `docs/ui-manifesto.md`. Ante cualquier conflicto, gana el manifesto.
 
 
 # Apple UI Design
