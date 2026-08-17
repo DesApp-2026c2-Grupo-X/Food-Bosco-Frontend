@@ -1,83 +1,75 @@
-# API — Plataforma de pedidos
+# CLAUDE.md — Frontend (client)
 
-Backend NestJS de la plataforma de pedidos. **Arquitectura multicapa**: cada capa es una carpeta global dentro de `src/`, con los archivos de los distintos dominios dentro de cada capa.
+Monorepo de las aplicaciones de frontend de la plataforma de pedidos (Turborepo).
 
-## Skills disponibles
+## Aplicaciones
 
-Las reglas y patrones obligatorios de este proyecto viven en skills. **Toda tarea de API debe aplicar la skill correspondiente antes de escribir o revisar código.**
-
-| Skill                                              | Cuándo usarla                                                                                                                         |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `.claude/skills/orchestrator-layered-architecture` | Cualquier caso de uso: estructura de capas, cuándo usar orchestrator, regla de servicios primarios aislados.                          |
-| `.claude/skills/domain-patterns`                   | Confirmación de pedidos, asignación de sucursal, estados de pedido, ETA, snapshot de detalle, promociones/stock como datos generales. |
-| `.claude/skills/high-quality-tests`                | Cualquier test nuevo o modificación de lógica: tests parametrizados, casos límite, matriz de transiciones, aislamiento.               |
-| `.claude/skills/modern-code-quality`               | Todo archivo fuente: ES6+, funciones flecha, código moderno, orientación a objetos.                                                   |
-
-## Estructura por capas
-
-```text
-api/
-├── src/
-│   ├── config/       # constantes, guards, decorators, interfaces globales
-│   ├── controller/   # controllers por dominio (auth.controller.ts, order.controller.ts, ...)
-│   ├── dto/          # DTOs por dominio
-│   ├── exception/    # excepciones de dominio
-│   ├── service/      # servicios primarios + orchestrators por dominio
-│   ├── model/        # modelos/entidades del dominio (interfaces del DER)
-│   ├── repository/   # repositorios por dominio (uno por tabla del DER)
-│   └── module/       # módulos @Module de NestJS por dominio (auth.module.ts, ...)
-├── test/
-└── .claude/
-    ├── CLAUDE.md
-    ├── AGENTS.md
-    └── skills/
-```
-
-## Regla de oro
-
-> **Un servicio primario nunca llama a otro servicio primario. La coordinación pertenece al orchestrator.**
-
-Flujo dentro de cada capa: `controller/` → `service/` (orchestrator o servicio primario) → `repository/` → base de datos.
+- `apps/store` — Aplicación cliente (Vite + React + Chakra UI) — puerto 5173.
+- `apps/admin` — Aplicación administrativa (Vite + React + Chakra UI) — puerto 5174.
 
 ## Stack
 
-- NestJS 11, TypeScript.
-- La API corre en `PORT` (por defecto `3000`).
-- Scripts: `npm run start:dev`, `npm run lint`, `npm run test`, `npm run test:e2e`.
+- Vite + React + TypeScript.
+- Chakra UI v3 para componentes.
+- SWR para fetching de datos.
+- Zustand para estado global.
+- React Router para navegación.
+
+## Estructura de cada app
+
+```text
+src/
+├── components/   # ComponentName/index.tsx + types.ts + hooks/ + utils/
+├── layouts/      # layouts que componen la app (StoreLayout, AdminLayout)
+├── pages/
+├── hooks/
+├── stores/       # estado global con Zustand
+├── hoc/
+├── types/
+└── utils/
+```
+
+## Paquetes compartidos (`packages/`)
+
+| Paquete | Uso |
+|---|---|
+| `@repo/components` | Componentes UI genéricos + UI de dominio (Logo, EmptyState, OrderStatusBadge, ...). |
+| `@repo/domain` | Tipos y constantes de dominio (Order, Address, Product, ORDER_STATUS_LABELS, formatPrice, ...). TS puro. |
+| `@repo/api` | Capa de datos: hooks SWR + adaptador REST (GraphQL a futuro) + mocks. |
+| `@repo/theme` | Tokens semánticos de Chakra (`defineConfig` → `config`). |
+| `@repo/eslint-config` | Config ESLint compartida (`base`, `react-internal`). |
+| `@repo/typescript-config` | Config TypeScript compartida (`vite.json`, `react-library.json`, `base.json`). |
+
+## Configuración de calidad
+
+- ESLint compartido en `packages/eslint-config` (flat config, reglas para Vite + React).
+- TypeScript compartido en `packages/typescript-config` (`vite.json`, `vite-node.json`).
+- Prettier: `.prettierrc.json` (sin punto y coma, single quotes).
+- Husky (global en la raíz del repo): lint en commit, build + lint en push.
+
+## Comandos
+
+```sh
+npm run dev          # corre todas las apps
+npm run dev -- --filter=@repo/store
+npm run dev -- --filter=@repo/admin
+npm run build        # build de todas las apps
+npm run lint         # eslint de todas las apps
+npm run check-types  # tsc -b
+npm run format       # prettier --write
+```
+
+## Reglas
+
+- Consumir la API desde `/api` (proxy de Vite apunta al backend).
+- No crear archivos en `agent-local/` (carpeta local del agente, no se pushea).
+- Seguir la especificación de `plan/api/base.md`.
+- **Diseño:** leer `client/docs/ui-manifesto.md` antes de tocar UI. Define la dirección visual ("Calor"), paleta, tipografía, geometría y patrones de componentes. Es la fuente de verdad visual.
+- Leer la skill `frontend-components` en `.claude/skills/` antes de crear o modificar componentes (estructura, named exports, SOC, Chakra siempre, Zustand, layouts).
+- Skills de diseño: `interface-design`, `better-ui` e `impeccable` en `.claude/skills/`.
+- **Tema:** los tokens semánticos viven en `@repo/theme` (`packages/theme/src/config.ts`); cada app los consume en `src/theme.ts` con `createSystem(defaultConfig, config)`. Nunca hex sueltos en el markup; usar `bg`, `fg`, `brand.*`, `border.*`.
+- **Datos:** consumir los hooks de `@repo/api` (`useCatalog`, `useProfile`, `useOrder`, ...) en lugar de `fetch` directo. Los tipos de dominio van en `@repo/domain`.
 
 ## Pull Requests
 
-Al abrir un PR a `develop`, usar la plantilla `.github/PULL_REQUEST_TEMPLATE.md`:
-
-## Qué hace este PR
-
-<!-- Resumen breve de los cambios y por qué se hacen. -->
-
-## Tipo de cambio
-
-- [ ] Feature nueva
-- [ ] Bug fix
-- [ ] Refactor
-- [ ] Docs
-- [ ] Config / tooling
-- [ ] Otra
-
-## Checklist
-
-- [ ] `npm run lint` pasa en api y client (se corre solo en commit/push)
-- [ ] `npm run build` compila api y client
-- [ ] Agregué/actualicé tests cuando corresponde
-- [ ] Seguí las skills de `api/.claude/skills/` (arquitectura, tests, calidad)
-- [ ] Actualicé la documentación si cambió algo relevante
-
-## Cómo probar
-
-<!-- Pasos para probar el cambio (levantar api, client, endpoints, etc.). -->
-
-## Screenshots / evidencia
-
-<!-- Si aplica. -->
-
-## Links
-
-<!-- Issue(s) relacionadas, docs, etc. -->
+Al abrir un PR a `develop`, usar la plantilla `.github/PULL_REQUEST_TEMPLATE.md`

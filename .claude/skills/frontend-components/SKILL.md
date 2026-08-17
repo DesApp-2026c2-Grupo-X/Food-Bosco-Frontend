@@ -57,10 +57,31 @@ Reglas:
 - **Nada se renderiza suelto dentro del router**: el router monta layouts, y los layouts componen header/footer/nav y un `<Outlet />`.
 - Las páginas viven en `src/pages/` y se montan como rutas dentro del layout.
 
-## Componentes en ambas apps
+## Componentes compartidos (`packages/*`)
 
-- Un componente (ej. `Logo`) puede existir en **store y admin**.
-- Diseñar los componentes sin acoplarlos a una app específica; mover a un paquete compartido solo cuando se necesite en ambas.
+Los componentes, tipos, datos y tokens que van a compartir más de una app (store, admin, rider) viven en paquetes bajo `packages/`:
+
+| Paquete | Contenido | Ejemplos |
+|---|---|---|
+| `@repo/components` | Componentes UI genéricos + UI de dominio | `Logo`, `ColorModeProvider`, `EmptyState`, `OrderStatusBadge`, `OrderTimeline`, `RequireAuth`, `MobileNav`, `Footer`, `PrimaryButton`/`SecondaryButton`, `Lead`, `ResponsiveModal`, `PageTitle`, `SectionTitle`, `Eyebrow`, `Strong`, `Price`, `Muted` |
+| `@repo/domain` | Tipos y constantes de dominio (TS puro, sin React) | `Order`, `OrderStatus`, `Address`, `Product`, `LoginInput`, `ORDER_STATUS_LABELS`, `formatPrice` |
+| `@repo/api` | Capa de datos: hooks + adaptador (REST hoy, GraphQL mañana) + mocks + sesión | `useCatalog`, `useProfile`, `useOrder`, `useAuthStore`, `MOCK_ORDERS` |
+| `@repo/theme` | Tokens semánticos de Chakra (`defineConfig`) | `config` |
+
+Reglas:
+
+- **Mover a `@repo/components` cuando el componente lo necesite más de una app.** Los componentes específicos de una sola app (ej. `ProductCard`, `StoreHeader`, `CartDrawer`) se quedan en `apps/*/src/components/`.
+- Los componentes compartidos **no importan `@repo/theme`**: usan tokens por string (`"brand.500"`, `"bg.muted"`) que resuelve el `system` de cada app en runtime.
+- **Excepción a la regla de "no re-exports":** un paquete sí tiene un barrel público (`packages/*/src/index.ts`) porque es su API de consumidor. Dentro de las apps y de los paquetes se sigue importando desde la ruta directa.
+- Los consumidores importan desde el barrel: `import { Logo } from "@repo/components"`.
+- **Assets de marca (logo) viven en cada app** (`apps/*/src/assets/`), no en el paquete: `Logo` recibe `lightSrc`/`darkSrc` como props. Evita que tsup rompa los imports de assets.
+- **Un mismo look = un mismo componente (tokenizar, no repetir):** antes de componer Chakra a mano, usar los tokens:
+  - Títulos: `PageTitle` (h1 de página), `SectionTitle` (h2 de sección).
+  - Texto: `Eyebrow` (overline uppercase), `Lead` (párrafo lead), `Strong` (semibold), `Muted` (fg.muted), `Subtle` (fg.subtle), `Price` (semibold + tabular-nums), `TextLink` (enlace brand.600).
+  - Formularios: `TextField` / `PasswordField` / `TextAreaField` (presentacionales, con `label` + `invalid` + `errorText`) y `FormField` / `FormPasswordField` / `FormTextAreaField` (integrados con React Hook Form + Zod). **Validación siempre con RHF + `zodResolver` + schemas de `@repo/domain`**, nunca `useState` a mano. Patrón: `useForm` en el hook, `FormProvider` + `FormField` en la página, `form.handleSubmit(onValid)` como `onSubmit`.
+  - Botones: `PrimaryButton` / `SecondaryButton` / `InverseButton` (blanco sobre brand) / `GhostButton` (ghost, color por prop) / `OutlineButton` (outline sutil) — **ya traen `size` (default `lg` en primary/secondary/inverse), `radius` y colores; no volver a personalizarlos**. Solo `children` + props semánticas (`asChild`, `type`, `disabled`, `loading`, `width`, `onClick`, `size`/`color` si hace falta).
+  - Layout: `PageContainer` (angosto `2xl`, formularios/detalle) / `WidePageContainer` (full-width, listados) — **toda página usa uno de estos como raíz**, `Footer`, `ResponsiveModal` (Dialog en desktop, bottom-sheet en mobile), `SidePanel` (panel lateral), `ChipCarousel` (fila de chips con scroll horizontal).
+- Los paquetes se compilan con `tsup`; consumir desde `dist/` (no desde `src/`).
 
 ## Dark mode
 
@@ -69,6 +90,7 @@ Reglas:
 
 ## Tema global (ambos frontends)
 
-- **Fuente**: Outfit desde Google Fonts (link en `index.html` de cada app) y configurada en `src/theme.ts` (tokens `fonts.heading` y `fonts.body`).
-- **Fondo**: en modo claro el fondo es `#fff` siempre. Usar el token semántico `bg` (blanco en claro, oscuro en dark), nunca `bg.subtle` para fondos de página.
-- El `system` de Chakra customizado vive en `src/theme.ts` (fuente + `globalCss`) y se pasa a `<ChakraProvider value={system}>`.
+- **Fuente**: Outfit desde Google Fonts (link en `index.html` de cada app). Los tokens (`fonts.heading`, `fonts.body`, `brand.*`, `bg.*`, `fg.*`, `border.*`) viven en `@repo/theme` (`packages/theme/src/config.ts`).
+- Cada app crea su `system` en `src/theme.ts` con `createSystem(defaultConfig, config)` usando el `config` de `@repo/theme`. No duplicar tokens en las apps.
+- **Fondo**: en modo claro el fondo es `#fff` siempre. Usar el token semántico `bg` (blanco en claro, negro en dark), nunca `bg.subtle` para fondos de página.
+- El `system` se pasa a `<ChakraProvider value={system}>`.
