@@ -13,3 +13,13 @@ export const patchJson = async <T>(url: string, body: unknown): Promise<T | null
   if (!res || !res.ok) return null
   return res.json().catch(() => null)
 }
+
+export const postJson = async <T>(url: string, body: unknown): Promise<T | null> => {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).catch(() => null)
+  if (!res || !res.ok) return null
+  return res.json().catch(() => null)
+}

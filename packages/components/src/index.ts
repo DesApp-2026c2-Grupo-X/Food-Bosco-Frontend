@@ -104,3 +104,15 @@ export type { ResponsiveModalProps } from './ResponsiveModal/types'
 
 export { SidePanel } from './SidePanel'
 export type { SidePanelProps } from './SidePanel/types'
+
+export { DataTable } from './DataTable'
+export type { DataTableProps, DataTableColumn } from './DataTable/types'
+
+export { ToggleSwitch } from './ToggleSwitch'
+export type { ToggleSwitchProps } from './ToggleSwitch/types'
+
+export { SelectField } from './SelectField'
+export type { SelectFieldProps, SelectFieldOption } from './SelectField/types'
+
+export { FilterBar } from './FilterBar'
+export type { FilterBarProps } from './FilterBar/types'

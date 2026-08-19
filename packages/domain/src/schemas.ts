@@ -66,3 +66,15 @@ export const profileSchema = z.object({
   lastName: nameSchema,
   phone: phoneSchema,
 })
+
+export const adjustStockSchema = z.object({
+  delta: z
+    .string()
+    .trim()
+    .min(1, 'Ingresá una cantidad')
+    .regex(/^-?\d+$/, 'Ingresá un número entero')
+    .refine((value) => Number(value) !== 0, 'La cantidad no puede ser 0'),
+  reason: z.string().trim().optional(),
+})
+
+export type AdjustStockForm = z.infer<typeof adjustStockSchema>
