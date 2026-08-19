@@ -5,19 +5,50 @@ import GeoPin from '@gravity-ui/icons/GeoPin'
 import Plus from '@gravity-ui/icons/Plus'
 import { GhostButton, Muted, Strong, Subtle } from '@repo/components'
 import { AddressForm } from './AddressForm'
+import { AddressMapPreview } from './AddressMapPreview'
 import type { UseAddressPickerReturn } from './hooks/useAddressPicker'
 
 type AddressPickerContentProps = UseAddressPickerReturn
 
 export const AddressPickerContent = (props: AddressPickerContentProps) => {
-  const { addresses, showForm, form, handleSelect, handleAdd, openForm, closeForm } = props
+  const {
+    addresses,
+    step,
+    form,
+    pending,
+    submitting,
+    error,
+    handleSelect,
+    handleSubmitForm,
+    handleConfirm,
+    openForm,
+    backToForm,
+    backToList,
+  } = props
 
   const hasSavedAddresses = addresses.length > 0
+
+  const title =
+    step === 'form'
+      ? 'Cargá tu dirección'
+      : step === 'confirm'
+        ? '¿Es esta tu dirección?'
+        : '¿A dónde te lo llevamos?'
+
+  const description =
+    step === 'form'
+      ? 'Necesitamos tu dirección para mostrarte qué productos llegan a tu zona.'
+      : step === 'confirm'
+        ? 'Confirmá que el punto en el mapa coincida con la realidad.'
+        : 'Elegí una dirección para ver qué productos están disponibles en tu zona.'
+
+  const showBack = step !== 'list' && hasSavedAddresses
+  const onBack = step === 'confirm' ? backToForm : backToList
 
   return (
     <Box>
       <VStack align="start" gap="1" marginBottom="5">
-        {showForm && hasSavedAddresses ? (
+        {showBack ? (
           <GhostButton
             size="sm"
             width="11"
@@ -29,7 +60,7 @@ export const AddressPickerContent = (props: AddressPickerContentProps) => {
             _hover={{ color: 'brand.700', bg: 'bg.muted' }}
             marginBottom="1"
             aria-label="Volver"
-            onClick={closeForm}
+            onClick={onBack}
           >
             <ChevronLeft width={22} height={22} />
           </GhostButton>
@@ -49,17 +80,26 @@ export const AddressPickerContent = (props: AddressPickerContentProps) => {
           </Box>
         )}
         <Heading as="h2" fontSize="xl" fontWeight="bold">
-          {showForm ? 'Cargá tu dirección' : '¿A dónde te lo llevamos?'}
+          {title}
         </Heading>
-        <Muted fontSize="sm">
-          {showForm
-            ? 'Necesitamos tu dirección para mostrarte qué productos llegan a tu zona.'
-            : 'Elegí una dirección para ver qué productos están disponibles en tu zona.'}
-        </Muted>
+        <Muted fontSize="sm">{description}</Muted>
       </VStack>
 
-      {showForm ? (
-        <AddressForm form={form} onSubmit={handleAdd} />
+      {step === 'form' ? (
+        <AddressForm
+          form={form}
+          submitting={submitting}
+          error={error}
+          onSubmit={handleSubmitForm}
+        />
+      ) : step === 'confirm' && pending ? (
+        <AddressMapPreview
+          input={pending}
+          submitting={submitting}
+          error={error}
+          onConfirm={handleConfirm}
+          onBack={backToForm}
+        />
       ) : (
         <VStack gap="2" align="stretch">
           {addresses.map((address) => (
@@ -81,7 +121,7 @@ export const AddressPickerContent = (props: AddressPickerContentProps) => {
               <Box flex="1" minWidth="0">
                 <Strong>{address.label}</Strong>
                 <Muted fontSize="sm" lineClamp={1}>
-                  {address.street}
+                  {address.text}
                 </Muted>
                 <Subtle fontSize="xs">{address.city}</Subtle>
               </Box>

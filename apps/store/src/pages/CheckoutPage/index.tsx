@@ -17,15 +17,18 @@ import {
 import { EmptyState } from '@repo/components'
 import { routes } from '../../routes'
 import { cartTotal, lineTotal, useCartStore } from '../../stores/cartStore'
-import { selectedAddress, useAddressStore } from '../../stores/addressStore'
+import { useAddressStore } from '../../stores/addressStore'
+import { useAddresses } from '@repo/api'
 import { formatPrice } from '@repo/domain'
 
 export const CheckoutPage = () => {
   const lines = useCartStore((state) => state.lines)
   const clear = useCartStore((state) => state.clear)
-  const selected = useAddressStore(selectedAddress)
+  const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
+  const { addresses } = useAddresses()
+  const selected = addresses.find((a) => a.id === selectedAddressId)
   const [confirmed, setConfirmed] = useState(false)
-  const [address, setAddress] = useState(selected?.street ?? '')
+  const [address, setAddress] = useState(selected?.text ?? '')
   const [city, setCity] = useState(selected?.city ?? '')
   const total = cartTotal(lines)
 

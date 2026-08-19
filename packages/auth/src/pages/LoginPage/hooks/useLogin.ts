@@ -3,7 +3,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import type { z } from 'zod'
 import { loginSchema } from '@repo/domain'
-import type { UserRole } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
 import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
 
@@ -11,7 +10,6 @@ type LoginValues = z.infer<typeof loginSchema>
 
 export const useLogin = () => {
   const login = useAuthStore((state) => state.login)
-  const mockLoginAction = useAuthStore((state) => state.mockLogin)
   const redirect = useAuthRedirect()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -36,11 +34,5 @@ export const useLogin = () => {
     }
   })
 
-  const mockLogin = async (role: UserRole) => {
-    setError(null)
-    await mockLoginAction(role)
-    redirect(role)
-  }
-
-  return { form, submitting, error, onSubmit, mockLogin }
+  return { form, submitting, error, onSubmit }
 }

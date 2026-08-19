@@ -3,7 +3,3 @@ export interface ProfileNavItem {
   label: string
   path: string
 }
-
-export interface ProfilePageProps {
-  userId?: number
-}

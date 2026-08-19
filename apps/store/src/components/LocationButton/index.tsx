@@ -2,12 +2,15 @@ import { Box, Text } from '@chakra-ui/react'
 import ChevronDown from '@gravity-ui/icons/ChevronDown'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import { GhostButton } from '@repo/components'
-import { selectedAddress, useAddressStore } from '../../stores/addressStore'
+import { useAddresses } from '@repo/api'
+import { useAddressStore } from '../../stores/addressStore'
 import type { LocationButtonProps } from './types'
 
 export const LocationButton = ({ onOpen }: LocationButtonProps) => {
-  const selected = useAddressStore(selectedAddress)
-  const label = selected ? selected.street : 'Elegí tu dirección'
+  const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
+  const { addresses } = useAddresses()
+  const selected = addresses.find((address) => address.id === selectedAddressId)
+  const label = selected ? selected.text : 'Elegí tu dirección'
 
   return (
     <GhostButton

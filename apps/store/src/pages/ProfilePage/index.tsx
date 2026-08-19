@@ -14,10 +14,9 @@ import { authRoutes } from '@repo/auth'
 import { useAuthStore } from '@repo/api'
 import { useProfile } from '@repo/api'
 import { ProfileNav } from './ProfileNav'
-import type { ProfilePageProps } from './types'
 
-export const ProfilePage = ({ userId }: ProfilePageProps) => {
-  const { user } = useProfile(userId)
+export const ProfilePage = () => {
+  const { user } = useProfile()
   const logout = useAuthStore((state) => state.logout)
   const navigate = useNavigate()
   const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()

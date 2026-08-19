@@ -1,24 +1,31 @@
-import useSWR from 'swr'
+import { useEffect } from 'react'
+import { useQuery } from '@apollo/client'
 import type { UpdateProfileInput, User } from '@repo/domain'
-import { getJson, patchJson } from '../client/rest'
-import { MOCK_USER } from '../mocks/user'
+import { ME, toUser, type MeResult } from '../client/operations'
+import { useAuthStore } from '../stores/authStore'
 
 interface UseProfileReturn {
-  user: User | undefined
+  user: User | null
   isLoading: boolean
   updateProfile: (input: UpdateProfileInput) => Promise<void>
 }
 
-export const useProfile = (userId?: number): UseProfileReturn => {
-  const { data, isLoading } = useSWR<User | null>(
-    userId ? `/api/users/${userId}` : null,
-    async (url: string) => getJson<User>(url),
-  )
+export const useProfile = (): UseProfileReturn => {
+  const user = useAuthStore((state) => state.user)
+  const accessToken = useAuthStore((state) => state.accessToken)
+  const setUser = useAuthStore((state) => state.setUser)
+  const updateProfile = useAuthStore((state) => state.updateProfile)
 
-  const updateProfile = async (input: UpdateProfileInput) => {
-    if (!userId) return
-    await patchJson(`/api/users/${userId}`, input)
-  }
+  const { data } = useQuery<MeResult>(ME, {
+    skip: !accessToken,
+    fetchPolicy: 'network-only',
+  })
 
-  return { user: data ?? MOCK_USER, isLoading, updateProfile }
+  useEffect(() => {
+    if (data?.me) {
+      setUser(toUser(data.me))
+    }
+  }, [data, setUser])
+
+  return { user, isLoading: user == null, updateProfile }
 }

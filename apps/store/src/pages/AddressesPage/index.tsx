@@ -15,17 +15,23 @@ import {
   Subtle,
 } from '@repo/components'
 import { EmptyState } from '@repo/components'
+import { useAddresses } from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
 import type { Address } from '@repo/domain'
 import { AddressFormDialog } from './AddressFormDialog'
 import { useAddressForm } from './hooks/useAddressForm'
 
 export const AddressesPage = () => {
-  const addresses = useAddressStore((state) => state.addresses)
+  const { addresses, remove } = useAddresses()
   const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
   const selectAddress = useAddressStore((state) => state.selectAddress)
-  const removeAddress = useAddressStore((state) => state.removeAddress)
+  const clearAddress = useAddressStore((state) => state.clearAddress)
   const form = useAddressForm()
+
+  const handleDelete = async (address: Address) => {
+    await remove(address.id)
+    if (selectedAddressId === address.id) clearAddress()
+  }
 
   return (
     <PageContainer>
@@ -62,7 +68,7 @@ export const AddressesPage = () => {
               selected={address.id === selectedAddressId}
               onSelect={() => selectAddress(address.id)}
               onEdit={() => form.openEdit(address)}
-              onDelete={() => removeAddress(address.id)}
+              onDelete={() => handleDelete(address)}
             />
           ))}
         </VStack>
@@ -71,6 +77,8 @@ export const AddressesPage = () => {
       <AddressFormDialog
         open={form.open}
         editing={form.editing}
+        submitting={form.submitting}
+        error={form.error}
         form={form.form}
         onClose={form.close}
         onSubmit={form.onSubmit}
@@ -115,10 +123,10 @@ const AddressCard = ({ address, selected, onSelect, onEdit, onDelete }: AddressC
           <GeoPin width={20} height={20} />
         </Box>
       </HStack>
-      <Muted fontSize="sm">{address.street}</Muted>
+      <Muted fontSize="sm">{address.text}</Muted>
       <Subtle fontSize="sm">
         {address.city}
-        {address.reference ? ` · ${address.reference}` : ''}
+        {address.postalCode ? ` · CP ${address.postalCode}` : ''}
       </Subtle>
 
       <HStack gap="2" marginTop="4" flexWrap="wrap">

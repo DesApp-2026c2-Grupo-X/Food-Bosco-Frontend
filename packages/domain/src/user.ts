@@ -1,7 +1,7 @@
 export type UserRole = 'customer' | 'branch_admin' | 'super_admin' | 'rider'
 
 export interface User {
-  id: number
+  id: string
   email: string
   role: UserRole
   firstName: string

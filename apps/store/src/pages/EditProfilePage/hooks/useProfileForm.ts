@@ -1,17 +1,16 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { z } from 'zod'
+import { useNavigate } from 'react-router-dom'
 import { useProfile } from '@repo/api'
 import { profileSchema } from '@repo/domain'
+import { routes } from '../../../routes'
 
 type ProfileValues = z.infer<typeof profileSchema>
 
-interface UseProfileFormOptions {
-  userId?: number
-}
-
-export const useProfileForm = ({ userId }: UseProfileFormOptions) => {
-  const { user, isLoading, updateProfile } = useProfile(userId)
+export const useProfileForm = () => {
+  const { user, isLoading, updateProfile } = useProfile()
+  const navigate = useNavigate()
 
   const form = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -29,6 +28,7 @@ export const useProfileForm = ({ userId }: UseProfileFormOptions) => {
   const onSave = form.handleSubmit(async (values) => {
     await updateProfile(values)
     form.reset(values)
+    navigate(routes.profile)
   })
 
   const onCancel = () => form.reset()
