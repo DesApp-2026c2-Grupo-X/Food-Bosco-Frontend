@@ -11,3 +11,14 @@ export interface RecipeItem {
   quantity: number
   ingredient: Ingredient
 }
+
+export interface IngredientInput {
+  name: string
+  unit: string
+  active: boolean
+}
+
+export interface RecipeItemInput {
+  ingredientId: number
+  quantity: number
+}

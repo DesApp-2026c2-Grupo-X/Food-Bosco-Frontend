@@ -1,4 +1,4 @@
-import { Skeleton, Table } from '@chakra-ui/react'
+import { Box, Skeleton, Table } from '@chakra-ui/react'
 import { EmptyState } from '../EmptyState'
 import type { DataTableProps, ResponsiveBreakpoint } from './types'
 
@@ -33,50 +33,66 @@ export const DataTable = <T,>({
   }
 
   return (
-    <Table.ScrollArea width="full">
-      <Table.Root variant="outline" size="sm" width="full">
-        <Table.Header>
-          <Table.Row>
-            {columns.map((column) => (
-              <Table.ColumnHeader
-                key={column.key}
-                display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
-              >
-                {column.header}
-              </Table.ColumnHeader>
-            ))}
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {isLoading
-            ? Array.from({ length: skeletonRows }).map((_, rowIndex) => (
-                <Table.Row key={`skeleton-${rowIndex}`}>
-                  {columns.map((column) => (
-                    <Table.Cell key={column.key}>
-                      <Skeleton height="4" width="80%" />
-                    </Table.Cell>
-                  ))}
-                </Table.Row>
-              ))
-            : rows.map((row) => (
-                <Table.Row
-                  key={getRowKey(row)}
-                  cursor={onRowClick ? 'pointer' : undefined}
-                  _hover={onRowClick ? { bg: 'bg.subtle' } : undefined}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+    <Box
+      width="full"
+      border="1px solid"
+      borderColor="border.subtle"
+      borderRadius="2xl"
+      overflow="hidden"
+      bg="bg.panel"
+    >
+      <Table.ScrollArea width="full">
+        <Table.Root variant="line" size="md" width="full">
+          <Table.Header>
+            <Table.Row bg="bg.muted">
+              {columns.map((column) => (
+                <Table.ColumnHeader
+                  key={column.key}
+                  display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
+                  color="brand.600"
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  textTransform="uppercase"
+                  letterSpacing="0.05em"
+                  paddingY="3"
                 >
-                  {columns.map((column) => (
-                    <Table.Cell
-                      key={column.key}
-                      display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
-                    >
-                      {column.render(row)}
-                    </Table.Cell>
-                  ))}
-                </Table.Row>
+                  {column.header}
+                </Table.ColumnHeader>
               ))}
-        </Table.Body>
-      </Table.Root>
-    </Table.ScrollArea>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {isLoading
+              ? Array.from({ length: skeletonRows }).map((_, rowIndex) => (
+                  <Table.Row key={`skeleton-${rowIndex}`}>
+                    {columns.map((column) => (
+                      <Table.Cell key={column.key}>
+                        <Skeleton height="4" width="80%" />
+                      </Table.Cell>
+                    ))}
+                  </Table.Row>
+                ))
+              : rows.map((row) => (
+                  <Table.Row
+                    key={getRowKey(row)}
+                    cursor={onRowClick ? 'pointer' : undefined}
+                    _hover={onRowClick ? { bg: 'bg.subtle' } : undefined}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  >
+                    {columns.map((column) => (
+                      <Table.Cell
+                        key={column.key}
+                        display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
+                        paddingY="3.5"
+                      >
+                        {column.render(row)}
+                      </Table.Cell>
+                    ))}
+                  </Table.Row>
+                ))}
+          </Table.Body>
+        </Table.Root>
+      </Table.ScrollArea>
+    </Box>
   )
 }

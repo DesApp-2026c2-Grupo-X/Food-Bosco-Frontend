@@ -78,3 +78,136 @@ export const adjustStockSchema = z.object({
 })
 
 export type AdjustStockForm = z.infer<typeof adjustStockSchema>
+
+const numberField = (message = 'Ingresá un número') =>
+  z
+    .string()
+    .trim()
+    .min(1, 'Este campo es requerido')
+    .regex(/^-?\d+(\.\d+)?$/, message)
+
+export const categorySchema = z.object({
+  name: nameSchema,
+})
+
+export const ingredientSchema = z.object({
+  name: nameSchema,
+  unit: nameSchema,
+})
+
+export const productSchema = z.object({
+  name: nameSchema,
+  description: nameSchema,
+  categoryId: z.string().trim().min(1, 'Seleccioná una categoría'),
+  price: numberField('Ingresá un precio válido').refine(
+    (value) => Number(value) >= 0,
+    'El precio no puede ser negativo',
+  ),
+  image: z.string().trim().optional(),
+})
+
+export const branchSchema = z.object({
+  name: nameSchema,
+  addressText: nameSchema,
+  latitude: numberField('Ingresá una latitud válida').refine(
+    (value) => Number(value) >= -90 && Number(value) <= 90,
+    'Latitud fuera de rango',
+  ),
+  longitude: numberField('Ingresá una longitud válida').refine(
+    (value) => Number(value) >= -180 && Number(value) <= 180,
+    'Longitud fuera de rango',
+  ),
+  phone: z.string().trim().optional(),
+})
+
+export const promotionSchema = z
+  .object({
+    name: nameSchema,
+    description: z.string().trim().optional(),
+    startDate: z.string().trim().min(1, 'Ingresá la fecha de inicio'),
+    endDate: z.string().trim().min(1, 'Ingresá la fecha de fin'),
+  })
+  .refine((data) => data.endDate >= data.startDate, {
+    message: 'La fecha de fin no puede ser anterior a la de inicio',
+    path: ['endDate'],
+  })
+
+const staffBase = {
+  firstName: nameSchema,
+  lastName: nameSchema,
+  email: emailSchema,
+  phone: phoneSchema,
+  role: z.string().trim().min(1, 'Seleccioná un rol'),
+  branchId: z.string().trim().optional(),
+}
+
+const requireBranchForCollaborator = (data: {
+  role: string
+  branchId?: string
+}) =>
+  data.role !== 'branch_admin' || (data.branchId != null && data.branchId.length > 0)
+
+export const staffCreateSchema = z
+  .object({
+    ...staffBase,
+    password: passwordSchema,
+  })
+  .refine(requireBranchForCollaborator, {
+    message: 'La sucursal es obligatoria para un colaborador',
+    path: ['branchId'],
+  })
+
+export const staffUpdateSchema = z
+  .object(staffBase)
+  .refine(requireBranchForCollaborator, {
+    message: 'La sucursal es obligatoria para un colaborador',
+    path: ['branchId'],
+  })
+
+export const parameterSchema = z.object({
+  value: numberField('Ingresá un valor válido').refine(
+    (value) => Number(value) > 0,
+    'El valor debe ser mayor a 0',
+  ),
+})
+
+export const orderStateSchema = z.object({
+  name: nameSchema,
+  order: numberField('Ingresá un orden válido'),
+})
+
+export const configGroupSchema = z.object({
+  name: nameSchema,
+  type: z.string().trim().min(1, 'Seleccioná un tipo'),
+  min: numberField('Ingresá un mínimo válido'),
+  max: numberField('Ingresá un máximo válido'),
+})
+
+export const configOptionSchema = z.object({
+  name: nameSchema,
+  priceDelta: numberField('Ingresá una variación válida').refine(
+    (value) => Number(value) >= 0,
+    'La variación no puede ser negativa',
+  ),
+})
+
+export const recipeItemSchema = z.object({
+  ingredientId: z.string().trim().min(1, 'Seleccioná un ingrediente'),
+  quantity: numberField('Ingresá una cantidad válida').refine(
+    (value) => Number(value) > 0,
+    'La cantidad debe ser mayor a 0',
+  ),
+})
+
+export type CategoryForm = z.infer<typeof categorySchema>
+export type IngredientForm = z.infer<typeof ingredientSchema>
+export type ProductForm = z.infer<typeof productSchema>
+export type BranchForm = z.infer<typeof branchSchema>
+export type PromotionForm = z.infer<typeof promotionSchema>
+export type StaffCreateForm = z.infer<typeof staffCreateSchema>
+export type StaffUpdateForm = z.infer<typeof staffUpdateSchema>
+export type ParameterForm = z.infer<typeof parameterSchema>
+export type OrderStateForm = z.infer<typeof orderStateSchema>
+export type ConfigGroupForm = z.infer<typeof configGroupSchema>
+export type ConfigOptionForm = z.infer<typeof configOptionSchema>
+export type RecipeItemForm = z.infer<typeof recipeItemSchema>
