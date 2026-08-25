@@ -67,6 +67,30 @@ export const profileSchema = z.object({
   phone: phoneSchema,
 })
 
+export const riderProfileSchema = z.object({
+  phone: phoneSchema,
+})
+
+export const vehicleSchema = z
+  .object({
+    type: z.enum(['moto', 'bici']),
+    marca: z.string().trim().optional(),
+    modelo: z.string().trim().optional(),
+    patente: z.string().trim().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type !== 'moto') return
+    if (!data.marca?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'La marca es obligatoria', path: ['marca'] })
+    }
+    if (!data.modelo?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'El modelo es obligatorio', path: ['modelo'] })
+    }
+    if (!data.patente?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'La patente es obligatoria', path: ['patente'] })
+    }
+  })
+
 export const adjustStockSchema = z.object({
   delta: z
     .string()
@@ -141,10 +165,7 @@ const staffBase = {
   branchId: z.string().trim().optional(),
 }
 
-const requireBranchForCollaborator = (data: {
-  role: string
-  branchId?: string
-}) =>
+const requireBranchForCollaborator = (data: { role: string; branchId?: string }) =>
   data.role !== 'branch_admin' || (data.branchId != null && data.branchId.length > 0)
 
 export const staffCreateSchema = z
@@ -157,12 +178,10 @@ export const staffCreateSchema = z
     path: ['branchId'],
   })
 
-export const staffUpdateSchema = z
-  .object(staffBase)
-  .refine(requireBranchForCollaborator, {
-    message: 'La sucursal es obligatoria para un colaborador',
-    path: ['branchId'],
-  })
+export const staffUpdateSchema = z.object(staffBase).refine(requireBranchForCollaborator, {
+  message: 'La sucursal es obligatoria para un colaborador',
+  path: ['branchId'],
+})
 
 export const parameterSchema = z.object({
   value: numberField('Ingresá un valor válido').refine(

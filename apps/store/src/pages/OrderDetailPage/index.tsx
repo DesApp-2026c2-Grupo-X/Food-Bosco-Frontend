@@ -1,13 +1,14 @@
-import { Box, HStack, Image, Spinner, Text, VStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, HStack, Image, Spinner, VStack, useMediaQuery } from '@chakra-ui/react'
 import CircleCheckFill from '@gravity-ui/icons/CircleCheckFill'
 import CircleXmarkFill from '@gravity-ui/icons/CircleXmarkFill'
 import { Link, useParams } from 'react-router-dom'
 import {
   BackButton,
   Muted,
+  OrderItemsCard,
+  OrderTotalCard,
   PageContainer,
   PageTitle,
-  Price,
   PrimaryButton,
   Strong,
   Subtle,
@@ -18,7 +19,6 @@ import { OrderTimeline } from '@repo/components'
 import { useOrder } from '@repo/api'
 import { routes } from '../../routes'
 import type { Order } from '@repo/domain'
-import { formatPrice } from '@repo/domain'
 import { buildStaticMapUrl } from '../../utils/geoapify'
 import { formatOrderDate, isActiveOrder } from '@repo/domain'
 import { useRiderPosition } from './hooks/useRiderPosition'
@@ -118,43 +118,9 @@ export const OrderDetailPage = () => {
         </Box>
       ) : null}
 
-      <Box
-        bg="bg.panel"
-        border="1px solid"
-        borderColor="border.subtle"
-        borderRadius="2xl"
-        padding="5"
-      >
-        <Muted fontSize="sm" marginBottom="3">
-          Productos
-        </Muted>
-        <VStack gap="3" align="stretch">
-          {order.items.map((item) => (
-            <HStack key={item.id} justify="space-between">
-              <Text>
-                {item.quantity} × {item.name}
-              </Text>
-              <Price fontWeight="medium">{formatPrice(item.unitPrice * item.quantity)}</Price>
-            </HStack>
-          ))}
-        </VStack>
-      </Box>
+      <OrderItemsCard items={order.items} />
 
-      <Box
-        bg="bg.subtle"
-        border="1px solid"
-        borderColor="border.subtle"
-        borderRadius="2xl"
-        padding="5"
-      >
-        <HStack justify="space-between" marginBottom="2">
-          <Strong>Total</Strong>
-          <Price fontWeight="bold" fontSize="xl">
-            {formatPrice(order.total)}
-          </Price>
-        </HStack>
-        <Subtle fontSize="sm">Entrega a {order.deliveryAddress}</Subtle>
-      </Box>
+      <OrderTotalCard total={order.total} subtitle={`Entrega a ${order.deliveryAddress}`} />
     </PageContainer>
   )
 }
