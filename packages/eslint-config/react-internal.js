@@ -1,7 +1,6 @@
 import storybook from 'eslint-plugin-storybook'
 
 import js from '@eslint/js'
-import eslintConfigPrettier from 'eslint-config-prettier'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
@@ -48,5 +47,4 @@ export const config = defineConfig([
     },
   },
   ...storybook.configs['flat/recommended'],
-  eslintConfigPrettier,
 ])

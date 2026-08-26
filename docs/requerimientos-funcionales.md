@@ -187,11 +187,11 @@ El frontend no debe:
 
 Conviene separar tres clases de estado:
 
-| Tipo | Ejemplos | Tratamiento |
-|---|---|---|
-| Sesión | usuario autenticado, rol, expiración | Contexto o store global |
-| Datos de servidor | productos, pedidos, direcciones, sucursales | Caché de consultas y revalidación |
-| Estado de interfaz | modal abierto, tab activa, filtro, paso del checkout | Estado local de cada pantalla |
+| Tipo               | Ejemplos                                             | Tratamiento                       |
+| ------------------ | ---------------------------------------------------- | --------------------------------- |
+| Sesión             | usuario autenticado, rol, expiración                 | Contexto o store global           |
+| Datos de servidor  | productos, pedidos, direcciones, sucursales          | Caché de consultas y revalidación |
+| Estado de interfaz | modal abierto, tab activa, filtro, paso del checkout | Estado local de cada pantalla     |
 
 El carrito debe considerarse un dato del servidor. La interfaz puede mantener una copia temporal para mejorar la experiencia, pero la respuesta de la API es la fuente de verdad.
 
@@ -199,28 +199,28 @@ El carrito debe considerarse un dato del servidor. La interfaz puede mantener un
 
 # 3. Roles y permisos de interfaz
 
-| Acción | Visitante | Cliente | Admin de sucursal | Admin general | Repartidor |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Ver login y registro de clientes | Sí | No necesario | No | No | No |
-| Consultar catálogo | Sí | Sí | Desde su módulo (su sucursal) | Desde su módulo | No |
-| Ver detalle de producto | Sí | Sí | Sí, en edición (su sucursal) | Sí, en edición | No |
-| Administrar carrito | No | Sí | No | No | No |
-| Confirmar pedido | No | Sí | No | No | No |
-| Administrar perfil y direcciones | No | Sí | No | No | No |
-| Consultar pedidos propios | No | Sí | No | No | No |
-| Recibir ofertas de viaje (por ubicación) | No | No | No | No | Sí |
-| Aceptar viaje, marcar retiros y entregas | No | No | No | No | Sí |
-| Consultar su historial de viajes | No | No | No | No | Sí |
-| Definir productos, ingredientes y recetas | No | No | No | Sí | No |
-| Pausar/reactivar productos de su sucursal | No | No | Sí | Sí (todas) | No |
-| Administrar stock de ingredientes | No | No | De su sucursal | Todas | No |
-| Administrar categorías | No | No | No | Sí | No |
-| Administrar sucursales y horarios | No | No | No | Sí | No |
-| Administrar promociones | No | No | No | Sí | No |
-| Administrar estados y parámetros | No | No | No | Sí | No |
-| Administrar personal (crear colaboradores y vincularlos a sucursal) | No | No | No | Sí | No |
-| Consultar y operar pedidos | No | Solo propios | De su sucursal | Todas | Solo los asignados |
-| Consultar reportes de productos | No | No | De su sucursal | Todas | No |
+| Acción                                                              | Visitante |   Cliente    |       Admin de sucursal       |  Admin general  |     Repartidor     |
+| ------------------------------------------------------------------- | :-------: | :----------: | :---------------------------: | :-------------: | :----------------: |
+| Ver login y registro de clientes                                    |    Sí     | No necesario |              No               |       No        |         No         |
+| Consultar catálogo                                                  |    Sí     |      Sí      | Desde su módulo (su sucursal) | Desde su módulo |         No         |
+| Ver detalle de producto                                             |    Sí     |      Sí      | Sí, en edición (su sucursal)  | Sí, en edición  |         No         |
+| Administrar carrito                                                 |    No     |      Sí      |              No               |       No        |         No         |
+| Confirmar pedido                                                    |    No     |      Sí      |              No               |       No        |         No         |
+| Administrar perfil y direcciones                                    |    No     |      Sí      |              No               |       No        |         No         |
+| Consultar pedidos propios                                           |    No     |      Sí      |              No               |       No        |         No         |
+| Recibir ofertas de viaje (por ubicación)                            |    No     |      No      |              No               |       No        |         Sí         |
+| Aceptar viaje, marcar retiros y entregas                            |    No     |      No      |              No               |       No        |         Sí         |
+| Consultar su historial de viajes                                    |    No     |      No      |              No               |       No        |         Sí         |
+| Definir productos, ingredientes y recetas                           |    No     |      No      |              No               |       Sí        |         No         |
+| Pausar/reactivar productos de su sucursal                           |    No     |      No      |              Sí               |   Sí (todas)    |         No         |
+| Administrar stock de ingredientes                                   |    No     |      No      |        De su sucursal         |      Todas      |         No         |
+| Administrar categorías                                              |    No     |      No      |              No               |       Sí        |         No         |
+| Administrar sucursales y horarios                                   |    No     |      No      |              No               |       Sí        |         No         |
+| Administrar promociones                                             |    No     |      No      |              No               |       Sí        |         No         |
+| Administrar estados y parámetros                                    |    No     |      No      |              No               |       Sí        |         No         |
+| Administrar personal (crear colaboradores y vincularlos a sucursal) |    No     |      No      |              No               |       Sí        |         No         |
+| Consultar y operar pedidos                                          |    No     | Solo propios |        De su sucursal         |      Todas      | Solo los asignados |
+| Consultar reportes de productos                                     |    No     |      No      |        De su sucursal         |      Todas      |         No         |
 
 ## 3.1 Guards de rutas
 
@@ -263,22 +263,22 @@ El carrito debe considerarse un dato del servidor. La interfaz puede mantener un
 
 La identidad puede reemplazarse más adelante, pero se recomienda definir tokens desde el inicio.
 
-| Token | Valor sugerido | Uso |
-|---|---:|---|
-| `brand-700` | `#9A3412` | Hover y estados fuertes |
-| `brand-600` | `#C2410C` | Botón primario |
-| `brand-500` | `#EA580C` | Elementos destacados |
-| `accent-500` | `#F59E0B` | Indicadores secundarios |
-| `neutral-950` | `#111827` | Texto principal |
-| `neutral-700` | `#374151` | Texto secundario |
-| `neutral-500` | `#6B7280` | Ayuda y placeholders |
-| `neutral-200` | `#E5E7EB` | Bordes |
-| `neutral-100` | `#F3F4F6` | Fondos secundarios |
-| `surface` | `#FFFFFF` | Tarjetas y formularios |
-| `success` | `#15803D` | Confirmaciones y entregados |
-| `warning` | `#B45309` | Alertas y estados intermedios |
-| `danger` | `#B91C1C` | Errores y acciones destructivas |
-| `info` | `#1D4ED8` | Mensajes informativos |
+| Token         | Valor sugerido | Uso                             |
+| ------------- | -------------: | ------------------------------- |
+| `brand-700`   |      `#9A3412` | Hover y estados fuertes         |
+| `brand-600`   |      `#C2410C` | Botón primario                  |
+| `brand-500`   |      `#EA580C` | Elementos destacados            |
+| `accent-500`  |      `#F59E0B` | Indicadores secundarios         |
+| `neutral-950` |      `#111827` | Texto principal                 |
+| `neutral-700` |      `#374151` | Texto secundario                |
+| `neutral-500` |      `#6B7280` | Ayuda y placeholders            |
+| `neutral-200` |      `#E5E7EB` | Bordes                          |
+| `neutral-100` |      `#F3F4F6` | Fondos secundarios              |
+| `surface`     |      `#FFFFFF` | Tarjetas y formularios          |
+| `success`     |      `#15803D` | Confirmaciones y entregados     |
+| `warning`     |      `#B45309` | Alertas y estados intermedios   |
+| `danger`      |      `#B91C1C` | Errores y acciones destructivas |
+| `info`        |      `#1D4ED8` | Mensajes informativos           |
 
 Reglas:
 
@@ -291,15 +291,15 @@ Reglas:
 
 Fuente sugerida: **Inter**, **Roboto** o equivalente sans-serif.
 
-| Estilo | Tamaño | Peso | Uso |
-|---|---:|---:|---|
-| Display | 40 px | 700 | Hero de tienda en escritorio |
-| H1 | 32 px | 700 | Título principal de página |
-| H2 | 24 px | 700 | Secciones |
-| H3 | 20 px | 600 | Tarjetas y paneles |
-| Body | 16 px | 400 | Texto general |
-| Small | 14 px | 400 | Ayudas, metadata y tablas |
-| Caption | 12 px | 500 | Etiquetas compactas |
+| Estilo  | Tamaño | Peso | Uso                          |
+| ------- | -----: | ---: | ---------------------------- |
+| Display |  40 px |  700 | Hero de tienda en escritorio |
+| H1      |  32 px |  700 | Título principal de página   |
+| H2      |  24 px |  700 | Secciones                    |
+| H3      |  20 px |  600 | Tarjetas y paneles           |
+| Body    |  16 px |  400 | Texto general                |
+| Small   |  14 px |  400 | Ayudas, metadata y tablas    |
+| Caption |  12 px |  500 | Etiquetas compactas          |
 
 En mobile, el H1 puede reducirse a 26–28 px y el display a 32 px.
 
@@ -373,15 +373,15 @@ En mobile, el H1 puede reducirse a 26–28 px y el display a 32 px.
 
 ## 4.6 Estados visuales de pedidos
 
-| Estado | Etiqueta visible | Tratamiento sugerido |
-|---|---|---|
-| `PENDING` | Pendiente | Badge gris/amarillo |
-| `CONFIRMED` | Confirmado | Badge azul |
-| `PREPARING` | En preparación | Badge naranja |
+| Estado               | Etiqueta visible    | Tratamiento sugerido        |
+| -------------------- | ------------------- | --------------------------- |
+| `PENDING`            | Pendiente           | Badge gris/amarillo         |
+| `CONFIRMED`          | Confirmado          | Badge azul                  |
+| `PREPARING`          | En preparación      | Badge naranja               |
 | `READY_FOR_DELIVERY` | Listo para entregar | Badge violeta o azul fuerte |
-| `ON_THE_WAY` | En camino | Badge azul |
-| `DELIVERED` | Entregado | Badge verde |
-| `CANCELLED` | Cancelado | Badge rojo |
+| `ON_THE_WAY`         | En camino           | Badge azul                  |
+| `DELIVERED`          | Entregado           | Badge verde                 |
+| `CANCELLED`          | Cancelado           | Badge rojo                  |
 
 La misma traducción y apariencia deben usarse en Tienda y Administración.
 
@@ -551,14 +551,14 @@ Ya tengo una cuenta
 
 ### Componentes y campos
 
-| Campo | Tipo | Obligatorio |
-|---|---|:---:|
-| Nombre | Texto | Sí |
-| Apellido | Texto | Sí |
-| Correo | Email | Sí |
-| Teléfono | Texto/teléfono | Sí |
-| Contraseña | Password | Sí |
-| Confirmación | Password | Sí |
+| Campo        | Tipo           | Obligatorio |
+| ------------ | -------------- | :---------: |
+| Nombre       | Texto          |     Sí      |
+| Apellido     | Texto          |     Sí      |
+| Correo       | Email          |     Sí      |
+| Teléfono     | Texto/teléfono |     Sí      |
+| Contraseña   | Password       |     Sí      |
+| Confirmación | Password       |     Sí      |
 
 ### Validaciones
 
@@ -1526,6 +1526,7 @@ Pizza Mozzarella            $7.800    [ Pausado ○ ]
 
 - Listar productos con disponibilidad de la sucursal.
 - Cambiar disponibilidad de un producto en la sucursal.
+
 ## S-04 — Stock de ingredientes del almacén
 
 **Ruta sugerida:** `/stock`
@@ -1553,6 +1554,7 @@ Feta de queso               8 un         [ Ajustar ]
 
 - Listar stock de ingredientes de la sucursal.
 - Ajustar cantidad de un ingrediente.
+
 ## S-05 — Lista de pedidos
 
 **Ruta sugerida:** `/admin/orders`  
@@ -1745,8 +1747,6 @@ Columnas:
 - Obtener productos con mayor facturación.
 
 ---
-
-
 
 # 9. Navegación del Admin global (`apps/admin-global`)
 
@@ -2075,6 +2075,7 @@ Feta de queso        1 unidad
 
 - Listar ingredientes del producto.
 - Agregar/quitar/editar ingrediente y cantidad.
+
 ## G-07 — Catálogo de ingredientes
 
 **Ruta sugerida:** `/ingredients`
@@ -2089,6 +2090,7 @@ Feta de queso        1 unidad
 
 - Listar ingredientes.
 - Crear/modificar/desactivar ingrediente.
+
 ## G-08 — Lista de sucursales
 
 **Ruta sugerida:** `/admin/branches`  
@@ -2426,9 +2428,7 @@ Velocidad promedio de traslado     25 km/h          Editar
 
 ---
 
-
 ---
-
 
 # 11. Navegación del Repartidor
 
@@ -2436,16 +2436,16 @@ Velocidad promedio de traslado     25 km/h          Editar
 
 ## 11.1 Sistema de diseño (reuso de la Tienda)
 
-| Capa | Reuso (de la Tienda) |
-|---|---|
-| Tema | `@repo/theme` (tokens "Calor"); dark = negro + grises, nunca marrón |
-| Tipografía | `PageTitle`, `SectionTitle`, `Strong`, `Muted`, `Subtle`, `Price`, `Eyebrow` |
-| Botones | `PrimaryButton` (aceptar viaje, retirar, entregar), `GhostButton`/`OutlineButton` (rechazar, secundarias) |
-| Layout | `PageContainer` / `WidePageContainer`; `ResponsiveModal`/`SidePanel` para detalle |
-| Feedback | `EmptyState` ("Buscando viajes cerca tuyo…"), `OrderStatusBadge`, `OrderTimeline` |
-| Navegación | `MobileNav` (dock flotante), `ChipCarousel` (si hay filtros) |
-| Formularios | RHF + Zod (schemas en `@repo/domain`); `TextField`/`PasswordField` |
-| Datos | `@repo/api` (hooks + mocks) y `@repo/domain` (`Order`, `OrderStatus`, `OrderRider`) |
+| Capa        | Reuso (de la Tienda)                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------------------- |
+| Tema        | `@repo/theme` (tokens "Calor"); dark = negro + grises, nunca marrón                                       |
+| Tipografía  | `PageTitle`, `SectionTitle`, `Strong`, `Muted`, `Subtle`, `Price`, `Eyebrow`                              |
+| Botones     | `PrimaryButton` (aceptar viaje, retirar, entregar), `GhostButton`/`OutlineButton` (rechazar, secundarias) |
+| Layout      | `PageContainer` / `WidePageContainer`; `ResponsiveModal`/`SidePanel` para detalle                         |
+| Feedback    | `EmptyState` ("Buscando viajes cerca tuyo…"), `OrderStatusBadge`, `OrderTimeline`                         |
+| Navegación  | `MobileNav` (dock flotante), `ChipCarousel` (si hay filtros)                                              |
+| Formularios | RHF + Zod (schemas en `@repo/domain`); `TextField`/`PasswordField`                                        |
+| Datos       | `@repo/api` (hooks + mocks) y `@repo/domain` (`Order`, `OrderStatus`, `OrderRider`)                       |
 
 ## 11.2 Mapa de navegación
 
@@ -2465,12 +2465,12 @@ flowchart LR
 
 ## 11.3 Dock de navegación (mobile)
 
-| Ítem | Ruta | Visible |
-|---|---|---|
-| Inicio (ofertas) | `/` | siempre |
-| Viaje | `/trip` | solo si hay viaje en curso |
-| Historial | `/history` | siempre |
-| Perfil | `/profile` | siempre |
+| Ítem             | Ruta       | Visible                    |
+| ---------------- | ---------- | -------------------------- |
+| Inicio (ofertas) | `/`        | siempre                    |
+| Viaje            | `/trip`    | solo si hay viaje en curso |
+| Historial        | `/history` | siempre                    |
+| Perfil           | `/profile` | siempre                    |
 
 ---
 
@@ -2644,12 +2644,12 @@ Usar confirmación para:
 
 ## 12.1 Breakpoints sugeridos
 
-| Nombre | Ancho |
-|---|---:|
-| Mobile | 360–767 px |
-| Tablet | 768–1023 px |
-| Desktop | 1024–1439 px |
-| Wide | 1440 px o más |
+| Nombre  |         Ancho |
+| ------- | ------------: |
+| Mobile  |    360–767 px |
+| Tablet  |   768–1023 px |
+| Desktop |  1024–1439 px |
+| Wide    | 1440 px o más |
 
 ## 12.2 Tienda
 
