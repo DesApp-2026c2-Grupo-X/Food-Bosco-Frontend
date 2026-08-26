@@ -4,4 +4,5 @@ export interface ResponsiveModalProps {
   open: boolean
   onClose: () => void
   children: ReactNode
+  closable?: boolean
 }

@@ -9,7 +9,7 @@
 
 > Este documento define el **alcance funcional** de los cinco frontends: **Auth** (login/registro/recuperación), **Tienda** (clientes), **Admin de sucursal** (`apps/admin`), **Admin global** (`apps/admin-global`) y **Repartidor** (`apps/rider`). Incluye **stock de ingredientes por sucursal** (Extensión 1) y la **app del Repartidor** con viajes y ofertas (Extensión 2).
 
-> **Fuentes de verdad:** este documento es la fuente de verdad **funcional**. La fuente de verdad **visual y de sistema** (dirección "Calor", paleta, tokens, layouts) es `client/docs/ui-manifesto.md`; ante cualquier conflicto visual gana el manifesto. La arquitectura implementada (monorepo, apps, paquetes) está en §16 y en `client/CLAUDE.md`.
+> **Fuentes de verdad:** este documento es la fuente de verdad **funcional**. La fuente de verdad **visual y de sistema** (dirección "Calor", paleta, tokens, layouts) es `docs/ui-manifesto.md`; ante cualquier conflicto visual gana el manifesto. La arquitectura implementada (monorepo, apps, paquetes) está en §16 y en `CLAUDE.md`.
 
 > **Nota de implementación:** la autenticación vive en su propia app (`apps/auth`), que tras el login redirige a Tienda, Admin de sucursal, Admin global o Repartidor según el `role` que devuelve el auth API. Las pantallas T-01 a T-04 corresponden a esa app.
 
@@ -237,7 +237,7 @@ El carrito debe considerarse un dato del servidor. La interfaz puede mantener un
 
 # 4. Sistema de diseño compartido
 
-> **Visual ya definido:** la dirección "Calor", paleta, tipografía, geometría, patrones y tokens viven en `client/docs/ui-manifesto.md`; la implementación está en `@repo/theme` + `@repo/components`. Esta sección queda como propuesta histórica.
+> **Visual ya definido:** la dirección "Calor", paleta, tipografía, geometría, patrones y tokens viven en `docs/ui-manifesto.md`; la implementación está en `@repo/theme` + `@repo/components`. Esta sección queda como propuesta histórica.
 
 ## 4.1 Dirección visual
 
@@ -2432,7 +2432,7 @@ Velocidad promedio de traslado     25 km/h          Editar
 
 # 11. Navegación del Repartidor
 
-> **Regla absoluta — mismo sistema de diseño que la Tienda:** la app del Repartidor sigue **el sistema de diseño de la app Tienda**, que es la referencia visual absoluta del proyecto. Misma dirección "Calor" (`client/docs/ui-manifesto.md`), misma paleta, tipografía Outfit, tokens semánticos, geometría y los **mismos componentes y layouts** de `@repo/components`. No se inventan estilos ni variantes: si algo falta, se reusa el patrón de la Tienda o se agrega como token compartido. Es **mobile-first** (los repartidores operan desde el celular). El auth es compartido: `RequireAuth roles=["rider"]`.
+> **Regla absoluta — mismo sistema de diseño que la Tienda:** la app del Repartidor sigue **el sistema de diseño de la app Tienda**, que es la referencia visual absoluta del proyecto. Misma dirección "Calor" (`docs/ui-manifesto.md`), misma paleta, tipografía Outfit, tokens semánticos, geometría y los **mismos componentes y layouts** de `@repo/components`. No se inventan estilos ni variantes: si algo falta, se reusa el patrón de la Tienda o se agrega como token compartido. Es **mobile-first** (los repartidores operan desde el celular). El auth es compartido: `RequireAuth roles=["rider"]`.
 
 ## 11.1 Sistema de diseño (reuso de la Tienda)
 
@@ -2836,7 +2836,7 @@ apps/store/
 
 # 17. Distribución del trabajo
 
-> **Modalidad actual:** todo se construye con **IA de corrido** (el equipo define el requisito, la IA lo implementa de punta a punta, el equipo revisa). Sin división manual por integrante. El detalle del plan por sprint está en `plan/division-de-tareas.md`.
+> **Modalidad actual:** todo se construye con **IA de corrido** (el equipo define el requisito, la IA lo implementa de punta a punta, el equipo revisa). Sin división manual por integrante.
 
 Estado:
 
