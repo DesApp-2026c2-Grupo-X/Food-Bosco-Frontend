@@ -2,12 +2,14 @@ import { Heading, HStack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FormField, FormLayout, PrimaryButton, ResponsiveModal, ToggleSwitch } from '@repo/components'
 import {
-  configOptionSchema,
-  type ConfigOptionForm,
-  type ConfigOptionInput,
-} from '@repo/domain'
+  FormField,
+  FormLayout,
+  PrimaryButton,
+  ResponsiveModal,
+  ToggleSwitch,
+} from '@repo/components'
+import { configOptionSchema, type ConfigOptionForm, type ConfigOptionInput } from '@repo/domain'
 import type { ConfigOptionFormModalProps } from './types'
 
 export const ConfigOptionFormModal = ({

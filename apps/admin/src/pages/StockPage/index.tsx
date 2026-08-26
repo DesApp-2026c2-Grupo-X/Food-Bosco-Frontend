@@ -46,7 +46,11 @@ export const StockPage = () => {
   }
 
   const columns: DataTableColumn<BranchStock>[] = [
-    { key: 'ingredient', header: 'Ingrediente', render: (row) => <Strong>{row.ingredient.name}</Strong> },
+    {
+      key: 'ingredient',
+      header: 'Ingrediente',
+      render: (row) => <Strong>{row.ingredient.name}</Strong>,
+    },
     {
       key: 'branch',
       header: 'Sucursal',

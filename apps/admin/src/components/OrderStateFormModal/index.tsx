@@ -2,7 +2,13 @@ import { Heading, HStack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FormField, FormLayout, PrimaryButton, ResponsiveModal, ToggleSwitch } from '@repo/components'
+import {
+  FormField,
+  FormLayout,
+  PrimaryButton,
+  ResponsiveModal,
+  ToggleSwitch,
+} from '@repo/components'
 import { orderStateSchema, type OrderStateForm, type OrderStateInput } from '@repo/domain'
 import type { OrderStateFormModalProps } from './types'
 
@@ -43,7 +49,13 @@ export const OrderStateFormModal = ({
           ) : null}
           <FormLayout>
             <FormField name="name" label="Nombre visible" required placeholder="Ej: Pendiente" />
-            <FormField name="order" label="Orden" required inputMode="numeric" placeholder="Ej: 1" />
+            <FormField
+              name="order"
+              label="Orden"
+              required
+              inputMode="numeric"
+              placeholder="Ej: 1"
+            />
             <HStack justify="space-between">
               <Text fontSize="sm" color="fg.muted">
                 Activo

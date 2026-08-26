@@ -90,10 +90,22 @@ const InfoForm = ({ branch, isSubmitting, onSubmit, onCancel }: InfoFormProps) =
           />
           <HStack gap="4" align="start">
             <Box flex="1">
-              <FormField name="latitude" label="Latitud" required inputMode="decimal" placeholder="-34.58" />
+              <FormField
+                name="latitude"
+                label="Latitud"
+                required
+                inputMode="decimal"
+                placeholder="-34.58"
+              />
             </Box>
             <Box flex="1">
-              <FormField name="longitude" label="Longitud" required inputMode="decimal" placeholder="-58.63" />
+              <FormField
+                name="longitude"
+                label="Longitud"
+                required
+                inputMode="decimal"
+                placeholder="-58.63"
+              />
             </Box>
           </HStack>
           <FormField name="phone" label="Teléfono" placeholder="Ej: 11 5555 1111" />
@@ -189,11 +201,7 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
         })}
       </VStack>
       <HStack justify="end">
-        <PrimaryButton
-          size="md"
-          loading={isSubmitting}
-          onClick={() => onSave(hours)}
-        >
+        <PrimaryButton size="md" loading={isSubmitting} onClick={() => onSave(hours)}>
           Guardar horarios
         </PrimaryButton>
       </HStack>
@@ -232,7 +240,10 @@ export const BranchEditPage = () => {
     return (
       <WidePageContainer>
         <BackButton />
-        <EmptyState title="Sucursal no encontrada" description="La sucursal que buscás no existe." />
+        <EmptyState
+          title="Sucursal no encontrada"
+          description="La sucursal que buscás no existe."
+        />
       </WidePageContainer>
     )
   }

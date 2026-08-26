@@ -71,7 +71,10 @@ export const useStaff = (): UseStaffReturn => {
       )
       const mock = MOCK_STAFF.find((member) => member.id === id)
       if (mock) {
-        Object.assign(mock, next.find((member) => member.id === id))
+        Object.assign(
+          mock,
+          next.find((member) => member.id === id),
+        )
       }
       await mutate(next, { revalidate: false })
       await patchJson(`/api/users/${id}`, input)

@@ -2,7 +2,13 @@ import { Heading, HStack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FormField, FormLayout, PrimaryButton, ResponsiveModal, ToggleSwitch } from '@repo/components'
+import {
+  FormField,
+  FormLayout,
+  PrimaryButton,
+  ResponsiveModal,
+  ToggleSwitch,
+} from '@repo/components'
 import { FormSelectField } from '../FormSelectField'
 import {
   configGroupSchema,
@@ -66,7 +72,11 @@ export const ConfigGroupFormModal = ({
               <Text fontSize="sm" color="fg.muted">
                 Obligatorio
               </Text>
-              <ToggleSwitch checked={required} onChange={setRequired} ariaLabel="Grupo obligatorio" />
+              <ToggleSwitch
+                checked={required}
+                onChange={setRequired}
+                ariaLabel="Grupo obligatorio"
+              />
             </HStack>
             <FormField name="min" label="Mínimo" required inputMode="numeric" placeholder="0" />
             <FormField name="max" label="Máximo" required inputMode="numeric" placeholder="1" />

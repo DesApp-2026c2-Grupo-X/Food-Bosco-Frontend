@@ -214,10 +214,7 @@ export const AdminLayout = () => {
                 >
                   {initials}
                 </Box>
-                <Text
-                  fontWeight="medium"
-                  display={{ base: 'none', lg: 'block' }}
-                >
+                <Text fontWeight="medium" display={{ base: 'none', lg: 'block' }}>
                   {user.firstName} {user.lastName}
                 </Text>
               </NavLink>

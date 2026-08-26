@@ -29,8 +29,7 @@ const STATUS_OPTIONS = [
 ]
 
 export const CategoriesPage = () => {
-  const { categories, isLoading, isMutating, create, update, toggle, remove } =
-    useAdminCategories()
+  const { categories, isLoading, isMutating, create, update, toggle, remove } = useAdminCategories()
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<Category | null>(null)
@@ -40,7 +39,7 @@ export const CategoriesPage = () => {
 
   const isNew = pathname === routes.categoryNew
   const editingId = categoryId ? Number(categoryId) : null
-  const editing = editingId != null ? categories.find((c) => c.id === editingId) ?? null : null
+  const editing = editingId != null ? (categories.find((c) => c.id === editingId) ?? null) : null
   const formOpen = isNew || (editingId != null && editing != null)
 
   const closeForm = () => navigate(routes.categories)
@@ -65,9 +64,7 @@ export const CategoriesPage = () => {
     {
       key: 'status',
       header: 'Estado',
-      render: (category) => (
-        <Muted fontSize="sm">{category.active ? 'Activa' : 'Inactiva'}</Muted>
-      ),
+      render: (category) => <Muted fontSize="sm">{category.active ? 'Activa' : 'Inactiva'}</Muted>,
     },
     {
       key: 'actions',

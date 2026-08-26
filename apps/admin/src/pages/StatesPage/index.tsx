@@ -32,10 +32,7 @@ export const StatesPage = () => {
     closeForm()
   }
 
-  const sorted = useMemo(
-    () => [...states].sort((a, b) => a.order - b.order),
-    [states],
-  )
+  const sorted = useMemo(() => [...states].sort((a, b) => a.order - b.order), [states])
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -48,7 +45,11 @@ export const StatesPage = () => {
 
   const columns: DataTableColumn<OrderState>[] = [
     { key: 'code', header: 'Código', render: (state) => <Strong>{state.code}</Strong> },
-    { key: 'name', header: 'Nombre visible', render: (state) => <Muted fontSize="sm">{state.name}</Muted> },
+    {
+      key: 'name',
+      header: 'Nombre visible',
+      render: (state) => <Muted fontSize="sm">{state.name}</Muted>,
+    },
     {
       key: 'order',
       header: 'Orden',
@@ -82,7 +83,9 @@ export const StatesPage = () => {
     <WidePageContainer>
       <VStack align="start" gap="1">
         <PageTitle>Estados generales</PageTitle>
-        <Muted>Administrá el catálogo de estados de pedido. Cambiarlos puede afectar el flujo.</Muted>
+        <Muted>
+          Administrá el catálogo de estados de pedido. Cambiarlos puede afectar el flujo.
+        </Muted>
       </VStack>
 
       <HStack justify="space-between" align="center" width="full" wrap="wrap" gap="3">

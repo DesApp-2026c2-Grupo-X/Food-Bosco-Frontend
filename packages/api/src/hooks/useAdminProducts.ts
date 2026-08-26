@@ -38,9 +38,7 @@ export const useAdminProducts = (): UseAdminProductsReturn => {
       setIsToggling(true)
       const current = data ?? toRows(MOCK_PRODUCTS)
       const next = current.map((row) =>
-        row.product.id === productId
-          ? { ...row, product: { ...row.product, available } }
-          : row,
+        row.product.id === productId ? { ...row, product: { ...row.product, available } } : row,
       )
       const mock = MOCK_PRODUCTS.find((product) => product.id === productId)
       if (mock) mock.available = available

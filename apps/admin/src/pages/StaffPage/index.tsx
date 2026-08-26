@@ -41,7 +41,8 @@ export const StaffPage = () => {
     const query = search.trim().toLowerCase()
     return staff.filter((member) => {
       const fullName = `${member.firstName} ${member.lastName}`.toLowerCase()
-      const matchesSearch = !query || fullName.includes(query) || member.email.toLowerCase().includes(query)
+      const matchesSearch =
+        !query || fullName.includes(query) || member.email.toLowerCase().includes(query)
       const matchesRole = !role || member.role === role
       return matchesSearch && matchesRole
     })
