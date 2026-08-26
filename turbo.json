@@ -15,6 +15,9 @@
     "typecheck": {
       "dependsOn": ["^typecheck"]
     },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
     "format": {
       "outputs": []
     },
