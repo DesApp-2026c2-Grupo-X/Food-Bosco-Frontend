@@ -18,7 +18,9 @@ export const authRouteObjects = (config: AuthRoutesConfig = {}): RouteObject[] =
     element: (
       <AuthProvider
         defaultPath={config.defaultPath}
+        branchUrl={config.branchUrl}
         adminUrl={config.adminUrl}
+        riderUrl={config.riderUrl}
         redirectByRole={config.redirectByRole}
       >
         <AuthLayout logoLight={config.logoLight} logoDark={config.logoDark} />

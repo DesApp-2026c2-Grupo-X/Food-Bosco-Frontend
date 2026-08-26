@@ -65,10 +65,10 @@ export const LoginPage = () => {
           Solo para desarrollo
         </Muted>
         <HStack gap="2" justify="center">
-          <SecondaryButton size="sm" onClick={() => mockLogin('client')}>
+          <SecondaryButton size="sm" onClick={() => mockLogin('customer')}>
             Mock cliente
           </SecondaryButton>
-          <SecondaryButton size="sm" onClick={() => mockLogin('admin')}>
+          <SecondaryButton size="sm" onClick={() => mockLogin('branch_admin')}>
             Mock admin
           </SecondaryButton>
         </HStack>

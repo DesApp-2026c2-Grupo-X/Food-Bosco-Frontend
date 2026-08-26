@@ -11,6 +11,7 @@ type LoginValues = z.infer<typeof loginSchema>
 
 export const useLogin = () => {
   const login = useAuthStore((state) => state.login)
+  const mockLoginAction = useAuthStore((state) => state.mockLogin)
   const redirect = useAuthRedirect()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,7 +27,7 @@ export const useLogin = () => {
     setSubmitting(true)
     setError(null)
     try {
-      await login(values.email.trim())
+      await login({ email: values.email.trim(), password: values.password })
       redirect(useAuthStore.getState().user?.role)
     } catch {
       setError('No pudimos iniciar sesión. Revisá tus datos.')
@@ -37,7 +38,7 @@ export const useLogin = () => {
 
   const mockLogin = async (role: UserRole) => {
     setError(null)
-    await login(`mock-${role}@unahur.edu.ar`, role)
+    await mockLoginAction(role)
     redirect(role)
   }
 

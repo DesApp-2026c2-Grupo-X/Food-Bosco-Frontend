@@ -6,21 +6,35 @@ interface LocationState {
   from?: { pathname?: string }
 }
 
+type RedirectUrlKey = 'branchUrl' | 'adminUrl' | 'riderUrl'
+
+const ROLE_URL_KEY: Record<UserRole, RedirectUrlKey | null> = {
+  customer: null,
+  branch_admin: 'branchUrl',
+  super_admin: 'adminUrl',
+  rider: 'riderUrl',
+}
+
 export const useAuthRedirect = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { defaultPath = '/', adminUrl, redirectByRole } = useAuthConfig()
+  const config = useAuthConfig()
 
   return (role?: UserRole) => {
-    if (redirectByRole) {
-      redirectByRole(role)
+    if (config.redirectByRole) {
+      config.redirectByRole(role)
       return
     }
-    if (role === 'admin' && adminUrl) {
-      window.location.assign(adminUrl)
-      return
+
+    if (role) {
+      const urlKey = ROLE_URL_KEY[role]
+      if (urlKey && config[urlKey]) {
+        window.location.assign(config[urlKey])
+        return
+      }
     }
+
     const from = (location.state as LocationState | null)?.from?.pathname
-    navigate(from && from !== '/login' ? from : defaultPath, { replace: true })
+    navigate(from && from !== '/login' ? from : (config.defaultPath ?? '/'), { replace: true })
   }
 }

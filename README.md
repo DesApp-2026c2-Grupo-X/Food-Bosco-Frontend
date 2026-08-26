@@ -3,7 +3,7 @@
 Monorepo Turborepo con dos aplicaciones frontend independientes:
 
 - `apps/store` — tienda para clientes (Vite + React + Chakra UI, puerto 5173).
-- `apps/admin` — sistema administrativo (Vite + React + Chakra UI, puerto 5174).
+- `apps/branch` — sistema administrativo (Vite + React + Chakra UI, puerto 5174).
 
 ## Requisitos
 
@@ -14,7 +14,7 @@ Monorepo Turborepo con dos aplicaciones frontend independientes:
 
 ```bash
 npm install        # instala dependencias del workspace
-npm run dev        # levanta store y admin en paralelo (Turborepo)
+npm run dev        # levanta store y branch en paralelo (Turborepo)
 npm run build      # compila ambas aplicaciones
 npm run lint       # ESLint en todas las apps (config compartida)
 npm run typecheck  # TypeScript en todas las apps (config compartida)
