@@ -1,10 +1,10 @@
 # UI Manifesto — DESA Apps
 
-Este documento es la **fuente de verdad visual, de sistema y de producto** para los frontends (store + branch). Todo agente que escriba UI debe leerlo antes de tocar código. Leer junto con la skill `frontend-components` (reglas de código). Las skills `interface-design`, `better-ui`, `impeccable` y `apple-ui-design` son **solo orientativas**: ante cualquier conflicto, **gana este documento**.
+Este documento es la **fuente de verdad visual, de sistema y de producto** para los frontends (store + admin). Todo agente que escriba UI debe leerlo antes de tocar código. Leer junto con la skill `frontend-components` (reglas de código). Las skills `interface-design`, `better-ui`, `impeccable` y `apple-ui-design` son **solo orientativas**: ante cualquier conflicto, **gana este documento**.
 
 > **Principio raíz:** no hacemos una versión "más linda" de lo que ya existe. Entendemos el problema, cuestionamos la estructura, quitamos lo innecesario, organizamos lo que importa, damos jerarquía y espacio, y recién después aplicamos identidad. **Preservar el propósito. Romper el layout. Diseñar la experiencia.**
 
-> **Spec funcional:** `requerimientos-funcionales.md` (en esta misma carpeta) define el **alcance funcional** (roles, admin página por página, responsive, integración backend). Este manifesto es la fuente de verdad **visual y de sistema**; la spec es la fuente de verdad **funcional**. Si una decisión cambia el sistema visual, actualizar este documento.
+> **Spec funcional:** `requerimientos-frontend.md` (en esta misma carpeta) define el **alcance funcional** (roles, admin página por página, responsive, integración backend). Este manifesto es la fuente de verdad **visual y de sistema**; la spec es la fuente de verdad **funcional**. Si una decisión cambia el sistema visual, actualizar este documento.
 
 ---
 
@@ -153,7 +153,7 @@ Definida en `@repo/theme` (`packages/theme/src/config.ts`) como tokens semántic
 
 ### 5.6 Estados de pedido
 
-Traducción + apariencia compartidas entre store y branch. Usar `OrderStatusBadge` (color + punto + texto) y, en seguimiento, un timeline.
+Traducción + apariencia compartidas entre store y admin. Usar `OrderStatusBadge` (color + punto + texto) y, en seguimiento, un timeline.
 
 | Estado               | Etiqueta            | Tratamiento      |
 | -------------------- | ------------------- | ---------------- |
@@ -194,7 +194,7 @@ Dos contenedores de página, unificados en `@repo/components`. **Ninguna página
 
 - **`PageContainer`** — angosto (`maxW="2xl"`, centrado, `gap="6"`). Para formularios/detalle: Mis direcciones, Sucursales, Editar perfil, Mi perfil, Mis pedidos, Detalle de pedido, Checkout.
 - **`WidePageContainer`** — full-width (hasta el `Container maxW="1200px"` del `StoreLayout`, `gap={{ base: "8", md: "12" }}`). Para listados y páginas amplias: Inicio, Catálogo, Carrito, Detalle de producto.
-- La **autenticación es su propia app** (`apps/auth`, puerto 5175): login/registro/recuperar/restablecer viven ahí, dentro del shell `AuthLayout` (columna 480px + imagen). Tras loguearse redirige a `store`, `branch` o `admin` según el `role`. Store, branch y admin no tienen UI de auth propia.
+- La **autenticación es su propia app** (`apps/auth`, puerto 5175): login/registro/recuperar/restablecer viven ahí, dentro del shell `AuthLayout` (columna 480px + imagen). Tras loguearse redirige a `store` o `admin` según el `role`. Store y admin no tienen UI de auth propia.
 
 ### 5.12 Tokens de diseño (`@repo/components`)
 
@@ -222,11 +222,11 @@ Dos contenedores de página, unificados en `@repo/components`. **Ninguna página
 
 ### 6.1 Apps
 
-| App           | Puerto (dev) | Rol                                                                                                                                                                                                 |
-| ------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/auth`   | 5175         | Autenticación (login/registro/recuperar). Tras el login redirige a `store`, `branch` o `admin` según el `role` del auth API (`src/config.ts`, `VITE_STORE_URL`/`VITE_BRANCH_URL`/`VITE_ADMIN_URL`). |
-| `apps/store`  | 5173         | Cliente (catálogo, carrito, pedidos, perfil).                                                                                                                                                       |
-| `apps/branch` | 5174         | Administración (aún base).                                                                                                                                                                          |
+| App          | Puerto (dev) | Rol                                                                                                                                                                     |
+| ------------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/auth`  | 5175         | Autenticación (login/registro/recuperar). Tras el login redirige a `store` o `admin` según el `role` del auth API (`src/config.ts`, `VITE_STORE_URL`/`VITE_ADMIN_URL`). |
+| `apps/store` | 5173         | Cliente (catálogo, carrito, pedidos, perfil).                                                                                                                           |
+| `apps/admin` | 5174         | Administración (aún base).                                                                                                                                              |
 
 ### 6.2 Rutas de la tienda (`apps/store/src/App.tsx`)
 

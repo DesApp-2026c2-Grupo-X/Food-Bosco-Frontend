@@ -3,10 +3,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import type { z } from 'zod'
 import { forgotPasswordSchema } from '@repo/domain'
+import { useAuthStore } from '@repo/api'
 
 type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>
 
 export const useForgotPassword = () => {
+  const forgotPassword = useAuthStore((state) => state.forgotPassword)
   const [submitting, setSubmitting] = useState(false)
   const [sent, setSent] = useState(false)
 
@@ -17,11 +19,14 @@ export const useForgotPassword = () => {
     reValidateMode: 'onChange',
   })
 
-  const onSubmit = form.handleSubmit(async () => {
+  const onSubmit = form.handleSubmit(async (values) => {
     setSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 600))
-    setSubmitting(false)
-    setSent(true)
+    try {
+      await forgotPassword(values.email.trim())
+      setSent(true)
+    } finally {
+      setSubmitting(false)
+    }
   })
 
   return { form, submitting, sent, onSubmit }

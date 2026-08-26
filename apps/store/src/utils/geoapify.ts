@@ -1,5 +1,30 @@
 const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY ?? ''
 
+export interface GeocodedCoordinates {
+  lat: number
+  lon: number
+}
+
+interface GeoapifyGeocodeResponse {
+  results?: { lat?: number; lon?: number }[]
+}
+
+export const geocodeAddress = async (text: string): Promise<GeocodedCoordinates | null> => {
+  if (!GEOAPIFY_API_KEY) return null
+
+  const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(text)}&format=json&limit=1&apiKey=${GEOAPIFY_API_KEY}`
+
+  const res = await fetch(url).catch(() => null)
+  if (!res || !res.ok) return null
+
+  const json = (await res.json().catch(() => null)) as GeoapifyGeocodeResponse | null
+  const first = json?.results?.[0]
+  if (typeof first?.lat === 'number' && typeof first?.lon === 'number') {
+    return { lat: first.lat, lon: first.lon }
+  }
+  return null
+}
+
 export interface StaticMapMarker {
   lat: number
   lon: number

@@ -1,4 +1,4 @@
-import { VStack } from '@chakra-ui/react'
+import { Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
 import { FormPasswordField, PrimaryButton } from '@repo/components'
 import { AuthSuccess } from '../../components/AuthSuccess'
@@ -7,7 +7,7 @@ import { authRoutes } from '../../routes'
 import { useResetPassword } from './hooks/useResetPassword'
 
 export const ResetPasswordPage = () => {
-  const { form, submitting, done, onSubmit } = useResetPassword()
+  const { form, submitting, done, error, onSubmit } = useResetPassword()
 
   if (done) {
     return (
@@ -44,6 +44,11 @@ export const ResetPasswordPage = () => {
               autoComplete="new-password"
               placeholder="Repetí tu contraseña"
             />
+            {error ? (
+              <Text color="danger" fontSize="sm">
+                {error}
+              </Text>
+            ) : null}
             <PrimaryButton
               type="submit"
               disabled={!form.formState.isValid || submitting}

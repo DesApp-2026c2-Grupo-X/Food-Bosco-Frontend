@@ -2,30 +2,42 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import type { z } from 'zod'
+import { useAddresses } from '@repo/api'
 import { useAddressStore } from '../../../stores/addressStore'
 import { addressSchema } from '@repo/domain'
 import type { Address, AddressInput } from '@repo/domain'
+import { geocodeAddress } from '../../../utils/geoapify'
+import { toTitleCase } from '../../../utils/format'
 
 type AddressValues = z.infer<typeof addressSchema>
 
-const EMPTY: AddressValues = { label: '', street: '', city: '', reference: '' }
+const EMPTY: AddressValues = { label: '', text: '', city: '', postalCode: '' }
+
+type PickerStep = 'list' | 'form' | 'confirm'
 
 export interface UseAddressPickerReturn {
   addresses: Address[]
-  showForm: boolean
+  step: PickerStep
   form: ReturnType<typeof useForm<AddressValues>>
+  pending: AddressInput | null
+  submitting: boolean
+  error: string | null
   handleSelect: (id: string) => void
-  handleAdd: (e?: React.BaseSyntheticEvent) => Promise<void>
+  handleSubmitForm: (e?: React.BaseSyntheticEvent) => Promise<void>
+  handleConfirm: () => Promise<void>
   openForm: () => void
-  closeForm: () => void
+  backToForm: () => void
+  backToList: () => void
 }
 
 export const useAddressPicker = (open: boolean, onClose: () => void): UseAddressPickerReturn => {
-  const addresses = useAddressStore((state) => state.addresses)
+  const { addresses, create } = useAddresses()
   const selectAddress = useAddressStore((state) => state.selectAddress)
-  const addAddress = useAddressStore((state) => state.addAddress)
 
-  const [showForm, setShowForm] = useState(addresses.length === 0)
+  const [step, setStep] = useState<PickerStep>(addresses.length === 0 ? 'form' : 'list')
+  const [pending, setPending] = useState<AddressInput | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const form = useForm<AddressValues>({
     resolver: zodResolver(addressSchema),
@@ -36,8 +48,10 @@ export const useAddressPicker = (open: boolean, onClose: () => void): UseAddress
 
   useEffect(() => {
     if (!open) {
-      setShowForm(addresses.length === 0)
+      setStep(addresses.length === 0 ? 'form' : 'list')
+      setPending(null)
       form.reset(EMPTY)
+      setError(null)
     }
   }, [open, addresses.length, form])
 
@@ -46,24 +60,64 @@ export const useAddressPicker = (open: boolean, onClose: () => void): UseAddress
     onClose()
   }
 
-  const handleAdd = form.handleSubmit((values) => {
-    const input: AddressInput = {
-      label: values.label.trim() || 'Dirección',
-      street: values.street.trim(),
-      city: values.city.trim(),
-      reference: values.reference.trim() || undefined,
+  const handleSubmitForm = form.handleSubmit(async (values) => {
+    const coords = await geocodeAddress(`${values.text.trim()}, ${values.city.trim()}`)
+    if (!coords) {
+      setError('No pudimos ubicar esa dirección. Revisá los datos.')
+      return
     }
-    addAddress(input)
-    onClose()
+
+    const input: AddressInput = {
+      label: toTitleCase(values.label) || 'Dirección',
+      text: toTitleCase(values.text),
+      city: toTitleCase(values.city),
+      postalCode: values.postalCode.trim(),
+      latitude: coords.lat,
+      longitude: coords.lon,
+    }
+
+    setError(null)
+    setPending(input)
+    setStep('confirm')
   })
+
+  const handleConfirm = async () => {
+    if (!pending) return
+
+    setSubmitting(true)
+    setError(null)
+    try {
+      const created = await create(pending)
+      if (created) selectAddress(created.id)
+      onClose()
+    } catch {
+      setError('No pudimos guardar la dirección.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return {
     addresses,
-    showForm,
+    step,
     form,
+    pending,
+    submitting,
+    error,
     handleSelect,
-    handleAdd,
-    openForm: () => setShowForm(true),
-    closeForm: () => setShowForm(false),
+    handleSubmitForm,
+    handleConfirm,
+    openForm: () => {
+      setError(null)
+      setStep('form')
+    },
+    backToForm: () => {
+      setError(null)
+      setStep('form')
+    },
+    backToList: () => {
+      setError(null)
+      setStep('list')
+    },
   }
 }

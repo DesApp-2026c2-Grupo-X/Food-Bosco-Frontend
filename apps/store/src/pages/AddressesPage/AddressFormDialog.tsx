@@ -1,4 +1,4 @@
-import { Heading, VStack } from '@chakra-ui/react'
+import { Heading, Text, VStack } from '@chakra-ui/react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import type { z } from 'zod'
 import { addressSchema } from '@repo/domain'
@@ -9,6 +9,8 @@ type AddressValues = z.infer<typeof addressSchema>
 interface AddressFormDialogProps {
   open: boolean
   editing: boolean
+  submitting: boolean
+  error: string | null
   form: UseFormReturn<AddressValues>
   onClose: () => void
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>
@@ -17,6 +19,8 @@ interface AddressFormDialogProps {
 export const AddressFormDialog = ({
   open,
   editing,
+  submitting,
+  error,
   form,
   onClose,
   onSubmit,
@@ -30,22 +34,19 @@ export const AddressFormDialog = ({
           </Heading>
           <VStack gap="4" align="stretch">
             <FormField name="label" label="Nombre" placeholder="Casa, Facultad, Trabajo…" />
-            <FormField
-              name="street"
-              label="Calle y número"
-              required
-              placeholder="Av. Ejemplo 123"
-            />
+            <FormField name="text" label="Calle y número" required placeholder="Av. Ejemplo 123" />
             <FormField name="city" label="Localidad" required placeholder="Hurlingham" />
-            <FormField
-              name="reference"
-              label="Referencia"
-              placeholder="Piso, depto, entre calles…"
-            />
+            <FormField name="postalCode" label="Código postal" required placeholder="1686" />
+            {error ? (
+              <Text color="danger" fontSize="sm">
+                {error}
+              </Text>
+            ) : null}
             <PrimaryButton
               type="submit"
               width="full"
-              disabled={!form.formState.isValid}
+              disabled={!form.formState.isValid || submitting}
+              loading={submitting}
               marginTop="2"
             >
               Guardar

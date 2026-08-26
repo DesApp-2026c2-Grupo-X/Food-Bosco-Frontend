@@ -1,19 +1,12 @@
-import { Box, HStack, Text, VStack } from '@chakra-ui/react'
+import { HStack, Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
-import {
-  FormField,
-  FormPasswordField,
-  Muted,
-  PrimaryButton,
-  SecondaryButton,
-  TextLink,
-} from '@repo/components'
+import { FormField, FormPasswordField, PrimaryButton, TextLink } from '@repo/components'
 import { PageHeader } from '../../components/PageHeader'
 import { authRoutes } from '../../routes'
 import { useLogin } from './hooks/useLogin'
 
 export const LoginPage = () => {
-  const { form, submitting, error, onSubmit, mockLogin } = useLogin()
+  const { form, submitting, error, onSubmit } = useLogin()
 
   return (
     <VStack gap="8" align="stretch">
@@ -58,21 +51,6 @@ export const LoginPage = () => {
         <TextLink to={authRoutes.forgotPassword}>Olvidé mi contraseña</TextLink>
         <TextLink to={authRoutes.register}>Crear cuenta</TextLink>
       </HStack>
-
-      <Box>
-        <Box borderTop="1px solid" borderColor="border.subtle" marginBottom="3" />
-        <Muted fontSize="xs" textAlign="center" marginBottom="2">
-          Solo para desarrollo
-        </Muted>
-        <HStack gap="2" justify="center">
-          <SecondaryButton size="sm" onClick={() => mockLogin('customer')}>
-            Mock cliente
-          </SecondaryButton>
-          <SecondaryButton size="sm" onClick={() => mockLogin('branch_admin')}>
-            Mock admin
-          </SecondaryButton>
-        </HStack>
-      </Box>
     </VStack>
   )
 }

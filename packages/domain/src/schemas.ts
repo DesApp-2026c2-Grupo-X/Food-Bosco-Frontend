@@ -56,9 +56,9 @@ export const resetPasswordSchema = z
 
 export const addressSchema = z.object({
   label: z.string().trim(),
-  street: z.string().trim().min(1, 'Este campo es requerido'),
+  text: z.string().trim().min(1, 'Este campo es requerido'),
   city: z.string().trim().min(1, 'Este campo es requerido'),
-  reference: z.string().trim(),
+  postalCode: z.string().trim().min(1, 'Este campo es requerido'),
 })
 
 export const profileSchema = z.object({

@@ -3,12 +3,8 @@ import { FormProvider } from 'react-hook-form'
 import { FormField, GhostButton, PrimaryButton, TextField } from '@repo/components'
 import { useProfileForm } from './hooks/useProfileForm'
 
-interface ProfileFormProps {
-  userId?: number
-}
-
-export const ProfileForm = ({ userId }: ProfileFormProps) => {
-  const { user, isLoading, form, isDirty, onSave, onCancel } = useProfileForm({ userId })
+export const ProfileForm = () => {
+  const { user, isLoading, form, isDirty, onSave, onCancel } = useProfileForm()
 
   if (isLoading) return null
 
