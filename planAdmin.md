@@ -12,15 +12,15 @@
 
 La app `apps/branch` está **completa** y es el molde directo:
 
-| Pieza | Ubicación | Qué hace |
-| --- | --- | --- |
-| `main.tsx` | `apps/branch/src` | `ColorModeProvider` + `ChakraProvider(system)` + `GraphQLProvider` + `BrowserRouter` |
-| `App.tsx` | `apps/branch/src` | `useRoutes([...authRouteObjects({...}), { RequireAuth roles=['branch_admin'], children: [BranchLayout → páginas] }])` |
-| `routes.ts` | `apps/branch/src` | rutas en inglés + helpers (`orderDetailPath`) |
-| `config.ts` | `apps/branch/src` | `BRANCH_URL`, `ADMIN_URL`, `RIDER_URL`, `MOCK_AUTH` |
-| `theme.ts` | `apps/branch/src` | `createSystem(defaultConfig, config)` desde `@repo/theme` |
-| `layouts/BranchLayout` | `apps/branch/src/layouts` | sidebar sticky (desktop) + header + drawer (mobile) + `utils/navigation.ts` + `types.ts` |
-| `components/Logo` | `apps/branch/src/components` | wrapper de `Logo` de `@repo/components` con assets locales |
+| Pieza                  | Ubicación                    | Qué hace                                                                                                              |
+| ---------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `main.tsx`             | `apps/branch/src`            | `ColorModeProvider` + `ChakraProvider(system)` + `GraphQLProvider` + `BrowserRouter`                                  |
+| `App.tsx`              | `apps/branch/src`            | `useRoutes([...authRouteObjects({...}), { RequireAuth roles=['branch_admin'], children: [BranchLayout → páginas] }])` |
+| `routes.ts`            | `apps/branch/src`            | rutas en inglés + helpers (`orderDetailPath`)                                                                         |
+| `config.ts`            | `apps/branch/src`            | `BRANCH_URL`, `ADMIN_URL`, `RIDER_URL`, `MOCK_AUTH`                                                                   |
+| `theme.ts`             | `apps/branch/src`            | `createSystem(defaultConfig, config)` desde `@repo/theme`                                                             |
+| `layouts/BranchLayout` | `apps/branch/src/layouts`    | sidebar sticky (desktop) + header + drawer (mobile) + `utils/navigation.ts` + `types.ts`                              |
+| `components/Logo`      | `apps/branch/src/components` | wrapper de `Logo` de `@repo/components` con assets locales                                                            |
 
 ### 1.2 Paquetes compartidos ya disponibles (`packages/`)
 
@@ -46,29 +46,29 @@ La app `apps/branch` está **completa** y es el molde directo:
 
 El admin global **define lo global** y ve pedidos/stock/reportes de **todas** las sucursales. Pantallas requeridas:
 
-| ID | Pantalla | Ruta propuesta | Tipo |
-| --- | --- | --- | --- |
-| G-01 | Lista de categorías | `/categories` | listado + filtro + ABM |
-| G-02 | Formulario de categoría | `/categories/new`, `/categories/:categoryId/edit` | modal corto |
-| G-03 | Lista de productos | `/products` | listado + filtros + toggle disponibilidad |
-| G-04 | Crear/editar producto | `/products/new`, `/products/:productId/edit` | página con tabs |
-| G-05 | Configuraciones de producto | tab "Configuraciones" dentro de edición | CRUD grupos/opciones |
-| G-06 | Ingredientes/receta del producto | tab "Receta" dentro de edición | CRUD ingrediente+cantidad |
-| G-07 | Catálogo de ingredientes | `/ingredients` | listado + ABM |
-| G-08 | Lista de sucursales | `/branches` | listado + filtro + ABM |
-| G-09 | Crear/editar sucursal y horarios | `/branches/new`, `/branches/:branchId/edit` | página con tabs (info + horarios) |
-| G-10 | Lista de promociones | `/promotions` | listado + filtro + ABM |
-| G-11 | Crear/editar promoción | `/promotions/new`, `/promotions/:promotionId/edit` | modal/página |
-| G-12 | Lista de personal | `/staff` | listado + filtro + ABM |
-| G-13 | Crear/editar colaborador | `/staff/new`, `/staff/:userId/edit` | página (rol + sucursal) |
-| G-14 | Estados generales | `/states` | listado + ABM (catálogo) |
-| G-15 | Parámetros del sistema | `/parameters` | listado + edición modal |
-| — | Inicio global | `/` | accesos rápidos + pedidos con atención |
-| — | Pedidos (todas) | `/orders` | listado global + filtros |
-| — | Detalle y cambio de estado | `/orders/:orderId` | reutiliza patrón de `apps/branch` |
-| — | Stock (todas) | `/stock` | listado + ajuste + filtro por sucursal |
-| — | Reportes (todas) | `/reports/products` | 4 tabs + filtro por sucursal |
-| — | Perfil | `/profile` | reutiliza patrón de `apps/branch` |
+| ID   | Pantalla                         | Ruta propuesta                                     | Tipo                                      |
+| ---- | -------------------------------- | -------------------------------------------------- | ----------------------------------------- |
+| G-01 | Lista de categorías              | `/categories`                                      | listado + filtro + ABM                    |
+| G-02 | Formulario de categoría          | `/categories/new`, `/categories/:categoryId/edit`  | modal corto                               |
+| G-03 | Lista de productos               | `/products`                                        | listado + filtros + toggle disponibilidad |
+| G-04 | Crear/editar producto            | `/products/new`, `/products/:productId/edit`       | página con tabs                           |
+| G-05 | Configuraciones de producto      | tab "Configuraciones" dentro de edición            | CRUD grupos/opciones                      |
+| G-06 | Ingredientes/receta del producto | tab "Receta" dentro de edición                     | CRUD ingrediente+cantidad                 |
+| G-07 | Catálogo de ingredientes         | `/ingredients`                                     | listado + ABM                             |
+| G-08 | Lista de sucursales              | `/branches`                                        | listado + filtro + ABM                    |
+| G-09 | Crear/editar sucursal y horarios | `/branches/new`, `/branches/:branchId/edit`        | página con tabs (info + horarios)         |
+| G-10 | Lista de promociones             | `/promotions`                                      | listado + filtro + ABM                    |
+| G-11 | Crear/editar promoción           | `/promotions/new`, `/promotions/:promotionId/edit` | modal/página                              |
+| G-12 | Lista de personal                | `/staff`                                           | listado + filtro + ABM                    |
+| G-13 | Crear/editar colaborador         | `/staff/new`, `/staff/:userId/edit`                | página (rol + sucursal)                   |
+| G-14 | Estados generales                | `/states`                                          | listado + ABM (catálogo)                  |
+| G-15 | Parámetros del sistema           | `/parameters`                                      | listado + edición modal                   |
+| —    | Inicio global                    | `/`                                                | accesos rápidos + pedidos con atención    |
+| —    | Pedidos (todas)                  | `/orders`                                          | listado global + filtros                  |
+| —    | Detalle y cambio de estado       | `/orders/:orderId`                                 | reutiliza patrón de `apps/branch`         |
+| —    | Stock (todas)                    | `/stock`                                           | listado + ajuste + filtro por sucursal    |
+| —    | Reportes (todas)                 | `/reports/products`                                | 4 tabs + filtro por sucursal              |
+| —    | Perfil                           | `/profile`                                         | reutiliza patrón de `apps/branch`         |
 
 **Fuera de alcance (no implementar):** motor de descuentos/promociones automáticas, reportes de pedidos/clientes/sucursales/promociones, exportaciones, pagos, notificaciones reales, mapa en Tienda.
 
@@ -167,20 +167,20 @@ Agregar (siguiendo `adjustStockSchema` como molde, mensajes en español, `mode: 
 
 Todos intentan `/api/...`, y si falla/no hay forma esperada devuelven mock. Las mutaciones actualizan el mock in-place y `mutate(..., { revalidate: false })` para la demo.
 
-| Hook | Fuente/endpoints | Retorna |
-| --- | --- | --- |
-| `useAdminCategories` | `GET/POST/PATCH /v1/catalog/categories…` | `categories`, `isLoading`, `create`, `update`, `toggle` |
-| `useAdminProducts` | `GET /v1/catalog/products`, `PATCH …/available` | `products` (+categoría), `isLoading`, `isToggling`, `setAvailable` |
-| `useProductEditor(productId?)` | `GET/POST/PATCH products`, configs, recipe | datos + CRUD de configuraciones y receta (o 3 hooks separados) |
-| `useIngredients` | `GET/POST/PATCH ingredients`, `PATCH …/active` | `ingredients`, CRUD + toggle |
-| `useBranches` | `GET/POST/PATCH branches`, `PATCH …/active`, `PUT …/hours` | `branches`, CRUD + toggle + saveHours |
-| `usePromotions` | `GET/POST/PATCH promotions`, `PATCH …/active` | `promotions`, CRUD + toggle |
-| `useStaff` | `GET /v1/users`, `POST staff/admins`, `PATCH`, `PATCH active` | `staff`, `createStaff`, `createAdmin`, `update`, `toggle` |
-| `useOrderStates` | `GET/POST/PUT config/order-states`, `PATCH active` | `states`, CRUD + toggle |
-| `useParameters` | `GET config/parameters`, `PATCH …/{key}` | `parameters`, `update` |
-| `useGlobalOrders` | `GET /v1/orders` (todas) | `orders`, `isLoading` (reutiliza filtros cliente-side) |
-| `useGlobalStock` | `GET /v1/stock?branchId=`, `POST adjustments` | `stock`, `isLoading`, `isAdjusting`, `adjust` |
-| `useGlobalReports` | `GET /v1/reporting/products/*` (+`branchId`) | 4 listas + `isLoading` |
+| Hook                           | Fuente/endpoints                                              | Retorna                                                            |
+| ------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `useAdminCategories`           | `GET/POST/PATCH /v1/catalog/categories…`                      | `categories`, `isLoading`, `create`, `update`, `toggle`            |
+| `useAdminProducts`             | `GET /v1/catalog/products`, `PATCH …/available`               | `products` (+categoría), `isLoading`, `isToggling`, `setAvailable` |
+| `useProductEditor(productId?)` | `GET/POST/PATCH products`, configs, recipe                    | datos + CRUD de configuraciones y receta (o 3 hooks separados)     |
+| `useIngredients`               | `GET/POST/PATCH ingredients`, `PATCH …/active`                | `ingredients`, CRUD + toggle                                       |
+| `useBranches`                  | `GET/POST/PATCH branches`, `PATCH …/active`, `PUT …/hours`    | `branches`, CRUD + toggle + saveHours                              |
+| `usePromotions`                | `GET/POST/PATCH promotions`, `PATCH …/active`                 | `promotions`, CRUD + toggle                                        |
+| `useStaff`                     | `GET /v1/users`, `POST staff/admins`, `PATCH`, `PATCH active` | `staff`, `createStaff`, `createAdmin`, `update`, `toggle`          |
+| `useOrderStates`               | `GET/POST/PUT config/order-states`, `PATCH active`            | `states`, CRUD + toggle                                            |
+| `useParameters`                | `GET config/parameters`, `PATCH …/{key}`                      | `parameters`, `update`                                             |
+| `useGlobalOrders`              | `GET /v1/orders` (todas)                                      | `orders`, `isLoading` (reutiliza filtros cliente-side)             |
+| `useGlobalStock`               | `GET /v1/stock?branchId=`, `POST adjustments`                 | `stock`, `isLoading`, `isAdjusting`, `adjust`                      |
+| `useGlobalReports`             | `GET /v1/reporting/products/*` (+`branchId`)                  | 4 listas + `isLoading`                                             |
 
 **Reutilizar sin cambios:** `useAdminOrder` (detalle + `changeStatus` + transiciones), `OrderStatusBadge`, `DataTable`, `EmptyState`.
 
@@ -281,12 +281,18 @@ Espejo de branch, con `roles=['super_admin']`:
 
 ```tsx
 useRoutes([
-  ...authRouteObjects({ branchUrl: BRANCH_URL, adminUrl: ADMIN_URL, riderUrl: RIDER_URL, logoLight, logoDark }),
+  ...authRouteObjects({
+    branchUrl: BRANCH_URL,
+    adminUrl: ADMIN_URL,
+    riderUrl: RIDER_URL,
+    logoLight,
+    logoDark,
+  }),
   {
-    element: <RequireAuth loginPath={authRoutes.login} roles={['super_admin']} mockAuth={MOCK_AUTH} />,
-    children: [
-      { element: <AdminLayout />, children: [ /* páginas */ ] },
-    ],
+    element: (
+      <RequireAuth loginPath={authRoutes.login} roles={['super_admin']} mockAuth={MOCK_AUTH} />
+    ),
+    children: [{ element: <AdminLayout />, children: [/* páginas */] }],
   },
 ])
 ```
@@ -311,39 +317,45 @@ useRoutes([
 ## 8. Plan de implementación por fases
 
 ### Fase 1 — Dominio y datos (paquetes)
+
 1. Tipos nuevos en `@repo/domain` (§4) + export en `index.ts`.
 2. Schemas Zod nuevos (§4).
 3. Mocks nuevos (§5.2) + export en `@repo/api/index.ts`.
 4. Hooks nuevos (§5.1) + export en `@repo/api/index.ts`.
 
 ### Fase 2 — Catálogo
+
 - **CategoriesPage** + modal de formulario (`ResponsiveModal` + RHF/Zod). Confirmación antes de desactivar.
 - **IngredientsPage** + modal. Regla: no "eliminar" si está en recetas activas → desactivar.
 - **ProductsPage** (DataTable: miniatura, nombre, categoría, precio, disponibilidad, acciones). Toggle disponibilidad global.
 - **ProductEditPage** con tabs:
-  - *Datos generales* — form producto (G-04).
-  - *Configuraciones* — grupos anidados con opciones (G-05): CRUD grupo + CRUD opción, tipo single/multiple, requerido, min/max, variación de precio, activo.
-  - *Receta* — lista ingrediente+cantidad, agregar/quitar/editar (G-06).
+  - _Datos generales_ — form producto (G-04).
+  - _Configuraciones_ — grupos anidados con opciones (G-05): CRUD grupo + CRUD opción, tipo single/multiple, requerido, min/max, variación de precio, activo.
+  - _Receta_ — lista ingrediente+cantidad, agregar/quitar/editar (G-06).
 
 ### Fase 3 — Operación
+
 - **BranchesPage** (DataTable: nombre, dirección, teléfono, estado, acciones).
-- **BranchEditPage** con tabs: *Información* (G-09) + *Horarios* (tabla 7 días con abre/cierra/cerrado).
+- **BranchEditPage** con tabs: _Información_ (G-09) + _Horarios_ (tabla 7 días con abre/cierra/cerrado).
 - **PromotionsPage** + modal (solo información general, sin descuentos).
 - **OrdersPage** (global, filtros número/cliente, estado, sucursal) — DataTable + `OrderStatusBadge`.
 - **OrderDetailPage** — reutilizar `OrderDetailPage`/`useOrderTransition` de branch (cliente, entrega, detalle, historial, selector de transición).
 - **StockPage** (global) — listado + `AdjustStockModal` (copiar de branch) + `SelectField` de sucursal.
 
 ### Fase 4 — Sistema
+
 - **StaffPage** (DataTable: nombre, rol, sucursal, estado) + filtro por rol.
 - **StaffEditPage** — form (nombre, apellido, email, teléfono, rol, sucursal obligatoria si colaborador, contraseña inicial solo al crear).
 - **StatesPage** — DataTable (código, nombre, orden, activo) + modal; advertir que afecta el flujo.
 - **ParametersPage** — listado + modal de edición (nombre solo lectura, valor, unidad).
 
 ### Fase 5 — Reportes e Inicio
+
 - **ReportsPage** — 4 tabs (más/menos vendidos, sin stock, mayor facturación) + `SelectField` de sucursal (global = todas). Reutiliza estructura de `apps/branch/src/pages/ReportsPage`.
 - **HomePage** — accesos rápidos (grid) + pedidos que requieren atención (global), reutilizando `HomePage`/`utils/attention` de branch.
 
 ### Fase 6 — Verificación y pulido
+
 - Estados transversales: skeleton (DataTable ya lo hace), `EmptyState` con CTA, errores, confirmaciones destructivas (desactivar/eliminar/transición), toasts de éxito.
 - Responsive: verificar 390px y 1280px; tablas con scroll horizontal (`DataTable` ya lo resuelve), acciones en menú en mobile.
 - `npm run lint`, `npm run check-types`, `npm run build` (filtrado a `@repo/admin`).

@@ -32,7 +32,11 @@ export const OrdersPage = () => {
   const [branch, setBranch] = useState('')
 
   const branchOptions = useMemo(
-    () => [...new Set(orders.map((order) => order.branch))].map((name) => ({ value: name, label: name })),
+    () =>
+      [...new Set(orders.map((order) => order.branch))].map((name) => ({
+        value: name,
+        label: name,
+      })),
     [orders],
   )
 

@@ -141,10 +141,7 @@ const staffBase = {
   branchId: z.string().trim().optional(),
 }
 
-const requireBranchForCollaborator = (data: {
-  role: string
-  branchId?: string
-}) =>
+const requireBranchForCollaborator = (data: { role: string; branchId?: string }) =>
   data.role !== 'branch_admin' || (data.branchId != null && data.branchId.length > 0)
 
 export const staffCreateSchema = z
@@ -157,12 +154,10 @@ export const staffCreateSchema = z
     path: ['branchId'],
   })
 
-export const staffUpdateSchema = z
-  .object(staffBase)
-  .refine(requireBranchForCollaborator, {
-    message: 'La sucursal es obligatoria para un colaborador',
-    path: ['branchId'],
-  })
+export const staffUpdateSchema = z.object(staffBase).refine(requireBranchForCollaborator, {
+  message: 'La sucursal es obligatoria para un colaborador',
+  path: ['branchId'],
+})
 
 export const parameterSchema = z.object({
   value: numberField('Ingresá un valor válido').refine(

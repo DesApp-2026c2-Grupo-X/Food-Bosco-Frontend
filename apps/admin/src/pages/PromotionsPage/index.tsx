@@ -43,8 +43,7 @@ export const PromotionsPage = () => {
 
   const isNew = pathname === routes.promotionNew
   const editingId = promotionId ? Number(promotionId) : null
-  const editing =
-    editingId != null ? promotions.find((p) => p.id === editingId) ?? null : null
+  const editing = editingId != null ? (promotions.find((p) => p.id === editingId) ?? null) : null
   const formOpen = isNew || (editingId != null && editing != null)
 
   const closeForm = () => navigate(routes.promotions)

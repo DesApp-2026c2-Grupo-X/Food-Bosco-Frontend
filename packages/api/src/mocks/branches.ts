@@ -1,11 +1,11 @@
 import type { AdminBranch, BranchHours } from '@repo/domain'
 
-const day = (
-  dayOfWeek: number,
-  opening: string,
-  closing: string,
-  closed = false,
-): BranchHours => ({ dayOfWeek, opening, closing, closed })
+const day = (dayOfWeek: number, opening: string, closing: string, closed = false): BranchHours => ({
+  dayOfWeek,
+  opening,
+  closing,
+  closed,
+})
 
 const weekday = (opening: string, closing: string) =>
   [1, 2, 3, 4, 5].map((dayOfWeek) => day(dayOfWeek, opening, closing))

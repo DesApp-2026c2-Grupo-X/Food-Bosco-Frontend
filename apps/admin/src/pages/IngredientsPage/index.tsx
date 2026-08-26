@@ -43,7 +43,8 @@ export const IngredientsPage = () => {
     const query = search.trim().toLowerCase()
     return ingredients.filter((ingredient) => {
       const matchesSearch = !query || ingredient.name.toLowerCase().includes(query)
-      const matchesStatus = !status || (status === 'active' ? ingredient.active : !ingredient.active)
+      const matchesStatus =
+        !status || (status === 'active' ? ingredient.active : !ingredient.active)
       return matchesSearch && matchesStatus
     })
   }, [ingredients, search, status])

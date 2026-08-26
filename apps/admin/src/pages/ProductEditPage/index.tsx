@@ -218,10 +218,7 @@ const ConfigsSection = ({
                     </Muted>
                   </HStack>
                   <HStack gap="1">
-                    <GhostButton
-                      size="xs"
-                      onClick={() => setOptionModal({ group, option })}
-                    >
+                    <GhostButton size="xs" onClick={() => setOptionModal({ group, option })}>
                       Editar
                     </GhostButton>
                     <GhostButton
@@ -434,7 +431,10 @@ export const ProductEditPage = () => {
     return (
       <WidePageContainer>
         <BackButton />
-        <EmptyState title="Producto no encontrado" description="El producto que buscás no existe." />
+        <EmptyState
+          title="Producto no encontrado"
+          description="El producto que buscás no existe."
+        />
       </WidePageContainer>
     )
   }

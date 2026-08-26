@@ -2,7 +2,13 @@ import { Heading, HStack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FormField, FormLayout, PrimaryButton, ResponsiveModal, ToggleSwitch } from '@repo/components'
+import {
+  FormField,
+  FormLayout,
+  PrimaryButton,
+  ResponsiveModal,
+  ToggleSwitch,
+} from '@repo/components'
 import { categorySchema, type CategoryForm, type CategoryInput } from '@repo/domain'
 import type { CategoryFormModalProps } from './types'
 
