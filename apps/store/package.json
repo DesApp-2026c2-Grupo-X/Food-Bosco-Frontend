@@ -9,10 +9,12 @@
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc -b",
-    "android": "vite build --mode native && cap sync android && cap open android"
+    "android": "vite build --mode native && cap sync android && cap open android",
+    "ios": "vite build --mode native && cap sync ios && cap open ios"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.0",
+    "@capacitor/status-bar": "^8.0.3",
     "@chakra-ui/react": "^3.36.1",
     "@emotion/react": "^11.14.0",
     "@gravity-ui/icons": "^2.21.0",
@@ -34,6 +36,7 @@
   "devDependencies": {
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@types/node": "^22.15.3",

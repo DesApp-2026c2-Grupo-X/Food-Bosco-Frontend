@@ -16,7 +16,9 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "store:android": "bash apps/store/android.sh --run",
-    "store:android:build": "bash apps/store/android.sh"
+    "store:android:build": "bash apps/store/android.sh",
+    "store:ios": "bash apps/store/ios.sh --run",
+    "store:ios:build": "bash apps/store/ios.sh"
   },
   "devDependencies": {
     "husky": "^9.1.7",
