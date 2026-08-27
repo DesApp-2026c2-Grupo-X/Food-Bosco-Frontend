@@ -37,3 +37,31 @@ export interface Product {
   configGroups: ProductConfigGroup[]
   recipe?: RecipeItem[]
 }
+
+export interface CategoryInput {
+  name: string
+  active: boolean
+}
+
+export interface ProductInput {
+  categoryId: number
+  name: string
+  description: string
+  price: number
+  image: string
+  available: boolean
+}
+
+export interface ConfigGroupInput {
+  name: string
+  type: ProductOptionType
+  required: boolean
+  min: number
+  max: number
+}
+
+export interface ConfigOptionInput {
+  name: string
+  priceDelta: number
+  active: boolean
+}

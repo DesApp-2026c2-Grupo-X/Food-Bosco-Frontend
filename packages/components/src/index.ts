@@ -20,6 +20,9 @@ export type { PageContainerProps } from './PageContainer/types'
 export { WidePageContainer } from './WidePageContainer'
 export type { WidePageContainerProps } from './WidePageContainer/types'
 
+export { FormLayout } from './FormLayout'
+export type { FormLayoutProps } from './FormLayout/types'
+
 export { PageTitle } from './PageTitle'
 export type { PageTitleProps } from './PageTitle/types'
 

@@ -9,6 +9,7 @@ export interface User {
   phone: string
   active: boolean
   createdAt: string
+  branchId?: string
 }
 
 export interface UpdateProfileInput {

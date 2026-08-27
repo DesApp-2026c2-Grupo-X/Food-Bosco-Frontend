@@ -23,3 +23,9 @@ export const postJson = async <T>(url: string, body: unknown): Promise<T | null>
   if (!res || !res.ok) return null
   return res.json().catch(() => null)
 }
+
+export const deleteJson = async <T>(url: string): Promise<T | null> => {
+  const res = await fetch(url, { method: 'DELETE' }).catch(() => null)
+  if (!res || !res.ok) return null
+  return res.json().catch(() => null)
+}

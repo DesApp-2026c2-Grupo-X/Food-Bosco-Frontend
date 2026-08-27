@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run build --filter='./packages/*' && turbo run dev --filter='./apps/*'",
+    "dev": "turbo run build --filter=\"./packages/*\" && turbo run dev --filter=\"./apps/*\"",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "check-types": "turbo run check-types",
