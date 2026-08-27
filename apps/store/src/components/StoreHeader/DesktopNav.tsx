@@ -22,7 +22,10 @@ export const DesktopNav = ({ items, isActive }: DesktopNavProps) => {
             fontWeight={active ? 'semibold' : 'medium'}
             color={active ? 'white' : 'fg.muted'}
             bg={active ? 'brand.500' : 'transparent'}
-            _hover={{ color: active ? 'white' : 'fg', bg: active ? 'brand.500' : 'bg.muted' }}
+            _hover={{
+              color: active ? 'white' : 'brand.600',
+              bg: active ? 'brand.500' : 'bg.muted',
+            }}
             transition="background-color 150ms, color 150ms"
           >
             <NavLink to={item.path}>{item.label}</NavLink>

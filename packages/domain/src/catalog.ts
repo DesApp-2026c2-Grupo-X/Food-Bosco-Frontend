@@ -1,3 +1,5 @@
+import type { RecipeItem } from './ingredient'
+
 export interface Category {
   id: number
   name: string
@@ -33,4 +35,5 @@ export interface Product {
   categoryId: number
   available: boolean
   configGroups: ProductConfigGroup[]
+  recipe?: RecipeItem[]
 }

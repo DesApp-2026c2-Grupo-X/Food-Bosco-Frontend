@@ -26,6 +26,18 @@ export interface OrderRider {
   vehicle: string
 }
 
+export interface OrderCustomer {
+  name: string
+  phone: string
+  email: string
+}
+
+export interface OrderStatusHistory {
+  previousStatus: OrderStatus
+  newStatus: OrderStatus
+  changedAt: string
+}
+
 export interface Order {
   id: string
   number: number
@@ -42,4 +54,7 @@ export interface Order {
   rider?: OrderRider
   cancelReason?: string
   deliveredAt?: string
+  customer?: OrderCustomer
+  statusHistory?: OrderStatusHistory[]
+  availableTransitions?: OrderStatus[]
 }

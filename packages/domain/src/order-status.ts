@@ -19,3 +19,23 @@ export const ORDER_STATUS_PALETTE = {
   DELIVERED: 'green',
   CANCELLED: 'red',
 } as const satisfies Record<OrderStatus, string>
+
+export const ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  PENDING: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['PREPARING', 'CANCELLED'],
+  PREPARING: ['READY_FOR_DELIVERY', 'CANCELLED'],
+  READY_FOR_DELIVERY: ['ON_THE_WAY', 'CANCELLED'],
+  ON_THE_WAY: ['DELIVERED', 'CANCELLED'],
+  DELIVERED: [],
+  CANCELLED: [],
+}
+
+export const getNextStatuses = (status: OrderStatus): OrderStatus[] =>
+  ORDER_TRANSITIONS[status] ?? []
+
+export const ATTENTION_ORDER_STATUSES: OrderStatus[] = [
+  'PENDING',
+  'CONFIRMED',
+  'PREPARING',
+  'READY_FOR_DELIVERY',
+]
