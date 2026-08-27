@@ -67,6 +67,30 @@ export const profileSchema = z.object({
   phone: phoneSchema,
 })
 
+export const riderProfileSchema = z.object({
+  phone: phoneSchema,
+})
+
+export const vehicleSchema = z
+  .object({
+    type: z.enum(['moto', 'bici']),
+    marca: z.string().trim().optional(),
+    modelo: z.string().trim().optional(),
+    patente: z.string().trim().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type !== 'moto') return
+    if (!data.marca?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'La marca es obligatoria', path: ['marca'] })
+    }
+    if (!data.modelo?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'El modelo es obligatorio', path: ['modelo'] })
+    }
+    if (!data.patente?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'La patente es obligatoria', path: ['patente'] })
+    }
+  })
+
 export const adjustStockSchema = z.object({
   delta: z
     .string()

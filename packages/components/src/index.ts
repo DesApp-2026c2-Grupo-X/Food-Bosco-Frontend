@@ -93,6 +93,12 @@ export { SplashScreen } from './SplashScreen'
 export { OrderStatusBadge } from './OrderStatusBadge'
 export type { OrderStatusBadgeProps } from './OrderStatusBadge/types'
 
+export { OrderItemsCard } from './OrderItemsCard'
+export type { OrderItemsCardProps } from './OrderItemsCard/types'
+
+export { OrderTotalCard } from './OrderTotalCard'
+export type { OrderTotalCardProps } from './OrderTotalCard/types'
+
 export { OrderTimeline } from './OrderTimeline'
 export type { OrderTimelineProps } from './OrderTimeline/types'
 
