@@ -1,10 +1,13 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { Ingredient, IngredientInput } from '@repo/domain'
-import { getJson, patchJson, postJson } from '../client/rest'
-import { MOCK_INGREDIENTS } from '../mocks/ingredients'
-
-const KEY = '/api/catalog/ingredients'
+import {
+  ADMIN_INGREDIENTS,
+  CREATE_INGREDIENT,
+  SET_INGREDIENT_ACTIVE,
+  UPDATE_INGREDIENT,
+  toIngredient,
+} from '../client/admin'
 
 interface UseIngredientsReturn {
   ingredients: Ingredient[]
@@ -15,59 +18,49 @@ interface UseIngredientsReturn {
   toggle: (id: string, active: boolean) => Promise<void>
 }
 
+interface IngredientsResult {
+  ingredients: Record<string, unknown>[]
+}
+
 export const useIngredients = (): UseIngredientsReturn => {
-  const { data, isLoading, mutate } = useSWR<Ingredient[]>(KEY, async (url: string) => {
-    const json = await getJson<Ingredient[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return MOCK_INGREDIENTS
+  const { data, loading, refetch } = useQuery<IngredientsResult>(ADMIN_INGREDIENTS, {
+    fetchPolicy: 'network-only',
   })
 
-  const [isMutating, setIsMutating] = useState(false)
+  const [createMutation, { loading: creating }] = useMutation(CREATE_INGREDIENT)
+  const [updateMutation, { loading: updating }] = useMutation(UPDATE_INGREDIENT)
+  const [setActiveMutation, { loading: toggling }] = useMutation(SET_INGREDIENT_ACTIVE)
 
   const create = useCallback(
     async (input: IngredientInput) => {
-      setIsMutating(true)
-      const ingredient: Ingredient = { id: String(Date.now()), ...input }
-      MOCK_INGREDIENTS.push(ingredient)
-      await mutate([...(data ?? MOCK_INGREDIENTS)], { revalidate: false })
-      await postJson('/api/catalog/ingredients', input)
-      setIsMutating(false)
+      await createMutation({ variables: { input } })
+      await refetch()
     },
-    [data, mutate],
+    [createMutation, refetch],
   )
 
   const update = useCallback(
     async (id: string, input: IngredientInput) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_INGREDIENTS).map((ingredient) =>
-        ingredient.id === id ? { ...ingredient, name: input.name, unit: input.unit } : ingredient,
-      )
-      const mock = MOCK_INGREDIENTS.find((ingredient) => ingredient.id === id)
-      if (mock) {
-        mock.name = input.name
-        mock.unit = input.unit
-      }
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/catalog/ingredients/${id}`, input)
-      setIsMutating(false)
+      await updateMutation({ variables: { id, input } })
+      await refetch()
     },
-    [data, mutate],
+    [updateMutation, refetch],
   )
 
   const toggle = useCallback(
     async (id: string, active: boolean) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_INGREDIENTS).map((ingredient) =>
-        ingredient.id === id ? { ...ingredient, active } : ingredient,
-      )
-      const mock = MOCK_INGREDIENTS.find((ingredient) => ingredient.id === id)
-      if (mock) mock.active = active
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/catalog/ingredients/${id}/active`, { active })
-      setIsMutating(false)
+      await setActiveMutation({ variables: { id, active } })
+      await refetch()
     },
-    [data, mutate],
+    [setActiveMutation, refetch],
   )
 
-  return { ingredients: data ?? [], isLoading, isMutating, create, update, toggle }
+  return {
+    ingredients: (data?.ingredients ?? []).map(toIngredient),
+    isLoading: loading,
+    isMutating: creating || updating || toggling,
+    create,
+    update,
+    toggle,
+  }
 }
