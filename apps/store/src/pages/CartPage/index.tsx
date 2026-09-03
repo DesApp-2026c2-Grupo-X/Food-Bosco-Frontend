@@ -12,18 +12,17 @@ import {
   WidePageContainer,
 } from '@repo/components'
 import { routes } from '../../routes'
-import { cartItemCount, cartTotal, useCartStore } from '../../stores/cartStore'
-import { formatPrice } from '@repo/domain'
+import { useCart } from '@repo/api'
+import { cartItemCount, cartTotal, formatPrice } from '@repo/domain'
 
 export const CartPage = () => {
-  const lines = useCartStore((state) => state.lines)
-  const setQuantity = useCartStore((state) => state.setQuantity)
-  const removeLine = useCartStore((state) => state.removeLine)
+  const { cart, isLoading, updateItem, removeItem } = useCart()
+  const lines = cart?.items ?? []
 
   const count = cartItemCount(lines)
-  const total = cartTotal(lines)
+  const total = cart?.total ?? cartTotal(lines)
 
-  if (lines.length === 0) {
+  if (!isLoading && lines.length === 0) {
     return (
       <EmptyState
         icon={<ShoppingCart width={40} height={40} />}
@@ -49,12 +48,12 @@ export const CartPage = () => {
 
       <Grid templateColumns={{ base: '1fr', md: '2fr 1fr' }} gap="6" alignItems="start">
         <VStack gap="3" align="stretch">
-          {lines.map((line) => (
+          {lines.map((item) => (
             <CartLineCard
-              key={line.id}
-              line={line}
-              onQuantityChange={setQuantity}
-              onRemove={removeLine}
+              key={item.id}
+              item={item}
+              onQuantityChange={(id, quantity) => void updateItem(id, { quantity })}
+              onRemove={removeItem}
             />
           ))}
         </VStack>

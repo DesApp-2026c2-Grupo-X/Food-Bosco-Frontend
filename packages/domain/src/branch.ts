@@ -1,9 +1,12 @@
+import type { BranchHours } from './admin-branch'
+
 export interface Branch {
-  id: number
+  id: string
   name: string
-  address: string
-  phone: string
-  hours: string
-  open: boolean
-  distanceKm: number
+  addressText: string
+  latitude: number
+  longitude: number
+  phone: string | null
+  active: boolean
+  hours: BranchHours[]
 }

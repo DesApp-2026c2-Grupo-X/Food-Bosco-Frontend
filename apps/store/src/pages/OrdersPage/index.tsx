@@ -15,11 +15,12 @@ import { OrderTimeline } from '@repo/components'
 import { orderDetailPath, routes } from '../../routes'
 import { formatPrice } from '@repo/domain'
 import { formatOrderDate, isActiveOrder } from '@repo/domain'
-import { MOCK_ORDERS } from '@repo/api'
+import { useOrders } from '@repo/api'
 
 export const OrdersPage = () => {
-  const activeOrder = MOCK_ORDERS.find((order) => isActiveOrder(order.status))
-  const pastOrders = MOCK_ORDERS.filter((order) => !isActiveOrder(order.status))
+  const { orders, isLoading } = useOrders()
+  const activeOrder = orders.find((order) => isActiveOrder(order.status))
+  const pastOrders = orders.filter((order) => !isActiveOrder(order.status))
 
   return (
     <PageContainer>
@@ -41,7 +42,10 @@ export const OrdersPage = () => {
             <OrderStatusBadge status={activeOrder.status} />
           </HStack>
           <Muted fontSize="sm" marginBottom="4">
-            {activeOrder.branch} · {activeOrder.eta ?? 'Estimando tiempo'}
+            {activeOrder.branch?.name ?? 'Sucursal'} ·{' '}
+            {activeOrder.estimatedDeliveryAt
+              ? formatEtaLabel(activeOrder.estimatedDeliveryAt)
+              : 'Estimando tiempo'}
           </Muted>
           <OrderTimeline status={activeOrder.status} />
           <PrimaryButton asChild marginTop="5" width="full">
@@ -73,7 +77,8 @@ export const OrdersPage = () => {
               </HStack>
               <HStack justify="space-between" marginTop="3">
                 <Muted fontSize="sm">
-                  {order.itemCount} {order.itemCount === 1 ? 'ítem' : 'ítems'} · {order.branch}
+                  {order.items.reduce((sum, item) => sum + item.quantity, 0)} ítems ·{' '}
+                  {order.branch?.name ?? 'Sucursal'}
                 </Muted>
                 <Price>{formatPrice(order.total)}</Price>
               </HStack>
@@ -82,7 +87,7 @@ export const OrdersPage = () => {
         ))}
       </VStack>
 
-      {MOCK_ORDERS.length === 0 ? (
+      {!isLoading && orders.length === 0 ? (
         <EmptyState
           icon={<ListUl width={40} height={40} />}
           title="Todavía no tenés pedidos"
@@ -96,4 +101,9 @@ export const OrdersPage = () => {
       ) : null}
     </PageContainer>
   )
+}
+
+const formatEtaLabel = (iso: string) => {
+  const minutes = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 60000))
+  return minutes < 60 ? `~${minutes} min` : `~${Math.floor(minutes / 60)}h ${minutes % 60}m`
 }

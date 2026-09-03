@@ -18,7 +18,7 @@ interface UseStaffReturn {
   toggle: (id: string, active: boolean) => Promise<void>
 }
 
-const branchNameFor = (branchId?: number) =>
+const branchNameFor = (branchId?: string) =>
   branchId == null ? undefined : (getBranchById(branchId)?.name ?? undefined)
 
 export const useStaff = (): UseStaffReturn => {

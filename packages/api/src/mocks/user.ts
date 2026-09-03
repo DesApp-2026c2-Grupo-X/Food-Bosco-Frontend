@@ -1,7 +1,7 @@
 import type { User } from '@repo/domain'
 
 export const MOCK_USER: User = {
-  id: 1,
+  id: '1',
   email: 'juan.perez@unahur.edu.ar',
   role: 'customer',
   firstName: 'Juan',
