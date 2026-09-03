@@ -23,7 +23,7 @@ export const StockPage = () => {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
     if (!query) return stock
-    return stock.filter((row) => row.ingredient.name.toLowerCase().includes(query))
+    return stock.filter((row) => (row.ingredient?.name ?? '').toLowerCase().includes(query))
   }, [stock, search])
 
   const handleSubmit = async (delta: number, reason: string) => {
@@ -67,9 +67,9 @@ export const StockPage = () => {
               padding="4"
             >
               <VStack align="start" gap="0.5">
-                <Strong>{row.ingredient.name}</Strong>
+                <Strong>{row.ingredient?.name ?? '—'}</Strong>
                 <Muted fontSize="sm">
-                  {row.quantity} {row.ingredient.unit}
+                  {row.quantity} {row.ingredient?.unit ?? '—'}
                 </Muted>
               </VStack>
               <OutlineButton size="md" onClick={() => setSelected(row)}>

@@ -1,10 +1,7 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { Product } from '@repo/domain'
-import { getJson, patchJson } from '../client/rest'
-import { getCategoryName, MOCK_PRODUCTS } from '../mocks/catalog'
-
-const KEY = '/api/catalog/products'
+import { ADMIN_PRODUCTS, SET_PRODUCT_AVAILABLE, toProduct } from '../client/admin'
 
 export interface AdminProductRow {
   product: Product
@@ -15,39 +12,41 @@ interface UseAdminProductsReturn {
   products: AdminProductRow[]
   isLoading: boolean
   isToggling: boolean
-  setAvailable: (productId: number, available: boolean) => Promise<void>
+  setAvailable: (productId: string, available: boolean) => Promise<void>
 }
 
-const toRows = (products: Product[]): AdminProductRow[] =>
-  products.map((product) => ({
-    product,
-    categoryName: getCategoryName(product.categoryId) ?? 'Sin categoría',
-  }))
+interface ProductsResult {
+  products: Record<string, unknown>[]
+}
 
-export const useAdminProducts = (): UseAdminProductsReturn => {
-  const { data, isLoading, mutate } = useSWR<AdminProductRow[]>(KEY, async (url: string) => {
-    const json = await getJson<AdminProductRow[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return toRows(MOCK_PRODUCTS)
+const toRows = (products: Record<string, unknown>[]): AdminProductRow[] =>
+  products.map((raw) => {
+    const category = raw.category as Record<string, unknown> | undefined
+    return {
+      product: toProduct(raw),
+      categoryName: category?.name != null ? String(category.name) : 'Sin categoría',
+    }
   })
 
-  const [isToggling, setIsToggling] = useState(false)
+export const useAdminProducts = (): UseAdminProductsReturn => {
+  const { data, loading, refetch } = useQuery<ProductsResult>(ADMIN_PRODUCTS, {
+    fetchPolicy: 'network-only',
+  })
+
+  const [setAvailableMutation, { loading: toggling }] = useMutation(SET_PRODUCT_AVAILABLE)
 
   const setAvailable = useCallback(
-    async (productId: number, available: boolean) => {
-      setIsToggling(true)
-      const current = data ?? toRows(MOCK_PRODUCTS)
-      const next = current.map((row) =>
-        row.product.id === productId ? { ...row, product: { ...row.product, available } } : row,
-      )
-      const mock = MOCK_PRODUCTS.find((product) => product.id === productId)
-      if (mock) mock.available = available
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/catalog/products/${productId}/available`, { available })
-      setIsToggling(false)
+    async (productId: string, available: boolean) => {
+      await setAvailableMutation({ variables: { id: productId, available } })
+      await refetch()
     },
-    [data, mutate],
+    [setAvailableMutation, refetch],
   )
 
-  return { products: data ?? [], isLoading, isToggling, setAvailable }
+  return {
+    products: toRows(data?.products ?? []),
+    isLoading: loading,
+    isToggling: toggling,
+    setAvailable,
+  }
 }

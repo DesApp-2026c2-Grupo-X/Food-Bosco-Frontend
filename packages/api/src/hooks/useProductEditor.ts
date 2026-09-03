@@ -1,256 +1,190 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type {
   ConfigGroupInput,
   ConfigOptionInput,
   Product,
-  ProductConfigGroup,
   ProductInput,
-  ProductOption,
-  RecipeItem,
   RecipeItemInput,
 } from '@repo/domain'
-import { deleteJson, getJson, patchJson, postJson } from '../client/rest'
-import { getProductById, MOCK_PRODUCTS } from '../mocks/catalog'
-import { getIngredientById } from '../mocks/ingredients'
-import { getProductRecipe, MOCK_RECIPES } from '../mocks/recipes'
-
-const withRecipe = (product: Product): Product => ({
-  ...product,
-  recipe: product.recipe ?? getProductRecipe(product.id),
-})
-
-const fallbackFor = (productId: number | undefined): Product | null => {
-  if (!productId) return null
-  const product = getProductById(productId)
-  return product ? withRecipe(product) : null
-}
-
-const syncMock = (product: Product) => {
-  const index = MOCK_PRODUCTS.findIndex((item) => item.id === product.id)
-  if (index !== -1) MOCK_PRODUCTS[index] = product
-  else MOCK_PRODUCTS.push(product)
-  MOCK_RECIPES[product.id] = product.recipe ?? []
-}
+import {
+  ADD_RECIPE_ITEM,
+  ADMIN_PRODUCT,
+  CREATE_CONFIG_GROUP,
+  CREATE_CONFIG_OPTION,
+  CREATE_PRODUCT,
+  DELETE_CONFIG_GROUP,
+  DELETE_CONFIG_OPTION,
+  REMOVE_RECIPE_ITEM,
+  UPDATE_CONFIG_GROUP,
+  UPDATE_CONFIG_OPTION,
+  UPDATE_PRODUCT,
+  UPDATE_RECIPE_ITEM,
+  toConfigGroupType,
+  toProduct,
+} from '../client/admin'
 
 interface UseProductEditorReturn {
   product: Product | null
   isLoading: boolean
   isMutating: boolean
-  save: (input: ProductInput) => Promise<number | null>
+  save: (input: ProductInput) => Promise<string | null>
   addGroup: (input: ConfigGroupInput) => Promise<void>
-  updateGroup: (groupId: number, input: ConfigGroupInput) => Promise<void>
-  removeGroup: (groupId: number) => Promise<void>
-  addOption: (groupId: number, input: ConfigOptionInput) => Promise<void>
-  updateOption: (groupId: number, optionId: number, input: ConfigOptionInput) => Promise<void>
-  removeOption: (groupId: number, optionId: number) => Promise<void>
+  updateGroup: (groupId: string, input: ConfigGroupInput) => Promise<void>
+  removeGroup: (groupId: string) => Promise<void>
+  addOption: (groupId: string, input: ConfigOptionInput) => Promise<void>
+  updateOption: (groupId: string, optionId: string, input: ConfigOptionInput) => Promise<void>
+  removeOption: (groupId: string, optionId: string) => Promise<void>
   addRecipeItem: (input: RecipeItemInput) => Promise<void>
-  updateRecipeItem: (itemId: number, input: RecipeItemInput) => Promise<void>
-  removeRecipeItem: (itemId: number) => Promise<void>
+  updateRecipeItem: (itemId: string, input: RecipeItemInput) => Promise<void>
+  removeRecipeItem: (itemId: string) => Promise<void>
 }
 
-export const useProductEditor = (productId: number | undefined): UseProductEditorReturn => {
-  const { data, isLoading, mutate } = useSWR<Product | null>(
-    productId ? `/api/catalog/products/${productId}` : null,
-    async (url: string) => {
-      const json = await getJson<Product>(url)
-      if (json && typeof json === 'object' && 'id' in json) return withRecipe(json)
-      return fallbackFor(productId)
-    },
-  )
+interface ProductResult {
+  product: Record<string, unknown> | null
+}
 
-  const [isMutating, setIsMutating] = useState(false)
+interface CreateProductResult {
+  createProduct: Record<string, unknown> | null
+}
+
+const groupInput = (input: ConfigGroupInput) => ({
+  name: input.name,
+  type: toConfigGroupType(input.type),
+  required: input.required,
+  min: input.min ?? null,
+  max: input.max ?? null,
+})
+
+export const useProductEditor = (productId: string | undefined): UseProductEditorReturn => {
+  const { data, loading, refetch } = useQuery<ProductResult>(ADMIN_PRODUCT, {
+    variables: { id: productId },
+    skip: !productId,
+    fetchPolicy: 'network-only',
+  })
+
+  const [createProductMutation, { loading: savingProduct }] =
+    useMutation<CreateProductResult>(CREATE_PRODUCT)
+  const [updateProductMutation, { loading: updatingProduct }] = useMutation(UPDATE_PRODUCT)
+  const [createGroupMutation, { loading: creatingGroup }] = useMutation(CREATE_CONFIG_GROUP)
+  const [updateGroupMutation, { loading: updatingGroup }] = useMutation(UPDATE_CONFIG_GROUP)
+  const [deleteGroupMutation, { loading: deletingGroup }] = useMutation(DELETE_CONFIG_GROUP)
+  const [createOptionMutation, { loading: creatingOption }] = useMutation(CREATE_CONFIG_OPTION)
+  const [updateOptionMutation, { loading: updatingOption }] = useMutation(UPDATE_CONFIG_OPTION)
+  const [deleteOptionMutation, { loading: deletingOption }] = useMutation(DELETE_CONFIG_OPTION)
+  const [addRecipeMutation, { loading: addingRecipe }] = useMutation(ADD_RECIPE_ITEM)
+  const [updateRecipeMutation, { loading: updatingRecipe }] = useMutation(UPDATE_RECIPE_ITEM)
+  const [removeRecipeMutation, { loading: removingRecipe }] = useMutation(REMOVE_RECIPE_ITEM)
 
   const save = useCallback(
-    async (input: ProductInput): Promise<number | null> => {
-      setIsMutating(true)
-      let id = productId ?? null
-      if (id == null) {
-        id = Date.now()
-        syncMock({ ...input, id, configGroups: [], recipe: [] })
-        await postJson('/api/catalog/products', input)
-      } else {
-        const base = data ?? fallbackFor(productId)
-        if (base) {
-          const updated: Product = { ...base, ...input, id }
-          syncMock(updated)
-          await mutate(updated, { revalidate: false })
-        }
-        await patchJson(`/api/catalog/products/${id}`, input)
+    async (input: ProductInput): Promise<string | null> => {
+      if (productId == null) {
+        const { data: result } = await createProductMutation({ variables: { input } })
+        return result?.createProduct ? String(result.createProduct.id) : null
       }
-      setIsMutating(false)
-      return id
+      await updateProductMutation({ variables: { id: productId, input } })
+      await refetch()
+      return productId
     },
-    [data, mutate, productId],
+    [createProductMutation, productId, refetch, updateProductMutation],
   )
 
   const addGroup = useCallback(
     async (input: ConfigGroupInput) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      setIsMutating(true)
-      const group: ProductConfigGroup = { id: Date.now(), ...input, options: [] }
-      syncMock({ ...base, configGroups: [...base.configGroups, group] })
-      await mutate({ ...base, configGroups: [...base.configGroups, group] }, { revalidate: false })
-      await postJson(`/api/catalog/products/${base.id}/configurations`, input)
-      setIsMutating(false)
+      if (!productId) return
+      await createGroupMutation({ variables: { productId, input: groupInput(input) } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [createGroupMutation, productId, refetch],
   )
 
   const updateGroup = useCallback(
-    async (groupId: number, input: ConfigGroupInput) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      setIsMutating(true)
-      const configGroups = base.configGroups.map((group) =>
-        group.id === groupId ? { ...group, ...input } : group,
-      )
-      syncMock({ ...base, configGroups })
-      await mutate({ ...base, configGroups }, { revalidate: false })
-      await patchJson(`/api/catalog/products/${base.id}/configurations/${groupId}`, input)
-      setIsMutating(false)
+    async (groupId: string, input: ConfigGroupInput) => {
+      if (!productId) return
+      await updateGroupMutation({ variables: { productId, groupId, input: groupInput(input) } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [productId, refetch, updateGroupMutation],
   )
 
   const removeGroup = useCallback(
-    async (groupId: number) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      setIsMutating(true)
-      const configGroups = base.configGroups.filter((group) => group.id !== groupId)
-      syncMock({ ...base, configGroups })
-      await mutate({ ...base, configGroups }, { revalidate: false })
-      await deleteJson(`/api/catalog/products/${base.id}/configurations/${groupId}`)
-      setIsMutating(false)
+    async (groupId: string) => {
+      if (!productId) return
+      await deleteGroupMutation({ variables: { productId, groupId } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [deleteGroupMutation, productId, refetch],
   )
 
   const addOption = useCallback(
-    async (groupId: number, input: ConfigOptionInput) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      setIsMutating(true)
-      const option: ProductOption = { id: Date.now(), ...input }
-      const configGroups = base.configGroups.map((group) =>
-        group.id === groupId ? { ...group, options: [...group.options, option] } : group,
-      )
-      syncMock({ ...base, configGroups })
-      await mutate({ ...base, configGroups }, { revalidate: false })
-      await postJson(`/api/catalog/products/${base.id}/configurations/${groupId}/options`, input)
-      setIsMutating(false)
+    async (groupId: string, input: ConfigOptionInput) => {
+      if (!productId) return
+      await createOptionMutation({ variables: { productId, groupId, input } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [createOptionMutation, productId, refetch],
   )
 
   const updateOption = useCallback(
-    async (groupId: number, optionId: number, input: ConfigOptionInput) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      setIsMutating(true)
-      const configGroups = base.configGroups.map((group) =>
-        group.id === groupId
-          ? {
-              ...group,
-              options: group.options.map((option) =>
-                option.id === optionId ? { ...option, ...input } : option,
-              ),
-            }
-          : group,
-      )
-      syncMock({ ...base, configGroups })
-      await mutate({ ...base, configGroups }, { revalidate: false })
-      await patchJson(
-        `/api/catalog/products/${base.id}/configurations/${groupId}/options/${optionId}`,
-        input,
-      )
-      setIsMutating(false)
+    async (groupId: string, optionId: string, input: ConfigOptionInput) => {
+      if (!productId) return
+      await updateOptionMutation({ variables: { productId, groupId, optionId, input } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [productId, refetch, updateOptionMutation],
   )
 
   const removeOption = useCallback(
-    async (groupId: number, optionId: number) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      setIsMutating(true)
-      const configGroups = base.configGroups.map((group) =>
-        group.id === groupId
-          ? { ...group, options: group.options.filter((option) => option.id !== optionId) }
-          : group,
-      )
-      syncMock({ ...base, configGroups })
-      await mutate({ ...base, configGroups }, { revalidate: false })
-      await deleteJson(
-        `/api/catalog/products/${base.id}/configurations/${groupId}/options/${optionId}`,
-      )
-      setIsMutating(false)
+    async (groupId: string, optionId: string) => {
+      if (!productId) return
+      await deleteOptionMutation({ variables: { productId, groupId, optionId } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [deleteOptionMutation, productId, refetch],
   )
 
   const addRecipeItem = useCallback(
     async (input: RecipeItemInput) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      const ingredient = getIngredientById(input.ingredientId)
-      if (!ingredient) return
-      setIsMutating(true)
-      const item: RecipeItem = {
-        id: Date.now(),
-        ingredientId: input.ingredientId,
-        quantity: input.quantity,
-        ingredient,
-      }
-      const recipe = [...(base.recipe ?? []), item]
-      syncMock({ ...base, recipe })
-      await mutate({ ...base, recipe }, { revalidate: false })
-      await postJson(`/api/catalog/products/${base.id}/recipe/items`, input)
-      setIsMutating(false)
+      if (!productId) return
+      await addRecipeMutation({ variables: { productId, input } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [addRecipeMutation, productId, refetch],
   )
 
   const updateRecipeItem = useCallback(
-    async (itemId: number, input: RecipeItemInput) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      const ingredient = getIngredientById(input.ingredientId)
-      if (!ingredient) return
-      setIsMutating(true)
-      const recipe = (base.recipe ?? []).map((item) =>
-        item.id === itemId
-          ? { ...item, ingredientId: input.ingredientId, quantity: input.quantity, ingredient }
-          : item,
-      )
-      syncMock({ ...base, recipe })
-      await mutate({ ...base, recipe }, { revalidate: false })
-      await patchJson(`/api/catalog/products/${base.id}/recipe/items/${itemId}`, input)
-      setIsMutating(false)
+    async (itemId: string, input: RecipeItemInput) => {
+      if (!productId) return
+      await updateRecipeMutation({ variables: { productId, itemId, input } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [productId, refetch, updateRecipeMutation],
   )
 
   const removeRecipeItem = useCallback(
-    async (itemId: number) => {
-      const base = data ?? fallbackFor(productId)
-      if (!base) return
-      setIsMutating(true)
-      const recipe = (base.recipe ?? []).filter((item) => item.id !== itemId)
-      syncMock({ ...base, recipe })
-      await mutate({ ...base, recipe }, { revalidate: false })
-      await deleteJson(`/api/catalog/products/${base.id}/recipe/items/${itemId}`)
-      setIsMutating(false)
+    async (itemId: string) => {
+      if (!productId) return
+      await removeRecipeMutation({ variables: { productId, itemId } })
+      await refetch()
     },
-    [data, mutate, productId],
+    [productId, refetch, removeRecipeMutation],
   )
 
   return {
-    product: data ?? null,
-    isLoading,
-    isMutating,
+    product: data?.product ? toProduct(data.product) : null,
+    isLoading: loading,
+    isMutating:
+      savingProduct ||
+      updatingProduct ||
+      creatingGroup ||
+      updatingGroup ||
+      deletingGroup ||
+      creatingOption ||
+      updatingOption ||
+      deletingOption ||
+      addingRecipe ||
+      updatingRecipe ||
+      removingRecipe,
     save,
     addGroup,
     updateGroup,

@@ -1,7 +1,8 @@
-import { cartItemCount, useCartStore } from '../../../stores/cartStore'
+import { useCart } from '@repo/api'
+import { cartItemCount } from '@repo/domain'
 
 export const useCartCount = () => {
-  const lines = useCartStore((state) => state.lines)
+  const { cart, isLoading } = useCart()
 
-  return { count: cartItemCount(lines), isLoading: false }
+  return { count: cart ? cartItemCount(cart.items) : 0, isLoading }
 }

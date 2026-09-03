@@ -1,46 +1,38 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { BranchStock } from '@repo/domain'
-import { getJson, postJson } from '../client/rest'
-import { MOCK_GLOBAL_STOCK } from '../mocks/global-stock'
-
-const KEY = '/api/stock'
+import { ADJUST_STOCK, ADMIN_BRANCH_STOCK, toBranchStock } from '../client/admin'
 
 interface UseGlobalStockReturn {
   stock: BranchStock[]
   isLoading: boolean
   isAdjusting: boolean
-  adjust: (branchId: number, ingredientId: number, delta: number, reason: string) => Promise<void>
+  adjust: (branchId: string, ingredientId: string, delta: number, reason: string) => Promise<void>
+}
+
+interface BranchStockResult {
+  branchStock: Record<string, unknown>[]
 }
 
 export const useGlobalStock = (): UseGlobalStockReturn => {
-  const { data, isLoading, mutate } = useSWR<BranchStock[]>(KEY, async (url: string) => {
-    const json = await getJson<BranchStock[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return MOCK_GLOBAL_STOCK
+  const { data, loading, refetch } = useQuery<BranchStockResult>(ADMIN_BRANCH_STOCK, {
+    fetchPolicy: 'network-only',
   })
 
-  const [isAdjusting, setIsAdjusting] = useState(false)
+  const [adjustMutation, { loading: adjusting }] = useMutation(ADJUST_STOCK)
 
   const adjust = useCallback(
-    async (branchId: number, ingredientId: number, delta: number, reason: string) => {
-      setIsAdjusting(true)
-      const current = data ?? MOCK_GLOBAL_STOCK
-      const next = current.map((row) =>
-        row.branchId === branchId && row.ingredientId === ingredientId
-          ? { ...row, quantity: Math.max(0, row.quantity + delta) }
-          : row,
-      )
-      const mock = MOCK_GLOBAL_STOCK.find(
-        (row) => row.branchId === branchId && row.ingredientId === ingredientId,
-      )
-      if (mock) mock.quantity = Math.max(0, mock.quantity + delta)
-      await mutate(next, { revalidate: false })
-      await postJson('/api/stock/adjustments', { branchId, ingredientId, delta, reason })
-      setIsAdjusting(false)
+    async (branchId: string, ingredientId: string, delta: number, reason: string) => {
+      await adjustMutation({ variables: { input: { branchId, ingredientId, delta, reason } } })
+      await refetch()
     },
-    [data, mutate],
+    [adjustMutation, refetch],
   )
 
-  return { stock: data ?? [], isLoading, isAdjusting, adjust }
+  return {
+    stock: (data?.branchStock ?? []).map(toBranchStock),
+    isLoading: loading,
+    isAdjusting: adjusting,
+    adjust,
+  }
 }

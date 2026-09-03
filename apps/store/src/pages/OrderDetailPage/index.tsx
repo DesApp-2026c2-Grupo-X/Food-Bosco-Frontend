@@ -50,6 +50,9 @@ export const OrderDetailPage = () => {
   }
 
   const active = isActiveOrder(order.status)
+  const deliveredAt = order.statusHistory.find(
+    (entry) => entry.newStatus === 'DELIVERED',
+  )?.changedAt
 
   return (
     <PageContainer>
@@ -75,10 +78,13 @@ export const OrderDetailPage = () => {
             <Strong marginBottom="4">Estado del pedido</Strong>
             <OrderTimeline status={order.status} />
             <Muted fontSize="sm" marginTop="4">
-              {order.branch} · {order.eta ?? 'Estimando tiempo'}
+              {order.branch?.name ?? 'Sucursal'} ·{' '}
+              {order.estimatedDeliveryAt
+                ? formatEtaLabel(order.estimatedDeliveryAt)
+                : 'Estimando tiempo'}
             </Muted>
           </Box>
-          <TrackingMap order={order} />
+          {order.branch ? <TrackingMap order={order} /> : null}
         </>
       ) : null}
 
@@ -95,7 +101,7 @@ export const OrderDetailPage = () => {
           </Box>
           <Strong fontSize="lg">Pedido cancelado</Strong>
           <Muted fontSize="sm" marginTop="1">
-            {order.cancelReason}
+            Este pedido fue cancelado.
           </Muted>
         </Box>
       ) : null}
@@ -113,28 +119,37 @@ export const OrderDetailPage = () => {
           </Box>
           <Strong fontSize="lg">Entregado</Strong>
           <Muted fontSize="sm" marginTop="1">
-            Recibido el {order.deliveredAt ? formatOrderDate(order.deliveredAt) : '—'}
+            Recibido el {deliveredAt ? formatOrderDate(deliveredAt) : '—'}
           </Muted>
         </Box>
       ) : null}
 
       <OrderItemsCard items={order.items} />
 
-      <OrderTotalCard total={order.total} subtitle={`Entrega a ${order.deliveryAddress}`} />
+      <OrderTotalCard total={order.total} subtitle={`Entrega a ${order.deliveryAddress.text}`} />
     </PageContainer>
   )
 }
 
+const formatEtaLabel = (iso: string) => {
+  const minutes = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 60000))
+  return minutes < 60 ? `~${minutes} min` : `~${Math.floor(minutes / 60)}h ${minutes % 60}m`
+}
+
 const TrackingMap = ({ order }: { order: Order }) => {
   const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
+  const branch = order.branch
+
   const riderPosition = useRiderPosition(
-    { lat: order.store.lat, lon: order.store.lon },
-    { lat: order.client.lat, lon: order.client.lon },
-    Boolean(order.rider),
+    { lat: branch?.latitude ?? 0, lon: branch?.longitude ?? 0 },
+    { lat: order.deliveryAddress.latitude, lon: order.deliveryAddress.longitude },
+    Boolean(branch),
   )
 
-  const centerLat = (order.store.lat + order.client.lat) / 2
-  const centerLon = (order.store.lon + order.client.lon) / 2
+  if (!branch) return null
+
+  const centerLat = (branch.latitude + order.deliveryAddress.latitude) / 2
+  const centerLon = (branch.longitude + order.deliveryAddress.longitude) / 2
 
   const mapUrl = buildStaticMapUrl({
     centerLat,
@@ -143,33 +158,30 @@ const TrackingMap = ({ order }: { order: Order }) => {
     width: isDesktop ? 1200 : 600,
     height: isDesktop ? 340 : 700,
     markers: [
-      { lat: order.store.lat, lon: order.store.lon, color: '#1d4ed8', label: 'T' },
-      { lat: order.client.lat, lon: order.client.lon, color: '#15803d', label: 'C' },
-      ...(order.rider
-        ? [
-            {
-              lat: riderPosition.lat,
-              lon: riderPosition.lon,
-              color: '#ea580c',
-              icon: 'person-biking',
-            },
-          ]
-        : []),
+      { lat: branch.latitude, lon: branch.longitude, color: '#1d4ed8', label: 'T' },
+      {
+        lat: order.deliveryAddress.latitude,
+        lon: order.deliveryAddress.longitude,
+        color: '#15803d',
+        label: 'C',
+      },
+      {
+        lat: riderPosition.lat,
+        lon: riderPosition.lon,
+        color: '#ea580c',
+        icon: 'person-biking',
+      },
     ],
   })
 
   const legend = [
-    { color: 'info', title: 'Tienda', subtitle: order.store.address },
-    { color: 'success', title: 'Tu dirección', subtitle: order.client.address },
-    ...(order.rider
-      ? [
-          {
-            color: 'brand.500',
-            title: `Rider · ${order.rider.name}`,
-            subtitle: order.rider.vehicle,
-          },
-        ]
-      : []),
+    { color: 'info', title: 'Tienda', subtitle: branch.addressText },
+    {
+      color: 'success',
+      title: 'Tu dirección',
+      subtitle: order.deliveryAddress.text,
+    },
+    { color: 'brand.500', title: 'Rider', subtitle: 'En camino' },
   ]
 
   return (
@@ -183,12 +195,10 @@ const TrackingMap = ({ order }: { order: Order }) => {
       <Box padding="4" paddingBottom="3">
         <HStack justify="space-between">
           <Strong>Seguimiento en vivo</Strong>
-          {order.rider ? (
-            <HStack gap="1.5" color="success" alignItems="center">
-              <Box width="8px" height="8px" borderRadius="full" bg="currentColor" />
-              <Strong fontSize="xs">En vivo</Strong>
-            </HStack>
-          ) : null}
+          <HStack gap="1.5" color="success" alignItems="center">
+            <Box width="8px" height="8px" borderRadius="full" bg="currentColor" />
+            <Strong fontSize="xs">En vivo</Strong>
+          </HStack>
         </HStack>
       </Box>
       <Image

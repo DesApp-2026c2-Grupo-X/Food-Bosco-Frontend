@@ -1,12 +1,13 @@
-import useSWR from 'swr'
+import { useQuery } from '@apollo/client'
 import type { OutOfStockRow, ProductReportRow } from '@repo/domain'
-import { getJson } from '../client/rest'
 import {
-  MOCK_BEST_SELLERS,
-  MOCK_HIGHEST_REVENUE,
-  MOCK_LEAST_SOLD,
-  MOCK_OUT_OF_STOCK,
-} from '../mocks/reports'
+  BEST_SELLING_PRODUCTS,
+  HIGHEST_REVENUE_PRODUCTS,
+  LEAST_SOLD_PRODUCTS,
+  OUT_OF_STOCK_PRODUCTS,
+  toOutOfStockRow,
+  toProductReportRow,
+} from '../client/admin'
 
 interface ProductReports {
   bestSellers: ProductReportRow[]
@@ -15,34 +16,32 @@ interface ProductReports {
   highestRevenue: ProductReportRow[]
 }
 
-const MOCK: ProductReports = {
-  bestSellers: MOCK_BEST_SELLERS,
-  leastSold: MOCK_LEAST_SOLD,
-  outOfStock: MOCK_OUT_OF_STOCK,
-  highestRevenue: MOCK_HIGHEST_REVENUE,
-}
-
 interface UseProductReportsReturn extends ProductReports {
   isLoading: boolean
 }
 
+interface ReportRowsResult {
+  bestSellingProducts: Record<string, unknown>[]
+  leastSoldProducts: Record<string, unknown>[]
+  outOfStockProducts: Record<string, unknown>[]
+  highestRevenueProducts: Record<string, unknown>[]
+}
+
 export const useProductReports = (): UseProductReportsReturn => {
-  const { data, isLoading } = useSWR<ProductReports>(
-    '/api/reporting/products',
-    async (url: string) => {
-      const json = await getJson<ProductReports>(url)
-      if (json && Array.isArray(json.bestSellers) && Array.isArray(json.leastSold)) {
-        return json
-      }
-      return MOCK
-    },
-  )
+  const { data: bestData, loading: bestLoading } =
+    useQuery<ReportRowsResult>(BEST_SELLING_PRODUCTS)
+  const { data: leastData, loading: leastLoading } =
+    useQuery<ReportRowsResult>(LEAST_SOLD_PRODUCTS)
+  const { data: outData, loading: outLoading } =
+    useQuery<ReportRowsResult>(OUT_OF_STOCK_PRODUCTS)
+  const { data: revenueData, loading: revenueLoading } =
+    useQuery<ReportRowsResult>(HIGHEST_REVENUE_PRODUCTS)
 
   return {
-    bestSellers: data?.bestSellers ?? [],
-    leastSold: data?.leastSold ?? [],
-    outOfStock: data?.outOfStock ?? [],
-    highestRevenue: data?.highestRevenue ?? [],
-    isLoading,
+    bestSellers: (bestData?.bestSellingProducts ?? []).map(toProductReportRow),
+    leastSold: (leastData?.leastSoldProducts ?? []).map(toProductReportRow),
+    outOfStock: (outData?.outOfStockProducts ?? []).map(toOutOfStockRow),
+    highestRevenue: (revenueData?.highestRevenueProducts ?? []).map(toProductReportRow),
+    isLoading: bestLoading || leastLoading || outLoading || revenueLoading,
   }
 }

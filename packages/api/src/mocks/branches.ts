@@ -12,7 +12,7 @@ const weekday = (opening: string, closing: string) =>
 
 export const MOCK_BRANCHES: AdminBranch[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Centro',
     addressText: 'Av. Vergara 1200, Hurlingham',
     latitude: -34.589,
@@ -22,7 +22,7 @@ export const MOCK_BRANCHES: AdminBranch[] = [
     hours: [...weekday('09:00', '23:00'), day(6, '10:00', '23:00'), day(7, '10:00', '22:00')],
   },
   {
-    id: 2,
+    id: '2',
     name: 'Norte',
     addressText: 'Calle 25 de Mayo 450, Villa Tesei',
     latitude: -34.586,
@@ -32,7 +32,7 @@ export const MOCK_BRANCHES: AdminBranch[] = [
     hours: [...weekday('10:00', '22:00'), day(6, '11:00', '23:00'), day(7, '11:00', '21:00')],
   },
   {
-    id: 3,
+    id: '3',
     name: 'Oeste',
     addressText: 'Av. Roca 600, Morón',
     latitude: -34.651,
@@ -43,5 +43,5 @@ export const MOCK_BRANCHES: AdminBranch[] = [
   },
 ]
 
-export const getBranchById = (id: number): AdminBranch | undefined =>
+export const getBranchById = (id: string): AdminBranch | undefined =>
   MOCK_BRANCHES.find((branch) => branch.id === id)

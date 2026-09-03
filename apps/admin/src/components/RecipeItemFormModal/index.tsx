@@ -30,7 +30,7 @@ export const RecipeItemFormModal = ({
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const input: RecipeItemInput = {
-      ingredientId: Number(values.ingredientId),
+      ingredientId: values.ingredientId,
       quantity: Number(values.quantity),
     }
     await onSubmit(input)

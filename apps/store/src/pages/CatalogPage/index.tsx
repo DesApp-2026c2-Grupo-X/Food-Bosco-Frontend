@@ -13,11 +13,11 @@ export const CatalogPage = () => {
   const [search, setSearch] = useState('')
 
   const rawCategory = searchParams.get('cat')
-  const selectedCategory = rawCategory ? Number(rawCategory) : null
+  const selectedCategory = rawCategory || null
 
-  const setCategory = (id: number | null) => {
+  const setCategory = (id: string | null) => {
     if (id === null) setSearchParams({})
-    else setSearchParams({ cat: String(id) })
+    else setSearchParams({ cat: id })
   }
 
   const filtered = useMemo(

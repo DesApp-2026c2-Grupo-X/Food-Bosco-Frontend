@@ -1,21 +1,23 @@
-import useSWR from 'swr'
+import { useQuery } from '@apollo/client'
 import type { Order } from '@repo/domain'
-import { getJson } from '../client/rest'
-import { MOCK_ORDERS } from '../mocks/orders'
-
-const KEY = '/api/orders'
+import { ADMIN_ORDERS, toOrder } from '../client/admin'
 
 interface UseGlobalOrdersReturn {
   orders: Order[]
   isLoading: boolean
 }
 
+interface OrdersResult {
+  orders: Record<string, unknown>[]
+}
+
 export const useGlobalOrders = (): UseGlobalOrdersReturn => {
-  const { data, isLoading } = useSWR<Order[]>(KEY, async (url: string) => {
-    const json = await getJson<Order[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return MOCK_ORDERS
+  const { data, loading } = useQuery<OrdersResult>(ADMIN_ORDERS, {
+    fetchPolicy: 'network-only',
   })
 
-  return { orders: data ?? [], isLoading }
+  return {
+    orders: (data?.orders ?? []).map(toOrder),
+    isLoading: loading,
+  }
 }

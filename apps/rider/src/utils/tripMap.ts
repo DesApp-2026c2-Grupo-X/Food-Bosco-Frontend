@@ -8,8 +8,8 @@ interface LatLon {
 
 export const tripStops = (orders: Order[]): LatLon[] =>
   orders.flatMap((order) => [
-    { lat: order.store.lat, lon: order.store.lon },
-    { lat: order.client.lat, lon: order.client.lon },
+    ...(order.branch ? [{ lat: order.branch.latitude, lon: order.branch.longitude }] : []),
+    { lat: order.deliveryAddress.latitude, lon: order.deliveryAddress.longitude },
   ])
 
 export const tripCenter = (orders: Order[]): LatLon => {
@@ -21,6 +21,13 @@ export const tripCenter = (orders: Order[]): LatLon => {
 
 export const tripMarkers = (orders: Order[]): StaticMapMarker[] =>
   orders.flatMap((order) => [
-    { lat: order.store.lat, lon: order.store.lon, color: '#1d4ed8', label: 'R' },
-    { lat: order.client.lat, lon: order.client.lon, color: '#15803d', label: 'E' },
+    ...(order.branch
+      ? [{ lat: order.branch.latitude, lon: order.branch.longitude, color: '#1d4ed8', label: 'R' }]
+      : []),
+    {
+      lat: order.deliveryAddress.latitude,
+      lon: order.deliveryAddress.longitude,
+      color: '#15803d',
+      label: 'E',
+    },
   ])

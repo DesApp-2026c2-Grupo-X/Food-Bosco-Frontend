@@ -39,10 +39,13 @@ export const IncomingOrderModal = ({ order, onClose }: IncomingOrderModalProps) 
             borderRadius="xl"
             padding="4"
           >
-            <Strong>{order.customer?.name}</Strong>
-            <Muted fontSize="sm">{order.deliveryAddress}</Muted>
+            <Strong>
+              {order.client ? `${order.client.firstName} ${order.client.lastName}` : '—'}
+            </Strong>
+            <Muted fontSize="sm">{order.deliveryAddress.text}</Muted>
             <Muted fontSize="sm">
-              {order.itemCount} {order.itemCount === 1 ? 'ítem' : 'ítems'} ·{' '}
+              {order.items.reduce((sum, item) => sum + item.quantity, 0)}{' '}
+              {order.items.reduce((sum, item) => sum + item.quantity, 0) === 1 ? 'ítem' : 'ítems'} ·{' '}
               {formatPrice(order.total)}
             </Muted>
           </VStack>

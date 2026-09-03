@@ -106,7 +106,7 @@ const CreateStaffForm = ({
       phone: values.phone.trim(),
       password: values.password,
       role: values.role as StaffRole,
-      branchId: values.branchId ? Number(values.branchId) : undefined,
+      branchId: values.branchId || undefined,
     }
     await onSubmit(input)
   })
@@ -172,7 +172,7 @@ const EditStaffForm = ({
       email: values.email.trim(),
       phone: values.phone.trim(),
       role: values.role as StaffRole,
-      branchId: values.branchId ? Number(values.branchId) : undefined,
+      branchId: values.branchId || undefined,
     }
     await onSubmit(input)
   })

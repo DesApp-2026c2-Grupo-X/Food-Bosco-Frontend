@@ -16,13 +16,12 @@ import { EmptyState } from '@repo/components'
 import { QuantityStepper } from '@repo/components'
 import { routes } from '../../routes'
 import { formatPrice } from '@repo/domain'
-import { getCategoryName } from '@repo/api'
 import { useProductConfig } from './hooks/useProductConfig'
 
 export const ProductDetailPage = () => {
   const { productId } = useParams()
   const navigate = useNavigate()
-  const config = useProductConfig(productId ? Number(productId) : undefined)
+  const config = useProductConfig(productId)
 
   if (config.isLoading) {
     return (
@@ -53,7 +52,6 @@ export const ProductDetailPage = () => {
   }
 
   const { product } = config
-  const categoryName = getCategoryName(product.categoryId)
 
   return (
     <WidePageContainer>
@@ -66,23 +64,20 @@ export const ProductDetailPage = () => {
       >
         <Box position={{ md: 'sticky' }} top="24">
           <Box borderRadius="2xl" overflow="hidden" aspectRatio="1 / 1" bg="bg.muted">
-            <Image
-              src={product.image}
-              alt={product.name}
-              width="100%"
-              height="100%"
-              objectFit="cover"
-            />
+            {product.image ? (
+              <Image
+                src={product.image}
+                alt={product.name}
+                width="100%"
+                height="100%"
+                objectFit="cover"
+              />
+            ) : null}
           </Box>
         </Box>
 
         <VStack align="stretch" gap="6">
           <VStack align="start" gap="2">
-            {categoryName ? (
-              <Strong color="brand.600" fontSize="sm">
-                {categoryName}
-              </Strong>
-            ) : null}
             <PageTitle lineHeight="1.1" textWrap="balance">
               {product.name}
             </PageTitle>
@@ -135,8 +130,7 @@ export const ProductDetailPage = () => {
               width="full"
               disabled={!config.canAdd}
               onClick={() => {
-                config.addToCart()
-                navigate(routes.cart)
+                void config.addToCart().then(() => navigate(routes.cart))
               }}
             >
               Agregar al carrito
@@ -152,13 +146,13 @@ interface ConfigGroupProps {
   title: string
   required: boolean
   type: 'single' | 'multiple'
-  options: { id: number; name: string; priceDelta: number }[]
-  selected: number | number[] | undefined
-  onSelect: (optionId: number) => void
+  options: { id: string; name: string; extraPrice: number }[]
+  selected: string | string[] | undefined
+  onSelect: (optionId: string) => void
 }
 
 const ConfigGroup = ({ title, required, type, options, selected, onSelect }: ConfigGroupProps) => {
-  const isSelected = (id: number) =>
+  const isSelected = (id: string) =>
     Array.isArray(selected) ? selected.includes(id) : selected === id
 
   return (
@@ -210,8 +204,8 @@ const ConfigGroup = ({ title, required, type, options, selected, onSelect }: Con
                   {option.name}
                 </Text>
               </HStack>
-              <Price color={option.priceDelta > 0 ? 'brand.600' : 'fg.subtle'} fontSize="sm">
-                {option.priceDelta > 0 ? `+ ${formatPrice(option.priceDelta)}` : 'Sin cargo'}
+              <Price color={option.extraPrice > 0 ? 'brand.600' : 'fg.subtle'} fontSize="sm">
+                {option.extraPrice > 0 ? `+ ${formatPrice(option.extraPrice)}` : 'Sin cargo'}
               </Price>
             </Button>
           )

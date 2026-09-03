@@ -1,70 +1,66 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { Promotion, PromotionInput } from '@repo/domain'
-import { getJson, patchJson, postJson } from '../client/rest'
-import { MOCK_PROMOTIONS } from '../mocks/promotions'
-
-const KEY = '/api/catalog/promotions'
+import {
+  ADMIN_PROMOTIONS,
+  CREATE_PROMOTION,
+  SET_PROMOTION_ACTIVE,
+  UPDATE_PROMOTION,
+  toPromotion,
+} from '../client/admin'
 
 interface UsePromotionsReturn {
   promotions: Promotion[]
   isLoading: boolean
   isMutating: boolean
   create: (input: PromotionInput) => Promise<void>
-  update: (id: number, input: PromotionInput) => Promise<void>
-  toggle: (id: number, active: boolean) => Promise<void>
+  update: (id: string, input: PromotionInput) => Promise<void>
+  toggle: (id: string, active: boolean) => Promise<void>
+}
+
+interface PromotionsResult {
+  promotions: Record<string, unknown>[]
 }
 
 export const usePromotions = (): UsePromotionsReturn => {
-  const { data, isLoading, mutate } = useSWR<Promotion[]>(KEY, async (url: string) => {
-    const json = await getJson<Promotion[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return MOCK_PROMOTIONS
+  const { data, loading, refetch } = useQuery<PromotionsResult>(ADMIN_PROMOTIONS, {
+    fetchPolicy: 'network-only',
   })
 
-  const [isMutating, setIsMutating] = useState(false)
+  const [createMutation, { loading: creating }] = useMutation(CREATE_PROMOTION)
+  const [updateMutation, { loading: updating }] = useMutation(UPDATE_PROMOTION)
+  const [setActiveMutation, { loading: toggling }] = useMutation(SET_PROMOTION_ACTIVE)
 
   const create = useCallback(
     async (input: PromotionInput) => {
-      setIsMutating(true)
-      const promotion: Promotion = { id: Date.now(), ...input }
-      MOCK_PROMOTIONS.push(promotion)
-      await mutate([...(data ?? MOCK_PROMOTIONS)], { revalidate: false })
-      await postJson('/api/catalog/promotions', input)
-      setIsMutating(false)
+      await createMutation({ variables: { input } })
+      await refetch()
     },
-    [data, mutate],
+    [createMutation, refetch],
   )
 
   const update = useCallback(
-    async (id: number, input: PromotionInput) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_PROMOTIONS).map((promotion) =>
-        promotion.id === id ? { ...promotion, ...input } : promotion,
-      )
-      const mock = MOCK_PROMOTIONS.find((promotion) => promotion.id === id)
-      if (mock) Object.assign(mock, input)
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/catalog/promotions/${id}`, input)
-      setIsMutating(false)
+    async (id: string, input: PromotionInput) => {
+      await updateMutation({ variables: { id, input } })
+      await refetch()
     },
-    [data, mutate],
+    [updateMutation, refetch],
   )
 
   const toggle = useCallback(
-    async (id: number, active: boolean) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_PROMOTIONS).map((promotion) =>
-        promotion.id === id ? { ...promotion, active } : promotion,
-      )
-      const mock = MOCK_PROMOTIONS.find((promotion) => promotion.id === id)
-      if (mock) mock.active = active
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/catalog/promotions/${id}/active`, { active })
-      setIsMutating(false)
+    async (id: string, active: boolean) => {
+      await setActiveMutation({ variables: { id, active } })
+      await refetch()
     },
-    [data, mutate],
+    [setActiveMutation, refetch],
   )
 
-  return { promotions: data ?? [], isLoading, isMutating, create, update, toggle }
+  return {
+    promotions: (data?.promotions ?? []).map(toPromotion),
+    isLoading: loading,
+    isMutating: creating || updating || toggling,
+    create,
+    update,
+    toggle,
+  }
 }

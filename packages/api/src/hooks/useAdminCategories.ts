@@ -1,94 +1,76 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { Category, CategoryInput } from '@repo/domain'
-import { deleteJson, getJson, patchJson, postJson } from '../client/rest'
-import { MOCK_CATEGORIES } from '../mocks/catalog'
-
-const KEY = '/api/catalog/categories'
+import {
+  ADMIN_CATEGORIES,
+  CREATE_CATEGORY,
+  SET_CATEGORY_ACTIVE,
+  UPDATE_CATEGORY,
+  toCategory,
+} from '../client/admin'
 
 interface UseAdminCategoriesReturn {
   categories: Category[]
   isLoading: boolean
   isMutating: boolean
   create: (input: CategoryInput) => Promise<void>
-  update: (id: number, name: string) => Promise<void>
-  toggle: (id: number, active: boolean) => Promise<void>
-  remove: (id: number) => Promise<void>
+  update: (id: string, name: string) => Promise<void>
+  toggle: (id: string, active: boolean) => Promise<void>
+  remove: (id: string) => Promise<void>
+}
+
+interface CategoriesResult {
+  categories: Record<string, unknown>[]
 }
 
 export const useAdminCategories = (): UseAdminCategoriesReturn => {
-  const { data, isLoading, mutate } = useSWR<Category[]>(KEY, async (url: string) => {
-    const json = await getJson<Category[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return MOCK_CATEGORIES
+  const { data, loading, refetch } = useQuery<CategoriesResult>(ADMIN_CATEGORIES, {
+    fetchPolicy: 'network-only',
   })
 
-  const [isMutating, setIsMutating] = useState(false)
+  const [createMutation, { loading: creating }] = useMutation(CREATE_CATEGORY)
+  const [updateMutation, { loading: updating }] = useMutation(UPDATE_CATEGORY)
+  const [setActiveMutation, { loading: toggling }] = useMutation(SET_CATEGORY_ACTIVE)
 
   const create = useCallback(
     async (input: CategoryInput) => {
-      setIsMutating(true)
-      const category: Category = {
-        id: Date.now(),
-        name: input.name,
-        slug: input.name.toLowerCase().replace(/\s+/g, '-'),
-        active: input.active,
-      }
-      MOCK_CATEGORIES.push(category)
-      await mutate([...(data ?? MOCK_CATEGORIES)], { revalidate: false })
-      await postJson('/api/catalog/categories', input)
-      setIsMutating(false)
+      await createMutation({ variables: { input } })
+      await refetch()
     },
-    [data, mutate],
+    [createMutation, refetch],
   )
 
   const update = useCallback(
-    async (id: number, name: string) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_CATEGORIES).map((category) =>
-        category.id === id
-          ? { ...category, name, slug: name.toLowerCase().replace(/\s+/g, '-') }
-          : category,
-      )
-      const mock = MOCK_CATEGORIES.find((category) => category.id === id)
-      if (mock) {
-        mock.name = name
-        mock.slug = name.toLowerCase().replace(/\s+/g, '-')
-      }
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/catalog/categories/${id}`, { name })
-      setIsMutating(false)
+    async (id: string, name: string) => {
+      await updateMutation({ variables: { id, input: { name } } })
+      await refetch()
     },
-    [data, mutate],
+    [updateMutation, refetch],
   )
 
   const toggle = useCallback(
-    async (id: number, active: boolean) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_CATEGORIES).map((category) =>
-        category.id === id ? { ...category, active } : category,
-      )
-      const mock = MOCK_CATEGORIES.find((category) => category.id === id)
-      if (mock) mock.active = active
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/catalog/categories/${id}/active`, { active })
-      setIsMutating(false)
+    async (id: string, active: boolean) => {
+      await setActiveMutation({ variables: { id, active } })
+      await refetch()
     },
-    [data, mutate],
+    [setActiveMutation, refetch],
   )
 
   const remove = useCallback(
-    async (id: number) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_CATEGORIES).filter((category) => category.id !== id)
-      const index = MOCK_CATEGORIES.findIndex((category) => category.id === id)
-      if (index !== -1) MOCK_CATEGORIES.splice(index, 1)
-      await mutate(next, { revalidate: false })
-      await deleteJson(`/api/catalog/categories/${id}`)
-      setIsMutating(false)
+    async (id: string) => {
+      await setActiveMutation({ variables: { id, active: false } })
+      await refetch()
     },
-    [data, mutate],
+    [setActiveMutation, refetch],
   )
 
-  return { categories: data ?? [], isLoading, isMutating, create, update, toggle, remove }
+  return {
+    categories: (data?.categories ?? []).map(toCategory),
+    isLoading: loading,
+    isMutating: creating || updating || toggling,
+    create,
+    update,
+    toggle,
+    remove,
+  }
 }

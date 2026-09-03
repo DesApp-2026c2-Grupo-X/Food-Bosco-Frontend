@@ -1,8 +1,7 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
-import { getNextStatuses, type Order, type OrderStatus } from '@repo/domain'
-import { getJson, patchJson } from '../client/rest'
-import { getOrderById, MOCK_ORDERS, withTransitions } from '../mocks/orders'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
+import type { Order, OrderStatus } from '@repo/domain'
+import { ADMIN_ORDER, CHANGE_ORDER_STATUS, toOrder } from '../client/admin'
 
 interface UseAdminOrderReturn {
   order: Order | null
@@ -11,49 +10,32 @@ interface UseAdminOrderReturn {
   changeStatus: (newStatus: OrderStatus) => Promise<void>
 }
 
-export const useAdminOrder = (orderId: string | undefined): UseAdminOrderReturn => {
-  const { data, isLoading, mutate } = useSWR<Order | null>(
-    orderId ? `/api/orders/${orderId}` : null,
-    async (url: string) => {
-      const json = await getJson<Order>(url)
-      if (json && typeof json === 'object' && 'id' in json) {
-        return withTransitions(json)
-      }
-      return orderId ? withTransitions(getOrderById(orderId)) : null
-    },
-  )
+interface OrderResult {
+  order: Record<string, unknown> | null
+}
 
-  const [isMutating, setIsMutating] = useState(false)
+export const useAdminOrder = (orderId: string | undefined): UseAdminOrderReturn => {
+  const { data, loading, refetch } = useQuery<OrderResult>(ADMIN_ORDER, {
+    variables: { id: orderId },
+    skip: !orderId,
+    fetchPolicy: 'network-only',
+  })
+
+  const [changeStatusMutation, { loading: mutating }] = useMutation(CHANGE_ORDER_STATUS)
 
   const changeStatus = useCallback(
     async (newStatus: OrderStatus) => {
       if (!orderId) return
-      setIsMutating(true)
-
-      const current = data ?? (orderId ? getOrderById(orderId) : null)
-      if (current) {
-        const changedAt = new Date().toISOString()
-        const updated: Order = {
-          ...current,
-          status: newStatus,
-          statusHistory: [
-            ...(current.statusHistory ?? []),
-            { previousStatus: current.status, newStatus, changedAt },
-          ],
-          availableTransitions: getNextStatuses(newStatus),
-        }
-
-        const index = MOCK_ORDERS.findIndex((order) => order.id === current.id)
-        if (index !== -1) MOCK_ORDERS[index] = updated
-
-        await mutate(updated, { revalidate: false })
-      }
-
-      await patchJson(`/api/orders/${orderId}/status`, { status: newStatus })
-      setIsMutating(false)
+      await changeStatusMutation({ variables: { orderId, status: newStatus } })
+      await refetch()
     },
-    [data, mutate, orderId],
+    [changeStatusMutation, orderId, refetch],
   )
 
-  return { order: data ?? null, isLoading, isMutating, changeStatus }
+  return {
+    order: data?.order ? toOrder(data.order) : null,
+    isLoading: loading,
+    isMutating: mutating,
+    changeStatus,
+  }
 }
