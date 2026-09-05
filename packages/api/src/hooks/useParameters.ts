@@ -1,10 +1,7 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { Parameter } from '@repo/domain'
-import { getJson, patchJson } from '../client/rest'
-import { MOCK_PARAMETERS } from '../mocks/parameters'
-
-const KEY = '/api/config/parameters'
+import { ADMIN_PARAMETERS, UPDATE_PARAMETER, toParameter } from '../client/admin'
 
 interface UseParametersReturn {
   parameters: Parameter[]
@@ -13,29 +10,29 @@ interface UseParametersReturn {
   update: (key: string, value: number) => Promise<void>
 }
 
+interface ParametersResult {
+  parameters: Record<string, unknown>[]
+}
+
 export const useParameters = (): UseParametersReturn => {
-  const { data, isLoading, mutate } = useSWR<Parameter[]>(KEY, async (url: string) => {
-    const json = await getJson<Parameter[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return MOCK_PARAMETERS
+  const { data, loading, refetch } = useQuery<ParametersResult>(ADMIN_PARAMETERS, {
+    fetchPolicy: 'network-only',
   })
 
-  const [isMutating, setIsMutating] = useState(false)
+  const [updateMutation, { loading: updating }] = useMutation(UPDATE_PARAMETER)
 
   const update = useCallback(
     async (key: string, value: number) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_PARAMETERS).map((parameter) =>
-        parameter.key === key ? { ...parameter, value } : parameter,
-      )
-      const mock = MOCK_PARAMETERS.find((parameter) => parameter.key === key)
-      if (mock) mock.value = value
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/config/parameters/${key}`, { value })
-      setIsMutating(false)
+      await updateMutation({ variables: { key, value } })
+      await refetch()
     },
-    [data, mutate],
+    [updateMutation, refetch],
   )
 
-  return { parameters: data ?? [], isLoading, isMutating, update }
+  return {
+    parameters: (data?.parameters ?? []).map(toParameter),
+    isLoading: loading,
+    isMutating: updating,
+    update,
+  }
 }
