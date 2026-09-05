@@ -10,7 +10,7 @@ interface UseBranchStockReturn {
   stock: BranchStock[]
   isLoading: boolean
   isAdjusting: boolean
-  adjust: (ingredientId: number, delta: number, reason: string) => Promise<void>
+  adjust: (ingredientId: string, delta: number, reason: string) => Promise<void>
 }
 
 export const useBranchStock = (): UseBranchStockReturn => {
@@ -25,7 +25,7 @@ export const useBranchStock = (): UseBranchStockReturn => {
   const [isAdjusting, setIsAdjusting] = useState(false)
 
   const adjust = useCallback(
-    async (ingredientId: number, delta: number, reason: string) => {
+    async (ingredientId: string, delta: number, reason: string) => {
       setIsAdjusting(true)
 
       const updated = (data ?? MOCK_BRANCH_STOCK).map((row) =>

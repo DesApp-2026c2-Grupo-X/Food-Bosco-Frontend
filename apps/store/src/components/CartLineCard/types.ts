@@ -1,7 +1,7 @@
-import type { CartLine } from '../../stores/cartStore'
+import type { CartItem } from '@repo/domain'
 
 export interface CartLineCardProps {
-  line: CartLine
+  item: CartItem
   onQuantityChange: (id: string, quantity: number) => void
   onRemove: (id: string) => void
 }

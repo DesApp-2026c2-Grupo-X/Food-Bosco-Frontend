@@ -10,7 +10,7 @@ interface UseGlobalStockReturn {
   stock: BranchStock[]
   isLoading: boolean
   isAdjusting: boolean
-  adjust: (branchId: number, ingredientId: number, delta: number, reason: string) => Promise<void>
+  adjust: (branchId: string, ingredientId: string, delta: number, reason: string) => Promise<void>
 }
 
 export const useGlobalStock = (): UseGlobalStockReturn => {
@@ -23,7 +23,7 @@ export const useGlobalStock = (): UseGlobalStockReturn => {
   const [isAdjusting, setIsAdjusting] = useState(false)
 
   const adjust = useCallback(
-    async (branchId: number, ingredientId: number, delta: number, reason: string) => {
+    async (branchId: string, ingredientId: string, delta: number, reason: string) => {
       setIsAdjusting(true)
       const current = data ?? MOCK_GLOBAL_STOCK
       const next = current.map((row) =>

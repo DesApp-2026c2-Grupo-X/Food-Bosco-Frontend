@@ -2,16 +2,15 @@ import { HStack, VStack } from '@chakra-ui/react'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
 import { Link } from 'react-router-dom'
 import { routes } from '../../routes'
-import { cartTotal, useCartStore } from '../../stores/cartStore'
-import { formatPrice } from '@repo/domain'
+import { useCart } from '@repo/api'
+import { cartTotal, formatPrice } from '@repo/domain'
 import { CartLineCard } from '../CartLineCard'
 import { EmptyState, Muted, Price, PrimaryButton, SidePanel } from '@repo/components'
 import type { CartDrawerProps } from './types'
 
 export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
-  const lines = useCartStore((state) => state.lines)
-  const setQuantity = useCartStore((state) => state.setQuantity)
-  const removeLine = useCartStore((state) => state.removeLine)
+  const { cart, updateItem, removeItem } = useCart()
+  const lines = cart?.items ?? []
   const isEmpty = lines.length === 0
 
   return (
@@ -43,12 +42,12 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
         />
       ) : (
         <VStack gap="3" align="stretch">
-          {lines.map((line) => (
+          {lines.map((item) => (
             <CartLineCard
-              key={line.id}
-              line={line}
-              onQuantityChange={setQuantity}
-              onRemove={removeLine}
+              key={item.id}
+              item={item}
+              onQuantityChange={(id, quantity) => void updateItem(id, { quantity })}
+              onRemove={removeItem}
             />
           ))}
         </VStack>

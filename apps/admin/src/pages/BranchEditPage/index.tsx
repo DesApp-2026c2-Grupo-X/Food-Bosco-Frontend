@@ -171,7 +171,7 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
                 size="sm"
                 borderRadius="lg"
                 width="130px"
-                value={hour.opening}
+                value={hour.opening ?? ''}
                 disabled={hour.closed}
                 onChange={(event) => update(day.dayOfWeek, { opening: event.target.value })}
                 aria-label={`Apertura ${day.label}`}
@@ -181,7 +181,7 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
                 size="sm"
                 borderRadius="lg"
                 width="130px"
-                value={hour.closing}
+                value={hour.closing ?? ''}
                 disabled={hour.closed}
                 onChange={(event) => update(day.dayOfWeek, { closing: event.target.value })}
                 aria-label={`Cierre ${day.label}`}
@@ -211,7 +211,7 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
 
 export const BranchEditPage = () => {
   const { branchId } = useParams()
-  const id = branchId ? Number(branchId) : undefined
+  const id = branchId
   const isNew = id == null
   const navigate = useNavigate()
 

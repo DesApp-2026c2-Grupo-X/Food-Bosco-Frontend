@@ -58,8 +58,13 @@ export const TripOrderDetailPage = () => {
     navigate(routes.home)
   }
 
-  const centerLat = (order.store.lat + order.client.lat) / 2
-  const centerLon = (order.store.lon + order.client.lon) / 2
+  const { branch, deliveryAddress } = order
+  const centerLat = branch
+    ? (branch.latitude + deliveryAddress.latitude) / 2
+    : deliveryAddress.latitude
+  const centerLon = branch
+    ? (branch.longitude + deliveryAddress.longitude) / 2
+    : deliveryAddress.longitude
   const mapUrl = buildStaticMapUrl({
     centerLat,
     centerLon,
@@ -67,8 +72,15 @@ export const TripOrderDetailPage = () => {
     width: isDesktop ? 800 : 600,
     height: isDesktop ? 280 : 420,
     markers: [
-      { lat: order.store.lat, lon: order.store.lon, color: '#1d4ed8', label: 'R' },
-      { lat: order.client.lat, lon: order.client.lon, color: '#15803d', label: 'E' },
+      ...(branch
+        ? [{ lat: branch.latitude, lon: branch.longitude, color: '#1d4ed8', label: 'R' }]
+        : []),
+      {
+        lat: deliveryAddress.latitude,
+        lon: deliveryAddress.longitude,
+        color: '#15803d',
+        label: 'E',
+      },
     ],
   })
 
@@ -81,7 +93,7 @@ export const TripOrderDetailPage = () => {
           <PageTitle>Pedido #{order.number}</PageTitle>
           <OrderStatusBadge status={order.status} />
         </HStack>
-        <Muted>{order.branch}</Muted>
+        <Muted>{order.branch?.name}</Muted>
       </VStack>
 
       <Box
@@ -94,8 +106,8 @@ export const TripOrderDetailPage = () => {
         <Image src={mapUrl} alt="Mapa del pedido" width="100%" height="auto" bg="bg.muted" />
         <Box padding="4">
           <VStack align="stretch" gap="2.5">
-            <StopRow color="info" label="Retiro" value={order.store.address} />
-            <StopRow color="success" label="Entrega" value={order.client.address} />
+            <StopRow color="info" label="Retiro" value={order.branch?.addressText ?? '—'} />
+            <StopRow color="success" label="Entrega" value={order.deliveryAddress.text} />
           </VStack>
         </Box>
       </Box>
@@ -104,7 +116,7 @@ export const TripOrderDetailPage = () => {
 
       <OrderTotalCard total={order.total} />
 
-      {order.customer ? (
+      {order.client ? (
         <Box
           bg="bg.panel"
           border="1px solid"
@@ -115,9 +127,9 @@ export const TripOrderDetailPage = () => {
           <Muted fontSize="sm" marginBottom="2">
             Contacto del cliente
           </Muted>
-          <Strong>{order.customer.name}</Strong>
+          <Strong>{`${order.client.firstName} ${order.client.lastName}`}</Strong>
           <Muted fontSize="sm" marginTop="1">
-            {order.customer.phone} · {order.customer.email}
+            {order.client.phone} · {order.client.email}
           </Muted>
         </Box>
       ) : null}

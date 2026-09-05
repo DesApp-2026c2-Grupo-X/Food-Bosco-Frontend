@@ -1,24 +1,24 @@
-import useSWR from 'swr'
+import { useQuery } from '@apollo/client'
 import type { Product } from '@repo/domain'
-import { getJson } from '../client/rest'
-import { getProductById } from '../mocks/catalog'
+import { PRODUCT, toProduct } from '../client/store'
 
 interface UseProductReturn {
   product: Product | null
   isLoading: boolean
 }
 
-export const useProduct = (productId: number | undefined): UseProductReturn => {
-  const { data, isLoading } = useSWR<Product | null>(
-    productId ? `/api/products/${productId}` : null,
-    async (url: string) => {
-      const json = await getJson<Product>(url)
-      if (json && typeof json === 'object' && 'id' in json) {
-        return json
-      }
-      return productId ? (getProductById(productId) ?? null) : null
-    },
-  )
+interface ProductResult {
+  product: Record<string, unknown> | null
+}
 
-  return { product: data ?? null, isLoading }
+export const useProduct = (productId: string | undefined): UseProductReturn => {
+  const { data, loading } = useQuery<ProductResult>(PRODUCT, {
+    variables: { id: productId },
+    skip: !productId,
+  })
+
+  return {
+    product: data?.product ? toProduct(data.product) : null,
+    isLoading: loading,
+  }
 }

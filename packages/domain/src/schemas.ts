@@ -204,7 +204,7 @@ export const configGroupSchema = z.object({
 
 export const configOptionSchema = z.object({
   name: nameSchema,
-  priceDelta: numberField('Ingresá una variación válida').refine(
+  extraPrice: numberField('Ingresá una variación válida').refine(
     (value) => Number(value) >= 0,
     'La variación no puede ser negativa',
   ),

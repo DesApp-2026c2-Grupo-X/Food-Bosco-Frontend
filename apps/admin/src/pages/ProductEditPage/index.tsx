@@ -68,7 +68,7 @@ const DataForm = ({ categories, product, isSubmitting, onSubmit, onCancel }: Dat
     const input: ProductInput = {
       name: values.name.trim(),
       description: values.description.trim(),
-      categoryId: Number(values.categoryId),
+      categoryId: values.categoryId,
       price: Number(values.price),
       image: values.image?.trim() ?? '',
       available,
@@ -129,11 +129,11 @@ interface ConfigsSectionProps {
   product: Product
   isMutating: boolean
   addGroup: (input: ConfigGroupInput) => Promise<void>
-  updateGroup: (groupId: number, input: ConfigGroupInput) => Promise<void>
-  removeGroup: (groupId: number) => Promise<void>
-  addOption: (groupId: number, input: ConfigOptionInput) => Promise<void>
-  updateOption: (groupId: number, optionId: number, input: ConfigOptionInput) => Promise<void>
-  removeOption: (groupId: number, optionId: number) => Promise<void>
+  updateGroup: (groupId: string, input: ConfigGroupInput) => Promise<void>
+  removeGroup: (groupId: string) => Promise<void>
+  addOption: (groupId: string, input: ConfigOptionInput) => Promise<void>
+  updateOption: (groupId: string, optionId: string, input: ConfigOptionInput) => Promise<void>
+  removeOption: (groupId: string, optionId: string) => Promise<void>
 }
 
 const ConfigsSection = ({
@@ -214,7 +214,7 @@ const ConfigsSection = ({
                   <HStack gap="2">
                     <Strong fontSize="sm">{option.name}</Strong>
                     <Muted fontSize="sm">
-                      {option.priceDelta > 0 ? `+ ${formatPrice(option.priceDelta)}` : 'Sin cargo'}
+                      {option.extraPrice > 0 ? `+ ${formatPrice(option.extraPrice)}` : 'Sin cargo'}
                     </Muted>
                   </HStack>
                   <HStack gap="1">
@@ -304,8 +304,8 @@ interface RecipeSectionProps {
   ingredients: Ingredient[]
   isMutating: boolean
   addRecipeItem: (input: RecipeItemInput) => Promise<void>
-  updateRecipeItem: (itemId: number, input: RecipeItemInput) => Promise<void>
-  removeRecipeItem: (itemId: number) => Promise<void>
+  updateRecipeItem: (itemId: string, input: RecipeItemInput) => Promise<void>
+  removeRecipeItem: (itemId: string) => Promise<void>
 }
 
 const RecipeSection = ({
@@ -349,9 +349,9 @@ const RecipeSection = ({
               paddingY="3"
             >
               <VStack align="start" gap="0.5">
-                <Strong fontSize="sm">{item.ingredient.name}</Strong>
+                <Strong fontSize="sm">{item.ingredient?.name ?? '—'}</Strong>
                 <Muted fontSize="sm">
-                  {item.quantity} {item.ingredient.unit}
+                  {item.quantity} {item.ingredient?.unit ?? '—'}
                 </Muted>
               </VStack>
               <HStack gap="1">
@@ -386,7 +386,7 @@ const RecipeSection = ({
 
 export const ProductEditPage = () => {
   const { productId } = useParams()
-  const id = productId ? Number(productId) : undefined
+  const id = productId
   const isNew = id == null
   const navigate = useNavigate()
 

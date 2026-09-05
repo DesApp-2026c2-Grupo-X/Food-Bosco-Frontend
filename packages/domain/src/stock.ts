@@ -1,15 +1,15 @@
 import type { Ingredient } from './ingredient'
 
 export interface BranchStock {
-  ingredientId: number
-  ingredient: Ingredient
-  branchId: number
+  ingredientId: string
+  ingredient?: Ingredient | null
+  branchId: string
   quantity: number
 }
 
 export interface AdjustStockInput {
-  branchId: number
-  ingredientId: number
+  branchId: string
+  ingredientId: string
   delta: number
   reason: string
 }

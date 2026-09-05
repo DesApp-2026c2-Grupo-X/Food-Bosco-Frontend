@@ -11,9 +11,9 @@ interface UseAdminCategoriesReturn {
   isLoading: boolean
   isMutating: boolean
   create: (input: CategoryInput) => Promise<void>
-  update: (id: number, name: string) => Promise<void>
-  toggle: (id: number, active: boolean) => Promise<void>
-  remove: (id: number) => Promise<void>
+  update: (id: string, name: string) => Promise<void>
+  toggle: (id: string, active: boolean) => Promise<void>
+  remove: (id: string) => Promise<void>
 }
 
 export const useAdminCategories = (): UseAdminCategoriesReturn => {
@@ -29,9 +29,8 @@ export const useAdminCategories = (): UseAdminCategoriesReturn => {
     async (input: CategoryInput) => {
       setIsMutating(true)
       const category: Category = {
-        id: Date.now(),
+        id: String(Date.now()),
         name: input.name,
-        slug: input.name.toLowerCase().replace(/\s+/g, '-'),
         active: input.active,
       }
       MOCK_CATEGORIES.push(category)
@@ -43,18 +42,13 @@ export const useAdminCategories = (): UseAdminCategoriesReturn => {
   )
 
   const update = useCallback(
-    async (id: number, name: string) => {
+    async (id: string, name: string) => {
       setIsMutating(true)
       const next = (data ?? MOCK_CATEGORIES).map((category) =>
-        category.id === id
-          ? { ...category, name, slug: name.toLowerCase().replace(/\s+/g, '-') }
-          : category,
+        category.id === id ? { ...category, name } : category,
       )
       const mock = MOCK_CATEGORIES.find((category) => category.id === id)
-      if (mock) {
-        mock.name = name
-        mock.slug = name.toLowerCase().replace(/\s+/g, '-')
-      }
+      if (mock) mock.name = name
       await mutate(next, { revalidate: false })
       await patchJson(`/api/catalog/categories/${id}`, { name })
       setIsMutating(false)
@@ -63,7 +57,7 @@ export const useAdminCategories = (): UseAdminCategoriesReturn => {
   )
 
   const toggle = useCallback(
-    async (id: number, active: boolean) => {
+    async (id: string, active: boolean) => {
       setIsMutating(true)
       const next = (data ?? MOCK_CATEGORIES).map((category) =>
         category.id === id ? { ...category, active } : category,
@@ -78,7 +72,7 @@ export const useAdminCategories = (): UseAdminCategoriesReturn => {
   )
 
   const remove = useCallback(
-    async (id: number) => {
+    async (id: string) => {
       setIsMutating(true)
       const next = (data ?? MOCK_CATEGORIES).filter((category) => category.id !== id)
       const index = MOCK_CATEGORIES.findIndex((category) => category.id === id)

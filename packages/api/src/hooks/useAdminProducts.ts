@@ -15,7 +15,7 @@ interface UseAdminProductsReturn {
   products: AdminProductRow[]
   isLoading: boolean
   isToggling: boolean
-  setAvailable: (productId: number, available: boolean) => Promise<void>
+  setAvailable: (productId: string, available: boolean) => Promise<void>
 }
 
 const toRows = (products: Product[]): AdminProductRow[] =>
@@ -34,7 +34,7 @@ export const useAdminProducts = (): UseAdminProductsReturn => {
   const [isToggling, setIsToggling] = useState(false)
 
   const setAvailable = useCallback(
-    async (productId: number, available: boolean) => {
+    async (productId: string, available: boolean) => {
       setIsToggling(true)
       const current = data ?? toRows(MOCK_PRODUCTS)
       const next = current.map((row) =>

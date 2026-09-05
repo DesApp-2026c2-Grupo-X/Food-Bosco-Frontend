@@ -12,29 +12,25 @@ import {
   SecondaryButton,
   Strong,
   Subtle,
-  TextField,
 } from '@repo/components'
 import { EmptyState } from '@repo/components'
 import { routes } from '../../routes'
-import { cartTotal, lineTotal, useCartStore } from '../../stores/cartStore'
 import { useAddressStore } from '../../stores/addressStore'
-import { useAddresses } from '@repo/api'
-import { formatPrice } from '@repo/domain'
+import { useAddresses, useCart, useCreateOrder } from '@repo/api'
+import { cartLineTotal, cartTotal, formatPrice, type Order } from '@repo/domain'
 
 export const CheckoutPage = () => {
-  const lines = useCartStore((state) => state.lines)
-  const clear = useCartStore((state) => state.clear)
+  const { cart, isLoading } = useCart()
+  const { createOrder, isLoading: isCreating } = useCreateOrder()
   const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
   const { addresses } = useAddresses()
   const selected = addresses.find((a) => a.id === selectedAddressId)
-  const [confirmed, setConfirmed] = useState(false)
-  const [address, setAddress] = useState(selected?.text ?? '')
-  const [city, setCity] = useState(selected?.city ?? '')
-  const total = cartTotal(lines)
+  const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null)
 
-  const addressComplete = address.trim() !== '' && city.trim() !== ''
+  const lines = cart?.items ?? []
+  const total = cart?.total ?? cartTotal(lines)
 
-  if (confirmed) {
+  if (confirmedOrder) {
     return (
       <VStack align="center" gap="4" paddingY="16" textAlign="center">
         <Box color="success">
@@ -42,11 +38,14 @@ export const CheckoutPage = () => {
         </Box>
         <PageTitle>¡Pedido confirmado!</PageTitle>
         <VStack gap="1">
-          <Strong>Pedido #000128</Strong>
+          <Strong>Pedido #{confirmedOrder.number}</Strong>
+          <Muted>Envío a {confirmedOrder.deliveryAddress.text}</Muted>
           <Muted>
-            Envío a {address}, {city}
+            Sucursal asignada: {confirmedOrder.branch?.name ?? 'Pendiente'} ·{' '}
+            {confirmedOrder.estimatedDeliveryAt
+              ? `Tiempo estimado: ${formatEtaLabel(confirmedOrder.estimatedDeliveryAt)}`
+              : 'Estimando tiempo'}
           </Muted>
-          <Muted>Sucursal asignada: Centro · Tiempo estimado: 35 min</Muted>
         </VStack>
         <HStack gap="3" flexWrap="wrap" justifyContent="center" marginTop="2">
           <PrimaryButton asChild paddingX="7">
@@ -60,7 +59,7 @@ export const CheckoutPage = () => {
     )
   }
 
-  if (lines.length === 0) {
+  if (!isLoading && lines.length === 0) {
     return (
       <EmptyState
         title="Nada para confirmar"
@@ -90,19 +89,13 @@ export const CheckoutPage = () => {
         padding="5"
       >
         <Strong marginBottom="4">Dirección de entrega</Strong>
-        <VStack gap="4" align="stretch">
-          <TextField
-            label="Calle y número"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Av. Ejemplo 123"
-          />
-          <TextField
-            label="Localidad"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="Hurlingham"
-          />
+        <VStack gap="1" align="stretch">
+          <Text>{selected?.text ?? 'Dirección seleccionada'}</Text>
+          <Muted fontSize="sm">
+            {selected?.city ?? ''}
+            {selected?.city && selected?.postalCode ? ' · ' : ''}
+            {selected?.postalCode ?? ''}
+          </Muted>
         </VStack>
       </Box>
 
@@ -117,12 +110,12 @@ export const CheckoutPage = () => {
           Productos
         </Muted>
         <VStack gap="3" align="stretch">
-          {lines.map((line) => (
-            <HStack key={line.id} justify="space-between">
+          {lines.map((item) => (
+            <HStack key={item.id} justify="space-between">
               <Text>
-                {line.quantity} × {line.name}
+                {item.quantity} × {item.product?.name}
               </Text>
-              <Price fontWeight="medium">{formatPrice(lineTotal(line))}</Price>
+              <Price fontWeight="medium">{formatPrice(cartLineTotal(item))}</Price>
             </HStack>
           ))}
         </VStack>
@@ -148,14 +141,21 @@ export const CheckoutPage = () => {
 
       <PrimaryButton
         width="full"
-        disabled={!addressComplete}
-        onClick={() => {
-          clear()
-          setConfirmed(true)
+        loading={isCreating}
+        disabled={!selectedAddressId}
+        onClick={async () => {
+          if (!selectedAddressId) return
+          const order = await createOrder(selectedAddressId)
+          if (order) setConfirmedOrder(order)
         }}
       >
         Confirmar pedido
       </PrimaryButton>
     </PageContainer>
   )
+}
+
+const formatEtaLabel = (iso: string) => {
+  const minutes = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 60000))
+  return minutes < 60 ? `~${minutes} min` : `~${Math.floor(minutes / 60)}h ${minutes % 60}m`
 }

@@ -29,7 +29,7 @@ export const MOCK_STAFF: StaffMember[] = [
     phone: '+54 11 5555 1111',
     role: 'branch_admin',
     active: true,
-    branchId: 1,
+    branchId: '1',
     branchName: 'Centro',
   },
   {
@@ -40,7 +40,7 @@ export const MOCK_STAFF: StaffMember[] = [
     phone: '+54 11 5555 2222',
     role: 'branch_admin',
     active: true,
-    branchId: 2,
+    branchId: '2',
     branchName: 'Norte',
   },
 ]

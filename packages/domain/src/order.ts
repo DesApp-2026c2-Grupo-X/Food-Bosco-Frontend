@@ -1,3 +1,6 @@
+import type { Branch } from './branch'
+import type { User } from './user'
+
 export type OrderStatus =
   | 'PENDING'
   | 'CONFIRMED'
@@ -7,29 +10,20 @@ export type OrderStatus =
   | 'DELIVERED'
   | 'CANCELLED'
 
+export interface OrderItemOption {
+  optionId: string
+  name: string
+  extraPrice: number
+}
+
 export interface OrderItem {
-  id: string
+  productId: string
   name: string
-  quantity: number
   unitPrice: number
-}
-
-export interface OrderLocation {
-  label: string
-  address: string
-  lat: number
-  lon: number
-}
-
-export interface OrderRider {
-  name: string
-  vehicle: string
-}
-
-export interface OrderCustomer {
-  name: string
-  phone: string
-  email: string
+  quantity: number
+  observations: string | null
+  subtotal: number
+  options: OrderItemOption[]
 }
 
 export interface OrderStatusHistory {
@@ -38,23 +32,25 @@ export interface OrderStatusHistory {
   changedAt: string
 }
 
+export interface OrderAddress {
+  text: string
+  latitude: number
+  longitude: number
+}
+
 export interface Order {
   id: string
-  number: number
-  createdAt: string
+  number: string
+  clientId: string
+  branchId: string
+  branch?: Branch | null
+  client?: User | null
+  deliveryAddress: OrderAddress
   status: OrderStatus
   total: number
-  itemCount: number
-  branch: string
-  eta?: string
+  estimatedDeliveryAt: string | null
+  createdAt: string
   items: OrderItem[]
-  deliveryAddress: string
-  store: OrderLocation
-  client: OrderLocation
-  rider?: OrderRider
-  cancelReason?: string
-  deliveredAt?: string
-  customer?: OrderCustomer
-  statusHistory?: OrderStatusHistory[]
-  availableTransitions?: OrderStatus[]
+  statusHistory: OrderStatusHistory[]
+  availableTransitions: OrderStatus[]
 }

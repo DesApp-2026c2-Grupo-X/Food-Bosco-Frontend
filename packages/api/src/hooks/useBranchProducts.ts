@@ -10,7 +10,7 @@ interface UseBranchProductsReturn {
   products: BranchProduct[]
   isLoading: boolean
   isToggling: boolean
-  setAvailability: (productId: number, available: boolean) => Promise<void>
+  setAvailability: (productId: string, available: boolean) => Promise<void>
 }
 
 export const useBranchProducts = (): UseBranchProductsReturn => {
@@ -25,7 +25,7 @@ export const useBranchProducts = (): UseBranchProductsReturn => {
   const [isToggling, setIsToggling] = useState(false)
 
   const setAvailability = useCallback(
-    async (productId: number, available: boolean) => {
+    async (productId: string, available: boolean) => {
       setIsToggling(true)
 
       const updated = (data ?? MOCK_BRANCH_PRODUCTS).map((item) =>

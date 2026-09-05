@@ -21,9 +21,9 @@ export const ProductRecipeModal = ({ product, onClose }: ProductRecipeModalProps
         <VStack align="stretch" gap="2">
           {recipe.map((item) => (
             <HStack key={item.id} justify="space-between">
-              <Text fontSize="sm">{item.ingredient.name}</Text>
+              <Text fontSize="sm">{item.ingredient?.name ?? '—'}</Text>
               <Muted fontSize="sm">
-                {item.quantity} {item.ingredient.unit}
+                {item.quantity} {item.ingredient?.unit ?? '—'}
               </Muted>
             </HStack>
           ))}

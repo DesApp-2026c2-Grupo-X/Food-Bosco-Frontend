@@ -38,11 +38,11 @@ export const TripOrderCard = ({
       <VStack align="start" gap="1" marginTop="3">
         <HStack gap="2" color="fg.muted">
           <MapPin width={16} height={16} />
-          <Text fontSize="sm">Retiro: {order.store.address}</Text>
+          <Text fontSize="sm">Retiro: {order.branch?.addressText}</Text>
         </HStack>
         <HStack gap="2" color="fg.muted">
           <MapPin width={16} height={16} />
-          <Text fontSize="sm">Entrega: {order.client.address}</Text>
+          <Text fontSize="sm">Entrega: {order.deliveryAddress.text}</Text>
         </HStack>
       </VStack>
 

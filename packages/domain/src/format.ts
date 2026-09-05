@@ -28,6 +28,13 @@ export const getStatusSince = (order: Order): string => {
 export const getElapsedMinutes = (iso: string, now: number = Date.now()): number =>
   Math.max(0, Math.round((now - new Date(iso).getTime()) / 60000))
 
+export const formatEta = (iso: string): string => {
+  const minutes = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 60000))
+  if (minutes < 60) return `~${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  return `~${hours}h ${minutes % 60}m`
+}
+
 export const formatElapsed = (iso: string, now: number = Date.now()): string => {
   const minutes = getElapsedMinutes(iso, now)
   if (minutes < 1) return 'recién'

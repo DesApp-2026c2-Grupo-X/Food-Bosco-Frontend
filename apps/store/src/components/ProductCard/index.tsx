@@ -20,14 +20,16 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       <ChakraLink asChild display="block">
         <NavLink to={productPath(product.id)} aria-label={product.name}>
           <Box aspectRatio="4 / 3" bg="bg.muted" overflow="hidden">
-            <Image
-              src={product.image}
-              alt={product.name}
-              width="100%"
-              height="100%"
-              objectFit="cover"
-              loading="lazy"
-            />
+            {product.image ? (
+              <Image
+                src={product.image}
+                alt={product.name}
+                width="100%"
+                height="100%"
+                objectFit="cover"
+                loading="lazy"
+              />
+            ) : null}
           </Box>
         </NavLink>
       </ChakraLink>

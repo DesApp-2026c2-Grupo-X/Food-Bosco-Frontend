@@ -1,19 +1,18 @@
 import { useMemo, useState } from 'react'
-import { useProduct } from '@repo/api'
-import { useCartStore } from '../../../stores/cartStore'
+import { useCart, useProduct } from '@repo/api'
 import type { ProductOptionType } from '@repo/domain'
 
-type SelectionMap = Record<number, number | number[]>
+type SelectionMap = Record<string, string | string[]>
 
-export const useProductConfig = (productId: number | undefined) => {
+export const useProductConfig = (productId: string | undefined) => {
   const { product, isLoading } = useProduct(productId)
-  const addLine = useCartStore((state) => state.addLine)
+  const { addItem } = useCart()
 
   const [selection, setSelection] = useState<SelectionMap>({})
   const [quantity, setQuantity] = useState(1)
   const [notes, setNotes] = useState('')
 
-  const selectOption = (groupId: number, optionId: number, type: ProductOptionType) => {
+  const selectOption = (groupId: string, optionId: string, type: ProductOptionType) => {
     setSelection((prev) => {
       if (type === 'single') return { ...prev, [groupId]: optionId }
 
@@ -26,22 +25,29 @@ export const useProductConfig = (productId: number | undefined) => {
     })
   }
 
-  const selectedOptions = useMemo(() => {
+  const selectedOptionIds = useMemo(() => {
     if (!product) return []
     return product.configGroups.flatMap((group) => {
       const selected = selection[group.id]
       const ids = Array.isArray(selected) ? selected : selected !== undefined ? [selected] : []
-      return ids.flatMap((id) => {
-        const option = group.options.find((o) => o.id === id)
-        return option ? [{ group: group.name, option: option.name, delta: option.priceDelta }] : []
-      })
+      return ids
     })
   }, [product, selection])
 
-  const unitPrice = useMemo(
-    () => (product ? product.price + selectedOptions.reduce((sum, o) => sum + o.delta, 0) : 0),
-    [product, selectedOptions],
-  )
+  const unitPrice = useMemo(() => {
+    if (!product) return 0
+    const extras = product.configGroups
+      .flatMap((group) => {
+        const selected = selection[group.id]
+        const ids = Array.isArray(selected) ? selected : selected !== undefined ? [selected] : []
+        return ids.flatMap((id) => {
+          const option = group.options.find((o) => o.id === id)
+          return option ? [option.extraPrice] : []
+        })
+      })
+      .reduce((sum, value) => sum + value, 0)
+    return product.price + extras
+  }, [product, selection])
 
   const total = unitPrice * quantity
 
@@ -52,16 +58,13 @@ export const useProductConfig = (productId: number | undefined) => {
 
   const canAdd = Boolean(product && product.available && !missingRequired)
 
-  const addToCart = () => {
+  const addToCart = async () => {
     if (!product || !canAdd) return
-    addLine({
+    await addItem({
       productId: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
       quantity,
-      options: selectedOptions,
-      notes: notes.trim() || undefined,
+      observations: notes.trim() || null,
+      optionIds: selectedOptionIds,
     })
   }
 

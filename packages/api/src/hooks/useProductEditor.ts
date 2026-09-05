@@ -17,10 +17,10 @@ import { getProductRecipe, MOCK_RECIPES } from '../mocks/recipes'
 
 const withRecipe = (product: Product): Product => ({
   ...product,
-  recipe: product.recipe ?? getProductRecipe(product.id),
+  recipe: product.recipe.length ? product.recipe : getProductRecipe(product.id),
 })
 
-const fallbackFor = (productId: number | undefined): Product | null => {
+const fallbackFor = (productId: string | undefined): Product | null => {
   if (!productId) return null
   const product = getProductById(productId)
   return product ? withRecipe(product) : null
@@ -30,26 +30,26 @@ const syncMock = (product: Product) => {
   const index = MOCK_PRODUCTS.findIndex((item) => item.id === product.id)
   if (index !== -1) MOCK_PRODUCTS[index] = product
   else MOCK_PRODUCTS.push(product)
-  MOCK_RECIPES[product.id] = product.recipe ?? []
+  MOCK_RECIPES[product.id] = product.recipe
 }
 
 interface UseProductEditorReturn {
   product: Product | null
   isLoading: boolean
   isMutating: boolean
-  save: (input: ProductInput) => Promise<number | null>
+  save: (input: ProductInput) => Promise<string | null>
   addGroup: (input: ConfigGroupInput) => Promise<void>
-  updateGroup: (groupId: number, input: ConfigGroupInput) => Promise<void>
-  removeGroup: (groupId: number) => Promise<void>
-  addOption: (groupId: number, input: ConfigOptionInput) => Promise<void>
-  updateOption: (groupId: number, optionId: number, input: ConfigOptionInput) => Promise<void>
-  removeOption: (groupId: number, optionId: number) => Promise<void>
+  updateGroup: (groupId: string, input: ConfigGroupInput) => Promise<void>
+  removeGroup: (groupId: string) => Promise<void>
+  addOption: (groupId: string, input: ConfigOptionInput) => Promise<void>
+  updateOption: (groupId: string, optionId: string, input: ConfigOptionInput) => Promise<void>
+  removeOption: (groupId: string, optionId: string) => Promise<void>
   addRecipeItem: (input: RecipeItemInput) => Promise<void>
-  updateRecipeItem: (itemId: number, input: RecipeItemInput) => Promise<void>
-  removeRecipeItem: (itemId: number) => Promise<void>
+  updateRecipeItem: (itemId: string, input: RecipeItemInput) => Promise<void>
+  removeRecipeItem: (itemId: string) => Promise<void>
 }
 
-export const useProductEditor = (productId: number | undefined): UseProductEditorReturn => {
+export const useProductEditor = (productId: string | undefined): UseProductEditorReturn => {
   const { data, isLoading, mutate } = useSWR<Product | null>(
     productId ? `/api/catalog/products/${productId}` : null,
     async (url: string) => {
@@ -62,12 +62,12 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
   const [isMutating, setIsMutating] = useState(false)
 
   const save = useCallback(
-    async (input: ProductInput): Promise<number | null> => {
+    async (input: ProductInput): Promise<string | null> => {
       setIsMutating(true)
       let id = productId ?? null
       if (id == null) {
-        id = Date.now()
-        syncMock({ ...input, id, configGroups: [], recipe: [] })
+        id = String(Date.now())
+        syncMock({ ...input, image: input.image ?? null, id, configGroups: [], recipe: [] })
         await postJson('/api/catalog/products', input)
       } else {
         const base = data ?? fallbackFor(productId)
@@ -89,7 +89,15 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
       const base = data ?? fallbackFor(productId)
       if (!base) return
       setIsMutating(true)
-      const group: ProductConfigGroup = { id: Date.now(), ...input, options: [] }
+      const group: ProductConfigGroup = {
+        id: String(Date.now()),
+        name: input.name,
+        type: input.type,
+        required: input.required,
+        min: input.min ?? null,
+        max: input.max ?? null,
+        options: [],
+      }
       syncMock({ ...base, configGroups: [...base.configGroups, group] })
       await mutate({ ...base, configGroups: [...base.configGroups, group] }, { revalidate: false })
       await postJson(`/api/catalog/products/${base.id}/configurations`, input)
@@ -99,7 +107,7 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
   )
 
   const updateGroup = useCallback(
-    async (groupId: number, input: ConfigGroupInput) => {
+    async (groupId: string, input: ConfigGroupInput) => {
       const base = data ?? fallbackFor(productId)
       if (!base) return
       setIsMutating(true)
@@ -115,7 +123,7 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
   )
 
   const removeGroup = useCallback(
-    async (groupId: number) => {
+    async (groupId: string) => {
       const base = data ?? fallbackFor(productId)
       if (!base) return
       setIsMutating(true)
@@ -129,11 +137,11 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
   )
 
   const addOption = useCallback(
-    async (groupId: number, input: ConfigOptionInput) => {
+    async (groupId: string, input: ConfigOptionInput) => {
       const base = data ?? fallbackFor(productId)
       if (!base) return
       setIsMutating(true)
-      const option: ProductOption = { id: Date.now(), ...input }
+      const option: ProductOption = { id: String(Date.now()), ...input }
       const configGroups = base.configGroups.map((group) =>
         group.id === groupId ? { ...group, options: [...group.options, option] } : group,
       )
@@ -146,7 +154,7 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
   )
 
   const updateOption = useCallback(
-    async (groupId: number, optionId: number, input: ConfigOptionInput) => {
+    async (groupId: string, optionId: string, input: ConfigOptionInput) => {
       const base = data ?? fallbackFor(productId)
       if (!base) return
       setIsMutating(true)
@@ -172,7 +180,7 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
   )
 
   const removeOption = useCallback(
-    async (groupId: number, optionId: number) => {
+    async (groupId: string, optionId: string) => {
       const base = data ?? fallbackFor(productId)
       if (!base) return
       setIsMutating(true)
@@ -199,12 +207,12 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
       if (!ingredient) return
       setIsMutating(true)
       const item: RecipeItem = {
-        id: Date.now(),
+        id: String(Date.now()),
         ingredientId: input.ingredientId,
         quantity: input.quantity,
         ingredient,
       }
-      const recipe = [...(base.recipe ?? []), item]
+      const recipe = [...base.recipe, item]
       syncMock({ ...base, recipe })
       await mutate({ ...base, recipe }, { revalidate: false })
       await postJson(`/api/catalog/products/${base.id}/recipe/items`, input)
@@ -214,13 +222,13 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
   )
 
   const updateRecipeItem = useCallback(
-    async (itemId: number, input: RecipeItemInput) => {
+    async (itemId: string, input: RecipeItemInput) => {
       const base = data ?? fallbackFor(productId)
       if (!base) return
       const ingredient = getIngredientById(input.ingredientId)
       if (!ingredient) return
       setIsMutating(true)
-      const recipe = (base.recipe ?? []).map((item) =>
+      const recipe = base.recipe.map((item) =>
         item.id === itemId
           ? { ...item, ingredientId: input.ingredientId, quantity: input.quantity, ingredient }
           : item,
@@ -234,11 +242,11 @@ export const useProductEditor = (productId: number | undefined): UseProductEdito
   )
 
   const removeRecipeItem = useCallback(
-    async (itemId: number) => {
+    async (itemId: string) => {
       const base = data ?? fallbackFor(productId)
       if (!base) return
       setIsMutating(true)
-      const recipe = (base.recipe ?? []).filter((item) => item.id !== itemId)
+      const recipe = base.recipe.filter((item) => item.id !== itemId)
       syncMock({ ...base, recipe })
       await mutate({ ...base, recipe }, { revalidate: false })
       await deleteJson(`/api/catalog/products/${base.id}/recipe/items/${itemId}`)

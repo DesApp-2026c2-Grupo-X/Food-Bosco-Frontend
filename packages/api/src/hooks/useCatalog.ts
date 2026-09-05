@@ -1,12 +1,6 @@
-import useSWR from 'swr'
+import { useQuery } from '@apollo/client'
 import type { Category, Product } from '@repo/domain'
-import { getJson } from '../client/rest'
-import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '../mocks/catalog'
-
-interface CatalogResponse {
-  categories: Category[]
-  products: Product[]
-}
+import { CATEGORIES, PRODUCTS, toCategory, toProduct } from '../client/store'
 
 interface UseCatalogReturn {
   categories: Category[]
@@ -14,20 +8,22 @@ interface UseCatalogReturn {
   isLoading: boolean
 }
 
-const MOCK: CatalogResponse = { categories: MOCK_CATEGORIES, products: MOCK_PRODUCTS }
+interface CategoriesResult {
+  categories: Record<string, unknown>[]
+}
+
+interface ProductsResult {
+  products: Record<string, unknown>[]
+}
 
 export const useCatalog = (): UseCatalogReturn => {
-  const { data, isLoading } = useSWR<CatalogResponse>('/api/catalog', async (url: string) => {
-    const json = await getJson<CatalogResponse>(url)
-    if (json && Array.isArray(json.categories) && Array.isArray(json.products)) {
-      return json
-    }
-    return MOCK
-  })
+  const { data: categoriesData, loading: categoriesLoading } =
+    useQuery<CategoriesResult>(CATEGORIES)
+  const { data: productsData, loading: productsLoading } = useQuery<ProductsResult>(PRODUCTS)
 
   return {
-    categories: data?.categories ?? [],
-    products: data?.products ?? [],
-    isLoading,
+    categories: (categoriesData?.categories ?? []).map(toCategory),
+    products: (productsData?.products ?? []).map(toProduct),
+    isLoading: categoriesLoading || productsLoading,
   }
 }

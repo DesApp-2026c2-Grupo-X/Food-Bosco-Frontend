@@ -42,7 +42,7 @@ export const PromotionsPage = () => {
   const { promotionId } = useParams()
 
   const isNew = pathname === routes.promotionNew
-  const editingId = promotionId ? Number(promotionId) : null
+  const editingId = promotionId ?? null
   const editing = editingId != null ? (promotions.find((p) => p.id === editingId) ?? null) : null
   const formOpen = isNew || (editingId != null && editing != null)
 

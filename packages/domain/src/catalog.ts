@@ -1,41 +1,40 @@
 import type { RecipeItem } from './ingredient'
 
 export interface Category {
-  id: number
+  id: string
   name: string
-  slug: string
   active: boolean
 }
 
 export type ProductOptionType = 'single' | 'multiple'
 
 export interface ProductOption {
-  id: number
+  id: string
   name: string
-  priceDelta: number
-  active: boolean
+  extraPrice: number
+  available: boolean
 }
 
 export interface ProductConfigGroup {
-  id: number
+  id: string
   name: string
   type: ProductOptionType
   required: boolean
-  min: number
-  max: number
+  min: number | null
+  max: number | null
   options: ProductOption[]
 }
 
 export interface Product {
-  id: number
+  id: string
+  categoryId: string
   name: string
   description: string
   price: number
-  image: string
-  categoryId: number
+  image: string | null
   available: boolean
   configGroups: ProductConfigGroup[]
-  recipe?: RecipeItem[]
+  recipe: RecipeItem[]
 }
 
 export interface CategoryInput {
@@ -44,11 +43,11 @@ export interface CategoryInput {
 }
 
 export interface ProductInput {
-  categoryId: number
+  categoryId: string
   name: string
   description: string
   price: number
-  image: string
+  image?: string | null
   available: boolean
 }
 
@@ -56,12 +55,12 @@ export interface ConfigGroupInput {
   name: string
   type: ProductOptionType
   required: boolean
-  min: number
-  max: number
+  min?: number | null
+  max?: number | null
 }
 
 export interface ConfigOptionInput {
   name: string
-  priceDelta: number
-  active: boolean
+  extraPrice: number
+  available: boolean
 }

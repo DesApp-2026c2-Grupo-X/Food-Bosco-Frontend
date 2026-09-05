@@ -25,8 +25,8 @@ export const AdjustStockModal = ({
           </Heading>
           {ingredient ? (
             <Text color="fg.muted" fontSize="sm" marginBottom="4">
-              {ingredient.ingredient.name} · Actual: {ingredient.quantity}{' '}
-              {ingredient.ingredient.unit}
+              {ingredient.ingredient?.name ?? '—'} · Actual: {ingredient.quantity}{' '}
+              {ingredient.ingredient?.unit ?? '—'}
             </Text>
           ) : null}
           <VStack gap="4" align="stretch">

@@ -124,7 +124,10 @@ export const HomePage = () => {
                     >
                       <VStack align="start" gap="1">
                         <Strong>
-                          #{order.number} · {order.customer?.name ?? 'Cliente'}
+                          #{order.number} ·{' '}
+                          {order.client
+                            ? `${order.client.firstName} ${order.client.lastName}`
+                            : 'Cliente'}
                         </Strong>
                         <Text fontSize="sm" fontWeight="medium" color={elapsedTone(minutes)}>
                           hace {formatElapsed(getStatusSince(order))}

@@ -11,8 +11,8 @@ interface UsePromotionsReturn {
   isLoading: boolean
   isMutating: boolean
   create: (input: PromotionInput) => Promise<void>
-  update: (id: number, input: PromotionInput) => Promise<void>
-  toggle: (id: number, active: boolean) => Promise<void>
+  update: (id: string, input: PromotionInput) => Promise<void>
+  toggle: (id: string, active: boolean) => Promise<void>
 }
 
 export const usePromotions = (): UsePromotionsReturn => {
@@ -27,7 +27,14 @@ export const usePromotions = (): UsePromotionsReturn => {
   const create = useCallback(
     async (input: PromotionInput) => {
       setIsMutating(true)
-      const promotion: Promotion = { id: Date.now(), ...input }
+      const promotion: Promotion = {
+        id: String(Date.now()),
+        name: input.name,
+        description: input.description ?? null,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        active: input.active,
+      }
       MOCK_PROMOTIONS.push(promotion)
       await mutate([...(data ?? MOCK_PROMOTIONS)], { revalidate: false })
       await postJson('/api/catalog/promotions', input)
@@ -37,13 +44,15 @@ export const usePromotions = (): UsePromotionsReturn => {
   )
 
   const update = useCallback(
-    async (id: number, input: PromotionInput) => {
+    async (id: string, input: PromotionInput) => {
       setIsMutating(true)
       const next = (data ?? MOCK_PROMOTIONS).map((promotion) =>
-        promotion.id === id ? { ...promotion, ...input } : promotion,
+        promotion.id === id
+          ? { ...promotion, ...input, description: input.description ?? null }
+          : promotion,
       )
       const mock = MOCK_PROMOTIONS.find((promotion) => promotion.id === id)
-      if (mock) Object.assign(mock, input)
+      if (mock) Object.assign(mock, input, { description: input.description ?? null })
       await mutate(next, { revalidate: false })
       await patchJson(`/api/catalog/promotions/${id}`, input)
       setIsMutating(false)
@@ -52,7 +61,7 @@ export const usePromotions = (): UsePromotionsReturn => {
   )
 
   const toggle = useCallback(
-    async (id: number, active: boolean) => {
+    async (id: string, active: boolean) => {
       setIsMutating(true)
       const next = (data ?? MOCK_PROMOTIONS).map((promotion) =>
         promotion.id === id ? { ...promotion, active } : promotion,

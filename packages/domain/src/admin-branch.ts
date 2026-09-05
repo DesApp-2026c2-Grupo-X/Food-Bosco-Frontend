@@ -1,17 +1,17 @@
 export interface BranchHours {
   dayOfWeek: number
-  opening: string
-  closing: string
+  opening: string | null
+  closing: string | null
   closed: boolean
 }
 
 export interface AdminBranch {
-  id: number
+  id: string
   name: string
   addressText: string
   latitude: number
   longitude: number
-  phone: string
+  phone: string | null
   active: boolean
   hours: BranchHours[]
 }
@@ -21,13 +21,13 @@ export interface BranchInput {
   addressText: string
   latitude: number
   longitude: number
-  phone: string
+  phone?: string | null
   active: boolean
 }
 
 export interface BranchHoursInput {
   dayOfWeek: number
-  opening: string
-  closing: string
+  opening?: string | null
+  closing?: string | null
   closed: boolean
 }

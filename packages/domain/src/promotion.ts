@@ -1,7 +1,7 @@
 export interface Promotion {
-  id: number
+  id: string
   name: string
-  description: string
+  description: string | null
   startDate: string
   endDate: string
   active: boolean
@@ -9,7 +9,7 @@ export interface Promotion {
 
 export interface PromotionInput {
   name: string
-  description: string
+  description?: string | null
   startDate: string
   endDate: string
   active: boolean

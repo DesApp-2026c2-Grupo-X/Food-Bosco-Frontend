@@ -1,15 +1,15 @@
 export interface Ingredient {
-  id: number
+  id: string
   name: string
   unit: string
   active: boolean
 }
 
 export interface RecipeItem {
-  id: number
-  ingredientId: number
+  id: string
+  ingredientId: string
   quantity: number
-  ingredient: Ingredient
+  ingredient?: Ingredient | null
 }
 
 export interface IngredientInput {
@@ -19,6 +19,6 @@ export interface IngredientInput {
 }
 
 export interface RecipeItemInput {
-  ingredientId: number
+  ingredientId: string
   quantity: number
 }

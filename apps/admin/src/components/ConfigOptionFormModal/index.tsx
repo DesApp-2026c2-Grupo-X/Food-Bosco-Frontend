@@ -22,18 +22,18 @@ export const ConfigOptionFormModal = ({
     resolver: zodResolver(configOptionSchema),
     defaultValues: {
       name: option?.name ?? '',
-      priceDelta: option ? String(option.priceDelta) : '0',
+      extraPrice: option ? String(option.extraPrice) : '0',
     },
     mode: 'onTouched',
     reValidateMode: 'onChange',
   })
-  const [active, setActive] = useState(option?.active ?? true)
+  const [available, setAvailable] = useState(option?.available ?? true)
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const input: ConfigOptionInput = {
       name: values.name.trim(),
-      priceDelta: Number(values.priceDelta),
-      active,
+      extraPrice: Number(values.extraPrice),
+      available,
     }
     await onSubmit(input)
   })
@@ -48,7 +48,7 @@ export const ConfigOptionFormModal = ({
           <FormLayout>
             <FormField name="name" label="Nombre" required placeholder="Ej: Doble" />
             <FormField
-              name="priceDelta"
+              name="extraPrice"
               label="Variación de precio (+$)"
               required
               inputMode="decimal"
@@ -58,7 +58,11 @@ export const ConfigOptionFormModal = ({
               <Text fontSize="sm" color="fg.muted">
                 Disponible
               </Text>
-              <ToggleSwitch checked={active} onChange={setActive} ariaLabel="Opción disponible" />
+              <ToggleSwitch
+                checked={available}
+                onChange={setAvailable}
+                ariaLabel="Opción disponible"
+              />
             </HStack>
             <PrimaryButton
               type="submit"

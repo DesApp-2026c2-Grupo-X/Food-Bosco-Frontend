@@ -2,7 +2,7 @@ import type { Promotion } from '@repo/domain'
 
 export const MOCK_PROMOTIONS: Promotion[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Promo invierno',
     description: 'Promoción de temporada.',
     startDate: '2026-07-01',
@@ -10,7 +10,7 @@ export const MOCK_PROMOTIONS: Promotion[] = [
     active: true,
   },
   {
-    id: 2,
+    id: '2',
     name: 'Promo especial',
     description: 'Promoción de fin de semana.',
     startDate: '2026-09-10',
