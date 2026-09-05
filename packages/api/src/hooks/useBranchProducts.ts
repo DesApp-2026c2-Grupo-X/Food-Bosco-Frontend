@@ -1,10 +1,8 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { BranchProduct } from '@repo/domain'
-import { getJson, patchJson } from '../client/rest'
-import { MOCK_BRANCH_PRODUCTS } from '../mocks/branch-products'
-
-const KEY = '/api/branches/current/products'
+import { BRANCH_PRODUCTS, SET_BRANCH_PRODUCT_AVAILABILITY, toBranchProduct } from '../client/branch'
+import { useAuthStore } from '../stores/authStore'
 
 interface UseBranchProductsReturn {
   products: BranchProduct[]
@@ -13,33 +11,36 @@ interface UseBranchProductsReturn {
   setAvailability: (productId: string, available: boolean) => Promise<void>
 }
 
+interface BranchProductsResult {
+  branchProducts: Record<string, unknown>[]
+}
+
 export const useBranchProducts = (): UseBranchProductsReturn => {
-  const { data, isLoading, mutate } = useSWR<BranchProduct[]>(KEY, async (url: string) => {
-    const json = await getJson<BranchProduct[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) {
-      return json
-    }
-    return MOCK_BRANCH_PRODUCTS
+  const branchId = useAuthStore((state) => state.user?.branchId)
+
+  const { data, loading, refetch } = useQuery<BranchProductsResult>(BRANCH_PRODUCTS, {
+    variables: { branchId },
+    skip: !branchId,
+    fetchPolicy: 'network-only',
   })
 
-  const [isToggling, setIsToggling] = useState(false)
+  const [setAvailabilityMutation, { loading: toggling }] = useMutation(
+    SET_BRANCH_PRODUCT_AVAILABILITY,
+  )
 
   const setAvailability = useCallback(
     async (productId: string, available: boolean) => {
-      setIsToggling(true)
-
-      const updated = (data ?? MOCK_BRANCH_PRODUCTS).map((item) =>
-        item.product.id === productId ? { ...item, available } : item,
-      )
-      const mockItem = MOCK_BRANCH_PRODUCTS.find((item) => item.product.id === productId)
-      if (mockItem) mockItem.available = available
-
-      await mutate(updated, { revalidate: false })
-      await patchJson(`/api/branches/current/products/${productId}/availability`, { available })
-      setIsToggling(false)
+      if (!branchId) return
+      await setAvailabilityMutation({ variables: { branchId, productId, available } })
+      await refetch()
     },
-    [data, mutate],
+    [branchId, setAvailabilityMutation, refetch],
   )
 
-  return { products: data ?? [], isLoading, isToggling, setAvailability }
+  return {
+    products: (data?.branchProducts ?? []).map(toBranchProduct),
+    isLoading: loading,
+    isToggling: toggling,
+    setAvailability,
+  }
 }
