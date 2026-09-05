@@ -77,20 +77,22 @@ export const OrderDetailPage = () => {
       {order ? (
         <>
           <Card title="Cliente">
-            <Text fontWeight="medium">{order.customer?.name ?? '—'}</Text>
-            <Muted fontSize="sm">{order.customer?.phone ?? '—'}</Muted>
-            <Muted fontSize="sm">{order.customer?.email ?? '—'}</Muted>
+            <Text fontWeight="medium">
+              {order.client ? `${order.client.firstName} ${order.client.lastName}` : '—'}
+            </Text>
+            <Muted fontSize="sm">{order.client?.phone ?? '—'}</Muted>
+            <Muted fontSize="sm">{order.client?.email ?? '—'}</Muted>
           </Card>
 
           <Card title="Entrega">
-            <Muted fontSize="sm">{order.deliveryAddress}</Muted>
-            <Muted fontSize="sm">Sucursal asignada: {order.branch}</Muted>
+            <Muted fontSize="sm">{order.deliveryAddress.text}</Muted>
+            <Muted fontSize="sm">Sucursal asignada: {order.branch?.name ?? '—'}</Muted>
           </Card>
 
           <Card title="Detalle">
             <VStack align="stretch" gap="2" width="full">
               {order.items.map((item) => (
-                <HStack key={item.id} justify="space-between">
+                <HStack key={item.productId} justify="space-between">
                   <Text fontSize="sm">
                     {item.quantity} × {item.name}
                   </Text>

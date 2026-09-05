@@ -33,7 +33,7 @@ export const OrdersPage = () => {
 
   const branchOptions = useMemo(
     () =>
-      [...new Set(orders.map((order) => order.branch))].map((name) => ({
+      [...new Set(orders.map((order) => order.branch?.name ?? '—'))].map((name) => ({
         value: name,
         label: name,
       })),
@@ -46,9 +46,11 @@ export const OrdersPage = () => {
       const matchesSearch =
         !query ||
         String(order.number).includes(query) ||
-        (order.customer?.name ?? '').toLowerCase().includes(query)
+        (order.client ? `${order.client.firstName} ${order.client.lastName}` : '')
+          .toLowerCase()
+          .includes(query)
       const matchesStatus = !status || order.status === status
-      const matchesBranch = !branch || order.branch === branch
+      const matchesBranch = !branch || order.branch?.name === branch
       return matchesSearch && matchesStatus && matchesBranch
     })
   }, [orders, search, status, branch])
@@ -69,12 +71,16 @@ export const OrdersPage = () => {
       key: 'client',
       header: 'Cliente',
       hideBelow: 'sm',
-      render: (order) => <Muted fontSize="sm">{order.customer?.name ?? '—'}</Muted>,
+      render: (order) => (
+        <Muted fontSize="sm">
+          {order.client ? `${order.client.firstName} ${order.client.lastName}` : '—'}
+        </Muted>
+      ),
     },
     {
       key: 'branch',
       header: 'Sucursal',
-      render: (order) => <Muted fontSize="sm">{order.branch}</Muted>,
+      render: (order) => <Muted fontSize="sm">{order.branch?.name ?? '—'}</Muted>,
     },
     {
       key: 'status',

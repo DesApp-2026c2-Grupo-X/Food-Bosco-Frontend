@@ -38,7 +38,7 @@ export const CategoriesPage = () => {
   const { categoryId } = useParams()
 
   const isNew = pathname === routes.categoryNew
-  const editingId = categoryId ? Number(categoryId) : null
+  const editingId = categoryId ?? null
   const editing = editingId != null ? (categories.find((c) => c.id === editingId) ?? null) : null
   const formOpen = isNew || (editingId != null && editing != null)
 

@@ -25,7 +25,7 @@ export const StockPage = () => {
   const [branch, setBranch] = useState('')
   const [selected, setSelected] = useState<BranchStock | null>(null)
 
-  const branchName = (branchId: number) =>
+  const branchName = (branchId: string) =>
     branches.find((b) => b.id === branchId)?.name ?? `Sucursal ${branchId}`
 
   const branchOptions = branches.map((b) => ({ value: String(b.id), label: b.name }))
@@ -33,7 +33,7 @@ export const StockPage = () => {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
     return stock.filter((row) => {
-      const matchesSearch = !query || row.ingredient.name.toLowerCase().includes(query)
+      const matchesSearch = !query || (row.ingredient?.name ?? '').toLowerCase().includes(query)
       const matchesBranch = !branch || String(row.branchId) === branch
       return matchesSearch && matchesBranch
     })
@@ -49,7 +49,7 @@ export const StockPage = () => {
     {
       key: 'ingredient',
       header: 'Ingrediente',
-      render: (row) => <Strong>{row.ingredient.name}</Strong>,
+      render: (row) => <Strong>{row.ingredient?.name ?? '—'}</Strong>,
     },
     {
       key: 'branch',
@@ -62,7 +62,7 @@ export const StockPage = () => {
       header: 'Cantidad',
       render: (row) => (
         <Muted fontSize="sm">
-          {row.quantity} {row.ingredient.unit}
+          {row.quantity} {row.ingredient?.unit ?? '—'}
         </Muted>
       ),
     },

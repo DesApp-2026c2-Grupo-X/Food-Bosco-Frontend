@@ -1,12 +1,12 @@
-import { HStack, Image, VStack } from '@chakra-ui/react'
+import { Box, HStack, Image, VStack } from '@chakra-ui/react'
 import TrashBin from '@gravity-ui/icons/TrashBin'
-import { lineTotal, lineUnitPrice } from '../../stores/cartStore'
+import { cartLineTotal, cartLineUnitPrice } from '@repo/domain'
 import { formatPrice } from '@repo/domain'
 import { GhostButton, Muted, Price, QuantityStepper, Strong, Subtle } from '@repo/components'
 import type { CartLineCardProps } from './types'
 
-export const CartLineCard = ({ line, onQuantityChange, onRemove }: CartLineCardProps) => {
-  const optionsLabel = line.options.map((o) => o.option).join(' · ')
+export const CartLineCard = ({ item, onQuantityChange, onRemove }: CartLineCardProps) => {
+  const optionsLabel = item.options.map((option) => option.name).join(' · ')
 
   return (
     <HStack
@@ -18,48 +18,57 @@ export const CartLineCard = ({ line, onQuantityChange, onRemove }: CartLineCardP
       borderRadius="2xl"
       padding="3"
     >
-      <Image
-        src={line.image}
-        alt={line.name}
+      <Box
         width="64px"
         height="64px"
         borderRadius="xl"
-        objectFit="cover"
+        overflow="hidden"
+        bg="bg.muted"
         flexShrink={0}
-      />
+      >
+        {item.product?.image ? (
+          <Image
+            src={item.product.image}
+            alt={item.product.name}
+            width="100%"
+            height="100%"
+            objectFit="cover"
+          />
+        ) : null}
+      </Box>
       <VStack align="start" gap="1" flex="1" minWidth="0">
         <Strong fontSize="sm" lineClamp={1}>
-          {line.name}
+          {item.product?.name}
         </Strong>
         {optionsLabel ? (
           <Muted fontSize="xs" lineClamp={2}>
             {optionsLabel}
           </Muted>
         ) : null}
-        {line.notes ? (
+        {item.observations ? (
           <Subtle fontSize="xs" lineClamp={1}>
-            Nota: {line.notes}
+            Nota: {item.observations}
           </Subtle>
         ) : null}
         <Muted fontSize="xs" fontVariantNumeric="tabular-nums">
-          {formatPrice(lineUnitPrice(line))} c/u
+          {formatPrice(cartLineUnitPrice(item))} c/u
         </Muted>
         <GhostButton
           size="2xs"
           color="fg.subtle"
           paddingX="0"
           _hover={{ color: 'danger' }}
-          onClick={() => onRemove(line.id)}
+          onClick={() => onRemove(item.id)}
         >
           <TrashBin width={14} height={14} />
           Eliminar
         </GhostButton>
       </VStack>
       <VStack align="end" gap="2">
-        <Price>{formatPrice(lineTotal(line))}</Price>
+        <Price>{formatPrice(cartLineTotal(item))}</Price>
         <QuantityStepper
-          value={line.quantity}
-          onChange={(value) => onQuantityChange(line.id, value)}
+          value={item.quantity}
+          onChange={(value) => onQuantityChange(item.id, value)}
         />
       </VStack>
     </HStack>

@@ -11,8 +11,8 @@ interface UseIngredientsReturn {
   isLoading: boolean
   isMutating: boolean
   create: (input: IngredientInput) => Promise<void>
-  update: (id: number, input: IngredientInput) => Promise<void>
-  toggle: (id: number, active: boolean) => Promise<void>
+  update: (id: string, input: IngredientInput) => Promise<void>
+  toggle: (id: string, active: boolean) => Promise<void>
 }
 
 export const useIngredients = (): UseIngredientsReturn => {
@@ -27,7 +27,7 @@ export const useIngredients = (): UseIngredientsReturn => {
   const create = useCallback(
     async (input: IngredientInput) => {
       setIsMutating(true)
-      const ingredient: Ingredient = { id: Date.now(), ...input }
+      const ingredient: Ingredient = { id: String(Date.now()), ...input }
       MOCK_INGREDIENTS.push(ingredient)
       await mutate([...(data ?? MOCK_INGREDIENTS)], { revalidate: false })
       await postJson('/api/catalog/ingredients', input)
@@ -37,7 +37,7 @@ export const useIngredients = (): UseIngredientsReturn => {
   )
 
   const update = useCallback(
-    async (id: number, input: IngredientInput) => {
+    async (id: string, input: IngredientInput) => {
       setIsMutating(true)
       const next = (data ?? MOCK_INGREDIENTS).map((ingredient) =>
         ingredient.id === id ? { ...ingredient, name: input.name, unit: input.unit } : ingredient,
@@ -55,7 +55,7 @@ export const useIngredients = (): UseIngredientsReturn => {
   )
 
   const toggle = useCallback(
-    async (id: number, active: boolean) => {
+    async (id: string, active: boolean) => {
       setIsMutating(true)
       const next = (data ?? MOCK_INGREDIENTS).map((ingredient) =>
         ingredient.id === id ? { ...ingredient, active } : ingredient,

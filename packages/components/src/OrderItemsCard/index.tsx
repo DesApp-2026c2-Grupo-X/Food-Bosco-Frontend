@@ -11,11 +11,11 @@ export const OrderItemsCard = ({ items, title = 'Productos' }: OrderItemsCardPro
     </Muted>
     <VStack gap="3" align="stretch">
       {items.map((item) => (
-        <HStack key={item.id} justify="space-between">
+        <HStack key={item.productId} justify="space-between">
           <Text>
             {item.quantity} × {item.name}
           </Text>
-          <Price fontWeight="medium">{formatPrice(item.unitPrice * item.quantity)}</Price>
+          <Price fontWeight="medium">{formatPrice(item.subtotal)}</Price>
         </HStack>
       ))}
     </VStack>

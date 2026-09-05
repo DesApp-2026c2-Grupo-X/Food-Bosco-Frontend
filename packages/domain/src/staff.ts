@@ -8,7 +8,7 @@ export interface StaffMember {
   phone: string
   role: UserRole
   active: boolean
-  branchId?: number
+  branchId?: string | null
   branchName?: string
 }
 
@@ -19,5 +19,5 @@ export interface StaffInput {
   phone: string
   password: string
   role: 'branch_admin' | 'super_admin'
-  branchId?: number
+  branchId?: string
 }
