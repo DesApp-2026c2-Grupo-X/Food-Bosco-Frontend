@@ -1,18 +1,14 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
-import type { AdminBranch, BranchHours, BranchHoursInput, BranchInput } from '@repo/domain'
-import { getJson, patchJson, postJson } from '../client/rest'
-import { MOCK_BRANCHES } from '../mocks/branches'
-
-const KEY = '/api/branches'
-
-const defaultHours = (): BranchHours[] =>
-  [1, 2, 3, 4, 5, 6, 7].map((dayOfWeek) => ({
-    dayOfWeek,
-    opening: '09:00',
-    closing: '23:00',
-    closed: false,
-  }))
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
+import type { AdminBranch, BranchHoursInput, BranchInput } from '@repo/domain'
+import {
+  ADMIN_BRANCHES,
+  CREATE_BRANCH,
+  SET_BRANCH_ACTIVE,
+  UPDATE_BRANCH,
+  UPDATE_BRANCH_HOURS,
+  toBranch,
+} from '../client/admin'
 
 interface UseBranchesReturn {
   branches: AdminBranch[]
@@ -24,83 +20,70 @@ interface UseBranchesReturn {
   saveHours: (id: string, hours: BranchHoursInput[]) => Promise<void>
 }
 
+interface BranchesResult {
+  branches: Record<string, unknown>[]
+}
+
+interface CreateBranchResult {
+  createBranch: Record<string, unknown>
+}
+
 export const useBranches = (): UseBranchesReturn => {
-  const { data, isLoading, mutate } = useSWR<AdminBranch[]>(KEY, async (url: string) => {
-    const json = await getJson<AdminBranch[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return MOCK_BRANCHES
+  const { data, loading, refetch } = useQuery<BranchesResult>(ADMIN_BRANCHES, {
+    fetchPolicy: 'network-only',
   })
 
-  const [isMutating, setIsMutating] = useState(false)
+  const [createMutation, { loading: creating }] = useMutation<CreateBranchResult>(CREATE_BRANCH)
+  const [updateMutation, { loading: updating }] = useMutation(UPDATE_BRANCH)
+  const [setActiveMutation, { loading: toggling }] = useMutation(SET_BRANCH_ACTIVE)
+  const [updateHoursMutation, { loading: savingHours }] = useMutation(UPDATE_BRANCH_HOURS)
 
   const create = useCallback(
     async (input: BranchInput): Promise<string | null> => {
-      setIsMutating(true)
-      const branch: AdminBranch = {
-        id: String(Date.now()),
-        ...input,
-        phone: input.phone ?? null,
-        hours: defaultHours(),
-      }
-      MOCK_BRANCHES.push(branch)
-      await mutate([...(data ?? MOCK_BRANCHES)], { revalidate: false })
-      await postJson('/api/branches', input)
-      setIsMutating(false)
-      return branch.id
+      const { data: result } = await createMutation({ variables: { input } })
+      await refetch()
+      return result?.createBranch ? String(result.createBranch.id) : null
     },
-    [data, mutate],
+    [createMutation, refetch],
   )
 
   const update = useCallback(
     async (id: string, input: BranchInput) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_BRANCHES).map((branch) =>
-        branch.id === id ? { ...branch, ...input, phone: input.phone ?? null } : branch,
-      )
-      const mock = MOCK_BRANCHES.find((branch) => branch.id === id)
-      if (mock) Object.assign(mock, input, { phone: input.phone ?? null })
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/branches/${id}`, input)
-      setIsMutating(false)
+      await updateMutation({ variables: { id, input } })
+      await refetch()
     },
-    [data, mutate],
+    [updateMutation, refetch],
   )
 
   const toggle = useCallback(
     async (id: string, active: boolean) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_BRANCHES).map((branch) =>
-        branch.id === id ? { ...branch, active } : branch,
-      )
-      const mock = MOCK_BRANCHES.find((branch) => branch.id === id)
-      if (mock) mock.active = active
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/branches/${id}/active`, { active })
-      setIsMutating(false)
+      await setActiveMutation({ variables: { id, active } })
+      await refetch()
     },
-    [data, mutate],
+    [setActiveMutation, refetch],
   )
 
   const saveHours = useCallback(
     async (id: string, hours: BranchHoursInput[]) => {
-      setIsMutating(true)
       const normalized = hours.map((hour) => ({
         dayOfWeek: hour.dayOfWeek,
         opening: hour.opening ?? null,
         closing: hour.closing ?? null,
         closed: hour.closed,
       }))
-      const next = (data ?? MOCK_BRANCHES).map((branch) =>
-        branch.id === id ? { ...branch, hours: normalized } : branch,
-      )
-      const mock = MOCK_BRANCHES.find((branch) => branch.id === id)
-      if (mock) mock.hours = normalized
-      await mutate(next, { revalidate: false })
-      await postJson(`/api/branches/${id}/hours`, { hours })
-      setIsMutating(false)
+      await updateHoursMutation({ variables: { branchId: id, hours: normalized } })
+      await refetch()
     },
-    [data, mutate],
+    [updateHoursMutation, refetch],
   )
 
-  return { branches: data ?? [], isLoading, isMutating, create, update, toggle, saveHours }
+  return {
+    branches: (data?.branches ?? []).map(toBranch),
+    isLoading: loading,
+    isMutating: creating || updating || toggling || savingHours,
+    create,
+    update,
+    toggle,
+    saveHours,
+  }
 }

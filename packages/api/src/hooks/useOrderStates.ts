@@ -1,10 +1,13 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { OrderState, OrderStateInput } from '@repo/domain'
-import { getJson, patchJson, postJson } from '../client/rest'
-import { MOCK_ORDER_STATES } from '../mocks/order-states'
-
-const KEY = '/api/config/order-states'
+import {
+  ADMIN_ORDER_STATES,
+  CREATE_ORDER_STATE,
+  SET_ORDER_STATE_ACTIVE,
+  UPDATE_ORDER_STATE,
+  toOrderState,
+} from '../client/admin'
 
 interface UseOrderStatesReturn {
   states: OrderState[]
@@ -15,59 +18,49 @@ interface UseOrderStatesReturn {
   toggle: (code: string, active: boolean) => Promise<void>
 }
 
+interface OrderStatesResult {
+  orderStates: Record<string, unknown>[]
+}
+
 export const useOrderStates = (): UseOrderStatesReturn => {
-  const { data, isLoading, mutate } = useSWR<OrderState[]>(KEY, async (url: string) => {
-    const json = await getJson<OrderState[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return MOCK_ORDER_STATES
+  const { data, loading, refetch } = useQuery<OrderStatesResult>(ADMIN_ORDER_STATES, {
+    fetchPolicy: 'network-only',
   })
 
-  const [isMutating, setIsMutating] = useState(false)
+  const [createMutation, { loading: creating }] = useMutation(CREATE_ORDER_STATE)
+  const [updateMutation, { loading: updating }] = useMutation(UPDATE_ORDER_STATE)
+  const [setActiveMutation, { loading: toggling }] = useMutation(SET_ORDER_STATE_ACTIVE)
 
   const create = useCallback(
     async (input: OrderStateInput) => {
-      setIsMutating(true)
-      const state: OrderState = {
-        code: input.name.toUpperCase().replace(/\s+/g, '_'),
-        ...input,
-      }
-      MOCK_ORDER_STATES.push(state)
-      await mutate([...(data ?? MOCK_ORDER_STATES)], { revalidate: false })
-      await postJson('/api/config/order-states', { ...input, code: state.code })
-      setIsMutating(false)
+      await createMutation({ variables: { input } })
+      await refetch()
     },
-    [data, mutate],
+    [createMutation, refetch],
   )
 
   const update = useCallback(
     async (code: string, input: OrderStateInput) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_ORDER_STATES).map((state) =>
-        state.code === code ? { ...state, ...input } : state,
-      )
-      const mock = MOCK_ORDER_STATES.find((state) => state.code === code)
-      if (mock) Object.assign(mock, input)
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/config/order-states/${code}`, input)
-      setIsMutating(false)
+      await updateMutation({ variables: { code, input } })
+      await refetch()
     },
-    [data, mutate],
+    [updateMutation, refetch],
   )
 
   const toggle = useCallback(
     async (code: string, active: boolean) => {
-      setIsMutating(true)
-      const next = (data ?? MOCK_ORDER_STATES).map((state) =>
-        state.code === code ? { ...state, active } : state,
-      )
-      const mock = MOCK_ORDER_STATES.find((state) => state.code === code)
-      if (mock) mock.active = active
-      await mutate(next, { revalidate: false })
-      await patchJson(`/api/config/order-states/${code}/active`, { active })
-      setIsMutating(false)
+      await setActiveMutation({ variables: { code, active } })
+      await refetch()
     },
-    [data, mutate],
+    [setActiveMutation, refetch],
   )
 
-  return { states: data ?? [], isLoading, isMutating, create, update, toggle }
+  return {
+    states: (data?.orderStates ?? []).map(toOrderState),
+    isLoading: loading,
+    isMutating: creating || updating || toggling,
+    create,
+    update,
+    toggle,
+  }
 }
