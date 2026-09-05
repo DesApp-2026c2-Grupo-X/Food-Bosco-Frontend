@@ -78,7 +78,13 @@ export const toBranchStock = (raw: Raw): BranchStock => ({
 export const toProductReportRow = (raw: Raw): ProductReportRow => ({
   position: asNumber(raw.position),
   product: toProduct(raw.product as Raw),
-  category: raw.category ? { id: asString((raw.category as Raw).id), name: asString((raw.category as Raw).name), active: asBoolean((raw.category as Raw).active) } : undefined,
+  category: raw.category
+    ? {
+        id: asString((raw.category as Raw).id),
+        name: asString((raw.category as Raw).name),
+        active: asBoolean((raw.category as Raw).active),
+      }
+    : undefined,
   quantity: raw.quantity == null ? undefined : asNumber(raw.quantity),
   revenue: raw.revenue == null ? undefined : asNumber(raw.revenue),
 })
@@ -86,7 +92,11 @@ export const toProductReportRow = (raw: Raw): ProductReportRow => ({
 export const toOutOfStockRow = (raw: Raw): OutOfStockRow => ({
   product: toProduct(raw.product as Raw),
   category: raw.category
-    ? { id: asString((raw.category as Raw).id), name: asString((raw.category as Raw).name), active: asBoolean((raw.category as Raw).active) }
+    ? {
+        id: asString((raw.category as Raw).id),
+        name: asString((raw.category as Raw).name),
+        active: asBoolean((raw.category as Raw).active),
+      }
     : undefined,
   quantity: asNumber(raw.quantity),
 })
