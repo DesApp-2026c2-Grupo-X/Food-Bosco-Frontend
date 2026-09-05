@@ -15,6 +15,7 @@ export const RiderProfileForm = () => {
       <form onSubmit={onSave}>
         <VStack align="stretch" gap="4">
           <TextField label="Nombre" value={fullName || 'Sin nombre'} readOnly color="fg.subtle" />
+          <FormField name="vehicle" label="Vehículo" />
           <FormField name="phone" label="Teléfono" required />
           <HStack gap="2" marginTop="2">
             <PrimaryButton type="submit" flex="1" disabled={!isDirty}>

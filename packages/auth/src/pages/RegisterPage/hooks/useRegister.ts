@@ -2,19 +2,20 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import type { z } from 'zod'
-import { registerSchema } from '@repo/domain'
+import { registerFormSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
 import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
 
-type RegisterValues = z.infer<typeof registerSchema>
+type RegisterValues = z.infer<typeof registerFormSchema>
 
 export const useRegister = () => {
   const register = useAuthStore((state) => state.register)
+  const registerRider = useAuthStore((state) => state.registerRider)
   const redirect = useAuthRedirect()
   const [submitting, setSubmitting] = useState(false)
 
   const form = useForm<RegisterValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -22,26 +23,37 @@ export const useRegister = () => {
       phone: '',
       password: '',
       confirm: '',
+      role: 'customer',
+      vehicle: '',
     },
     mode: 'onTouched',
     reValidateMode: 'onChange',
   })
 
+  const role = form.watch('role')
+
   const onSubmit = form.handleSubmit(async (values) => {
     setSubmitting(true)
     try {
-      await register({
+      const base = {
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         email: values.email.trim(),
         phone: values.phone.trim(),
         password: values.password,
-      })
-      redirect('customer')
+      }
+
+      if (values.role === 'rider') {
+        await registerRider({ ...base, vehicle: values.vehicle?.trim() ?? '' })
+      } else {
+        await register(base)
+      }
+
+      redirect(values.role)
     } finally {
       setSubmitting(false)
     }
   })
 
-  return { form, submitting, onSubmit }
+  return { form, role, submitting, onSubmit }
 }

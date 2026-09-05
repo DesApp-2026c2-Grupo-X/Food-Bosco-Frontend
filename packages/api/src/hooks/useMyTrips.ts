@@ -1,21 +1,23 @@
-import useSWR from 'swr'
+import { useQuery } from '@apollo/client'
 import type { Trip } from '@repo/domain'
-import { getJson } from '../client/rest'
-import { getMyTrips } from '../mocks/trips'
-
-const KEY = '/api/trips'
+import { MY_TRIPS, toTrip } from '../client/rider'
 
 interface UseMyTripsReturn {
   trips: Trip[]
   isLoading: boolean
 }
 
+interface MyTripsResult {
+  myTrips: Record<string, unknown>[]
+}
+
 export const useMyTrips = (): UseMyTripsReturn => {
-  const { data, isLoading } = useSWR<Trip[]>(KEY, async (url: string) => {
-    const json = await getJson<Trip[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) return json
-    return getMyTrips()
+  const { data, loading } = useQuery<MyTripsResult>(MY_TRIPS, {
+    fetchPolicy: 'network-only',
   })
 
-  return { trips: data ?? [], isLoading }
+  return {
+    trips: (data?.myTrips ?? []).map(toTrip),
+    isLoading: loading,
+  }
 }

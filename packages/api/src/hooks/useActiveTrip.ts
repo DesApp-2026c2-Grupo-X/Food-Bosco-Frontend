@@ -1,52 +1,58 @@
-import { useCallback, useState } from 'react'
-import useSWR, { mutate as globalMutate } from 'swr'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { Trip } from '@repo/domain'
-import { getJson, postJson } from '../client/rest'
-import { deliverOrder, getActiveTrip, pickupOrder } from '../mocks/trips'
-
-const KEY = '/api/trips/active'
+import { MARK_ORDER_DELIVERED, MARK_ORDER_PICKUP, MY_TRIPS, toTrip } from '../client/rider'
 
 interface UseActiveTripReturn {
   trip: Trip | null
   isLoading: boolean
   isMutating: boolean
-  pickup: (orderId: string) => Promise<Trip | null>
-  deliver: (orderId: string) => Promise<Trip | null>
+  pickup: (orderId: string) => Promise<void>
+  deliver: (orderId: string) => Promise<void>
+}
+
+interface MyTripsResult {
+  myTrips: Record<string, unknown>[]
 }
 
 export const useActiveTrip = (): UseActiveTripReturn => {
-  const { data, isLoading, mutate } = useSWR<Trip | null>(KEY, async (url: string) => {
-    const json = await getJson<Trip>(url)
-    if (json && typeof json === 'object' && 'id' in json) return json
-    return getActiveTrip()
+  const { data, loading } = useQuery<MyTripsResult>(MY_TRIPS, {
+    fetchPolicy: 'network-only',
   })
 
-  const [isMutating, setIsMutating] = useState(false)
+  const [pickupMutation, { loading: pickingUp }] = useMutation(MARK_ORDER_PICKUP)
+  const [deliverMutation, { loading: delivering }] = useMutation(MARK_ORDER_DELIVERED)
+
+  const trips = (data?.myTrips ?? []).map(toTrip)
+  const trip = trips.find((entry) => entry.status === 'ACTIVE') ?? null
 
   const pickup = useCallback(
     async (orderId: string) => {
-      setIsMutating(true)
-      const trip = data?.id ? pickupOrder(data.id, orderId) : null
-      await mutate(trip, { revalidate: false })
-      await postJson(`/api/trips/${data?.id}/orders/${orderId}/pickup`, {})
-      setIsMutating(false)
-      return trip
+      if (!trip) return
+      await pickupMutation({
+        variables: { tripId: trip.id, orderId },
+        refetchQueries: [MY_TRIPS],
+      })
     },
-    [data, mutate],
+    [trip, pickupMutation],
   )
 
   const deliver = useCallback(
     async (orderId: string) => {
-      setIsMutating(true)
-      const trip = data?.id ? deliverOrder(data.id, orderId) : null
-      await mutate(getActiveTrip(), { revalidate: false })
-      await postJson(`/api/trips/${data?.id}/orders/${orderId}/deliver`, {})
-      await globalMutate('/api/trips')
-      setIsMutating(false)
-      return trip
+      if (!trip) return
+      await deliverMutation({
+        variables: { tripId: trip.id, orderId },
+        refetchQueries: [MY_TRIPS],
+      })
     },
-    [data, mutate],
+    [trip, deliverMutation],
   )
 
-  return { trip: data ?? null, isLoading, isMutating, pickup, deliver }
+  return {
+    trip,
+    isLoading: loading,
+    isMutating: pickingUp || delivering,
+    pickup,
+    deliver,
+  }
 }

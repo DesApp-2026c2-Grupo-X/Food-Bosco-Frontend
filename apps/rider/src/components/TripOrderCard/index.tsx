@@ -4,6 +4,7 @@ import ChevronRight from '@gravity-ui/icons/ChevronRight'
 import MapPin from '@gravity-ui/icons/MapPin'
 import { NavLink } from 'react-router-dom'
 import { Muted, PrimaryButton, Strong } from '@repo/components'
+import { useOrder } from '@repo/api'
 import { tripOrderDetailPath } from '../../routes'
 import type { TripOrderCardProps } from './types'
 
@@ -13,7 +14,9 @@ export const TripOrderCard = ({
   onPickup,
   onDeliver,
 }: TripOrderCardProps) => {
-  const { order, pickedUp, delivered } = tripOrder
+  const { order } = useOrder(tripOrder.orderId)
+  const delivered = tripOrder.status === 'DELIVERED'
+  const pickedUp = delivered || tripOrder.status === 'ON_THE_WAY'
 
   return (
     <Box
@@ -24,9 +27,9 @@ export const TripOrderCard = ({
       padding="4"
     >
       <ChakraLink asChild display="block">
-        <NavLink to={tripOrderDetailPath(order.id)}>
+        <NavLink to={tripOrderDetailPath(tripOrder.orderId)}>
           <HStack justify="space-between" gap="2">
-            <Strong>Pedido #{order.number}</Strong>
+            <Strong>Pedido #{order?.number ?? tripOrder.orderId}</Strong>
             <HStack gap="1" color="fg.subtle">
               <Muted fontSize="sm">Detalle</Muted>
               <ChevronRight width={16} height={16} />
@@ -38,11 +41,11 @@ export const TripOrderCard = ({
       <VStack align="start" gap="1" marginTop="3">
         <HStack gap="2" color="fg.muted">
           <MapPin width={16} height={16} />
-          <Text fontSize="sm">Retiro: {order.branch?.addressText}</Text>
+          <Text fontSize="sm">Retiro: {order?.branch?.addressText ?? 'Sucursal'}</Text>
         </HStack>
         <HStack gap="2" color="fg.muted">
           <MapPin width={16} height={16} />
-          <Text fontSize="sm">Entrega: {order.deliveryAddress.text}</Text>
+          <Text fontSize="sm">Entrega: {tripOrder.deliveryAddress.text}</Text>
         </HStack>
       </VStack>
 

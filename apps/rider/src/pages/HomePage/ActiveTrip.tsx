@@ -17,10 +17,9 @@ interface ActiveTripProps {
 export const ActiveTrip = ({ trip, isMutating, profile, onPickup, onDeliver }: ActiveTripProps) => {
   const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
 
-  const orders = trip.orders.map((tripOrder) => tripOrder.order)
-  const deliveredCount = trip.orders.filter((tripOrder) => tripOrder.delivered).length
+  const deliveredCount = trip.orders.filter((tripOrder) => tripOrder.deliveredAt != null).length
   const total = trip.orders.length
-  const center = tripCenter(orders)
+  const center = tripCenter(trip.orders)
 
   const riderMarker: StaticMapMarker[] = profile?.currentLocation
     ? [
@@ -39,7 +38,7 @@ export const ActiveTrip = ({ trip, isMutating, profile, onPickup, onDeliver }: A
     zoom: 13,
     width: isDesktop ? 1200 : 600,
     height: isDesktop ? 320 : 460,
-    markers: [...tripMarkers(orders), ...riderMarker],
+    markers: [...tripMarkers(trip.orders), ...riderMarker],
   })
 
   return (
@@ -71,11 +70,11 @@ export const ActiveTrip = ({ trip, isMutating, profile, onPickup, onDeliver }: A
       <VStack align="stretch" gap="3">
         {trip.orders.map((tripOrder) => (
           <TripOrderCard
-            key={tripOrder.order.id}
+            key={tripOrder.orderId}
             tripOrder={tripOrder}
             isLoading={isMutating}
-            onPickup={() => onPickup(tripOrder.order.id)}
-            onDeliver={() => onDeliver(tripOrder.order.id)}
+            onPickup={() => onPickup(tripOrder.orderId)}
+            onDeliver={() => onDeliver(tripOrder.orderId)}
           />
         ))}
       </VStack>

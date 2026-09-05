@@ -4,7 +4,7 @@ import { RiderHeader } from '../../components/RiderHeader'
 import { MobileRiderNavigation } from '../../components/MobileRiderNavigation'
 import { routes } from '../../routes'
 
-const SUB_PAGE_PATHS = [routes.tripOrderDetail, routes.profileEdit, routes.profileVehicle]
+const SUB_PAGE_PATHS = [routes.tripOrderDetail, routes.profileEdit]
 
 export const RiderLayout = () => {
   const { pathname } = useLocation()

@@ -2,18 +2,19 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { z } from 'zod'
-import { MOCK_RIDER_USER, useAuthStore, useRiderProfile } from '@repo/api'
+import { useAuthStore, useRiderProfile } from '@repo/api'
 import { riderProfileSchema } from '@repo/domain'
 
 type RiderProfileValues = z.infer<typeof riderProfileSchema>
 
 export const useRiderProfileForm = () => {
-  const user = useAuthStore((state) => state.user) ?? MOCK_RIDER_USER
+  const user = useAuthStore((state) => state.user)
   const { profile, isLoading, updateProfile } = useRiderProfile()
 
   const form = useForm<RiderProfileValues>({
     resolver: zodResolver(riderProfileSchema),
     defaultValues: {
+      vehicle: profile?.vehicle ?? '',
       phone: profile?.phone ?? '',
     },
     mode: 'onTouched',
@@ -22,19 +23,19 @@ export const useRiderProfileForm = () => {
 
   useEffect(() => {
     if (profile) {
-      form.reset({ phone: profile.phone })
+      form.reset({ vehicle: profile.vehicle ?? '', phone: profile.phone ?? '' })
     }
   }, [profile, form])
 
   const isDirty = form.formState.isDirty
 
   const onSave = form.handleSubmit(async (values) => {
-    await updateProfile(values)
+    await updateProfile({ vehicle: values.vehicle, phone: values.phone })
     form.reset(values)
   })
 
   const onCancel = () => {
-    form.reset({ phone: profile?.phone ?? '' })
+    form.reset({ vehicle: profile?.vehicle ?? '', phone: profile?.phone ?? '' })
   }
 
   return { user, isLoading, form, isDirty, onSave, onCancel }

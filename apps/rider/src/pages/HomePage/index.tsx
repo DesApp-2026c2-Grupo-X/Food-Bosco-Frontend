@@ -10,7 +10,7 @@ import { ActiveTrip } from './ActiveTrip'
 
 export const HomePage = () => {
   const isOnline = useRiderStore((state) => state.isOnline)
-  const { offer, isLoading, isMutating, accept, reject } = useTripOffers()
+  const { offer, isLoading, isMutating, accept, reject } = useTripOffers(isOnline)
   const {
     trip,
     isLoading: tripLoading,
