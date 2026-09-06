@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import type { Address, AddressInput } from '@repo/domain'
 import {
@@ -23,8 +23,10 @@ interface UseAddressesReturn {
 
 export const useAddresses = (): UseAddressesReturn => {
   const { data, loading, refetch } = useQuery<MyAddressesResult>(MY_ADDRESSES, {
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
   })
+
+  const addresses = useMemo(() => (data?.myAddresses ?? []).map(toAddress), [data])
 
   const [createMutation] = useMutation<CreateAddressResult>(CREATE_ADDRESS)
   const [updateMutation] = useMutation<UpdateAddressResult>(UPDATE_ADDRESS)
@@ -56,7 +58,7 @@ export const useAddresses = (): UseAddressesReturn => {
   )
 
   return {
-    addresses: (data?.myAddresses ?? []).map(toAddress),
+    addresses,
     isLoading: loading,
     create,
     update,

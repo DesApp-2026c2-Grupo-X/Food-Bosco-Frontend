@@ -1,16 +1,28 @@
 import { Box, SimpleGrid, Skeleton, VStack } from '@chakra-ui/react'
+import GeoPin from '@gravity-ui/icons/GeoPin'
 import Magnifier from '@gravity-ui/icons/Magnifier'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ChipCarousel, Muted, PageTitle, SearchInput, WidePageContainer } from '@repo/components'
 import { EmptyState } from '@repo/components'
 import { ProductCard } from '../../components/ProductCard'
-import { useCatalog } from '@repo/api'
+import { useAddresses, useAvailableBranches, useCatalog } from '@repo/api'
+import { useAddressStore } from '../../stores/addressStore'
 
 export const CatalogPage = () => {
-  const { categories, products, isLoading } = useCatalog()
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
+
+  const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
+  const { addresses } = useAddresses()
+  const selected = addresses.find((address) => address.id === selectedAddressId)
+  const { branches, isLoading: branchesLoading } = useAvailableBranches(
+    selected?.latitude,
+    selected?.longitude,
+  )
+  const { categories, products, isLoading } = useCatalog(selected?.latitude, selected?.longitude)
+
+  const noAvailableBranch = !branchesLoading && branches.length === 0
 
   const rawCategory = searchParams.get('cat')
   const selectedCategory = rawCategory || null
@@ -30,6 +42,22 @@ export const CatalogPage = () => {
       }),
     [products, selectedCategory, search],
   )
+
+  if (noAvailableBranch) {
+    return (
+      <WidePageContainer>
+        <VStack align="start" gap="1">
+          <PageTitle>Catálogo</PageTitle>
+          <Muted>Encontrá lo que se te antoje hoy.</Muted>
+        </VStack>
+        <EmptyState
+          icon={<GeoPin width={40} height={40} />}
+          title="No hay sucursales disponibles"
+          description="Ninguna sucursal llega a tu zona por ahora."
+        />
+      </WidePageContainer>
+    )
+  }
 
   return (
     <WidePageContainer>

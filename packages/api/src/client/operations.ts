@@ -37,6 +37,10 @@ export interface RegisterResult {
   register: AuthTokens
 }
 
+export interface RegisterRiderResult {
+  registerRider: AuthTokens
+}
+
 export interface RefreshTokenResult {
   refreshToken: AuthTokens
 }
@@ -141,6 +145,15 @@ export const LOGIN = gql`
 export const REGISTER = gql`
   mutation Register($input: RegisterInput!) {
     register(input: $input) {
+      accessToken
+      refreshToken
+    }
+  }
+`
+
+export const REGISTER_RIDER = gql`
+  mutation RegisterRider($input: RegisterRiderInput!) {
+    registerRider(input: $input) {
       accessToken
       refreshToken
     }

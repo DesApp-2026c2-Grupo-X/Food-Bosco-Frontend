@@ -1,4 +1,5 @@
-import type { Order } from './order'
+import type { OrderStatus } from './order'
+import type { GeoPoint } from './rider'
 
 export type TripStatus = 'OFFERED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
 
@@ -9,19 +10,29 @@ export const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
   CANCELLED: 'Cancelado',
 }
 
+export interface TripAddress {
+  text: string
+  latitude: number
+  longitude: number
+}
+
 export interface TripOrder {
-  order: Order
-  pickedUp: boolean
-  delivered: boolean
+  orderId: string
+  pickupBranchId: string
+  pickupLocation: GeoPoint
+  deliveryAddress: TripAddress
+  status: OrderStatus
+  pickedUpAt: string | null
+  deliveredAt: string | null
 }
 
 export interface TripOffer {
   id: string
-  orders: Order[]
+  orderCount: number
   distanceKm: number
   estimatedMinutes: number
   estimatedEarnings: number
-  expiresAt: string
+  expiresAt: string | null
 }
 
 export interface Trip {
@@ -29,8 +40,11 @@ export interface Trip {
   riderId: string
   status: TripStatus
   orders: TripOrder[]
-  distanceKm?: number
-  startedAt?: string
-  completedAt?: string
-  earnings?: number
+  distanceKm: number
+  estimatedMinutes: number
+  estimatedEarnings: number
+  earnings: number | null
+  startedAt: string | null
+  completedAt: string | null
+  expiresAt: string | null
 }

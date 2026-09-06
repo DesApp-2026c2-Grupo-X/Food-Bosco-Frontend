@@ -10,3 +10,12 @@ export interface RegisterInput {
   phone: string
   password: string
 }
+
+export interface RegisterRiderInput {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  password: string
+  vehicle: string
+}

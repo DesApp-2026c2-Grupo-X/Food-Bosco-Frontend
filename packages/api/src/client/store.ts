@@ -134,6 +134,14 @@ export const toOrder = (raw: Raw): Order => ({
   id: asString(raw.id),
   number: asString(raw.number),
   clientId: asString(raw.clientId),
+  riderId: raw.riderId == null ? null : String(raw.riderId),
+  riderLocation:
+    raw.riderLocation == null
+      ? null
+      : {
+          latitude: asNumber((raw.riderLocation as Raw).latitude),
+          longitude: asNumber((raw.riderLocation as Raw).longitude),
+        },
   branchId: asString(raw.branchId),
   branch: raw.branch ? toBranch(raw.branch as Raw) : null,
   client: raw.client ? toUser(raw.client as Raw) : null,
@@ -347,6 +355,11 @@ export const ORDER = gql`
   query Order($id: ID!) {
     order(id: $id) {
       ${ORDER_FIELDS}
+      riderId
+      riderLocation {
+        latitude
+        longitude
+      }
     }
   }
 `

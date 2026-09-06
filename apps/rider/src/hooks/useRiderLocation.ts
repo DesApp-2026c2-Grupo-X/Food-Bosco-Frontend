@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useRiderStore } from '../stores/riderStore'
 
 export const useRiderLocation = (
   enabled: boolean,
@@ -16,7 +17,10 @@ export const useRiderLocation = (
     const id = navigator.geolocation.watchPosition(
       (position) => {
         setError(null)
-        updateLocation(position.coords.latitude, position.coords.longitude)
+        const latitude = position.coords.latitude
+        const longitude = position.coords.longitude
+        useRiderStore.getState().setLocation({ latitude, longitude })
+        updateLocation(latitude, longitude)
       },
       () => setError('Ubicación no disponible'),
       { enableHighAccuracy: false, maximumAge: 30000, timeout: 10000 },

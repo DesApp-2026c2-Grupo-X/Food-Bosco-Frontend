@@ -14,7 +14,7 @@ interface UseAdminCategoriesReturn {
   isLoading: boolean
   isMutating: boolean
   create: (input: CategoryInput) => Promise<void>
-  update: (id: string, name: string) => Promise<void>
+  update: (id: string, input: CategoryInput) => Promise<void>
   toggle: (id: string, active: boolean) => Promise<void>
   remove: (id: string) => Promise<void>
 }
@@ -41,8 +41,8 @@ export const useAdminCategories = (): UseAdminCategoriesReturn => {
   )
 
   const update = useCallback(
-    async (id: string, name: string) => {
-      await updateMutation({ variables: { id, input: { name } } })
+    async (id: string, input: CategoryInput) => {
+      await updateMutation({ variables: { id, input } })
       await refetch()
     },
     [updateMutation, refetch],

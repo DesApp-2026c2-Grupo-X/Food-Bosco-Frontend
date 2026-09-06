@@ -13,19 +13,19 @@ import {
   ToggleSwitch,
 } from '@repo/components'
 import { authRoutes } from '@repo/auth'
-import { MOCK_RIDER_USER, useAuthStore, useRiderProfile } from '@repo/api'
+import { useAuthStore, useRiderProfile } from '@repo/api'
 import { formatVehicle } from '@repo/domain'
 import { useRiderStore } from '../../stores/riderStore'
 import { ProfileNav } from './ProfileNav'
 
 export const ProfilePage = () => {
   const navigate = useNavigate()
-  const user = useAuthStore((state) => state.user) ?? MOCK_RIDER_USER
+  const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const isOnline = useRiderStore((state) => state.isOnline)
   const setOnline = useRiderStore((state) => state.setOnline)
   const { profile, setAvailability } = useRiderProfile()
-  const fullName = `${user.firstName} ${user.lastName}`.trim()
+  const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
 
   const toggleAvailability = async (checked: boolean) => {
     setOnline(checked)
@@ -60,7 +60,7 @@ export const ProfilePage = () => {
         <Box minWidth="0">
           <Strong fontSize="lg">{fullName || 'Sin nombre'}</Strong>
           <Muted fontSize="sm" truncate>
-            {user.email}
+            {user?.email}
           </Muted>
           <Subtle fontSize="sm">{profile ? formatVehicle(profile.vehicle) : '—'}</Subtle>
         </Box>

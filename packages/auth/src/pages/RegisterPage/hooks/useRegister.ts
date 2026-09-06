@@ -2,19 +2,25 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import type { z } from 'zod'
-import { registerSchema } from '@repo/domain'
+import { registerFormSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
+import { useAuthConfig } from '../../../authConfigContext'
 import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
+import type { RegisterRole } from '../../../authConfigContext'
 
-type RegisterValues = z.infer<typeof registerSchema>
+type RegisterValues = z.infer<typeof registerFormSchema>
 
 export const useRegister = () => {
   const register = useAuthStore((state) => state.register)
+  const registerRider = useAuthStore((state) => state.registerRider)
   const redirect = useAuthRedirect()
+  const config = useAuthConfig()
+  const registerDefaultRole = config.registerDefaultRole ?? 'customer'
+  const registerRoles = config.registerRoles ?? ['customer', 'rider']
   const [submitting, setSubmitting] = useState(false)
 
   const form = useForm<RegisterValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -22,26 +28,47 @@ export const useRegister = () => {
       phone: '',
       password: '',
       confirm: '',
+      role: registerDefaultRole,
+      vehicleType: 'moto',
+      brand: '',
+      model: '',
+      plate: '',
     },
     mode: 'onTouched',
     reValidateMode: 'onChange',
   })
 
+  const role = form.watch('role')
+  const vehicleType = form.watch('vehicleType')
+
   const onSubmit = form.handleSubmit(async (values) => {
     setSubmitting(true)
     try {
-      await register({
+      const base = {
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         email: values.email.trim(),
         phone: values.phone.trim(),
         password: values.password,
-      })
-      redirect('customer')
+      }
+
+      if (values.role === 'rider') {
+        const vehicle =
+          values.vehicleType === 'bici'
+            ? 'Bici'
+            : ['Moto', values.brand?.trim(), values.model?.trim(), values.plate?.trim()]
+                .filter(Boolean)
+                .join(' · ')
+        await registerRider({ ...base, vehicle })
+      } else {
+        await register(base)
+      }
+
+      redirect(values.role as RegisterRole)
     } finally {
       setSubmitting(false)
     }
   })
 
-  return { form, submitting, onSubmit }
+  return { form, role, vehicleType, submitting, onSubmit, registerRoles }
 }

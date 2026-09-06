@@ -12,10 +12,8 @@ import { ProductEditPage } from './pages/ProductEditPage'
 import { IngredientsPage } from './pages/IngredientsPage'
 import { BranchesPage } from './pages/BranchesPage'
 import { BranchEditPage } from './pages/BranchEditPage'
-import { PromotionsPage } from './pages/PromotionsPage'
 import { StaffPage } from './pages/StaffPage'
 import { StaffEditPage } from './pages/StaffEditPage'
-import { StatesPage } from './pages/StatesPage'
 import { ParametersPage } from './pages/ParametersPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
@@ -52,13 +50,9 @@ export const App = () =>
             { path: routes.branches, element: <BranchesPage /> },
             { path: routes.branchNew, element: <BranchEditPage /> },
             { path: routes.branchEdit, element: <BranchEditPage /> },
-            { path: routes.promotions, element: <PromotionsPage /> },
-            { path: routes.promotionNew, element: <PromotionsPage /> },
-            { path: routes.promotionEdit, element: <PromotionsPage /> },
             { path: routes.staff, element: <StaffPage /> },
             { path: routes.staffNew, element: <StaffEditPage /> },
             { path: routes.staffEdit, element: <StaffEditPage /> },
-            { path: routes.states, element: <StatesPage /> },
             { path: routes.parameters, element: <ParametersPage /> },
             { path: routes.orders, element: <OrdersPage /> },
             { path: routes.orderDetail, element: <OrderDetailPage /> },
