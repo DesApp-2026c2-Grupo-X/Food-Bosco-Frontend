@@ -6,6 +6,7 @@ import type {
   TripOffer,
   TripOrder,
   TripStatus,
+  Vehicle,
 } from '@repo/domain'
 
 type Raw = Record<string, unknown>
@@ -38,7 +39,12 @@ const RIDER_FIELDS = `
   userId
   firstName
   lastName
-  vehicle
+  vehicle {
+    type
+    marca
+    modelo
+    patente
+  }
   phone
   available
   currentLocation {
@@ -90,12 +96,19 @@ const toGeoPoint = (raw: Raw | null | undefined) => ({
   longitude: asNumber((raw as Raw | undefined)?.longitude),
 })
 
+const toVehicle = (raw: Raw | null | undefined): Vehicle => ({
+  type: raw?.type === 'bici' ? 'bici' : 'moto',
+  marca: raw?.marca == null ? undefined : String(raw.marca),
+  modelo: raw?.modelo == null ? undefined : String(raw.modelo),
+  patente: raw?.patente == null ? undefined : String(raw.patente),
+})
+
 export const toRider = (raw: Raw): RiderProfile => ({
   id: asString(raw.id),
   userId: asString(raw.userId),
   firstName: nullableString(raw.firstName),
   lastName: nullableString(raw.lastName),
-  vehicle: nullableString(raw.vehicle),
+  vehicle: toVehicle(raw.vehicle as Raw),
   phone: nullableString(raw.phone),
   available: Boolean(raw.available),
   currentLocation: raw.currentLocation ? toGeoPoint(raw.currentLocation as Raw) : null,
@@ -173,6 +186,14 @@ export const TRIP = gql`
 export const UPDATE_RIDER_PROFILE = gql`
   mutation UpdateRiderProfile($input: UpdateRiderProfileInput!) {
     updateRiderProfile(input: $input) {
+      ${RIDER_FIELDS}
+    }
+  }
+`
+
+export const UPDATE_RIDER_VEHICLE = gql`
+  mutation UpdateRiderVehicle($input: UpdateVehicleInput!) {
+    updateRiderVehicle(input: $input) {
       ${RIDER_FIELDS}
     }
   }

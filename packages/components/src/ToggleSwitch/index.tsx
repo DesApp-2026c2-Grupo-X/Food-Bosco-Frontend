@@ -16,6 +16,7 @@ export const ToggleSwitch = ({
     colorPalette={colorPalette}
     aria-label={ariaLabel}
   >
+    <Switch.HiddenInput />
     <Switch.Control>
       <Switch.Thumb />
     </Switch.Control>

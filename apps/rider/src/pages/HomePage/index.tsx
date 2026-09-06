@@ -1,11 +1,12 @@
 import { Box, HStack, Spinner, VStack } from '@chakra-ui/react'
 import Route from '@gravity-ui/icons/Route'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { EmptyState, Muted, PageTitle, WidePageContainer } from '@repo/components'
 import { useActiveTrip, useRiderProfile, useTripOffers } from '@repo/api'
 import { TripOfferCard } from '../../components/TripOfferCard'
 import { useRiderLocation } from '../../hooks/useRiderLocation'
 import { useRiderStore } from '../../stores/riderStore'
+import { playIncomingSound } from '../../utils/playIncomingSound'
 import { ActiveTrip } from './ActiveTrip'
 
 export const HomePage = () => {
@@ -18,8 +19,22 @@ export const HomePage = () => {
     pickup,
     deliver,
   } = useActiveTrip()
-  const { profile, updateLocation } = useRiderProfile()
+  const { updateLocation } = useRiderProfile()
   useRiderLocation(isOnline, updateLocation)
+  const riderLocation = useRiderStore((state) => state.location)
+
+  const [dismissedOfferId, setDismissedOfferId] = useState<string | null>(null)
+  const visibleOffer = offer && offer.id !== dismissedOfferId ? offer : null
+
+  const previousOfferId = useRef<string | null>(null)
+
+  useEffect(() => {
+    const offerId = offer?.id ?? null
+    if (offerId !== null && offerId !== previousOfferId.current) {
+      playIncomingSound()
+    }
+    previousOfferId.current = offerId
+  }, [offer])
 
   const handleAccept = useCallback(async () => {
     if (!offer) return
@@ -28,7 +43,8 @@ export const HomePage = () => {
 
   const handleReject = useCallback(() => {
     if (!offer) return
-    void reject(offer.id)
+    setDismissedOfferId(offer.id)
+    void reject(offer.id).catch(() => undefined)
   }, [offer, reject])
 
   const handlePickup = useCallback(
@@ -58,7 +74,7 @@ export const HomePage = () => {
       <ActiveTrip
         trip={trip}
         isMutating={tripMutating}
-        profile={profile}
+        riderLocation={riderLocation}
         onPickup={handlePickup}
         onDeliver={handleDeliver}
       />
@@ -84,9 +100,9 @@ export const HomePage = () => {
           title="Estás desconectado"
           description="Activá la disponibilidad para empezar a recibir viajes cerca tuyo."
         />
-      ) : offer ? (
+      ) : visibleOffer ? (
         <TripOfferCard
-          offer={offer}
+          offer={visibleOffer}
           isLoading={isMutating}
           onAccept={handleAccept}
           onReject={handleReject}

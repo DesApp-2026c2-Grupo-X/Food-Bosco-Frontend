@@ -49,15 +49,27 @@ export const registerFormSchema = z
     password: passwordSchema,
     confirm: confirmPassword,
     role: z.enum(['customer', 'rider']),
-    vehicle: z.string().trim().optional(),
+    vehicleType: z.enum(['moto', 'bici']),
+    marca: z.string().trim().optional(),
+    modelo: z.string().trim().optional(),
+    patente: z.string().trim().optional(),
   })
   .refine((data) => data.password === data.confirm, {
     message: 'Las contraseñas no coinciden',
     path: ['confirm'],
   })
   .superRefine((data, ctx) => {
-    if (data.role === 'rider' && !data.vehicle?.trim()) {
-      ctx.addIssue({ code: 'custom', message: 'El vehículo es obligatorio', path: ['vehicle'] })
+    if (data.role !== 'rider') return
+    if (data.vehicleType === 'bici') return
+
+    if (!data.marca) {
+      ctx.addIssue({ code: 'custom', message: 'La marca es obligatoria', path: ['marca'] })
+    }
+    if (!data.modelo) {
+      ctx.addIssue({ code: 'custom', message: 'El modelo es obligatorio', path: ['modelo'] })
+    }
+    if (!data.patente) {
+      ctx.addIssue({ code: 'custom', message: 'La patente es obligatoria', path: ['patente'] })
     }
   })
 
@@ -89,9 +101,28 @@ export const profileSchema = z.object({
 })
 
 export const riderProfileSchema = z.object({
-  vehicle: z.string().trim().optional(),
   phone: phoneSchema,
 })
+
+export const vehicleSchema = z
+  .object({
+    type: z.enum(['moto', 'bici']),
+    marca: z.string().trim().optional(),
+    modelo: z.string().trim().optional(),
+    patente: z.string().trim().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type !== 'moto') return
+    if (!data.marca?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'La marca es obligatoria', path: ['marca'] })
+    }
+    if (!data.modelo?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'El modelo es obligatorio', path: ['modelo'] })
+    }
+    if (!data.patente?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'La patente es obligatoria', path: ['patente'] })
+    }
+  })
 
 export const adjustStockSchema = z.object({
   delta: z

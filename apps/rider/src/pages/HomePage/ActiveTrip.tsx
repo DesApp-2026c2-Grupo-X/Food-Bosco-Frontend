@@ -1,6 +1,6 @@
 import { Box, HStack, Image, VStack, useMediaQuery } from '@chakra-ui/react'
 import { Muted, PageTitle, WidePageContainer } from '@repo/components'
-import type { RiderProfile, Trip } from '@repo/domain'
+import type { Trip } from '@repo/domain'
 import { TripOrderCard } from '../../components/TripOrderCard'
 import { buildStaticMapUrl } from '../../utils/geoapify'
 import type { StaticMapMarker } from '../../utils/geoapify'
@@ -9,23 +9,29 @@ import { tripCenter, tripMarkers } from '../../utils/tripMap'
 interface ActiveTripProps {
   trip: Trip
   isMutating: boolean
-  profile: RiderProfile | null
+  riderLocation?: { latitude: number; longitude: number } | null
   onPickup: (orderId: string) => void
   onDeliver: (orderId: string) => void
 }
 
-export const ActiveTrip = ({ trip, isMutating, profile, onPickup, onDeliver }: ActiveTripProps) => {
+export const ActiveTrip = ({
+  trip,
+  isMutating,
+  riderLocation,
+  onPickup,
+  onDeliver,
+}: ActiveTripProps) => {
   const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
 
   const deliveredCount = trip.orders.filter((tripOrder) => tripOrder.deliveredAt != null).length
   const total = trip.orders.length
   const center = tripCenter(trip.orders)
 
-  const riderMarker: StaticMapMarker[] = profile?.currentLocation
+  const riderMarker: StaticMapMarker[] = riderLocation
     ? [
         {
-          lat: profile.currentLocation.latitude,
-          lon: profile.currentLocation.longitude,
+          lat: riderLocation.latitude,
+          lon: riderLocation.longitude,
           color: '#ea580c',
           icon: 'person-biking',
         },
@@ -73,6 +79,7 @@ export const ActiveTrip = ({ trip, isMutating, profile, onPickup, onDeliver }: A
             key={tripOrder.orderId}
             tripOrder={tripOrder}
             isLoading={isMutating}
+            riderLocation={riderLocation}
             onPickup={() => onPickup(tripOrder.orderId)}
             onDeliver={() => onDeliver(tripOrder.orderId)}
           />

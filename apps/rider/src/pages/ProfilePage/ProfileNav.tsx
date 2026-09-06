@@ -1,4 +1,5 @@
 import { Box, Link as ChakraLink, Text, VStack } from '@chakra-ui/react'
+import Car from '@gravity-ui/icons/Car'
 import ChevronRight from '@gravity-ui/icons/ChevronRight'
 import PencilToSquare from '@gravity-ui/icons/PencilToSquare'
 import { NavLink } from 'react-router-dom'
@@ -8,10 +9,12 @@ import type { ProfileNavItem } from './types'
 
 const ICON_BY_ID: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   edit: PencilToSquare,
+  vehicle: Car,
 }
 
 const ACCOUNT_ITEMS: ProfileNavItem[] = [
   { id: 'edit', label: 'Editar perfil', path: routes.profileEdit },
+  { id: 'vehicle', label: 'Vehículo', path: routes.profileVehicle },
 ]
 
 export const ProfileNav = () => {

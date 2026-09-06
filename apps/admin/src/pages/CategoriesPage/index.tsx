@@ -46,7 +46,7 @@ export const CategoriesPage = () => {
 
   const handleSubmit = async (input: CategoryInput) => {
     if (isNew) await create(input)
-    else if (editingId != null) await update(editingId, input.name)
+    else if (editingId != null) await update(editingId, input)
     closeForm()
   }
 

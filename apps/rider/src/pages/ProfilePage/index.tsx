@@ -14,6 +14,7 @@ import {
 } from '@repo/components'
 import { authRoutes } from '@repo/auth'
 import { useAuthStore, useRiderProfile } from '@repo/api'
+import { formatVehicle } from '@repo/domain'
 import { useRiderStore } from '../../stores/riderStore'
 import { ProfileNav } from './ProfileNav'
 
@@ -61,7 +62,7 @@ export const ProfilePage = () => {
           <Muted fontSize="sm" truncate>
             {user?.email}
           </Muted>
-          <Subtle fontSize="sm">{profile?.vehicle ?? '—'}</Subtle>
+          <Subtle fontSize="sm">{profile ? formatVehicle(profile.vehicle) : '—'}</Subtle>
         </Box>
       </Box>
 

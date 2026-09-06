@@ -1,11 +1,12 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
-import type { RiderProfile, UpdateRiderProfileInput } from '@repo/domain'
+import type { RiderProfile, UpdateRiderProfileInput, UpdateVehicleInput } from '@repo/domain'
 import {
   RIDER_PROFILE,
   SET_RIDER_AVAILABILITY,
   UPDATE_RIDER_LOCATION,
   UPDATE_RIDER_PROFILE,
+  UPDATE_RIDER_VEHICLE,
   toRider,
 } from '../client/rider'
 
@@ -14,6 +15,7 @@ interface UseRiderProfileReturn {
   isLoading: boolean
   isMutating: boolean
   updateProfile: (input: UpdateRiderProfileInput) => Promise<void>
+  updateVehicle: (input: UpdateVehicleInput) => Promise<void>
   setAvailability: (online: boolean) => Promise<void>
   updateLocation: (latitude: number, longitude: number) => Promise<void>
 }
@@ -26,8 +28,11 @@ export const useRiderProfile = (): UseRiderProfileReturn => {
   const { data, loading, refetch } = useQuery<RiderProfileResult>(RIDER_PROFILE)
 
   const [updateProfileMutation, { loading: updating }] = useMutation(UPDATE_RIDER_PROFILE)
+  const [updateVehicleMutation, { loading: updatingVehicle }] = useMutation(UPDATE_RIDER_VEHICLE)
   const [setAvailabilityMutation, { loading: setting }] = useMutation(SET_RIDER_AVAILABILITY)
   const [updateLocationMutation] = useMutation(UPDATE_RIDER_LOCATION)
+
+  const profile = useMemo(() => (data?.riderProfile ? toRider(data.riderProfile) : null), [data])
 
   const updateProfile = useCallback(
     async (input: UpdateRiderProfileInput) => {
@@ -35,6 +40,14 @@ export const useRiderProfile = (): UseRiderProfileReturn => {
       await refetch()
     },
     [updateProfileMutation, refetch],
+  )
+
+  const updateVehicle = useCallback(
+    async (input: UpdateVehicleInput) => {
+      await updateVehicleMutation({ variables: { input } })
+      await refetch()
+    },
+    [updateVehicleMutation, refetch],
   )
 
   const setAvailability = useCallback(
@@ -53,10 +66,11 @@ export const useRiderProfile = (): UseRiderProfileReturn => {
   )
 
   return {
-    profile: data?.riderProfile ? toRider(data.riderProfile) : null,
+    profile,
     isLoading: loading,
-    isMutating: updating || setting,
+    isMutating: updating || updatingVehicle || setting,
     updateProfile,
+    updateVehicle,
     setAvailability,
     updateLocation,
   }

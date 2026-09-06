@@ -1,4 +1,4 @@
-import { Box, Grid, HStack, VStack } from '@chakra-ui/react'
+import { Box, Grid, HStack, Spinner, VStack } from '@chakra-ui/react'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
 import { Link } from 'react-router-dom'
 import { CartLineCard } from '../../components/CartLineCard'
@@ -22,7 +22,15 @@ export const CartPage = () => {
   const count = cartItemCount(lines)
   const total = cart?.total ?? cartTotal(lines)
 
-  if (!isLoading && lines.length === 0) {
+  if (isLoading) {
+    return (
+      <Box paddingY="24" display="flex" justifyContent="center">
+        <Spinner size="lg" color="brand.600" />
+      </Box>
+    )
+  }
+
+  if (lines.length === 0) {
     return (
       <EmptyState
         icon={<ShoppingCart width={40} height={40} />}

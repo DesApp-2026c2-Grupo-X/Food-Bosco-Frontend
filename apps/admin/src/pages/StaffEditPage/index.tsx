@@ -233,6 +233,18 @@ export const StaffEditPage = () => {
     )
   }
 
+  if (!isNew && member?.role === 'super_admin') {
+    return (
+      <WidePageContainer>
+        <BackButton />
+        <EmptyState
+          title="Admin global no editable"
+          description="Los admins globales no se pueden editar ni desactivar."
+        />
+      </WidePageContainer>
+    )
+  }
+
   return (
     <WidePageContainer>
       <BackButton />

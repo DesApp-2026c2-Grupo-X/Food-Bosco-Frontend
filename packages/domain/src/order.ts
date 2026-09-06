@@ -42,6 +42,8 @@ export interface Order {
   id: string
   number: string
   clientId: string
+  riderId?: string | null
+  riderLocation?: { latitude: number; longitude: number } | null
   branchId: string
   branch?: Branch | null
   client?: User | null

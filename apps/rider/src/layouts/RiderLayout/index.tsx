@@ -1,14 +1,25 @@
 import { Box, Container } from '@chakra-ui/react'
+import { useEffect } from 'react'
 import { Outlet, matchPath, useLocation } from 'react-router-dom'
 import { RiderHeader } from '../../components/RiderHeader'
 import { MobileRiderNavigation } from '../../components/MobileRiderNavigation'
+import { unlockAudio } from '../../utils/playIncomingSound'
 import { routes } from '../../routes'
 
-const SUB_PAGE_PATHS = [routes.tripOrderDetail, routes.profileEdit]
+const SUB_PAGE_PATHS = [routes.tripOrderDetail, routes.profileEdit, routes.profileVehicle]
 
 export const RiderLayout = () => {
   const { pathname } = useLocation()
   const hasBackHeader = SUB_PAGE_PATHS.some((pattern) => matchPath(pattern, pathname))
+
+  useEffect(() => {
+    window.addEventListener('pointerdown', unlockAudio, { once: true })
+    window.addEventListener('keydown', unlockAudio, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio)
+      window.removeEventListener('keydown', unlockAudio)
+    }
+  }, [])
 
   return (
     <Box bg="bg" minH="100vh" pb={{ base: '28', md: '0' }}>

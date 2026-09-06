@@ -19,7 +19,7 @@ import { useOrders } from '@repo/api'
 
 export const OrdersPage = () => {
   const { orders, isLoading } = useOrders()
-  const activeOrders = orders.filter((order) => isActiveOrder(order.status))
+  const activeOrder = orders.find((order) => isActiveOrder(order.status))
   const pastOrders = orders.filter((order) => !isActiveOrder(order.status))
 
   return (
@@ -29,9 +29,8 @@ export const OrdersPage = () => {
         <Muted>Seguí los pedidos en curso y revisá el historial.</Muted>
       </VStack>
 
-      {activeOrders.map((activeOrder) => (
+      {activeOrder ? (
         <Box
-          key={activeOrder.id}
           bg="bg.subtle"
           border="1px solid"
           borderColor="border.subtle"
@@ -53,7 +52,7 @@ export const OrdersPage = () => {
             <Link to={orderDetailPath(activeOrder.id)}>Ver seguimiento</Link>
           </PrimaryButton>
         </Box>
-      ))}
+      ) : null}
 
       <VStack gap="3" align="stretch">
         {pastOrders.map((order) => (

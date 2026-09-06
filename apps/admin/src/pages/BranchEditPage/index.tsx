@@ -151,6 +151,12 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
     )
   }
 
+  const handleTimeChange = (dayOfWeek: number, field: 'opening' | 'closing', value: string) => {
+    if (value === '' || /^\d{2}:\d{2}$/.test(value)) {
+      update(dayOfWeek, { [field]: value })
+    }
+  }
+
   return (
     <FormLayout>
       <VStack align="stretch" gap="2">
@@ -171,9 +177,9 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
                 size="sm"
                 borderRadius="lg"
                 width="130px"
-                value={hour.opening ?? ''}
+                defaultValue={hour.opening ?? ''}
                 disabled={hour.closed}
-                onChange={(event) => update(day.dayOfWeek, { opening: event.target.value })}
+                onChange={(event) => handleTimeChange(day.dayOfWeek, 'opening', event.target.value)}
                 aria-label={`Apertura ${day.label}`}
               />
               <Input
@@ -181,9 +187,9 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
                 size="sm"
                 borderRadius="lg"
                 width="130px"
-                value={hour.closing ?? ''}
+                defaultValue={hour.closing ?? ''}
                 disabled={hour.closed}
-                onChange={(event) => update(day.dayOfWeek, { closing: event.target.value })}
+                onChange={(event) => handleTimeChange(day.dayOfWeek, 'closing', event.target.value)}
                 aria-label={`Cierre ${day.label}`}
               />
               <HStack gap="2">

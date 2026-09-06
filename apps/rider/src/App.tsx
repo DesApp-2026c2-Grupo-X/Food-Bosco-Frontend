@@ -9,6 +9,7 @@ import { TripOrderDetailPage } from './pages/TripOrderDetailPage'
 import { HistoryPage } from './pages/HistoryPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { EditProfilePage } from './pages/EditProfilePage'
+import { VehicleEditPage } from './pages/VehicleEditPage'
 import logoLight from './assets/logo-light.svg'
 import logoDark from './assets/logo-dark.svg'
 
@@ -20,6 +21,8 @@ export const App = () =>
       riderUrl: RIDER_URL,
       logoLight,
       logoDark,
+      registerDefaultRole: 'rider',
+      registerRoles: ['rider'],
     }),
     {
       element: <RequireAuth loginPath={authRoutes.login} roles={['rider']} mockAuth={MOCK_AUTH} />,
@@ -32,6 +35,7 @@ export const App = () =>
             { path: routes.history, element: <HistoryPage /> },
             { path: routes.profile, element: <ProfilePage /> },
             { path: routes.profileEdit, element: <EditProfilePage /> },
+            { path: routes.profileVehicle, element: <VehicleEditPage /> },
           ],
         },
       ],

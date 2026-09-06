@@ -14,7 +14,6 @@ export const useRiderProfileForm = () => {
   const form = useForm<RiderProfileValues>({
     resolver: zodResolver(riderProfileSchema),
     defaultValues: {
-      vehicle: profile?.vehicle ?? '',
       phone: profile?.phone ?? '',
     },
     mode: 'onTouched',
@@ -23,19 +22,19 @@ export const useRiderProfileForm = () => {
 
   useEffect(() => {
     if (profile) {
-      form.reset({ vehicle: profile.vehicle ?? '', phone: profile.phone ?? '' })
+      form.reset({ phone: profile.phone ?? '' })
     }
   }, [profile, form])
 
   const isDirty = form.formState.isDirty
 
   const onSave = form.handleSubmit(async (values) => {
-    await updateProfile({ vehicle: values.vehicle, phone: values.phone })
+    await updateProfile(values)
     form.reset(values)
   })
 
   const onCancel = () => {
-    form.reset({ vehicle: profile?.vehicle ?? '', phone: profile?.phone ?? '' })
+    form.reset({ phone: profile?.phone ?? '' })
   }
 
   return { user, isLoading, form, isDirty, onSave, onCancel }

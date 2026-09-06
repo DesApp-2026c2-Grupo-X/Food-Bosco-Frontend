@@ -6,17 +6,50 @@ import { NavLink } from 'react-router-dom'
 import { Muted, PrimaryButton, Strong } from '@repo/components'
 import { useOrder } from '@repo/api'
 import { tripOrderDetailPath } from '../../routes'
+import { haversineDistanceMeters } from '../../utils/distance'
 import type { TripOrderCardProps } from './types'
+
+const PROXIMITY_LIMIT_M = 50
 
 export const TripOrderCard = ({
   tripOrder,
   isLoading,
+  riderLocation,
   onPickup,
   onDeliver,
 }: TripOrderCardProps) => {
   const { order } = useOrder(tripOrder.orderId)
   const delivered = tripOrder.status === 'DELIVERED'
   const pickedUp = delivered || tripOrder.status === 'ON_THE_WAY'
+
+  const location =
+    riderLocation != null ? { lat: riderLocation.latitude, lon: riderLocation.longitude } : null
+
+  const pickupMeters =
+    location != null
+      ? haversineDistanceMeters(location, {
+          lat: tripOrder.pickupLocation.latitude,
+          lon: tripOrder.pickupLocation.longitude,
+        })
+      : Number.POSITIVE_INFINITY
+
+  const deliveryMeters =
+    location != null
+      ? haversineDistanceMeters(location, {
+          lat: tripOrder.deliveryAddress.latitude,
+          lon: tripOrder.deliveryAddress.longitude,
+        })
+      : Number.POSITIVE_INFINITY
+
+  const targetMeters = pickedUp ? deliveryMeters : pickupMeters
+  const inRange = targetMeters <= PROXIMITY_LIMIT_M
+
+  const distanceHint =
+    riderLocation != null && !inRange
+      ? `Estás a ${Math.round(targetMeters)} m del punto de ${
+          pickedUp ? 'entrega' : 'retiro'
+        }. Acercate para continuar.`
+      : null
 
   return (
     <Box
@@ -55,14 +88,23 @@ export const TripOrderCard = ({
             <Check width={18} height={18} />
             <Strong fontSize="sm">Entregado</Strong>
           </HStack>
-        ) : !pickedUp ? (
-          <PrimaryButton size="md" width="full" onClick={onPickup} loading={isLoading}>
-            Retirar
-          </PrimaryButton>
         ) : (
-          <PrimaryButton size="md" width="full" onClick={onDeliver} loading={isLoading}>
-            Entregar
-          </PrimaryButton>
+          <>
+            <PrimaryButton
+              size="md"
+              width="full"
+              onClick={pickedUp ? onDeliver : onPickup}
+              loading={isLoading}
+              disabled={!inRange}
+            >
+              {pickedUp ? 'Entregar' : 'Retirar'}
+            </PrimaryButton>
+            {distanceHint ? (
+              <Muted fontSize="sm" marginTop="2">
+                {distanceHint}
+              </Muted>
+            ) : null}
+          </>
         )}
       </Box>
     </Box>
