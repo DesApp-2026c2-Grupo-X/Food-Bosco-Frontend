@@ -30,9 +30,9 @@ export const useRegister = () => {
       confirm: '',
       role: registerDefaultRole,
       vehicleType: 'moto',
-      marca: '',
-      modelo: '',
-      patente: '',
+      brand: '',
+      model: '',
+      plate: '',
     },
     mode: 'onTouched',
     reValidateMode: 'onChange',
@@ -56,7 +56,7 @@ export const useRegister = () => {
         const vehicle =
           values.vehicleType === 'bici'
             ? 'Bici'
-            : ['Moto', values.marca?.trim(), values.modelo?.trim(), values.patente?.trim()]
+            : ['Moto', values.brand?.trim(), values.model?.trim(), values.plate?.trim()]
                 .filter(Boolean)
                 .join(' · ')
         await registerRider({ ...base, vehicle })

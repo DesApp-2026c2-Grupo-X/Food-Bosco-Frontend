@@ -50,9 +50,9 @@ export const registerFormSchema = z
     confirm: confirmPassword,
     role: z.enum(['customer', 'rider']),
     vehicleType: z.enum(['moto', 'bici']),
-    marca: z.string().trim().optional(),
-    modelo: z.string().trim().optional(),
-    patente: z.string().trim().optional(),
+    brand: z.string().trim().optional(),
+    model: z.string().trim().optional(),
+    plate: z.string().trim().optional(),
   })
   .refine((data) => data.password === data.confirm, {
     message: 'Las contraseñas no coinciden',
@@ -62,14 +62,14 @@ export const registerFormSchema = z
     if (data.role !== 'rider') return
     if (data.vehicleType === 'bici') return
 
-    if (!data.marca) {
-      ctx.addIssue({ code: 'custom', message: 'La marca es obligatoria', path: ['marca'] })
+    if (!data.brand) {
+      ctx.addIssue({ code: 'custom', message: 'La marca es obligatoria', path: ['brand'] })
     }
-    if (!data.modelo) {
-      ctx.addIssue({ code: 'custom', message: 'El modelo es obligatorio', path: ['modelo'] })
+    if (!data.model) {
+      ctx.addIssue({ code: 'custom', message: 'El modelo es obligatorio', path: ['model'] })
     }
-    if (!data.patente) {
-      ctx.addIssue({ code: 'custom', message: 'La patente es obligatoria', path: ['patente'] })
+    if (!data.plate) {
+      ctx.addIssue({ code: 'custom', message: 'La patente es obligatoria', path: ['plate'] })
     }
   })
 
@@ -107,20 +107,20 @@ export const riderProfileSchema = z.object({
 export const vehicleSchema = z
   .object({
     type: z.enum(['moto', 'bici']),
-    marca: z.string().trim().optional(),
-    modelo: z.string().trim().optional(),
-    patente: z.string().trim().optional(),
+    brand: z.string().trim().optional(),
+    model: z.string().trim().optional(),
+    plate: z.string().trim().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.type !== 'moto') return
-    if (!data.marca?.trim()) {
-      ctx.addIssue({ code: 'custom', message: 'La marca es obligatoria', path: ['marca'] })
+    if (!data.brand?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'La marca es obligatoria', path: ['brand'] })
     }
-    if (!data.modelo?.trim()) {
-      ctx.addIssue({ code: 'custom', message: 'El modelo es obligatorio', path: ['modelo'] })
+    if (!data.model?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'El modelo es obligatorio', path: ['model'] })
     }
-    if (!data.patente?.trim()) {
-      ctx.addIssue({ code: 'custom', message: 'La patente es obligatoria', path: ['patente'] })
+    if (!data.plate?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'La patente es obligatoria', path: ['plate'] })
     }
   })
 

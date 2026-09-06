@@ -41,9 +41,9 @@ const RIDER_FIELDS = `
   lastName
   vehicle {
     type
-    marca
-    modelo
-    patente
+    brand
+    model
+    plate
   }
   phone
   available
@@ -98,9 +98,9 @@ const toGeoPoint = (raw: Raw | null | undefined) => ({
 
 const toVehicle = (raw: Raw | null | undefined): Vehicle => ({
   type: raw?.type === 'bici' ? 'bici' : 'moto',
-  marca: raw?.marca == null ? undefined : String(raw.marca),
-  modelo: raw?.modelo == null ? undefined : String(raw.modelo),
-  patente: raw?.patente == null ? undefined : String(raw.patente),
+  brand: raw?.brand == null ? undefined : String(raw.brand),
+  model: raw?.model == null ? undefined : String(raw.model),
+  plate: raw?.plate == null ? undefined : String(raw.plate),
 })
 
 export const toRider = (raw: Raw): RiderProfile => ({

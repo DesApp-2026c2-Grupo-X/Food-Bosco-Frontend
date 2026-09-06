@@ -116,9 +116,9 @@ export const RegisterPage = () => {
                 </HStack>
                 {vehicleType === 'moto' ? (
                   <>
-                    <FormField name="marca" label="Marca" required placeholder="Honda" />
-                    <FormField name="modelo" label="Modelo" required placeholder="CG 125" />
-                    <FormField name="patente" label="Patente" required placeholder="AB 123 CD" />
+                    <FormField name="brand" label="Marca" required placeholder="Honda" />
+                    <FormField name="model" label="Modelo" required placeholder="CG 125" />
+                    <FormField name="plate" label="Patente" required placeholder="AB 123 CD" />
                   </>
                 ) : (
                   <Box
