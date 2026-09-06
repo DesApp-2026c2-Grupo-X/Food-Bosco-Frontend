@@ -28,12 +28,9 @@ interface ReportRowsResult {
 }
 
 export const useProductReports = (): UseProductReportsReturn => {
-  const { data: bestData, loading: bestLoading } =
-    useQuery<ReportRowsResult>(BEST_SELLING_PRODUCTS)
-  const { data: leastData, loading: leastLoading } =
-    useQuery<ReportRowsResult>(LEAST_SOLD_PRODUCTS)
-  const { data: outData, loading: outLoading } =
-    useQuery<ReportRowsResult>(OUT_OF_STOCK_PRODUCTS)
+  const { data: bestData, loading: bestLoading } = useQuery<ReportRowsResult>(BEST_SELLING_PRODUCTS)
+  const { data: leastData, loading: leastLoading } = useQuery<ReportRowsResult>(LEAST_SOLD_PRODUCTS)
+  const { data: outData, loading: outLoading } = useQuery<ReportRowsResult>(OUT_OF_STOCK_PRODUCTS)
   const { data: revenueData, loading: revenueLoading } =
     useQuery<ReportRowsResult>(HIGHEST_REVENUE_PRODUCTS)
 

@@ -35,21 +35,21 @@ Capa de datos GraphQL del admin. Contiene:
 
 Reescritos, conservando **la misma interfaz pública** (las páginas no cambiaron):
 
-| Hook | Antes | Ahora |
-| --- | --- | --- |
-| `useAdminCategories` | SWR + mock | `useQuery(ADMIN_CATEGORIES)` + mutaciones + `refetch` |
-| `useAdminProducts` | SWR + mock | `useQuery(ADMIN_PRODUCTS)` + `setProductAvailable` |
-| `useProductEditor` | SWR + mock | `useQuery(ADMIN_PRODUCT)` + CRUD grupos/opciones/receta |
-| `useIngredients` | SWR + mock | `useQuery(ADMIN_INGREDIENTS)` + CRUD/toggle |
-| `useBranches` | SWR + mock | `useQuery(ADMIN_BRANCHES)` + CRUD/toggle/saveHours |
-| `usePromotions` | SWR + mock | `useQuery(ADMIN_PROMOTIONS)` + CRUD/toggle |
-| `useStaff` | SWR + mock | `useQuery(ADMIN_USERS)` + `createStaff/createAdmin/updateUser/setUserActive` |
-| `useOrderStates` | SWR + mock | `useQuery(ADMIN_ORDER_STATES)` + CRUD/toggle |
-| `useParameters` | SWR + mock | `useQuery(ADMIN_PARAMETERS)` + `updateParameter` |
-| `useGlobalOrders` | SWR + mock | `useQuery(ADMIN_ORDERS)` |
-| `useGlobalStock` | SWR + mock | `useQuery(ADMIN_BRANCH_STOCK)` + `adjustStock` |
-| `useAdminOrder` (compartido) | SWR + mock | `useQuery(ADMIN_ORDER)` + `changeOrderStatus` |
-| `useProductReports` (compartido) | SWR + mock | 4 `useQuery` (best/least/out-of-stock/highest-revenue) |
+| Hook                             | Antes      | Ahora                                                                        |
+| -------------------------------- | ---------- | ---------------------------------------------------------------------------- |
+| `useAdminCategories`             | SWR + mock | `useQuery(ADMIN_CATEGORIES)` + mutaciones + `refetch`                        |
+| `useAdminProducts`               | SWR + mock | `useQuery(ADMIN_PRODUCTS)` + `setProductAvailable`                           |
+| `useProductEditor`               | SWR + mock | `useQuery(ADMIN_PRODUCT)` + CRUD grupos/opciones/receta                      |
+| `useIngredients`                 | SWR + mock | `useQuery(ADMIN_INGREDIENTS)` + CRUD/toggle                                  |
+| `useBranches`                    | SWR + mock | `useQuery(ADMIN_BRANCHES)` + CRUD/toggle/saveHours                           |
+| `usePromotions`                  | SWR + mock | `useQuery(ADMIN_PROMOTIONS)` + CRUD/toggle                                   |
+| `useStaff`                       | SWR + mock | `useQuery(ADMIN_USERS)` + `createStaff/createAdmin/updateUser/setUserActive` |
+| `useOrderStates`                 | SWR + mock | `useQuery(ADMIN_ORDER_STATES)` + CRUD/toggle                                 |
+| `useParameters`                  | SWR + mock | `useQuery(ADMIN_PARAMETERS)` + `updateParameter`                             |
+| `useGlobalOrders`                | SWR + mock | `useQuery(ADMIN_ORDERS)`                                                     |
+| `useGlobalStock`                 | SWR + mock | `useQuery(ADMIN_BRANCH_STOCK)` + `adjustStock`                               |
+| `useAdminOrder` (compartido)     | SWR + mock | `useQuery(ADMIN_ORDER)` + `changeOrderStatus`                                |
+| `useProductReports` (compartido) | SWR + mock | 4 `useQuery` (best/least/out-of-stock/highest-revenue)                       |
 
 ### 3.3 Configuración
 
@@ -87,13 +87,17 @@ npx turbo run build --filter=@repo/admin   # OK (vite build)
 ## 6. Cómo levantar el sistema end-to-end
 
 1. **Backend** (`Food-Bosco-API`): MongoDB en `localhost:27017`, luego:
+
    ```sh
    npm run dev        # gateway :4000 + auth :4201 + commerce :4202 + delivery :4203
    ```
+
    Y seed (opcional, crea el `super_admin`):
+
    ```sh
    curl -X POST http://localhost:4000/seed
    ```
+
    (o los seeds individuales de cada servicio; ver `apps/*/src/seed/`).
 
 2. **Credenciales `super_admin`** (default del seed):
