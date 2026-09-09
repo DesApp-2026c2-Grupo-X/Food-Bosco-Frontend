@@ -4,7 +4,6 @@ import ListUl from '@gravity-ui/icons/ListUl'
 import Layers from '@gravity-ui/icons/Layers'
 import MapPin from '@gravity-ui/icons/MapPin'
 import Receipt from '@gravity-ui/icons/Receipt'
-import Star from '@gravity-ui/icons/Star'
 import Persons from '@gravity-ui/icons/Persons'
 import Sliders from '@gravity-ui/icons/Sliders'
 import { Link } from 'react-router-dom'
@@ -46,13 +45,6 @@ const QUICK_ACCESS = [
     description: 'Operar estados',
     path: routes.orders,
     icon: Receipt,
-  },
-  {
-    id: 'promotions',
-    label: 'Promociones',
-    description: 'Información general',
-    path: routes.promotions,
-    icon: Star,
   },
   {
     id: 'staff',

@@ -1,55 +1,62 @@
-import { useCallback, useState } from 'react'
-import useSWR, { mutate as globalMutate } from 'swr'
-import type { Trip, TripOffer } from '@repo/domain'
-import { getJson, postJson } from '../client/rest'
-import { acceptOffer, getCurrentOffer, rejectOffer } from '../mocks/trips'
-
-const KEY = '/api/trips/offers'
+import { useCallback } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
+import type { TripOffer } from '@repo/domain'
+import {
+  ACCEPT_TRIP_OFFER,
+  MY_TRIPS,
+  REJECT_TRIP_OFFER,
+  TRIP_OFFERS,
+  toTripOffer,
+} from '../client/rider'
 
 interface UseTripOffersReturn {
   offer: TripOffer | null
   isLoading: boolean
   isMutating: boolean
-  accept: (offerId: string) => Promise<Trip | null>
+  accept: (offerId: string) => Promise<void>
   reject: (offerId: string) => Promise<void>
 }
 
-export const useTripOffers = (): UseTripOffersReturn => {
-  const { data, isLoading, mutate } = useSWR<TripOffer | null>(
-    KEY,
-    async (url: string) => {
-      const json = await getJson<TripOffer>(url)
-      if (json && typeof json === 'object' && 'id' in json) return json
-      return getCurrentOffer()
-    },
-    { refreshInterval: 15000 },
-  )
+interface TripOffersResult {
+  tripOffers: Record<string, unknown>[]
+}
 
-  const [isMutating, setIsMutating] = useState(false)
+export const useTripOffers = (enabled = true): UseTripOffersReturn => {
+  const { data, loading } = useQuery<TripOffersResult>(TRIP_OFFERS, {
+    skip: !enabled,
+    pollInterval: enabled ? 15000 : undefined,
+  })
+
+  const [acceptMutation, { loading: accepting }] = useMutation(ACCEPT_TRIP_OFFER)
+  const [rejectMutation, { loading: rejecting }] = useMutation(REJECT_TRIP_OFFER)
+
+  const offer = (data?.tripOffers ?? []).map(toTripOffer)[0] ?? null
 
   const accept = useCallback(
     async (offerId: string) => {
-      setIsMutating(true)
-      const trip = acceptOffer(offerId)
-      await mutate(getCurrentOffer(), { revalidate: false })
-      await postJson(`/api/trips/offers/${offerId}/accept`, {})
-      await globalMutate('/api/trips/active', trip, false)
-      setIsMutating(false)
-      return trip
+      await acceptMutation({
+        variables: { offerId },
+        refetchQueries: [MY_TRIPS, TRIP_OFFERS],
+      })
     },
-    [mutate],
+    [acceptMutation],
   )
 
   const reject = useCallback(
     async (offerId: string) => {
-      setIsMutating(true)
-      rejectOffer(offerId)
-      await mutate(getCurrentOffer(), { revalidate: false })
-      await postJson(`/api/trips/offers/${offerId}/reject`, {})
-      setIsMutating(false)
+      await rejectMutation({
+        variables: { offerId },
+        refetchQueries: [TRIP_OFFERS],
+      })
     },
-    [mutate],
+    [rejectMutation],
   )
 
-  return { offer: data ?? null, isLoading, isMutating, accept, reject }
+  return {
+    offer,
+    isLoading: loading,
+    isMutating: accepting || rejecting,
+    accept,
+    reject,
+  }
 }

@@ -22,8 +22,8 @@ import {
 import { ProductCard } from '../../components/ProductCard'
 import { SectionHeader } from '@repo/components'
 import { routes } from '../../routes'
-import { useCatalog } from '@repo/api'
-import { useProfile } from '@repo/api'
+import { useAvailableBranches, useCatalog, useProfile } from '@repo/api'
+import { useAddresses } from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
 
 const STEPS = [
@@ -35,12 +35,22 @@ const STEPS = [
 export const HomePage = () => {
   const { user } = useProfile()
   const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
+  const { addresses } = useAddresses()
+  const selected = addresses.find((address) => address.id === selectedAddressId)
+  const { branches, isLoading: branchesLoading } = useAvailableBranches(
+    selected?.latitude,
+    selected?.longitude,
+  )
+
+  const hasAvailableBranch = !branchesLoading && branches.length > 0
 
   return (
     <WidePageContainer>
       <Hero userFirstName={user?.firstName} />
 
-      {selectedAddressId != null ? <HomeCatalog /> : null}
+      {hasAvailableBranch ? (
+        <HomeCatalog lat={selected?.latitude} lng={selected?.longitude} />
+      ) : null}
 
       <DeliveryBanner />
 
@@ -86,8 +96,8 @@ export const HomePage = () => {
   )
 }
 
-const HomeCatalog = () => {
-  const { categories, products } = useCatalog()
+const HomeCatalog = ({ lat, lng }: { lat?: number; lng?: number }) => {
+  const { categories, products } = useCatalog(lat, lng)
   const navigate = useNavigate()
   const featured = products.slice(0, 8)
 

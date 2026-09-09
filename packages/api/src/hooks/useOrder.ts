@@ -11,10 +11,14 @@ interface OrderResult {
   order: Record<string, unknown> | null
 }
 
-export const useOrder = (orderId: string | undefined): UseOrderReturn => {
+export const useOrder = (
+  orderId: string | undefined,
+  options?: { pollIntervalMs?: number },
+): UseOrderReturn => {
   const { data, loading } = useQuery<OrderResult>(ORDER, {
     variables: { id: orderId },
     skip: !orderId,
+    pollInterval: options?.pollIntervalMs,
   })
 
   return {

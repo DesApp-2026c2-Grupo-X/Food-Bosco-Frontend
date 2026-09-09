@@ -77,19 +77,22 @@ export const StaffPage = () => {
     {
       key: 'actions',
       header: 'Acciones',
-      render: (member) => (
-        <HStack gap="2" justify="end">
-          <GhostButton size="sm" onClick={() => navigate(staffEditPath(member.id))}>
-            Editar
-          </GhostButton>
-          <ToggleSwitch
-            checked={member.active}
-            onChange={(checked) => toggle(member.id, checked)}
-            disabled={isMutating}
-            ariaLabel={`Estado de ${member.firstName} ${member.lastName}`}
-          />
-        </HStack>
-      ),
+      render: (member) =>
+        member.role === 'super_admin' ? (
+          <Muted fontSize="sm">No editable</Muted>
+        ) : (
+          <HStack gap="2" justify="end">
+            <GhostButton size="sm" onClick={() => navigate(staffEditPath(member.id))}>
+              Editar
+            </GhostButton>
+            <ToggleSwitch
+              checked={member.active}
+              onChange={(checked) => toggle(member.id, checked)}
+              disabled={isMutating}
+              ariaLabel={`Estado de ${member.firstName} ${member.lastName}`}
+            />
+          </HStack>
+        ),
     },
   ]
 

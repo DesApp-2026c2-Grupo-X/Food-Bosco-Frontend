@@ -13,17 +13,18 @@ import {
   PrimaryButton,
   Strong,
 } from '@repo/components'
-import { useActiveTrip } from '@repo/api'
+import { useActiveTrip, useOrder } from '@repo/api'
 import { routes } from '../../routes'
 import { buildStaticMapUrl } from '../../utils/geoapify'
 
 export const TripOrderDetailPage = () => {
   const { orderId } = useParams()
   const navigate = useNavigate()
-  const { trip, isLoading, isMutating, pickup, deliver } = useActiveTrip()
+  const { trip, isLoading: tripLoading, isMutating, pickup, deliver } = useActiveTrip()
+  const { order, isLoading: orderLoading } = useOrder(orderId)
   const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
 
-  if (isLoading) {
+  if (tripLoading || orderLoading) {
     return (
       <Box paddingY="24" display="flex" justifyContent="center">
         <Spinner size="lg" color="brand.600" />
@@ -40,7 +41,7 @@ export const TripOrderDetailPage = () => {
     )
   }
 
-  const tripOrder = trip.orders.find((item) => item.order.id === orderId)
+  const tripOrder = trip.orders.find((item) => item.orderId === orderId)
 
   if (!tripOrder) {
     return (
@@ -51,20 +52,16 @@ export const TripOrderDetailPage = () => {
     )
   }
 
-  const { order, pickedUp, delivered } = tripOrder
+  const delivered = tripOrder.status === 'DELIVERED'
+  const pickedUp = delivered || tripOrder.status === 'ON_THE_WAY'
 
   const handleDeliver = async () => {
-    await deliver(order.id)
+    await deliver(tripOrder.orderId)
     navigate(routes.home)
   }
 
-  const { branch, deliveryAddress } = order
-  const centerLat = branch
-    ? (branch.latitude + deliveryAddress.latitude) / 2
-    : deliveryAddress.latitude
-  const centerLon = branch
-    ? (branch.longitude + deliveryAddress.longitude) / 2
-    : deliveryAddress.longitude
+  const centerLat = (tripOrder.pickupLocation.latitude + tripOrder.deliveryAddress.latitude) / 2
+  const centerLon = (tripOrder.pickupLocation.longitude + tripOrder.deliveryAddress.longitude) / 2
   const mapUrl = buildStaticMapUrl({
     centerLat,
     centerLon,
@@ -72,12 +69,15 @@ export const TripOrderDetailPage = () => {
     width: isDesktop ? 800 : 600,
     height: isDesktop ? 280 : 420,
     markers: [
-      ...(branch
-        ? [{ lat: branch.latitude, lon: branch.longitude, color: '#1d4ed8', label: 'R' }]
-        : []),
       {
-        lat: deliveryAddress.latitude,
-        lon: deliveryAddress.longitude,
+        lat: tripOrder.pickupLocation.latitude,
+        lon: tripOrder.pickupLocation.longitude,
+        color: '#1d4ed8',
+        label: 'R',
+      },
+      {
+        lat: tripOrder.deliveryAddress.latitude,
+        lon: tripOrder.deliveryAddress.longitude,
         color: '#15803d',
         label: 'E',
       },
@@ -90,10 +90,10 @@ export const TripOrderDetailPage = () => {
 
       <VStack align="start" gap="1">
         <HStack gap="3" flexWrap="wrap">
-          <PageTitle>Pedido #{order.number}</PageTitle>
-          <OrderStatusBadge status={order.status} />
+          <PageTitle>Pedido #{order?.number ?? tripOrder.orderId}</PageTitle>
+          <OrderStatusBadge status={order?.status ?? tripOrder.status} />
         </HStack>
-        <Muted>{order.branch?.name}</Muted>
+        <Muted>{order?.branch?.name}</Muted>
       </VStack>
 
       <Box
@@ -106,17 +106,17 @@ export const TripOrderDetailPage = () => {
         <Image src={mapUrl} alt="Mapa del pedido" width="100%" height="auto" bg="bg.muted" />
         <Box padding="4">
           <VStack align="stretch" gap="2.5">
-            <StopRow color="info" label="Retiro" value={order.branch?.addressText ?? '—'} />
-            <StopRow color="success" label="Entrega" value={order.deliveryAddress.text} />
+            <StopRow color="info" label="Retiro" value={order?.branch?.addressText ?? 'Sucursal'} />
+            <StopRow color="success" label="Entrega" value={tripOrder.deliveryAddress.text} />
           </VStack>
         </Box>
       </Box>
 
-      <OrderItemsCard items={order.items} />
+      <OrderItemsCard items={order?.items ?? []} />
 
-      <OrderTotalCard total={order.total} />
+      <OrderTotalCard total={order?.total ?? 0} />
 
-      {order.client ? (
+      {order?.client ? (
         <Box
           bg="bg.panel"
           border="1px solid"
@@ -142,7 +142,7 @@ export const TripOrderDetailPage = () => {
       ) : (
         <PrimaryButton
           width="full"
-          onClick={pickedUp ? handleDeliver : () => void pickup(order.id)}
+          onClick={pickedUp ? handleDeliver : () => void pickup(tripOrder.orderId)}
           loading={isMutating}
         >
           {pickedUp ? 'Entregar' : 'Retirar'}

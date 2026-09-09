@@ -6,6 +6,7 @@ import { TripCard } from '../../components/TripCard'
 
 export const HistoryPage = () => {
   const { trips, isLoading } = useMyTrips()
+  const completed = trips.filter((trip) => trip.status === 'COMPLETED')
 
   return (
     <PageContainer>
@@ -18,7 +19,7 @@ export const HistoryPage = () => {
         <Box paddingY="24" display="flex" justifyContent="center">
           <Spinner size="lg" color="brand.600" />
         </Box>
-      ) : trips.length === 0 ? (
+      ) : completed.length === 0 ? (
         <EmptyState
           icon={<Receipt width={40} height={40} />}
           title="Todavía no realizaste viajes"
@@ -26,7 +27,7 @@ export const HistoryPage = () => {
         />
       ) : (
         <VStack align="stretch" gap="3">
-          {trips.map((trip) => (
+          {completed.map((trip) => (
             <TripCard key={trip.id} trip={trip} />
           ))}
         </VStack>

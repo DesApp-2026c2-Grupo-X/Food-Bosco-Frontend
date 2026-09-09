@@ -17,9 +17,9 @@ export const useVehicleForm = () => {
     resolver: zodResolver(vehicleSchema),
     defaultValues: {
       type: profile?.vehicle.type ?? 'moto',
-      marca: profile?.vehicle.marca ?? '',
-      modelo: profile?.vehicle.modelo ?? '',
-      patente: profile?.vehicle.patente ?? '',
+      brand: profile?.vehicle.brand ?? '',
+      model: profile?.vehicle.model ?? '',
+      plate: profile?.vehicle.plate ?? '',
     },
     mode: 'onTouched',
     reValidateMode: 'onChange',
@@ -29,9 +29,9 @@ export const useVehicleForm = () => {
     if (profile) {
       form.reset({
         type: profile.vehicle.type,
-        marca: profile.vehicle.marca ?? '',
-        modelo: profile.vehicle.modelo ?? '',
-        patente: profile.vehicle.patente ?? '',
+        brand: profile.vehicle.brand ?? '',
+        model: profile.vehicle.model ?? '',
+        plate: profile.vehicle.plate ?? '',
       })
     }
   }, [profile, form])
@@ -44,14 +44,14 @@ export const useVehicleForm = () => {
   }
 
   const selectBici = async () => {
-    form.reset({ type: 'bici', marca: '', modelo: '', patente: '' })
+    form.reset({ type: 'bici', brand: '', model: '', plate: '' })
     await updateVehicle({ type: 'bici' })
   }
 
   const onSave = form.handleSubmit(async (values) => {
     await updateVehicle(
       values.type === 'moto'
-        ? { type: 'moto', marca: values.marca, modelo: values.modelo, patente: values.patente }
+        ? { type: 'moto', brand: values.brand, model: values.model, plate: values.plate }
         : { type: 'bici' },
     )
     form.reset(values)
@@ -62,9 +62,9 @@ export const useVehicleForm = () => {
     if (profile) {
       form.reset({
         type: profile.vehicle.type,
-        marca: profile.vehicle.marca ?? '',
-        modelo: profile.vehicle.modelo ?? '',
-        patente: profile.vehicle.patente ?? '',
+        brand: profile.vehicle.brand ?? '',
+        model: profile.vehicle.model ?? '',
+        plate: profile.vehicle.plate ?? '',
       })
     } else {
       form.reset()

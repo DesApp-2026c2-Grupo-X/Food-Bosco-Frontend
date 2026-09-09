@@ -43,9 +43,9 @@ export const VehicleForm = () => {
 
           {type === 'moto' ? (
             <>
-              <FormField name="marca" label="Marca" required />
-              <FormField name="modelo" label="Modelo" required />
-              <FormField name="patente" label="Patente" required />
+              <FormField name="brand" label="Marca" required />
+              <FormField name="model" label="Modelo" required />
+              <FormField name="plate" label="Patente" required />
               <HStack gap="2" marginTop="2">
                 <PrimaryButton type="submit" flex="1" disabled={!isDirty}>
                   Guardar cambios

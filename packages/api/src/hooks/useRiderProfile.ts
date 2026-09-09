@@ -1,10 +1,14 @@
-import { useCallback, useState } from 'react'
-import useSWR from 'swr'
+import { useCallback, useMemo } from 'react'
+import { useMutation, useQuery } from '@apollo/client'
 import type { RiderProfile, UpdateRiderProfileInput, UpdateVehicleInput } from '@repo/domain'
-import { getJson, patchJson } from '../client/rest'
-import { MOCK_RIDER_PROFILE } from '../mocks/rider'
-
-const KEY = '/api/riders/me'
+import {
+  RIDER_PROFILE,
+  SET_RIDER_AVAILABILITY,
+  UPDATE_RIDER_LOCATION,
+  UPDATE_RIDER_PROFILE,
+  UPDATE_RIDER_VEHICLE,
+  toRider,
+} from '../client/rider'
 
 interface UseRiderProfileReturn {
   profile: RiderProfile | null
@@ -16,66 +20,55 @@ interface UseRiderProfileReturn {
   updateLocation: (latitude: number, longitude: number) => Promise<void>
 }
 
-export const useRiderProfile = (): UseRiderProfileReturn => {
-  const { data, isLoading, mutate } = useSWR<RiderProfile>(KEY, async (url: string) => {
-    const json = await getJson<RiderProfile>(url)
-    if (json && typeof json === 'object' && 'id' in json) return json
-    return MOCK_RIDER_PROFILE
-  })
+interface RiderProfileResult {
+  riderProfile: Record<string, unknown> | null
+}
 
-  const [isMutating, setIsMutating] = useState(false)
+export const useRiderProfile = (): UseRiderProfileReturn => {
+  const { data, loading, refetch } = useQuery<RiderProfileResult>(RIDER_PROFILE)
+
+  const [updateProfileMutation, { loading: updating }] = useMutation(UPDATE_RIDER_PROFILE)
+  const [updateVehicleMutation, { loading: updatingVehicle }] = useMutation(UPDATE_RIDER_VEHICLE)
+  const [setAvailabilityMutation, { loading: setting }] = useMutation(SET_RIDER_AVAILABILITY)
+  const [updateLocationMutation] = useMutation(UPDATE_RIDER_LOCATION)
+
+  const profile = useMemo(() => (data?.riderProfile ? toRider(data.riderProfile) : null), [data])
 
   const updateProfile = useCallback(
     async (input: UpdateRiderProfileInput) => {
-      setIsMutating(true)
-      Object.assign(MOCK_RIDER_PROFILE, input)
-      await mutate({ ...MOCK_RIDER_PROFILE }, { revalidate: false })
-      await patchJson(KEY, input)
-      setIsMutating(false)
+      await updateProfileMutation({ variables: { input } })
+      await refetch()
     },
-    [mutate],
+    [updateProfileMutation, refetch],
   )
 
   const updateVehicle = useCallback(
     async (input: UpdateVehicleInput) => {
-      setIsMutating(true)
-      const vehicle =
-        input.type === 'moto'
-          ? {
-              type: 'moto' as const,
-              marca: input.marca,
-              modelo: input.modelo,
-              patente: input.patente,
-            }
-          : { type: 'bici' as const }
-      MOCK_RIDER_PROFILE.vehicle = vehicle
-      await mutate({ ...MOCK_RIDER_PROFILE }, { revalidate: false })
-      await patchJson(`${KEY}/vehicle`, input)
-      setIsMutating(false)
+      await updateVehicleMutation({ variables: { input } })
+      await refetch()
     },
-    [mutate],
+    [updateVehicleMutation, refetch],
   )
 
   const setAvailability = useCallback(
     async (online: boolean) => {
-      setIsMutating(true)
-      MOCK_RIDER_PROFILE.available = online
-      await mutate({ ...MOCK_RIDER_PROFILE }, { revalidate: false })
-      await patchJson(`${KEY}/availability`, { available: online })
-      setIsMutating(false)
+      await setAvailabilityMutation({ variables: { online } })
+      await refetch()
     },
-    [mutate],
+    [setAvailabilityMutation, refetch],
   )
 
-  const updateLocation = useCallback(async (latitude: number, longitude: number) => {
-    MOCK_RIDER_PROFILE.currentLocation = { latitude, longitude }
-    await patchJson(`${KEY}/location`, { latitude, longitude })
-  }, [])
+  const updateLocation = useCallback(
+    async (latitude: number, longitude: number) => {
+      await updateLocationMutation({ variables: { lat: latitude, lng: longitude } })
+    },
+    [updateLocationMutation],
+  )
 
   return {
-    profile: data ?? null,
-    isLoading,
-    isMutating,
+    profile,
+    isLoading: loading,
+    isMutating: updating || updatingVehicle || setting,
     updateProfile,
     updateVehicle,
     setAvailability,

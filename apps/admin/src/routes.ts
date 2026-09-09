@@ -10,13 +10,9 @@ export const routes = {
   branches: '/branches',
   branchNew: '/branches/new',
   branchEdit: '/branches/:branchId/edit',
-  promotions: '/promotions',
-  promotionNew: '/promotions/new',
-  promotionEdit: '/promotions/:promotionId/edit',
   staff: '/staff',
   staffNew: '/staff/new',
   staffEdit: '/staff/:userId/edit',
-  states: '/states',
   parameters: '/parameters',
   orders: '/orders',
   orderDetail: '/orders/:orderId',
@@ -28,6 +24,5 @@ export const routes = {
 export const categoryEditPath = (id: number | string) => `/categories/${id}/edit`
 export const productEditPath = (id: number | string) => `/products/${id}/edit`
 export const branchEditPath = (id: number | string) => `/branches/${id}/edit`
-export const promotionEditPath = (id: number | string) => `/promotions/${id}/edit`
 export const staffEditPath = (id: number | string) => `/staff/${id}/edit`
 export const orderDetailPath = (id: number | string) => `/orders/${id}`

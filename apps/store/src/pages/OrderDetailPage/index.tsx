@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { Box, HStack, Image, Spinner, VStack, useMediaQuery } from '@chakra-ui/react'
 import CircleCheckFill from '@gravity-ui/icons/CircleCheckFill'
 import CircleXmarkFill from '@gravity-ui/icons/CircleXmarkFill'
@@ -19,13 +20,17 @@ import { OrderTimeline } from '@repo/components'
 import { useOrder } from '@repo/api'
 import { routes } from '../../routes'
 import type { Order } from '@repo/domain'
-import { buildStaticMapUrl } from '../../utils/geoapify'
+import { buildStaticMapUrl, type StaticMapMarker } from '../../utils/geoapify'
 import { formatOrderDate, isActiveOrder } from '@repo/domain'
-import { useRiderPosition } from './hooks/useRiderPosition'
 
 export const OrderDetailPage = () => {
   const { orderId } = useParams()
-  const { order, isLoading } = useOrder(orderId)
+  const orderRef = useRef<Order | null>(null)
+  const pollActive = orderRef.current ? isActiveOrder(orderRef.current.status) : false
+  const { order, isLoading } = useOrder(orderId, {
+    pollIntervalMs: orderId && pollActive ? 4000 : undefined,
+  })
+  orderRef.current = order
 
   if (isLoading) {
     return (
@@ -139,17 +144,31 @@ const formatEtaLabel = (iso: string) => {
 const TrackingMap = ({ order }: { order: Order }) => {
   const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
   const branch = order.branch
-
-  const riderPosition = useRiderPosition(
-    { lat: branch?.latitude ?? 0, lon: branch?.longitude ?? 0 },
-    { lat: order.deliveryAddress.latitude, lon: order.deliveryAddress.longitude },
-    Boolean(branch),
-  )
+  const riderLocation = order.riderLocation ?? null
 
   if (!branch) return null
 
   const centerLat = (branch.latitude + order.deliveryAddress.latitude) / 2
   const centerLon = (branch.longitude + order.deliveryAddress.longitude) / 2
+
+  const markers: StaticMapMarker[] = [
+    { lat: branch.latitude, lon: branch.longitude, color: '#1d4ed8', label: 'T' },
+    {
+      lat: order.deliveryAddress.latitude,
+      lon: order.deliveryAddress.longitude,
+      color: '#15803d',
+      label: 'C',
+    },
+  ]
+
+  if (riderLocation) {
+    markers.push({
+      lat: riderLocation.latitude,
+      lon: riderLocation.longitude,
+      color: '#ea580c',
+      icon: 'person-biking',
+    })
+  }
 
   const mapUrl = buildStaticMapUrl({
     centerLat,
@@ -157,21 +176,7 @@ const TrackingMap = ({ order }: { order: Order }) => {
     zoom: 13,
     width: isDesktop ? 1200 : 600,
     height: isDesktop ? 340 : 700,
-    markers: [
-      { lat: branch.latitude, lon: branch.longitude, color: '#1d4ed8', label: 'T' },
-      {
-        lat: order.deliveryAddress.latitude,
-        lon: order.deliveryAddress.longitude,
-        color: '#15803d',
-        label: 'C',
-      },
-      {
-        lat: riderPosition.lat,
-        lon: riderPosition.lon,
-        color: '#ea580c',
-        icon: 'person-biking',
-      },
-    ],
+    markers,
   })
 
   const legend = [
@@ -181,8 +186,11 @@ const TrackingMap = ({ order }: { order: Order }) => {
       title: 'Tu dirección',
       subtitle: order.deliveryAddress.text,
     },
-    { color: 'brand.500', title: 'Rider', subtitle: 'En camino' },
   ]
+
+  if (riderLocation) {
+    legend.push({ color: 'brand.500', title: 'Rider', subtitle: 'En camino' })
+  }
 
   return (
     <Box

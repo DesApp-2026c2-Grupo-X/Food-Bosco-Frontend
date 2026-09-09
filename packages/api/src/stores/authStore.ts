@@ -1,12 +1,19 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import type { LoginInput, RegisterInput, UpdateProfileInput, User } from '@repo/domain'
+import type {
+  LoginInput,
+  RegisterInput,
+  RegisterRiderInput,
+  UpdateProfileInput,
+  User,
+} from '@repo/domain'
 import { apolloClient } from '../client/apollo'
 import {
   LOGIN,
   LOGOUT,
   ME,
   REGISTER,
+  REGISTER_RIDER,
   REQUEST_PASSWORD_RECOVERY,
   RESET_PASSWORD,
   UPDATE_PROFILE,
@@ -15,6 +22,7 @@ import {
   type LogoutResult,
   type MeResult,
   type RegisterResult,
+  type RegisterRiderResult,
   type RequestPasswordRecoveryResult,
   type ResetPasswordResult,
   type UpdateProfileResult,
@@ -27,6 +35,7 @@ interface AuthState {
   bypassAuth: boolean
   login: (input: LoginInput) => Promise<void>
   register: (input: RegisterInput) => Promise<void>
+  registerRider: (input: RegisterRiderInput) => Promise<void>
   logout: () => void
   forgotPassword: (email: string) => Promise<void>
   resetPassword: (token: string, newPassword: string) => Promise<void>
@@ -72,6 +81,27 @@ export const useAuthStore = create<AuthState>()(
         })
 
         const session = data?.register
+        if (!session?.accessToken) {
+          throw new Error('Respuesta de registro inválida')
+        }
+
+        set({ accessToken: session.accessToken, refreshToken: session.refreshToken })
+
+        const { data: meData } = await apolloClient.query<MeResult>({
+          query: ME,
+          fetchPolicy: 'network-only',
+        })
+
+        set({ user: toUser(meData.me) })
+      },
+
+      registerRider: async (input) => {
+        const { data } = await apolloClient.mutate<RegisterRiderResult>({
+          mutation: REGISTER_RIDER,
+          variables: { input },
+        })
+
+        const session = data?.registerRider
         if (!session?.accessToken) {
           throw new Error('Respuesta de registro inválida')
         }

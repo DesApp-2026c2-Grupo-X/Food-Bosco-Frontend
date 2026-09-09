@@ -1,9 +1,7 @@
-import { Box, HStack, Image, Text, VStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import Clock from '@gravity-ui/icons/Clock'
 import { Eyebrow, GhostButton, Muted, Price, PrimaryButton, Strong } from '@repo/components'
 import { formatPrice } from '@repo/domain'
-import { buildStaticMapUrl } from '../../utils/geoapify'
-import { tripCenter, tripMarkers } from '../../utils/tripMap'
 import { useOfferCountdown } from './hooks/useOfferCountdown'
 import type { TripOfferCardProps } from './types'
 
@@ -14,20 +12,8 @@ const formatCountdown = (total: number) => {
 }
 
 export const TripOfferCard = ({ offer, isLoading, onAccept, onReject }: TripOfferCardProps) => {
-  const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
   const remaining = useOfferCountdown(offer.expiresAt, onReject)
-
-  const center = tripCenter(offer.orders)
-  const mapUrl = buildStaticMapUrl({
-    centerLat: center.lat,
-    centerLon: center.lon,
-    zoom: 13,
-    width: isDesktop ? 1200 : 600,
-    height: isDesktop ? 320 : 460,
-    markers: tripMarkers(offer.orders),
-  })
-
-  const orderCount = offer.orders.length
+  const orderCount = offer.orderCount
 
   return (
     <Box
@@ -47,10 +33,6 @@ export const TripOfferCard = ({ offer, isLoading, onAccept, onReject }: TripOffe
             </Strong>
           </VStack>
 
-          <Box width="full" borderRadius="xl" overflow="hidden" bg="bg.muted">
-            <Image src={mapUrl} alt="Mapa de ruta de la oferta" width="100%" height="auto" />
-          </Box>
-
           <HStack justify="space-between" align="flex-end">
             <VStack align="start" gap="0.5">
               <Muted fontSize="sm">Ganancia estimada</Muted>
@@ -58,12 +40,14 @@ export const TripOfferCard = ({ offer, isLoading, onAccept, onReject }: TripOffe
                 {formatPrice(offer.estimatedEarnings)}
               </Price>
             </VStack>
-            <HStack gap="1.5" color={remaining <= 10 ? 'danger' : 'fg.muted'}>
-              <Clock width={16} height={16} />
-              <Text fontSize="sm" fontWeight="semibold" fontVariantNumeric="tabular-nums">
-                {formatCountdown(remaining)}
-              </Text>
-            </HStack>
+            {offer.expiresAt ? (
+              <HStack gap="1.5" color={remaining <= 10 ? 'danger' : 'fg.muted'}>
+                <Clock width={16} height={16} />
+                <Text fontSize="sm" fontWeight="semibold" fontVariantNumeric="tabular-nums">
+                  {formatCountdown(remaining)}
+                </Text>
+              </HStack>
+            ) : null}
           </HStack>
 
           <HStack gap="2">

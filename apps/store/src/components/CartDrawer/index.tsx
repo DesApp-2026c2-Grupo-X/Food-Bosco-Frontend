@@ -1,4 +1,4 @@
-import { HStack, VStack } from '@chakra-ui/react'
+import { Box, HStack, Spinner, VStack } from '@chakra-ui/react'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
 import { Link } from 'react-router-dom'
 import { routes } from '../../routes'
@@ -9,9 +9,32 @@ import { EmptyState, Muted, Price, PrimaryButton, SidePanel } from '@repo/compon
 import type { CartDrawerProps } from './types'
 
 export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
-  const { cart, updateItem, removeItem } = useCart()
+  const { cart, isLoading, updateItem, removeItem } = useCart()
   const lines = cart?.items ?? []
-  const isEmpty = lines.length === 0
+  const isEmpty = !isLoading && lines.length === 0
+
+  const body = isLoading ? (
+    <Box paddingY="16" display="flex" justifyContent="center">
+      <Spinner size="lg" color="brand.600" />
+    </Box>
+  ) : isEmpty ? (
+    <EmptyState
+      icon={<ShoppingCart width={40} height={40} />}
+      title="Tu carrito está vacío"
+      description="Explorá el catálogo y sumá tus favoritos para armar el pedido."
+    />
+  ) : (
+    <VStack gap="3" align="stretch">
+      {lines.map((item) => (
+        <CartLineCard
+          key={item.id}
+          item={item}
+          onQuantityChange={(id, quantity) => void updateItem(id, { quantity })}
+          onRemove={removeItem}
+        />
+      ))}
+    </VStack>
+  )
 
   return (
     <SidePanel
@@ -20,7 +43,7 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
       title="Mi carrito"
       footer={
         <VStack gap="3" width="full" align="stretch">
-          {!isEmpty ? (
+          {!isEmpty && !isLoading ? (
             <HStack justify="space-between">
               <Muted>Total</Muted>
               <Price fontSize="lg">{formatPrice(cartTotal(lines))}</Price>
@@ -34,24 +57,7 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
         </VStack>
       }
     >
-      {isEmpty ? (
-        <EmptyState
-          icon={<ShoppingCart width={40} height={40} />}
-          title="Tu carrito está vacío"
-          description="Explorá el catálogo y sumá tus favoritos para armar el pedido."
-        />
-      ) : (
-        <VStack gap="3" align="stretch">
-          {lines.map((item) => (
-            <CartLineCard
-              key={item.id}
-              item={item}
-              onQuantityChange={(id, quantity) => void updateItem(id, { quantity })}
-              onRemove={removeItem}
-            />
-          ))}
-        </VStack>
-      )}
+      {body}
     </SidePanel>
   )
 }
