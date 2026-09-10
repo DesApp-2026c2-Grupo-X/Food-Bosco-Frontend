@@ -651,7 +651,7 @@ export const CREATE_ADMIN = gql`
 `
 
 export const UPDATE_USER = gql`
-  mutation UpdateUser($id: String!, $input: UpdateUserInput!) {
+  mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
     updateUser(id: $id, input: $input) {
       ${USER_FIELDS}
     }
@@ -659,7 +659,7 @@ export const UPDATE_USER = gql`
 `
 
 export const SET_USER_ACTIVE = gql`
-  mutation SetUserActive($id: String!, $active: Boolean!) {
+  mutation SetUserActive($id: ID!, $active: Boolean!) {
     setUserActive(id: $id, active: $active) {
       ${USER_FIELDS}
     }

@@ -1,24 +1,28 @@
-import useSWR from 'swr'
+import { useQuery } from '@apollo/client'
 import type { Order } from '@repo/domain'
-import { getJson } from '../client/rest'
-import { MOCK_BRANCH_NAME } from '../mocks/branch'
-import { getBranchOrders } from '../mocks/orders'
-
-const KEY = '/api/orders'
+import { ADMIN_ORDERS, toOrder } from '../client/admin'
+import { useAuthStore } from '../stores/authStore'
 
 interface UseBranchOrdersReturn {
   orders: Order[]
   isLoading: boolean
 }
 
+interface OrdersResult {
+  orders: Record<string, unknown>[]
+}
+
 export const useBranchOrders = (): UseBranchOrdersReturn => {
-  const { data, isLoading } = useSWR<Order[]>(KEY, async (url: string) => {
-    const json = await getJson<Order[]>(url)
-    if (json && Array.isArray(json) && json.length > 0) {
-      return json
-    }
-    return getBranchOrders(MOCK_BRANCH_NAME)
+  const branchId = useAuthStore((state) => state.user?.branchId)
+
+  const { data, loading } = useQuery<OrdersResult>(ADMIN_ORDERS, {
+    variables: { filter: { branchId } },
+    skip: !branchId,
+    fetchPolicy: 'network-only',
   })
 
-  return { orders: data ?? [], isLoading }
+  return {
+    orders: (data?.orders ?? []).map(toOrder),
+    isLoading: loading,
+  }
 }
