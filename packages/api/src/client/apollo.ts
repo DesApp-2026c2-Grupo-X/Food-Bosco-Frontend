@@ -11,7 +11,8 @@ import { onError } from '@apollo/client/link/error'
 import { useAuthStore } from '../stores/authStore'
 import { REFRESH_TOKEN, type RefreshTokenResult } from './operations'
 
-const httpLink = new HttpLink({ uri: '/graphql' })
+const API_URL = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL
+const httpLink = new HttpLink({ uri: API_URL ? `${API_URL}/graphql` : '/graphql' })
 
 const authLink = setContext((_, { headers }) => {
   const token = useAuthStore.getState().accessToken
