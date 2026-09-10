@@ -96,6 +96,7 @@ export const toUser = (me: MeUser): User => ({
   lastName: me.lastName,
   phone: me.phone ?? '',
   active: me.active,
+  branchId: me.branchId ?? undefined,
   createdAt: new Date().toISOString(),
 })
 
