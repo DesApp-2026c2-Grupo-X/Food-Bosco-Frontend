@@ -1,0 +1,42 @@
+{
+  "name": "food-bosco",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run build --filter=\"./packages/*\" && turbo run dev --filter=\"./apps/*\"",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "check-types": "turbo run check-types",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky",
+    "store:android": "bash apps/store/android.sh --run",
+    "store:android:build": "bash apps/store/android.sh",
+    "store:ios": "bash apps/store/ios.sh --run",
+    "store:ios:build": "bash apps/store/ios.sh"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.7.4",
+    "turbo": "^2.10.11",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@11.4.1",
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs,json,md,css}": [
+      "prettier --write"
+    ]
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-darwin-arm64": "^1.2.4"
+  }
+}
