@@ -8,8 +8,9 @@ export const SelectField = ({
   placeholder,
   size = 'md',
   width = 'auto',
+  disabled,
 }: SelectFieldProps) => (
-  <NativeSelect.Root size={size} width={width}>
+  <NativeSelect.Root size={size} width={width} disabled={disabled}>
     <NativeSelect.Field value={value} onChange={(event) => onChange(event.currentTarget.value)}>
       {placeholder ? (
         <option value="" disabled>

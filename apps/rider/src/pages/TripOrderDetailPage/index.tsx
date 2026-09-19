@@ -1,35 +1,33 @@
-import { Box, HStack, Image, Spinner, VStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, HStack, VStack } from '@chakra-ui/react'
 import Check from '@gravity-ui/icons/Check'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  BackButton,
+  Card,
   EmptyState,
+  LegendDotRow,
+  LoadingState,
+  MapCard,
   Muted,
+  OrderDetailShell,
   OrderItemsCard,
-  OrderStatusBadge,
   OrderTotalCard,
-  PageContainer,
-  PageTitle,
   PrimaryButton,
   Strong,
+  useIsDesktop,
 } from '@repo/components'
-import { useActiveTrip, useOrder } from '@repo/api'
+import { buildStaticMapUrl, useActiveTrip, useOrder } from '@repo/api'
+import { MAP_MARKER_COLORS } from '@repo/theme'
 import { routes } from '../../routes'
-import { buildStaticMapUrl } from '../../utils/geoapify'
 
 export const TripOrderDetailPage = () => {
   const { orderId } = useParams()
   const navigate = useNavigate()
   const { trip, isLoading: tripLoading, isMutating, pickup, deliver } = useActiveTrip()
   const { order, isLoading: orderLoading } = useOrder(orderId)
-  const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
+  const isDesktop = useIsDesktop()
 
   if (tripLoading || orderLoading) {
-    return (
-      <Box paddingY="24" display="flex" justifyContent="center">
-        <Spinner size="lg" color="brand.600" />
-      </Box>
-    )
+    return <LoadingState />
   }
 
   if (!trip) {
@@ -72,58 +70,58 @@ export const TripOrderDetailPage = () => {
       {
         lat: tripOrder.pickupLocation.latitude,
         lon: tripOrder.pickupLocation.longitude,
-        color: '#1d4ed8',
+        color: MAP_MARKER_COLORS.branch,
         label: 'R',
       },
       {
         lat: tripOrder.deliveryAddress.latitude,
         lon: tripOrder.deliveryAddress.longitude,
-        color: '#15803d',
+        color: MAP_MARKER_COLORS.client,
         label: 'E',
       },
     ],
   })
 
   return (
-    <PageContainer>
-      <BackButton />
-
-      <VStack align="start" gap="1">
-        <HStack gap="3" flexWrap="wrap">
-          <PageTitle>Pedido #{order?.number ?? tripOrder.orderId}</PageTitle>
-          <OrderStatusBadge status={order?.status ?? tripOrder.status} />
-        </HStack>
-        <Muted>{order?.branch?.name}</Muted>
-      </VStack>
-
-      <Box
-        bg="bg.panel"
-        border="1px solid"
-        borderColor="border.subtle"
-        borderRadius="2xl"
-        overflow="hidden"
-      >
-        <Image src={mapUrl} alt="Mapa del pedido" width="100%" height="auto" bg="bg.muted" />
-        <Box padding="4">
+    <OrderDetailShell
+      orderNumber={order?.number ?? tripOrder.orderId}
+      status={order?.status ?? tripOrder.status}
+      description={order?.branch?.name}
+    >
+      <MapCard
+        src={mapUrl}
+        alt="Mapa del pedido"
+        height={isDesktop ? '280px' : '420px'}
+        legend={
           <VStack align="stretch" gap="2.5">
-            <StopRow color="info" label="Retiro" value={order?.branch?.addressText ?? 'Sucursal'} />
-            <StopRow color="success" label="Entrega" value={tripOrder.deliveryAddress.text} />
+            <LegendDotRow
+              color="info"
+              label={
+                <Box>
+                  <Strong fontSize="sm">Retiro</Strong>
+                  <Muted fontSize="sm">{order?.branch?.addressText ?? 'Sucursal'}</Muted>
+                </Box>
+              }
+            />
+            <LegendDotRow
+              color="success"
+              label={
+                <Box>
+                  <Strong fontSize="sm">Entrega</Strong>
+                  <Muted fontSize="sm">{tripOrder.deliveryAddress.text}</Muted>
+                </Box>
+              }
+            />
           </VStack>
-        </Box>
-      </Box>
+        }
+      />
 
       <OrderItemsCard items={order?.items ?? []} />
 
       <OrderTotalCard total={order?.total ?? 0} />
 
       {order?.client ? (
-        <Box
-          bg="bg.panel"
-          border="1px solid"
-          borderColor="border.subtle"
-          borderRadius="2xl"
-          padding="5"
-        >
+        <Card>
           <Muted fontSize="sm" marginBottom="2">
             Contacto del cliente
           </Muted>
@@ -131,7 +129,7 @@ export const TripOrderDetailPage = () => {
           <Muted fontSize="sm" marginTop="1">
             {order.client.phone} · {order.client.email}
           </Muted>
-        </Box>
+        </Card>
       ) : null}
 
       {delivered ? (
@@ -148,16 +146,6 @@ export const TripOrderDetailPage = () => {
           {pickedUp ? 'Entregar' : 'Retirar'}
         </PrimaryButton>
       )}
-    </PageContainer>
+    </OrderDetailShell>
   )
 }
-
-const StopRow = ({ color, label, value }: { color: string; label: string; value: string }) => (
-  <HStack gap="2.5" align="flex-start">
-    <Box width="10px" height="10px" borderRadius="full" bg={color} flexShrink={0} marginTop="1.5" />
-    <Box>
-      <Strong fontSize="sm">{label}</Strong>
-      <Muted fontSize="sm">{value}</Muted>
-    </Box>
-  </HStack>
-)

@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@apollo/client'
 import type { Category, Product } from '@repo/domain'
 import { CATEGORIES, PRODUCTS, toCategory, toProduct } from '../client/store'
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseCatalogReturn {
   categories: Category[]
@@ -36,6 +37,6 @@ export const useCatalog = (lat?: number | null, lng?: number | null): UseCatalog
   return {
     categories,
     products,
-    isLoading: categoriesLoading || productsLoading,
+    isLoading: combineLoading(categoriesLoading, productsLoading),
   }
 }

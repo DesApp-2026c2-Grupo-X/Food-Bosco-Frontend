@@ -2,12 +2,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import type { z } from 'zod'
-import { useAddresses } from '@repo/api'
+import { geocodeAddress, useAddresses } from '@repo/api'
 import { useAddressStore } from '../../../stores/addressStore'
-import { addressSchema } from '@repo/domain'
+import { addressSchema, toAddressInput } from '@repo/domain'
 import type { Address, AddressInput } from '@repo/domain'
-import { geocodeAddress } from '../../../utils/geoapify'
-import { toTitleCase } from '../../../utils/format'
 
 type AddressValues = z.infer<typeof addressSchema>
 
@@ -54,20 +52,19 @@ export const useAddressForm = () => {
   }
 
   const onSubmit = form.handleSubmit(async (values) => {
-    const coords = await geocodeAddress(`${values.text.trim()}, ${values.city.trim()}`)
+    const coords = await geocodeAddress(
+      [values.text.trim(), values.city?.trim()].filter(Boolean).join(', '),
+    )
     if (!coords) {
       setError('No pudimos ubicar esa dirección. Revisá los datos.')
       return
     }
 
-    const input: AddressInput = {
-      label: toTitleCase(values.label) || 'Dirección',
-      text: toTitleCase(values.text),
-      city: toTitleCase(values.city),
-      postalCode: values.postalCode.trim(),
+    const input: AddressInput = toAddressInput({
+      ...values,
       latitude: coords.lat,
       longitude: coords.lon,
-    }
+    })
 
     setSubmitting(true)
     setError(null)

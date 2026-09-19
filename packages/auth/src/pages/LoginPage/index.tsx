@@ -1,7 +1,6 @@
 import { HStack, Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
-import { FormField, FormPasswordField, PrimaryButton, TextLink } from '@repo/components'
-import { PageHeader } from '../../components/PageHeader'
+import { FormField, FormPasswordField, PageHeader, PrimaryButton, TextLink } from '@repo/components'
 import { authRoutes } from '../../routes'
 import { useLogin } from './hooks/useLogin'
 
@@ -28,7 +27,7 @@ export const LoginPage = () => {
               label="Contraseña"
               required
               autoComplete="current-password"
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Tu contraseña"
             />
             {error ? (
               <Text color="danger" fontSize="sm">

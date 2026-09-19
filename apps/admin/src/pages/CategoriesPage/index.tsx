@@ -1,37 +1,40 @@
-import { useMemo, useState } from 'react'
-import { HStack, VStack } from '@chakra-ui/react'
+import { useState } from 'react'
 import Tag from '@gravity-ui/icons/Tag'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
-  DataTable,
+  ActiveStatusText,
+  ConfirmDeleteModal,
+  CrudListPage,
   type DataTableColumn,
-  EmptyState,
-  FilterBar,
   GhostButton,
-  Muted,
-  PageTitle,
   PrimaryButton,
-  ResponsiveModal,
+  RowEditToggleActions,
   SearchInput,
   SelectField,
   Strong,
-  ToggleSwitch,
-  WidePageContainer,
+  useListFilters,
 } from '@repo/components'
 import { useAdminCategories } from '@repo/api'
-import type { Category, CategoryInput } from '@repo/domain'
+import {
+  ACTIVE_FILTER_OPTIONS_FEMININE,
+  matchesActiveStatus,
+  type Category,
+  type CategoryInput,
+} from '@repo/domain'
 import { CategoryFormModal } from '../../components/CategoryFormModal'
 import { categoryEditPath, routes } from '../../routes'
 
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Activas' },
-  { value: 'inactive', label: 'Inactivas' },
-]
+const searchKeys = [(category: Category) => category.name]
+
+const matchesStatus = (category: Category, status: string) =>
+  matchesActiveStatus(category.active, status)
 
 export const CategoriesPage = () => {
   const { categories, isLoading, isMutating, create, update, toggle, remove } = useAdminCategories()
-  const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('')
+  const { rows, search, setSearch, status, setStatus } = useListFilters(categories, {
+    searchKeys,
+    matchesStatus,
+  })
   const [confirmDelete, setConfirmDelete] = useState<Category | null>(null)
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -50,53 +53,39 @@ export const CategoriesPage = () => {
     closeForm()
   }
 
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
-    return categories.filter((category) => {
-      const matchesSearch = !query || category.name.toLowerCase().includes(query)
-      const matchesStatus = !status || (status === 'active' ? category.active : !category.active)
-      return matchesSearch && matchesStatus
-    })
-  }, [categories, search, status])
-
   const columns: DataTableColumn<Category>[] = [
     { key: 'name', header: 'Nombre', render: (category) => <Strong>{category.name}</Strong> },
     {
       key: 'status',
       header: 'Estado',
-      render: (category) => <Muted fontSize="sm">{category.active ? 'Activa' : 'Inactiva'}</Muted>,
+      render: (category) => <ActiveStatusText active={category.active} feminine />,
     },
     {
       key: 'actions',
       header: 'Acciones',
       render: (category) => (
-        <HStack gap="2" justify="end">
-          <GhostButton size="sm" onClick={() => navigate(categoryEditPath(category.id))}>
-            Editar
-          </GhostButton>
-          <GhostButton size="sm" color="danger" onClick={() => setConfirmDelete(category)}>
-            Eliminar
-          </GhostButton>
-          <ToggleSwitch
-            checked={category.active}
-            onChange={(checked) => toggle(category.id, checked)}
-            disabled={isMutating}
-            ariaLabel={`Estado de ${category.name}`}
-          />
-        </HStack>
+        <RowEditToggleActions
+          onEdit={() => navigate(categoryEditPath(category.id))}
+          checked={category.active}
+          onToggle={(checked) => toggle(category.id, checked)}
+          disabled={isMutating}
+          ariaLabel={`Estado de ${category.name}`}
+          extra={
+            <GhostButton size="sm" color="danger" onClick={() => setConfirmDelete(category)}>
+              Eliminar
+            </GhostButton>
+          }
+        />
       ),
     },
   ]
 
   return (
-    <WidePageContainer>
-      <VStack align="start" gap="1">
-        <PageTitle>Categorías</PageTitle>
-        <Muted>Definí las categorías del catálogo.</Muted>
-      </VStack>
-
-      <HStack justify="space-between" align="center" width="full" wrap="wrap" gap="3">
-        <FilterBar width="auto" flexGrow="1">
+    <CrudListPage
+      title="Categorías"
+      description="Definí las categorías del catálogo."
+      toolbar={
+        <>
           <SearchInput
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -105,63 +94,48 @@ export const CategoriesPage = () => {
           <SelectField
             value={status}
             onChange={setStatus}
-            options={STATUS_OPTIONS}
+            options={ACTIVE_FILTER_OPTIONS_FEMININE}
             placeholder="Estado: Todas"
-            width="180px"
+            width="filterControlSm"
           />
-        </FilterBar>
+        </>
+      }
+      action={
         <PrimaryButton size="md" onClick={() => navigate(routes.categoryNew)}>
           Nueva categoría
         </PrimaryButton>
-      </HStack>
+      }
+      isLoading={isLoading}
+      rows={rows}
+      columns={columns}
+      getRowKey={(category) => category.id}
+      emptyIcon={<Tag width={40} height={40} />}
+      emptyTitle="Sin categorías"
+      emptyDescription="No hay categorías que coincidan con los filtros."
+      modals={
+        <>
+          {formOpen ? (
+            <CategoryFormModal
+              category={isNew ? null : editing}
+              isSubmitting={isMutating}
+              onClose={closeForm}
+              onSubmit={handleSubmit}
+            />
+          ) : null}
 
-      {!isLoading && filtered.length === 0 ? (
-        <EmptyState
-          icon={<Tag width={40} height={40} />}
-          title="Sin categorías"
-          description="No hay categorías que coincidan con los filtros."
-        />
-      ) : (
-        <DataTable
-          columns={columns}
-          rows={filtered}
-          getRowKey={(category) => category.id}
-          isLoading={isLoading}
-          emptyTitle="Sin categorías"
-          emptyDescription="No hay categorías para mostrar."
-        />
-      )}
-
-      {formOpen ? (
-        <CategoryFormModal
-          category={isNew ? null : editing}
-          isSubmitting={isMutating}
-          onClose={closeForm}
-          onSubmit={handleSubmit}
-        />
-      ) : null}
-
-      <ResponsiveModal open={confirmDelete !== null} onClose={() => setConfirmDelete(null)}>
-        <VStack align="stretch" gap="4">
-          <Strong fontSize="lg">Eliminar categoría</Strong>
-          <Muted>
-            ¿Eliminar la categoría {confirmDelete?.name}? Esta acción no se puede deshacer.
-          </Muted>
-          <HStack justify="end" gap="2">
-            <GhostButton onClick={() => setConfirmDelete(null)}>Cancelar</GhostButton>
-            <PrimaryButton
-              size="md"
-              loading={isMutating}
-              onClick={async () => {
-                if (confirmDelete) await remove(confirmDelete.id)
-                setConfirmDelete(null)
-              }}
-            >
-              Eliminar
-            </PrimaryButton>
-          </HStack>
-        </VStack>
-      </ResponsiveModal>
-    </WidePageContainer>
+          <ConfirmDeleteModal
+            open={confirmDelete !== null}
+            title="Eliminar categoría"
+            description={`¿Eliminar la categoría ${confirmDelete?.name}? Esta acción no se puede deshacer.`}
+            isSubmitting={isMutating}
+            onClose={() => setConfirmDelete(null)}
+            onConfirm={async () => {
+              if (confirmDelete) await remove(confirmDelete.id)
+              setConfirmDelete(null)
+            }}
+          />
+        </>
+      }
+    />
   )
 }

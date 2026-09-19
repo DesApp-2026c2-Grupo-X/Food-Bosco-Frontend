@@ -8,6 +8,7 @@ import {
   toOutOfStockRow,
   toProductReportRow,
 } from '../client/admin'
+import { combineLoading } from '../utils/combineLoading'
 
 interface ProductReports {
   bestSellers: ProductReportRow[]
@@ -39,6 +40,6 @@ export const useProductReports = (): UseProductReportsReturn => {
     leastSold: (leastData?.leastSoldProducts ?? []).map(toProductReportRow),
     outOfStock: (outData?.outOfStockProducts ?? []).map(toOutOfStockRow),
     highestRevenue: (revenueData?.highestRevenueProducts ?? []).map(toProductReportRow),
-    isLoading: bestLoading || leastLoading || outLoading || revenueLoading,
+    isLoading: combineLoading(bestLoading, leastLoading, outLoading, revenueLoading),
   }
 }

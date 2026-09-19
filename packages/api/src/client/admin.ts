@@ -1,60 +1,35 @@
 import { gql } from '@apollo/client'
 import type {
   BranchStock,
-  Ingredient,
-  OrderState,
   OutOfStockRow,
   Parameter,
   ProductReportRow,
-  Promotion,
   StaffMember,
-  UserRole,
 } from '@repo/domain'
 import { toBranch, toCategory, toOrder, toProduct } from './store'
-
-type Raw = Record<string, unknown>
-
-const asString = (value: unknown, fallback = ''): string =>
-  value == null ? fallback : String(value)
-
-const asNumber = (value: unknown): number => (value == null ? 0 : Number(value))
-
-const asBoolean = (value: unknown): boolean => Boolean(value)
-
-const ROLE_FROM_API: Record<string, UserRole> = {
-  CUSTOMER: 'customer',
-  BRANCH_ADMIN: 'branch_admin',
-  SUPER_ADMIN: 'super_admin',
-  RIDER: 'rider',
-}
-
-export const toIngredient = (raw: Raw): Ingredient => ({
-  id: asString(raw.id),
-  name: asString(raw.name),
-  unit: asString(raw.unit),
-  active: asBoolean(raw.active),
-})
-
-export const toPromotion = (raw: Raw): Promotion => ({
-  id: asString(raw.id),
-  name: asString(raw.name),
-  description: raw.description == null ? null : String(raw.description),
-  startDate: asString(raw.startDate),
-  endDate: asString(raw.endDate),
-  active: asBoolean(raw.active),
-})
+import { ROLE_FROM_API, asBoolean, asNumber, asString, toIngredient } from './mappers'
+import type { Raw } from './mappers'
+import {
+  BRANCH_FIELDS,
+  BRANCH_HOURS_FIELDS,
+  BRANCH_STOCK_FIELDS,
+  CATEGORY_FIELDS,
+  CONFIG_GROUP_FIELDS,
+  CONFIG_OPTION_FIELDS,
+  INGREDIENT_FIELDS,
+  ORDER_FIELDS,
+  OUT_OF_STOCK_ROW_FIELDS,
+  PARAMETER_FIELDS,
+  PRODUCT_DETAIL_FIELDS,
+  PRODUCT_LIST_FIELDS,
+  PRODUCT_REPORT_ROW_FIELDS,
+  USER_FIELDS,
+} from './fragments'
 
 export const toParameter = (raw: Raw): Parameter => ({
   key: asString(raw.key),
   value: asNumber(raw.value),
   unit: asString(raw.unit),
-})
-
-export const toOrderState = (raw: Raw): OrderState => ({
-  code: asString(raw.code),
-  name: asString(raw.name),
-  order: asNumber(raw.order),
-  active: asBoolean(raw.active),
 })
 
 export const toStaffMember = (raw: Raw): StaffMember => ({
@@ -104,206 +79,6 @@ export const toOutOfStockRow = (raw: Raw): OutOfStockRow => ({
 export const toConfigGroupType = (type: 'single' | 'multiple'): 'SINGLE' | 'MULTIPLE' =>
   type === 'multiple' ? 'MULTIPLE' : 'SINGLE'
 
-// ===== Field fragments =====
-
-const CATEGORY_FIELDS = `
-  id
-  name
-  active
-`
-
-const CONFIG_OPTION_FIELDS = `
-  id
-  name
-  extraPrice
-  available
-`
-
-const CONFIG_GROUP_FIELDS = `
-  id
-  name
-  type
-  required
-  min
-  max
-  options {
-    ${CONFIG_OPTION_FIELDS}
-  }
-`
-
-const RECIPE_ITEM_FIELDS = `
-  id
-  ingredientId
-  quantity
-`
-
-const PRODUCT_DETAIL_FIELDS = `
-  id
-  categoryId
-  name
-  description
-  price
-  image
-  available
-  configGroups {
-    ${CONFIG_GROUP_FIELDS}
-  }
-  recipe {
-    ${RECIPE_ITEM_FIELDS}
-  }
-`
-
-const PRODUCT_LIST_FIELDS = `
-  id
-  categoryId
-  name
-  description
-  price
-  image
-  available
-  category {
-    ${CATEGORY_FIELDS}
-  }
-`
-
-const INGREDIENT_FIELDS = `
-  id
-  name
-  unit
-  active
-`
-
-const PROMOTION_FIELDS = `
-  id
-  name
-  description
-  startDate
-  endDate
-  active
-`
-
-const BRANCH_HOURS_FIELDS = `
-  dayOfWeek
-  opening
-  closing
-  closed
-`
-
-const BRANCH_FIELDS = `
-  id
-  name
-  addressText
-  latitude
-  longitude
-  phone
-  active
-  hours {
-    ${BRANCH_HOURS_FIELDS}
-  }
-`
-
-const USER_FIELDS = `
-  id
-  email
-  firstName
-  lastName
-  phone
-  role
-  active
-  branchId
-`
-
-const ORDER_ITEM_FIELDS = `
-  productId
-  name
-  unitPrice
-  quantity
-  observations
-  subtotal
-  options {
-    optionId
-    name
-    extraPrice
-  }
-`
-
-const ORDER_FIELDS = `
-  id
-  number
-  clientId
-  branchId
-  branch {
-    ${BRANCH_FIELDS}
-  }
-  client {
-    ${USER_FIELDS}
-  }
-  deliveryAddress {
-    text
-    latitude
-    longitude
-  }
-  status
-  total
-  estimatedDeliveryAt
-  createdAt
-  items {
-    ${ORDER_ITEM_FIELDS}
-  }
-  statusHistory {
-    previousStatus
-    newStatus
-    changedAt
-  }
-  availableTransitions
-`
-
-const PARAMETER_FIELDS = `
-  key
-  value
-  unit
-`
-
-const ORDER_STATE_FIELDS = `
-  code
-  name
-  order
-  active
-`
-
-const BRANCH_STOCK_FIELDS = `
-  ingredientId
-  ingredient {
-    ${INGREDIENT_FIELDS}
-  }
-  branchId
-  quantity
-`
-
-const PRODUCT_REPORT_ROW_FIELDS = `
-  position
-  product {
-    id
-    name
-  }
-  category {
-    ${CATEGORY_FIELDS}
-  }
-  quantity
-  revenue
-`
-
-const OUT_OF_STOCK_ROW_FIELDS = `
-  product {
-    id
-    name
-  }
-  category {
-    ${CATEGORY_FIELDS}
-  }
-  quantity
-`
-
 // ===== Queries =====
 
 export const ADMIN_CATEGORIES = gql`
@@ -338,14 +113,6 @@ export const ADMIN_INGREDIENTS = gql`
   }
 `
 
-export const ADMIN_PROMOTIONS = gql`
-  query AdminPromotions {
-    promotions {
-      ${PROMOTION_FIELDS}
-    }
-  }
-`
-
 export const ADMIN_BRANCHES = gql`
   query AdminBranches {
     branches {
@@ -368,14 +135,6 @@ export const ADMIN_PARAMETERS = gql`
   query AdminParameters {
     parameters {
       ${PARAMETER_FIELDS}
-    }
-  }
-`
-
-export const ADMIN_ORDER_STATES = gql`
-  query AdminOrderStates {
-    orderStates {
-      ${ORDER_STATE_FIELDS}
     }
   }
 `
@@ -578,30 +337,6 @@ export const SET_INGREDIENT_ACTIVE = gql`
   }
 `
 
-export const CREATE_PROMOTION = gql`
-  mutation CreatePromotion($input: PromotionInput!) {
-    createPromotion(input: $input) {
-      ${PROMOTION_FIELDS}
-    }
-  }
-`
-
-export const UPDATE_PROMOTION = gql`
-  mutation UpdatePromotion($id: ID!, $input: PromotionInput!) {
-    updatePromotion(id: $id, input: $input) {
-      ${PROMOTION_FIELDS}
-    }
-  }
-`
-
-export const SET_PROMOTION_ACTIVE = gql`
-  mutation SetPromotionActive($id: ID!, $active: Boolean!) {
-    setPromotionActive(id: $id, active: $active) {
-      ${PROMOTION_FIELDS}
-    }
-  }
-`
-
 export const CREATE_BRANCH = gql`
   mutation CreateBranch($input: BranchInput!) {
     createBranch(input: $input) {
@@ -674,30 +409,6 @@ export const UPDATE_PARAMETER = gql`
   }
 `
 
-export const CREATE_ORDER_STATE = gql`
-  mutation CreateOrderState($input: OrderStateInput!) {
-    createOrderState(input: $input) {
-      ${ORDER_STATE_FIELDS}
-    }
-  }
-`
-
-export const UPDATE_ORDER_STATE = gql`
-  mutation UpdateOrderState($code: String!, $input: OrderStateInput!) {
-    updateOrderState(code: $code, input: $input) {
-      ${ORDER_STATE_FIELDS}
-    }
-  }
-`
-
-export const SET_ORDER_STATE_ACTIVE = gql`
-  mutation SetOrderStateActive($code: String!, $active: Boolean!) {
-    setOrderStateActive(code: $code, active: $active) {
-      ${ORDER_STATE_FIELDS}
-    }
-  }
-`
-
 export const CHANGE_ORDER_STATUS = gql`
   mutation ChangeOrderStatus($orderId: ID!, $status: OrderStatus!) {
     changeOrderStatus(orderId: $orderId, status: $status) {
@@ -717,4 +428,4 @@ export const ADJUST_STOCK = gql`
 export type { Raw }
 
 // Re-export mappers from the shared store layer for admin consumers.
-export { toBranch, toCategory, toOrder, toProduct }
+export { toBranch, toCategory, toIngredient, toOrder, toProduct }

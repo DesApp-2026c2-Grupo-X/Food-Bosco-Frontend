@@ -1,5 +1,6 @@
-import { Field } from '@chakra-ui/react'
 import { PasswordInput } from '../PasswordInput'
+import { FieldShell } from '../FieldShell'
+import { fieldInputProps } from '../FieldShell/fieldInputProps'
 import type { PasswordFieldProps } from './types'
 
 export const PasswordField = ({
@@ -9,9 +10,7 @@ export const PasswordField = ({
   errorText,
   ...props
 }: PasswordFieldProps) => (
-  <Field.Root required={required} invalid={invalid}>
-    <Field.Label>{label}</Field.Label>
-    <PasswordInput size="lg" borderRadius="xl" bg="bg.panel" {...props} />
-    {errorText ? <Field.ErrorText>{errorText}</Field.ErrorText> : null}
-  </Field.Root>
+  <FieldShell label={label} required={required} invalid={invalid} errorText={errorText}>
+    <PasswordInput {...fieldInputProps} {...props} />
+  </FieldShell>
 )

@@ -1,5 +1,3 @@
-import { useCallback, useMemo } from 'react'
-import { useMutation, useQuery } from '@apollo/client'
 import type { Address, AddressInput } from '@repo/domain'
 import {
   CREATE_ADDRESS,
@@ -7,11 +5,9 @@ import {
   MY_ADDRESSES,
   UPDATE_ADDRESS,
   toAddress,
-  type CreateAddressResult,
-  type DeleteAddressResult,
-  type MyAddressesResult,
-  type UpdateAddressResult,
+  type ApiAddress,
 } from '../client/operations'
+import { createCrudResource } from './createCrudResource'
 
 interface UseAddressesReturn {
   addresses: Address[]
@@ -21,47 +17,30 @@ interface UseAddressesReturn {
   remove: (id: string) => Promise<void>
 }
 
-export const useAddresses = (): UseAddressesReturn => {
-  const { data, loading, refetch } = useQuery<MyAddressesResult>(MY_ADDRESSES, {
+const useAddressesResource = createCrudResource({
+  query: {
+    document: MY_ADDRESSES,
+    resultKey: 'myAddresses',
+    as: 'addresses',
+    map: toAddress,
     fetchPolicy: 'cache-and-network',
-  })
+  },
+  create: {
+    document: CREATE_ADDRESS,
+    variables: (input: AddressInput) => ({ input }),
+    select: (data) => (data?.createAddress ? toAddress(data.createAddress as ApiAddress) : null),
+  },
+  update: {
+    document: UPDATE_ADDRESS,
+    variables: (id: string, input: AddressInput) => ({ id, input }),
+  },
+  remove: {
+    document: DELETE_ADDRESS,
+    variables: (id: string) => ({ id }),
+  },
+})
 
-  const addresses = useMemo(() => (data?.myAddresses ?? []).map(toAddress), [data])
-
-  const [createMutation] = useMutation<CreateAddressResult>(CREATE_ADDRESS)
-  const [updateMutation] = useMutation<UpdateAddressResult>(UPDATE_ADDRESS)
-  const [deleteMutation] = useMutation<DeleteAddressResult>(DELETE_ADDRESS)
-
-  const create = useCallback(
-    async (input: AddressInput): Promise<Address | null> => {
-      const { data } = await createMutation({ variables: { input } })
-      await refetch()
-      return data?.createAddress ? toAddress(data.createAddress) : null
-    },
-    [createMutation, refetch],
-  )
-
-  const update = useCallback(
-    async (id: string, input: AddressInput) => {
-      await updateMutation({ variables: { id, input } })
-      await refetch()
-    },
-    [updateMutation, refetch],
-  )
-
-  const remove = useCallback(
-    async (id: string) => {
-      await deleteMutation({ variables: { id } })
-      await refetch()
-    },
-    [deleteMutation, refetch],
-  )
-
-  return {
-    addresses,
-    isLoading: loading,
-    create,
-    update,
-    remove,
-  }
+export const useAddresses = (): UseAddressesReturn => {
+  const { addresses, isLoading, create, update, remove } = useAddressesResource()
+  return { addresses, isLoading, create, update, remove }
 }

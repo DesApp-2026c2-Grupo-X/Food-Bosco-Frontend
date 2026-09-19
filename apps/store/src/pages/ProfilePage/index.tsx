@@ -1,19 +1,34 @@
-import { Avatar, Box, Text } from '@chakra-ui/react'
-import Moon from '@gravity-ui/icons/Moon'
+import { Avatar, Box } from '@chakra-ui/react'
+import GeoPin from '@gravity-ui/icons/GeoPin'
+import House from '@gravity-ui/icons/House'
+import PencilToSquare from '@gravity-ui/icons/PencilToSquare'
 import { useNavigate } from 'react-router-dom'
-import {
-  ColorModeButton,
-  Muted,
-  OutlineButton,
-  PageContainer,
-  PageTitle,
-  Strong,
-  Subtle,
-} from '@repo/components'
+import { Muted, ProfileScreen, Strong, Subtle } from '@repo/components'
+import { routes } from '../../routes'
 import { authRoutes } from '@repo/auth'
 import { useAuthStore } from '@repo/api'
 import { useProfile } from '@repo/api'
-import { ProfileNav } from './ProfileNav'
+
+const accountItems = [
+  {
+    id: 'edit',
+    label: 'Editar perfil',
+    path: routes.profileEdit,
+    icon: <PencilToSquare width={18} height={18} />,
+  },
+  {
+    id: 'addresses',
+    label: 'Mis direcciones',
+    path: routes.profileAddresses,
+    icon: <GeoPin width={18} height={18} />,
+  },
+  {
+    id: 'branches',
+    label: 'Sucursales',
+    path: routes.branches,
+    icon: <House width={18} height={18} />,
+  },
+]
 
 export const ProfilePage = () => {
   const { user } = useProfile()
@@ -27,63 +42,27 @@ export const ProfilePage = () => {
   }
 
   return (
-    <PageContainer>
-      <Box>
-        <PageTitle marginBottom="1">Mi perfil</PageTitle>
-        <Muted>Tus datos y accesos de cuenta.</Muted>
-      </Box>
-
-      <Box
-        bg="bg.subtle"
-        border="1px solid"
-        borderColor="border.subtle"
-        borderRadius="2xl"
-        padding="5"
-        display="flex"
-        alignItems="center"
-        gap="4"
-      >
-        <Avatar.Root size="xl">
-          <Avatar.Fallback name={fullName} />
-        </Avatar.Root>
-        <Box minWidth="0">
-          <Strong fontSize="lg">{fullName || 'Sin nombre'}</Strong>
-          <Muted fontSize="sm" truncate>
-            {user?.email}
-          </Muted>
-          <Subtle fontSize="sm">{user?.phone}</Subtle>
-        </Box>
-      </Box>
-
-      <Box
-        bg="bg.panel"
-        border="1px solid"
-        borderColor="border.subtle"
-        borderRadius="2xl"
-        padding="3.5"
-        display={{ base: 'flex', md: 'none' }}
-        alignItems="center"
-        justifyContent="space-between"
-      >
-        <Box display="flex" alignItems="center" gap="3">
-          <Box color="brand.600" bg="bg.muted" borderRadius="full" padding="2" display="flex">
-            <Moon width={18} height={18} />
+    <ProfileScreen
+      title="Mi perfil"
+      description="Tus datos y accesos de cuenta."
+      appearance
+      navItems={accountItems}
+      navFallbackIcon={<House width={18} height={18} />}
+      onLogout={handleLogout}
+      identity={
+        <>
+          <Avatar.Root size="xl">
+            <Avatar.Fallback name={fullName} />
+          </Avatar.Root>
+          <Box minWidth="0">
+            <Strong fontSize="lg">{fullName || 'Sin nombre'}</Strong>
+            <Muted fontSize="sm" truncate>
+              {user?.email}
+            </Muted>
+            <Subtle fontSize="sm">{user?.phone}</Subtle>
           </Box>
-          <Text fontWeight="medium">Apariencia</Text>
-        </Box>
-        <ColorModeButton />
-      </Box>
-
-      <ProfileNav />
-
-      <OutlineButton
-        width="full"
-        color="danger"
-        _hover={{ borderColor: 'danger', bg: 'bg.muted' }}
-        onClick={handleLogout}
-      >
-        Cerrar sesión
-      </OutlineButton>
-    </PageContainer>
+        </>
+      }
+    />
   )
 }

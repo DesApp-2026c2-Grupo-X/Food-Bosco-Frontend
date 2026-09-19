@@ -8,6 +8,7 @@ import {
   TRIP_OFFERS,
   toTripOffer,
 } from '../client/rider'
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseTripOffersReturn {
   offer: TripOffer | null
@@ -55,7 +56,7 @@ export const useTripOffers = (enabled = true): UseTripOffersReturn => {
   return {
     offer,
     isLoading: loading,
-    isMutating: accepting || rejecting,
+    isMutating: combineLoading(accepting, rejecting),
     accept,
     reject,
   }

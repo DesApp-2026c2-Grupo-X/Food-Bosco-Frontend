@@ -1,4 +1,6 @@
-import { Field, Input } from '@chakra-ui/react'
+import { Input } from '@chakra-ui/react'
+import { FieldShell } from '../FieldShell'
+import { fieldInputProps } from '../FieldShell/fieldInputProps'
 import type { TextFieldProps } from './types'
 
 export const TextField = ({
@@ -8,9 +10,7 @@ export const TextField = ({
   errorText,
   ...inputProps
 }: TextFieldProps) => (
-  <Field.Root required={required} invalid={invalid}>
-    <Field.Label>{label}</Field.Label>
-    <Input size="lg" borderRadius="xl" bg="bg.panel" {...inputProps} />
-    {errorText ? <Field.ErrorText>{errorText}</Field.ErrorText> : null}
-  </Field.Root>
+  <FieldShell label={label} required={required} invalid={invalid} errorText={errorText}>
+    <Input {...fieldInputProps} {...inputProps} />
+  </FieldShell>
 )

@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@repo/api": "*",
-    "@repo/domain": "*"
+    "@repo/domain": "*",
+    "@repo/theme": "*"
   },
   "peerDependencies": {
     "@chakra-ui/react": "^3.36.1",

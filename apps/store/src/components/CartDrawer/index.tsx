@@ -1,11 +1,11 @@
-import { Box, HStack, Spinner, VStack } from '@chakra-ui/react'
+import { HStack, VStack } from '@chakra-ui/react'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
 import { Link } from 'react-router-dom'
 import { routes } from '../../routes'
 import { useCart } from '@repo/api'
 import { cartTotal, formatPrice } from '@repo/domain'
 import { CartLineCard } from '../CartLineCard'
-import { EmptyState, Muted, Price, PrimaryButton, SidePanel } from '@repo/components'
+import { EmptyState, LoadingState, Muted, Price, PrimaryButton, SidePanel } from '@repo/components'
 import type { CartDrawerProps } from './types'
 
 export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
@@ -14,9 +14,7 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
   const isEmpty = !isLoading && lines.length === 0
 
   const body = isLoading ? (
-    <Box paddingY="16" display="flex" justifyContent="center">
-      <Spinner size="lg" color="brand.600" />
-    </Box>
+    <LoadingState paddingY="16" />
   ) : isEmpty ? (
     <EmptyState
       icon={<ShoppingCart width={40} height={40} />}

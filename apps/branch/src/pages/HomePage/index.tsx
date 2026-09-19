@@ -1,4 +1,4 @@
-import { Box, HStack, SimpleGrid, Text, VStack, Link as ChakraLink } from '@chakra-ui/react'
+import { HStack, Text, VStack } from '@chakra-ui/react'
 import Tag from '@gravity-ui/icons/Tag'
 import Receipt from '@gravity-ui/icons/Receipt'
 import BoxIcon from '@gravity-ui/icons/Box'
@@ -6,18 +6,24 @@ import ChartColumn from '@gravity-ui/icons/ChartColumn'
 import ListUl from '@gravity-ui/icons/ListUl'
 import { Link } from 'react-router-dom'
 import {
+  Card,
   EmptyState,
   Muted,
   OrderStatusBadge,
-  PageTitle,
+  PageHeader,
   PrimaryButton,
+  QuickAccessGrid,
   Strong,
   WidePageContainer,
 } from '@repo/components'
 import { useBranchOrders } from '@repo/api'
-import { formatElapsed, getElapsedMinutes, getStatusSince } from '@repo/domain'
+import {
+  formatElapsed,
+  getElapsedMinutes,
+  getStatusSince,
+  groupAttentionOrders,
+} from '@repo/domain'
 import { orderDetailPath, routes } from '../../routes'
-import { groupAttentionOrders } from './utils/attention'
 
 const QUICK_ACCESS = [
   {
@@ -59,37 +65,9 @@ export const HomePage = () => {
 
   return (
     <WidePageContainer>
-      <VStack align="start" gap="1">
-        <PageTitle>Inicio</PageTitle>
-        <Muted>Gestioná la operación de tu sucursal.</Muted>
-      </VStack>
+      <PageHeader title="Inicio" description="Gestioná la operación de tu sucursal." />
 
-      <SimpleGrid columns={{ base: 2, md: 4 }} gap="4">
-        {QUICK_ACCESS.map((item) => {
-          const Icon = item.icon
-          return (
-            <ChakraLink
-              asChild
-              key={item.id}
-              display="block"
-              bg="bg.panel"
-              border="1px solid"
-              borderColor="border.subtle"
-              borderRadius="2xl"
-              padding="5"
-              _hover={{ borderColor: 'border.emphasized' }}
-            >
-              <Link to={item.path}>
-                <Box color="brand.600" marginBottom="3">
-                  <Icon width={26} height={26} />
-                </Box>
-                <Strong>{item.label}</Strong>
-                <Muted fontSize="sm">{item.description}</Muted>
-              </Link>
-            </ChakraLink>
-          )
-        })}
-      </SimpleGrid>
+      <QuickAccessGrid items={QUICK_ACCESS} />
 
       <VStack align="start" gap="4" width="full">
         <Strong fontSize="xl">Pedidos que requieren atención</Strong>
@@ -112,14 +90,12 @@ export const HomePage = () => {
                 {group.orders.map((order) => {
                   const minutes = getElapsedMinutes(getStatusSince(order))
                   return (
-                    <HStack
+                    <Card
                       key={order.id}
-                      justify="space-between"
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
                       gap="4"
-                      bg="bg.panel"
-                      border="1px solid"
-                      borderColor="border.subtle"
-                      borderRadius="2xl"
                       padding="4"
                     >
                       <VStack align="start" gap="1">
@@ -136,7 +112,7 @@ export const HomePage = () => {
                       <PrimaryButton asChild size="md">
                         <Link to={orderDetailPath(order.id)}>Ver</Link>
                       </PrimaryButton>
-                    </HStack>
+                    </Card>
                   )
                 })}
               </VStack>

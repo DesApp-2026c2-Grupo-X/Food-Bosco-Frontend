@@ -1,20 +1,31 @@
-import { Box, Button, HStack, VStack } from '@chakra-ui/react'
+import { Box, Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
 import {
   FormField,
   FormPasswordField,
   Muted,
+  PageHeader,
   PrimaryButton,
   Strong,
   TextLink,
 } from '@repo/components'
-import { PageHeader } from '../../components/PageHeader'
+import { SegmentedChoice } from '../../components/SegmentedChoice'
+import type { RegisterRole } from '../../authConfigContext'
 import { authRoutes } from '../../routes'
 import { useRegister } from './hooks/useRegister'
 
+const VEHICLE_OPTIONS = [
+  { value: 'moto', label: 'Moto' },
+  { value: 'bici', label: 'Bici' },
+]
+
 export const RegisterPage = () => {
-  const { form, role, vehicleType, submitting, onSubmit, registerRoles } = useRegister()
+  const { form, role, vehicleType, submitting, error, onSubmit, registerRoles } = useRegister()
   const showRoleSwitch = registerRoles.length > 1
+  const roleOptions = registerRoles.map((registerRole) => ({
+    value: registerRole,
+    label: registerRole === 'customer' ? 'Cliente' : 'Repartidor',
+  }))
 
   return (
     <VStack gap="8" align="stretch">
@@ -24,36 +35,11 @@ export const RegisterPage = () => {
         <FormProvider {...form}>
           <VStack gap="4" align="stretch">
             {showRoleSwitch ? (
-              <HStack gap="2">
-                {registerRoles.includes('customer') ? (
-                  <Button
-                    type="button"
-                    flex="1"
-                    variant={role === 'customer' ? 'solid' : 'outline'}
-                    bg={role === 'customer' ? 'brand.500' : 'transparent'}
-                    color={role === 'customer' ? 'white' : 'fg.muted'}
-                    borderColor="border.emphasized"
-                    borderRadius="full"
-                    onClick={() => form.setValue('role', 'customer')}
-                  >
-                    Cliente
-                  </Button>
-                ) : null}
-                {registerRoles.includes('rider') ? (
-                  <Button
-                    type="button"
-                    flex="1"
-                    variant={role === 'rider' ? 'solid' : 'outline'}
-                    bg={role === 'rider' ? 'brand.500' : 'transparent'}
-                    color={role === 'rider' ? 'white' : 'fg.muted'}
-                    borderColor="border.emphasized"
-                    borderRadius="full"
-                    onClick={() => form.setValue('role', 'rider')}
-                  >
-                    Repartidor
-                  </Button>
-                ) : null}
-              </HStack>
+              <SegmentedChoice
+                value={role}
+                onChange={(value) => form.setValue('role', value as RegisterRole)}
+                options={roleOptions}
+              />
             ) : null}
 
             <FormField
@@ -88,32 +74,11 @@ export const RegisterPage = () => {
             />
             {role === 'rider' ? (
               <>
-                <HStack gap="2">
-                  <Button
-                    type="button"
-                    flex="1"
-                    variant={vehicleType === 'moto' ? 'solid' : 'outline'}
-                    bg={vehicleType === 'moto' ? 'brand.500' : 'transparent'}
-                    color={vehicleType === 'moto' ? 'white' : 'fg.muted'}
-                    borderColor="border.emphasized"
-                    borderRadius="full"
-                    onClick={() => form.setValue('vehicleType', 'moto')}
-                  >
-                    Moto
-                  </Button>
-                  <Button
-                    type="button"
-                    flex="1"
-                    variant={vehicleType === 'bici' ? 'solid' : 'outline'}
-                    bg={vehicleType === 'bici' ? 'brand.500' : 'transparent'}
-                    color={vehicleType === 'bici' ? 'white' : 'fg.muted'}
-                    borderColor="border.emphasized"
-                    borderRadius="full"
-                    onClick={() => form.setValue('vehicleType', 'bici')}
-                  >
-                    Bici
-                  </Button>
-                </HStack>
+                <SegmentedChoice
+                  value={vehicleType}
+                  onChange={(value) => form.setValue('vehicleType', value as 'moto' | 'bici')}
+                  options={VEHICLE_OPTIONS}
+                />
                 {vehicleType === 'moto' ? (
                   <>
                     <FormField name="brand" label="Marca" required placeholder="Honda" />
@@ -141,7 +106,7 @@ export const RegisterPage = () => {
               label="Contraseña"
               required
               autoComplete="new-password"
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Mínimo 8 caracteres"
             />
             <FormPasswordField
               name="confirm"
@@ -150,6 +115,11 @@ export const RegisterPage = () => {
               autoComplete="new-password"
               placeholder="Repetí tu contraseña"
             />
+            {error ? (
+              <Text color="danger" fontSize="sm">
+                {error}
+              </Text>
+            ) : null}
             <PrimaryButton
               type="submit"
               disabled={!form.formState.isValid || submitting}

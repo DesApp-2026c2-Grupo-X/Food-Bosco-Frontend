@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import type { Trip } from '@repo/domain'
 import { MARK_ORDER_DELIVERED, MARK_ORDER_PICKUP, MY_TRIPS, toTrip } from '../client/rider'
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseActiveTripReturn {
   trip: Trip | null
@@ -51,7 +52,7 @@ export const useActiveTrip = (): UseActiveTripReturn => {
   return {
     trip,
     isLoading: loading,
-    isMutating: pickingUp || delivering,
+    isMutating: combineLoading(pickingUp, delivering),
     pickup,
     deliver,
   }

@@ -21,3 +21,5 @@ export interface StaffInput {
   role: 'branch_admin' | 'super_admin'
   branchId?: string
 }
+
+export type StaffUpdateInput = Omit<StaffInput, 'password' | 'email' | 'role'>

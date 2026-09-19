@@ -6,11 +6,8 @@ import ListUl from '@gravity-ui/icons/ListUl'
 import Person from '@gravity-ui/icons/Person'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
 import { routes } from '../../routes'
-import { useCartCount } from '../CartButton/hooks/useCartCount'
 
-export const MobileStoreNavigation = () => {
-  const { count } = useCartCount()
-
+export const MobileStoreNavigation = ({ count }: { count: number }) => {
   const items: MobileNavItem[] = [
     { id: 'home', label: 'Inicio', path: routes.home, icon: House, exact: true },
     { id: 'catalog', label: 'Catálogo', path: routes.catalog, icon: LayoutCells },

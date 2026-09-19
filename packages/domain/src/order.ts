@@ -1,4 +1,5 @@
 import type { Branch } from './branch'
+import type { GeoPoint } from './rider'
 import type { User } from './user'
 
 export type OrderStatus =
@@ -43,7 +44,7 @@ export interface Order {
   number: string
   clientId: string
   riderId?: string | null
-  riderLocation?: { latitude: number; longitude: number } | null
+  riderLocation?: GeoPoint | null
   branchId: string
   branch?: Branch | null
   client?: User | null

@@ -1,9 +1,15 @@
-import { Box, HStack, Image, VStack, useMediaQuery } from '@chakra-ui/react'
-import { Muted, PageTitle, WidePageContainer } from '@repo/components'
+import { HStack, VStack } from '@chakra-ui/react'
+import {
+  LegendDotRow,
+  MapCard,
+  PageHeader,
+  WidePageContainer,
+  useIsDesktop,
+} from '@repo/components'
 import type { Trip } from '@repo/domain'
-import { TripOrderCard } from '../../components/TripOrderCard'
-import { buildStaticMapUrl } from '../../utils/geoapify'
-import type { StaticMapMarker } from '../../utils/geoapify'
+import { MAP_MARKER_COLORS } from '@repo/theme'
+import { buildStaticMapUrl, type StaticMapMarker } from '@repo/api'
+import { TripOrderCardLoader } from '../../components/TripOrderCard/TripOrderCardLoader'
 import { tripCenter, tripMarkers } from '../../utils/tripMap'
 
 interface ActiveTripProps {
@@ -21,7 +27,7 @@ export const ActiveTrip = ({
   onPickup,
   onDeliver,
 }: ActiveTripProps) => {
-  const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
+  const isDesktop = useIsDesktop()
 
   const deliveredCount = trip.orders.filter((tripOrder) => tripOrder.deliveredAt != null).length
   const total = trip.orders.length
@@ -32,15 +38,15 @@ export const ActiveTrip = ({
         {
           lat: riderLocation.latitude,
           lon: riderLocation.longitude,
-          color: '#ea580c',
+          color: MAP_MARKER_COLORS.rider,
           icon: 'person-biking',
         },
       ]
     : []
 
   const mapUrl = buildStaticMapUrl({
-    centerLat: center.lat,
-    centerLon: center.lon,
+    centerLat: center.latitude,
+    centerLon: center.longitude,
     zoom: 13,
     width: isDesktop ? 1200 : 600,
     height: isDesktop ? 320 : 460,
@@ -49,33 +55,24 @@ export const ActiveTrip = ({
 
   return (
     <WidePageContainer>
-      <VStack align="start" gap="1">
-        <PageTitle>Viaje en curso</PageTitle>
-        <Muted>
-          {deliveredCount} de {total} entregados
-        </Muted>
-      </VStack>
+      <PageHeader title="Viaje en curso" description={`${deliveredCount} de ${total} entregados`} />
 
-      <Box
-        bg="bg.panel"
-        border="1px solid"
-        borderColor="border.subtle"
-        borderRadius="2xl"
-        overflow="hidden"
-      >
-        <Image src={mapUrl} alt="Mapa de ruta del viaje" width="100%" height="auto" bg="bg.muted" />
-        <Box padding="4">
+      <MapCard
+        src={mapUrl}
+        alt="Mapa de ruta del viaje"
+        height={isDesktop ? '320px' : '460px'}
+        legend={
           <HStack gap="4">
-            <LegendDot color="info" label="Retiro" />
-            <LegendDot color="success" label="Entrega" />
-            <LegendDot color="brand.500" label="Tu posición" />
+            <LegendDotRow color="info" label="Retiro" />
+            <LegendDotRow color="success" label="Entrega" />
+            <LegendDotRow color="brand.500" label="Tu posición" />
           </HStack>
-        </Box>
-      </Box>
+        }
+      />
 
       <VStack align="stretch" gap="3">
         {trip.orders.map((tripOrder) => (
-          <TripOrderCard
+          <TripOrderCardLoader
             key={tripOrder.orderId}
             tripOrder={tripOrder}
             isLoading={isMutating}
@@ -88,10 +85,3 @@ export const ActiveTrip = ({
     </WidePageContainer>
   )
 }
-
-const LegendDot = ({ color, label }: { color: string; label: string }) => (
-  <HStack gap="1.5">
-    <Box width="8px" height="8px" borderRadius="full" bg={color} />
-    <Muted fontSize="sm">{label}</Muted>
-  </HStack>
-)

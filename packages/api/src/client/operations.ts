@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
-import type { Address, User, UserRole } from '@repo/domain'
+import type { Address, User } from '@repo/domain'
+import { toUser as toSharedUser } from './mappers'
 
 export interface AuthTokens {
   accessToken: string
@@ -81,23 +82,9 @@ export interface DeleteAddressResult {
   deleteAddress: boolean
 }
 
-const ROLE_FROM_API: Record<string, UserRole> = {
-  CUSTOMER: 'customer',
-  BRANCH_ADMIN: 'branch_admin',
-  SUPER_ADMIN: 'super_admin',
-  RIDER: 'rider',
-}
-
 export const toUser = (me: MeUser): User => ({
-  id: me.id,
-  email: me.email,
-  role: ROLE_FROM_API[me.role] ?? 'customer',
-  firstName: me.firstName,
-  lastName: me.lastName,
-  phone: me.phone ?? '',
+  ...toSharedUser(me as unknown as Record<string, unknown>),
   active: me.active,
-  branchId: me.branchId ?? undefined,
-  createdAt: new Date().toISOString(),
 })
 
 export const toAddress = (address: ApiAddress): Address => ({

@@ -1,5 +1,3 @@
-import { useCallback } from 'react'
-import { useMutation, useQuery } from '@apollo/client'
 import type { Ingredient, IngredientInput } from '@repo/domain'
 import {
   ADMIN_INGREDIENTS,
@@ -8,6 +6,7 @@ import {
   UPDATE_INGREDIENT,
   toIngredient,
 } from '../client/admin'
+import { createCrudResource } from './createCrudResource'
 
 interface UseIngredientsReturn {
   ingredients: Ingredient[]
@@ -18,49 +17,25 @@ interface UseIngredientsReturn {
   toggle: (id: string, active: boolean) => Promise<void>
 }
 
-interface IngredientsResult {
-  ingredients: Record<string, unknown>[]
-}
-
-export const useIngredients = (): UseIngredientsReturn => {
-  const { data, loading, refetch } = useQuery<IngredientsResult>(ADMIN_INGREDIENTS, {
+const useIngredientsResource = createCrudResource({
+  query: {
+    document: ADMIN_INGREDIENTS,
+    resultKey: 'ingredients',
+    map: toIngredient,
     fetchPolicy: 'network-only',
-  })
+  },
+  create: {
+    document: CREATE_INGREDIENT,
+    variables: (input: IngredientInput) => ({ input }),
+  },
+  update: {
+    document: UPDATE_INGREDIENT,
+    variables: (id: string, input: IngredientInput) => ({ id, input }),
+  },
+  toggle: {
+    document: SET_INGREDIENT_ACTIVE,
+    variables: (id: string, active: boolean) => ({ id, active }),
+  },
+})
 
-  const [createMutation, { loading: creating }] = useMutation(CREATE_INGREDIENT)
-  const [updateMutation, { loading: updating }] = useMutation(UPDATE_INGREDIENT)
-  const [setActiveMutation, { loading: toggling }] = useMutation(SET_INGREDIENT_ACTIVE)
-
-  const create = useCallback(
-    async (input: IngredientInput) => {
-      await createMutation({ variables: { input } })
-      await refetch()
-    },
-    [createMutation, refetch],
-  )
-
-  const update = useCallback(
-    async (id: string, input: IngredientInput) => {
-      await updateMutation({ variables: { id, input } })
-      await refetch()
-    },
-    [updateMutation, refetch],
-  )
-
-  const toggle = useCallback(
-    async (id: string, active: boolean) => {
-      await setActiveMutation({ variables: { id, active } })
-      await refetch()
-    },
-    [setActiveMutation, refetch],
-  )
-
-  return {
-    ingredients: (data?.ingredients ?? []).map(toIngredient),
-    isLoading: loading,
-    isMutating: creating || updating || toggling,
-    create,
-    update,
-    toggle,
-  }
-}
+export const useIngredients: () => UseIngredientsReturn = useIngredientsResource
