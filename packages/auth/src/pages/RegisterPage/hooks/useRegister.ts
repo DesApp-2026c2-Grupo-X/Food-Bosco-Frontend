@@ -1,14 +1,8 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
-import type { z } from 'zod'
 import { registerFormSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
-import { useAuthConfig } from '../../../authConfigContext'
+import { useAuthConfig, type RegisterRole } from '../../../authConfigContext'
+import { useAuthForm } from '../../../hooks/useAuthForm'
 import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
-import type { RegisterRole } from '../../../authConfigContext'
-
-type RegisterValues = z.infer<typeof registerFormSchema>
 
 export const useRegister = () => {
   const register = useAuthStore((state) => state.register)
@@ -17,10 +11,9 @@ export const useRegister = () => {
   const config = useAuthConfig()
   const registerDefaultRole = config.registerDefaultRole ?? 'customer'
   const registerRoles = config.registerRoles ?? ['customer', 'rider']
-  const [submitting, setSubmitting] = useState(false)
 
-  const form = useForm<RegisterValues>({
-    resolver: zodResolver(registerFormSchema),
+  const { form, submitting, error, onSubmit } = useAuthForm({
+    schema: registerFormSchema,
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -34,16 +27,8 @@ export const useRegister = () => {
       model: '',
       plate: '',
     },
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
-  })
-
-  const role = form.watch('role')
-  const vehicleType = form.watch('vehicleType')
-
-  const onSubmit = form.handleSubmit(async (values) => {
-    setSubmitting(true)
-    try {
+    errorMessage: 'No pudimos crear tu cuenta. Revisá los datos e intentá de nuevo.',
+    submit: async (values) => {
       const base = {
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
@@ -65,10 +50,11 @@ export const useRegister = () => {
       }
 
       redirect(values.role as RegisterRole)
-    } finally {
-      setSubmitting(false)
-    }
+    },
   })
 
-  return { form, role, vehicleType, submitting, onSubmit, registerRoles }
+  const role = form.watch('role')
+  const vehicleType = form.watch('vehicleType')
+
+  return { form, role, vehicleType, submitting, error, onSubmit, registerRoles }
 }

@@ -1,33 +1,21 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import type { z } from 'zod'
 import { forgotPasswordSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
-
-type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>
+import { useAuthForm } from '../../../hooks/useAuthForm'
 
 export const useForgotPassword = () => {
   const forgotPassword = useAuthStore((state) => state.forgotPassword)
-  const [submitting, setSubmitting] = useState(false)
   const [sent, setSent] = useState(false)
 
-  const form = useForm<ForgotPasswordValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+  const { form, submitting, error, onSubmit } = useAuthForm({
+    schema: forgotPasswordSchema,
     defaultValues: { email: '' },
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
-  })
-
-  const onSubmit = form.handleSubmit(async (values) => {
-    setSubmitting(true)
-    try {
+    errorMessage: 'No pudimos enviar las instrucciones. Intentá de nuevo.',
+    submit: async (values) => {
       await forgotPassword(values.email.trim())
       setSent(true)
-    } finally {
-      setSubmitting(false)
-    }
+    },
   })
 
-  return { form, submitting, sent, onSubmit }
+  return { form, submitting, sent, error, onSubmit }
 }

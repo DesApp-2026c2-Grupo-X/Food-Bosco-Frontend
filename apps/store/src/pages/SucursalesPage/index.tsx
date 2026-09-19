@@ -2,12 +2,12 @@ import { Badge, Box, HStack, Text, VStack } from '@chakra-ui/react'
 import Clock from '@gravity-ui/icons/Clock'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import Handset from '@gravity-ui/icons/Handset'
-import { BackButton, Muted, PageContainer, PageTitle, Strong } from '@repo/components'
+import { BackButton, Card, EmptyState, PageContainer, PageHeader, Strong } from '@repo/components'
 import { useAddresses, useAvailableBranches } from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
 import type { Branch } from '@repo/domain'
 
-const todayOfWeek = () => ((new Date().getDay() + 6) % 7) + 1
+const todayOfWeek = () => new Date().getDay()
 
 const todayHours = (branch: Branch): string => {
   const today = branch.hours.find((hour) => hour.dayOfWeek === todayOfWeek())
@@ -24,21 +24,11 @@ export const SucursalesPage = () => {
   return (
     <PageContainer>
       <BackButton />
-      <VStack align="start" gap="1">
-        <PageTitle>Sucursales</PageTitle>
-        <Muted>Los locales que pueden atender tu zona.</Muted>
-      </VStack>
+      <PageHeader title="Sucursales" description="Los locales que pueden atender tu zona." />
 
       <VStack gap="3" align="stretch">
         {branches.map((branch, index) => (
-          <Box
-            key={branch.id}
-            bg="bg.panel"
-            border="1px solid"
-            borderColor="border.subtle"
-            borderRadius="2xl"
-            padding="5"
-          >
+          <Card key={branch.id}>
             <HStack justify="space-between" gap="2" marginBottom="3">
               <HStack gap="2" minWidth="0">
                 <Strong fontSize="lg">{branch.name}</Strong>
@@ -88,14 +78,15 @@ export const SucursalesPage = () => {
                 <Text>Hoy: {todayHours(branch)}</Text>
               </HStack>
             </VStack>
-          </Box>
+          </Card>
         ))}
       </VStack>
 
       {!isLoading && branches.length === 0 ? (
-        <Box paddingY="12" textAlign="center">
-          <Muted>No hay sucursales disponibles para tu zona.</Muted>
-        </Box>
+        <EmptyState
+          title="Sin sucursales"
+          description="No hay sucursales disponibles para tu zona."
+        />
       ) : null}
     </PageContainer>
   )

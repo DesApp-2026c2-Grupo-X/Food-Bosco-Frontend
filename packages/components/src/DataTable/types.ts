@@ -17,6 +17,7 @@ export interface DataTableProps<T> {
   error?: boolean
   emptyTitle?: string
   emptyDescription?: string
+  emptyIcon?: ReactNode
   onRowClick?: (row: T) => void
   skeletonRows?: number
 }

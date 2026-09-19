@@ -1,5 +1,3 @@
-import { useCallback } from 'react'
-import { useMutation, useQuery } from '@apollo/client'
 import type { AdminBranch, BranchHoursInput, BranchInput } from '@repo/domain'
 import {
   ADMIN_BRANCHES,
@@ -9,6 +7,7 @@ import {
   UPDATE_BRANCH_HOURS,
   toBranch,
 } from '../client/admin'
+import { createCrudResource } from './createCrudResource'
 
 interface UseBranchesReturn {
   branches: AdminBranch[]
@@ -20,70 +19,41 @@ interface UseBranchesReturn {
   saveHours: (id: string, hours: BranchHoursInput[]) => Promise<void>
 }
 
-interface BranchesResult {
-  branches: Record<string, unknown>[]
-}
-
-interface CreateBranchResult {
-  createBranch: Record<string, unknown>
-}
-
-export const useBranches = (): UseBranchesReturn => {
-  const { data, loading, refetch } = useQuery<BranchesResult>(ADMIN_BRANCHES, {
+const useBranchesResource = createCrudResource({
+  query: {
+    document: ADMIN_BRANCHES,
+    resultKey: 'branches',
+    map: toBranch,
     fetchPolicy: 'network-only',
-  })
-
-  const [createMutation, { loading: creating }] = useMutation<CreateBranchResult>(CREATE_BRANCH)
-  const [updateMutation, { loading: updating }] = useMutation(UPDATE_BRANCH)
-  const [setActiveMutation, { loading: toggling }] = useMutation(SET_BRANCH_ACTIVE)
-  const [updateHoursMutation, { loading: savingHours }] = useMutation(UPDATE_BRANCH_HOURS)
-
-  const create = useCallback(
-    async (input: BranchInput): Promise<string | null> => {
-      const { data: result } = await createMutation({ variables: { input } })
-      await refetch()
-      return result?.createBranch ? String(result.createBranch.id) : null
+  },
+  create: {
+    document: CREATE_BRANCH,
+    variables: (input: BranchInput) => ({ input }),
+    select: (data) =>
+      data?.createBranch ? String((data.createBranch as { id: unknown }).id) : null,
+  },
+  update: {
+    document: UPDATE_BRANCH,
+    variables: (id: string, input: BranchInput) => ({ id, input }),
+  },
+  toggle: {
+    document: SET_BRANCH_ACTIVE,
+    variables: (id: string, active: boolean) => ({ id, active }),
+  },
+  extra: {
+    saveHours: {
+      document: UPDATE_BRANCH_HOURS,
+      variables: (id: string, hours: BranchHoursInput[]) => ({
+        branchId: id,
+        hours: hours.map((hour) => ({
+          dayOfWeek: hour.dayOfWeek,
+          opening: hour.closed ? null : hour.opening || null,
+          closing: hour.closed ? null : hour.closing || null,
+          closed: hour.closed,
+        })),
+      }),
     },
-    [createMutation, refetch],
-  )
+  },
+})
 
-  const update = useCallback(
-    async (id: string, input: BranchInput) => {
-      await updateMutation({ variables: { id, input } })
-      await refetch()
-    },
-    [updateMutation, refetch],
-  )
-
-  const toggle = useCallback(
-    async (id: string, active: boolean) => {
-      await setActiveMutation({ variables: { id, active } })
-      await refetch()
-    },
-    [setActiveMutation, refetch],
-  )
-
-  const saveHours = useCallback(
-    async (id: string, hours: BranchHoursInput[]) => {
-      const normalized = hours.map((hour) => ({
-        dayOfWeek: hour.dayOfWeek,
-        opening: hour.opening ?? null,
-        closing: hour.closing ?? null,
-        closed: hour.closed,
-      }))
-      await updateHoursMutation({ variables: { branchId: id, hours: normalized } })
-      await refetch()
-    },
-    [updateHoursMutation, refetch],
-  )
-
-  return {
-    branches: (data?.branches ?? []).map(toBranch),
-    isLoading: loading,
-    isMutating: creating || updating || toggling || savingHours,
-    create,
-    update,
-    toggle,
-    saveHours,
-  }
-}
+export const useBranches: () => UseBranchesReturn = useBranchesResource

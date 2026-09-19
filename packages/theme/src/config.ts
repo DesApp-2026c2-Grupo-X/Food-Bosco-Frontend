@@ -1,11 +1,18 @@
 import { defineConfig } from '@chakra-ui/react'
+import { BREAKPOINTS } from './constants'
 
 export const config = defineConfig({
   theme: {
+    breakpoints: BREAKPOINTS,
     tokens: {
       fonts: {
         heading: { value: `"Outfit", system-ui, sans-serif` },
         body: { value: `"Outfit", system-ui, sans-serif` },
+      },
+      sizes: {
+        containerContent: { value: '1200px' },
+        filterControl: { value: '200px' },
+        filterControlSm: { value: '180px' },
       },
       colors: {
         brand: {

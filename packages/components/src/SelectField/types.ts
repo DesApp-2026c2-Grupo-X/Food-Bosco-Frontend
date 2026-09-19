@@ -10,4 +10,5 @@ export interface SelectFieldProps {
   placeholder?: string
   size?: 'sm' | 'md' | 'lg'
   width?: string
+  disabled?: boolean
 }

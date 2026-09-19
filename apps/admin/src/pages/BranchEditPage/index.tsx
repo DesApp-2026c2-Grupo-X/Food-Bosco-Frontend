@@ -1,47 +1,31 @@
 import { useState } from 'react'
-import { Box, HStack, Input, Text, VStack, Tabs } from '@chakra-ui/react'
+import { Box, HStack, Input, Text, VStack } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  BackButton,
-  EmptyState,
+  EditPageShell,
+  EditPageTabs,
+  FormActions,
   FormField,
   FormLayout,
-  GhostButton,
   Muted,
-  PageTitle,
   PrimaryButton,
   Strong,
+  SwitchRow,
   ToggleSwitch,
-  WidePageContainer,
 } from '@repo/components'
 import { useBranches } from '@repo/api'
 import {
   branchSchema,
+  DEFAULT_HOURS,
+  WEEK_DAYS,
   type AdminBranch,
   type BranchForm,
   type BranchHoursInput,
   type BranchInput,
 } from '@repo/domain'
 import { branchEditPath, routes } from '../../routes'
-
-const WEEK_DAYS = [
-  { dayOfWeek: 1, label: 'Lunes' },
-  { dayOfWeek: 2, label: 'Martes' },
-  { dayOfWeek: 3, label: 'Miércoles' },
-  { dayOfWeek: 4, label: 'Jueves' },
-  { dayOfWeek: 5, label: 'Viernes' },
-  { dayOfWeek: 6, label: 'Sábado' },
-  { dayOfWeek: 7, label: 'Domingo' },
-]
-
-const DEFAULT_HOURS: BranchHoursInput[] = WEEK_DAYS.map(({ dayOfWeek }) => ({
-  dayOfWeek,
-  opening: '09:00',
-  closing: '23:00',
-  closed: false,
-}))
 
 interface InfoFormProps {
   branch: AdminBranch | null
@@ -109,25 +93,18 @@ const InfoForm = ({ branch, isSubmitting, onSubmit, onCancel }: InfoFormProps) =
             </Box>
           </HStack>
           <FormField name="phone" label="Teléfono" placeholder="Ej: 11 5555 1111" />
-          <HStack justify="space-between">
-            <Text fontSize="sm" color="fg.muted">
-              Activa
-            </Text>
-            <ToggleSwitch checked={active} onChange={setActive} ariaLabel="Sucursal activa" />
-          </HStack>
-          <HStack justify="end" gap="2">
-            <GhostButton type="button" onClick={onCancel}>
-              Cancelar
-            </GhostButton>
-            <PrimaryButton
-              type="submit"
-              size="md"
-              disabled={!form.formState.isValid || isSubmitting}
-              loading={isSubmitting}
-            >
-              Guardar
-            </PrimaryButton>
-          </HStack>
+          <SwitchRow
+            label="Activa"
+            checked={active}
+            onChange={setActive}
+            ariaLabel="Sucursal activa"
+          />
+          <FormActions
+            onCancel={onCancel}
+            submitLabel="Guardar"
+            isSubmitting={isSubmitting}
+            disabled={!form.formState.isValid}
+          />
         </FormLayout>
       </form>
     </FormProvider>
@@ -161,14 +138,14 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
     <FormLayout>
       <VStack align="stretch" gap="2">
         {WEEK_DAYS.map((day) => {
-          const hour = hours.find((h) => h.dayOfWeek === day.dayOfWeek) ?? {
-            dayOfWeek: day.dayOfWeek,
+          const hour = hours.find((h) => h.dayOfWeek === day.value) ?? {
+            dayOfWeek: day.value,
             opening: '',
             closing: '',
             closed: false,
           }
           return (
-            <HStack key={day.dayOfWeek} gap="3" align="center">
+            <HStack key={day.value} gap="3" align="center">
               <Text fontSize="sm" width="90px" fontWeight="medium">
                 {day.label}
               </Text>
@@ -179,7 +156,7 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
                 width="130px"
                 defaultValue={hour.opening ?? ''}
                 disabled={hour.closed}
-                onChange={(event) => handleTimeChange(day.dayOfWeek, 'opening', event.target.value)}
+                onChange={(event) => handleTimeChange(day.value, 'opening', event.target.value)}
                 aria-label={`Apertura ${day.label}`}
               />
               <Input
@@ -189,7 +166,7 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
                 width="130px"
                 defaultValue={hour.closing ?? ''}
                 disabled={hour.closed}
-                onChange={(event) => handleTimeChange(day.dayOfWeek, 'closing', event.target.value)}
+                onChange={(event) => handleTimeChange(day.value, 'closing', event.target.value)}
                 aria-label={`Cierre ${day.label}`}
               />
               <HStack gap="2">
@@ -198,7 +175,7 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
                 </Text>
                 <ToggleSwitch
                   checked={hour.closed}
-                  onChange={(checked) => update(day.dayOfWeek, { closed: checked })}
+                  onChange={(checked) => update(day.value, { closed: checked })}
                   ariaLabel={`Cerrado ${day.label}`}
                 />
               </HStack>
@@ -233,34 +210,18 @@ export const BranchEditPage = () => {
     }
   }
 
-  if (!isNew && isLoading) {
-    return (
-      <WidePageContainer>
-        <BackButton />
-        <PageTitle>Sucursal</PageTitle>
-      </WidePageContainer>
-    )
-  }
-
-  if (!isNew && !branch) {
-    return (
-      <WidePageContainer>
-        <BackButton />
-        <EmptyState
-          title="Sucursal no encontrada"
-          description="La sucursal que buscás no existe."
-        />
-      </WidePageContainer>
-    )
-  }
-
   return (
-    <WidePageContainer>
-      <BackButton />
-      <Box>
-        <PageTitle>{isNew ? 'Nueva sucursal' : (branch?.name ?? 'Sucursal')}</PageTitle>
-      </Box>
-
+    <EditPageShell
+      isNew={isNew}
+      isLoading={isLoading}
+      hasEntity={branch != null}
+      title={isNew ? 'Nueva sucursal' : (branch?.name ?? 'Sucursal')}
+      loadingTitle="Sucursal"
+      notFound={{
+        title: 'Sucursal no encontrada',
+        description: 'La sucursal que buscás no existe.',
+      }}
+    >
       {isNew ? (
         <InfoForm
           branch={null}
@@ -269,38 +230,41 @@ export const BranchEditPage = () => {
           onCancel={() => navigate(routes.branches)}
         />
       ) : branch ? (
-        <Tabs.Root defaultValue="info">
-          <Tabs.List>
-            <Tabs.Trigger value="info">Información</Tabs.Trigger>
-            <Tabs.Trigger value="hours">Horarios</Tabs.Trigger>
-          </Tabs.List>
-
-          <Tabs.Content value="info">
-            <Box marginTop="6">
-              <InfoForm
-                branch={branch}
-                isSubmitting={isMutating}
-                onSubmit={handleSave}
-                onCancel={() => navigate(routes.branches)}
-              />
-            </Box>
-          </Tabs.Content>
-
-          <Tabs.Content value="hours">
-            <Box marginTop="6">
-              <VStack align="start" gap="1" marginBottom="4">
-                <Strong fontSize="lg">Horarios de atención</Strong>
-                <Muted>Definí apertura y cierre por día.</Muted>
-              </VStack>
-              <HoursForm
-                branch={branch}
-                isSubmitting={isMutating}
-                onSave={(hours) => saveHours(branch.id, hours)}
-              />
-            </Box>
-          </Tabs.Content>
-        </Tabs.Root>
+        <EditPageTabs
+          defaultValue="info"
+          tabs={[
+            {
+              value: 'info',
+              label: 'Información',
+              content: (
+                <InfoForm
+                  branch={branch}
+                  isSubmitting={isMutating}
+                  onSubmit={handleSave}
+                  onCancel={() => navigate(routes.branches)}
+                />
+              ),
+            },
+            {
+              value: 'hours',
+              label: 'Horarios',
+              content: (
+                <>
+                  <VStack align="start" gap="1" marginBottom="4">
+                    <Strong fontSize="lg">Horarios de atención</Strong>
+                    <Muted>Definí apertura y cierre por día.</Muted>
+                  </VStack>
+                  <HoursForm
+                    branch={branch}
+                    isSubmitting={isMutating}
+                    onSave={(hours) => saveHours(branch.id, hours)}
+                  />
+                </>
+              ),
+            },
+          ]}
+        />
       ) : null}
-    </WidePageContainer>
+    </EditPageShell>
   )
 }

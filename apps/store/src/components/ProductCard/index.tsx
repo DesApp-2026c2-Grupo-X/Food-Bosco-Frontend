@@ -3,16 +3,13 @@ import Plus from '@gravity-ui/icons/Plus'
 import { NavLink } from 'react-router-dom'
 import { productPath } from '../../routes'
 import { formatPrice } from '@repo/domain'
-import { Muted, Price, Strong } from '@repo/components'
+import { Card, Muted, Price, Strong } from '@repo/components'
 import type { ProductCardProps } from './types'
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <Box
-      bg="bg.panel"
-      border="1px solid"
-      borderColor="border.subtle"
-      borderRadius="2xl"
+    <Card
+      padding="0"
       overflow="hidden"
       transition="transform 150ms cubic-bezier(0.2, 0, 0, 1), box-shadow 150ms"
       _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
@@ -61,6 +58,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           </NavLink>
         </IconButton>
       </HStack>
-    </Box>
+    </Card>
   )
 }

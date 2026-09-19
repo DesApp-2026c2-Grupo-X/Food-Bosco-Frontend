@@ -1,6 +1,11 @@
-import type { OrderItem } from '@repo/domain'
+export interface OrderItemsCardLine {
+  productId: string
+  name: string
+  quantity: number
+  subtotal: number
+}
 
 export interface OrderItemsCardProps {
-  items: OrderItem[]
+  items: OrderItemsCardLine[]
   title?: string
 }

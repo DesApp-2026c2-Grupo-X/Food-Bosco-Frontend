@@ -1,3 +1,5 @@
+import { toTitleCase } from './format'
+
 export interface Address {
   id: string
   label: string
@@ -17,3 +19,12 @@ export interface AddressInput {
   latitude: number
   longitude: number
 }
+
+export const toAddressInput = (values: AddressInput): AddressInput => ({
+  label: toTitleCase(values.label) || 'Dirección',
+  text: toTitleCase(values.text),
+  city: values.city?.trim() ? toTitleCase(values.city) : undefined,
+  postalCode: values.postalCode?.trim() || undefined,
+  latitude: values.latitude,
+  longitude: values.longitude,
+})

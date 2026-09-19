@@ -18,6 +18,7 @@ import {
   RESET_PASSWORD,
   UPDATE_PROFILE,
   toUser,
+  type AuthTokens,
   type LoginResult,
   type LogoutResult,
   type MeResult,
@@ -47,21 +48,10 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      bypassAuth: false,
-
-      login: async (input) => {
-        const { data } = await apolloClient.mutate<LoginResult>({
-          mutation: LOGIN,
-          variables: { input },
-        })
-
-        const session = data?.login
+    (set) => {
+      const completeSession = async (session: AuthTokens | undefined, errorMessage: string) => {
         if (!session?.accessToken) {
-          throw new Error('Respuesta de login inválida')
+          throw new Error(errorMessage)
         }
 
         set({ accessToken: session.accessToken, refreshToken: session.refreshToken })
@@ -72,87 +62,79 @@ export const useAuthStore = create<AuthState>()(
         })
 
         set({ user: toUser(meData.me) })
-      },
+      }
 
-      register: async (input) => {
-        const { data } = await apolloClient.mutate<RegisterResult>({
-          mutation: REGISTER,
-          variables: { input },
-        })
+      return {
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        bypassAuth: false,
 
-        const session = data?.register
-        if (!session?.accessToken) {
-          throw new Error('Respuesta de registro inválida')
-        }
+        login: async (input) => {
+          const { data } = await apolloClient.mutate<LoginResult>({
+            mutation: LOGIN,
+            variables: { input },
+          })
 
-        set({ accessToken: session.accessToken, refreshToken: session.refreshToken })
+          await completeSession(data?.login, 'Respuesta de login inválida')
+        },
 
-        const { data: meData } = await apolloClient.query<MeResult>({
-          query: ME,
-          fetchPolicy: 'network-only',
-        })
+        register: async (input) => {
+          const { data } = await apolloClient.mutate<RegisterResult>({
+            mutation: REGISTER,
+            variables: { input },
+          })
 
-        set({ user: toUser(meData.me) })
-      },
+          await completeSession(data?.register, 'Respuesta de registro inválida')
+        },
 
-      registerRider: async (input) => {
-        const { data } = await apolloClient.mutate<RegisterRiderResult>({
-          mutation: REGISTER_RIDER,
-          variables: { input },
-        })
+        registerRider: async (input) => {
+          const { data } = await apolloClient.mutate<RegisterRiderResult>({
+            mutation: REGISTER_RIDER,
+            variables: { input },
+          })
 
-        const session = data?.registerRider
-        if (!session?.accessToken) {
-          throw new Error('Respuesta de registro inválida')
-        }
+          await completeSession(data?.registerRider, 'Respuesta de registro inválida')
+        },
 
-        set({ accessToken: session.accessToken, refreshToken: session.refreshToken })
+        logout: () => {
+          void apolloClient.mutate<LogoutResult>({ mutation: LOGOUT }).catch(() => {})
+          set({ user: null, accessToken: null, refreshToken: null })
+        },
 
-        const { data: meData } = await apolloClient.query<MeResult>({
-          query: ME,
-          fetchPolicy: 'network-only',
-        })
+        forgotPassword: async (email) => {
+          await apolloClient.mutate<RequestPasswordRecoveryResult>({
+            mutation: REQUEST_PASSWORD_RECOVERY,
+            variables: { email },
+          })
+        },
 
-        set({ user: toUser(meData.me) })
-      },
+        resetPassword: async (token, newPassword) => {
+          await apolloClient.mutate<ResetPasswordResult>({
+            mutation: RESET_PASSWORD,
+            variables: { token, newPassword },
+          })
+        },
 
-      logout: () => {
-        void apolloClient.mutate<LogoutResult>({ mutation: LOGOUT }).catch(() => {})
-        set({ user: null, accessToken: null, refreshToken: null })
-      },
+        updateProfile: async (input) => {
+          const { data } = await apolloClient.mutate<UpdateProfileResult>({
+            mutation: UPDATE_PROFILE,
+            variables: { input },
+          })
+          if (data?.updateProfile) {
+            set({ user: toUser(data.updateProfile) })
+          }
+        },
 
-      forgotPassword: async (email) => {
-        await apolloClient.mutate<RequestPasswordRecoveryResult>({
-          mutation: REQUEST_PASSWORD_RECOVERY,
-          variables: { email },
-        })
-      },
+        setUser: (user) => set({ user }),
 
-      resetPassword: async (token, newPassword) => {
-        await apolloClient.mutate<ResetPasswordResult>({
-          mutation: RESET_PASSWORD,
-          variables: { token, newPassword },
-        })
-      },
+        applyTokens: (accessToken, refreshToken) => {
+          set({ accessToken, refreshToken })
+        },
 
-      updateProfile: async (input) => {
-        const { data } = await apolloClient.mutate<UpdateProfileResult>({
-          mutation: UPDATE_PROFILE,
-          variables: { input },
-        })
-        if (data?.updateProfile) {
-          set({ user: toUser(data.updateProfile) })
-        }
-      },
-
-      setUser: (user) => set({ user }),
-
-      applyTokens: (accessToken, refreshToken) => {
-        set({ accessToken, refreshToken })
-      },
-
-      setBypassAuth: (value) => set({ bypassAuth: value }),
-    }),
+        setBypassAuth: (value) => set({ bypassAuth: value }),
+      }
+    },
     {
       name: 'store-auth',
       storage: createJSONStorage(() => localStorage),

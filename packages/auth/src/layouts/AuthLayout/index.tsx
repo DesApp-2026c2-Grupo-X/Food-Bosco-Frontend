@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom'
-import { AuthLayout as SharedAuthLayout } from '../../components/AuthLayout'
+import { AuthShell } from '../../components/AuthShell'
 import { BackButton, Logo } from '@repo/components'
 import { authRoutes } from '../../routes'
 
@@ -9,9 +9,10 @@ const LOGIN_IMAGE =
 export interface AuthLayoutProps {
   logoLight?: string
   logoDark?: string
+  image?: string
 }
 
-export const AuthLayout = ({ logoLight, logoDark }: AuthLayoutProps) => {
+export const AuthLayout = ({ logoLight, logoDark, image = LOGIN_IMAGE }: AuthLayoutProps) => {
   const { pathname } = useLocation()
   const isLogin = pathname === authRoutes.login
 
@@ -22,5 +23,5 @@ export const AuthLayout = ({ logoLight, logoDark }: AuthLayoutProps) => {
       <BackButton />
     )
 
-  return <SharedAuthLayout image={LOGIN_IMAGE} leading={leading} />
+  return <AuthShell image={image} leading={leading} />
 }

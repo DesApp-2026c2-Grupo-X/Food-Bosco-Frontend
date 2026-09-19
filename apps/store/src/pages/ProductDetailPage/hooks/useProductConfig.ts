@@ -11,6 +11,7 @@ export const useProductConfig = (productId: string | undefined) => {
   const [selection, setSelection] = useState<SelectionMap>({})
   const [quantity, setQuantity] = useState(1)
   const [notes, setNotes] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const selectOption = (groupId: string, optionId: string, type: ProductOptionType) => {
     setSelection((prev) => {
@@ -60,12 +61,17 @@ export const useProductConfig = (productId: string | undefined) => {
 
   const addToCart = async () => {
     if (!product || !canAdd) return
-    await addItem({
-      productId: product.id,
-      quantity,
-      observations: notes.trim() || null,
-      optionIds: selectedOptionIds,
-    })
+    setError(null)
+    try {
+      await addItem({
+        productId: product.id,
+        quantity,
+        observations: notes.trim().slice(0, 500) || null,
+        optionIds: selectedOptionIds,
+      })
+    } catch {
+      setError('No pudimos agregar el producto. Intentá de nuevo.')
+    }
   }
 
   return {
@@ -81,6 +87,7 @@ export const useProductConfig = (productId: string | undefined) => {
     total,
     missingRequired,
     canAdd,
+    error,
     addToCart,
   }
 }

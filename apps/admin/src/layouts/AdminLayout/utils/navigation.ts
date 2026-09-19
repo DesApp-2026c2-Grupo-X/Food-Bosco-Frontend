@@ -8,10 +8,10 @@ import Box from '@gravity-ui/icons/Box'
 import Persons from '@gravity-ui/icons/Persons'
 import Sliders from '@gravity-ui/icons/Sliders'
 import ChartColumn from '@gravity-ui/icons/ChartColumn'
+import type { DashboardNavSection } from '@repo/components'
 import { routes } from '../../../routes'
-import type { AdminNavSection } from '../types'
 
-export const navSections: AdminNavSection[] = [
+export const navSections: DashboardNavSection[] = [
   {
     id: 'home',
     label: 'Inicio',

@@ -11,8 +11,8 @@ import {
   DrawerPositioner,
   DrawerRoot,
   Portal,
-  useMediaQuery,
 } from '@chakra-ui/react'
+import { useIsDesktop } from '../useIsDesktop'
 import type { ResponsiveModalProps } from './types'
 
 export const ResponsiveModal = ({
@@ -21,7 +21,7 @@ export const ResponsiveModal = ({
   children,
   closable = true,
 }: ResponsiveModalProps) => {
-  const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
+  const isDesktop = useIsDesktop()
 
   const handleOpenChange = (details: { open: boolean }) => {
     if (!details.open && closable) onClose()

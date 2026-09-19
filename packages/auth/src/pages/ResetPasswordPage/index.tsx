@@ -1,8 +1,7 @@
 import { Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
-import { FormPasswordField, PrimaryButton } from '@repo/components'
+import { FormPasswordField, PageHeader, PrimaryButton } from '@repo/components'
 import { AuthSuccess } from '../../components/AuthSuccess'
-import { PageHeader } from '../../components/PageHeader'
 import { authRoutes } from '../../routes'
 import { useResetPassword } from './hooks/useResetPassword'
 

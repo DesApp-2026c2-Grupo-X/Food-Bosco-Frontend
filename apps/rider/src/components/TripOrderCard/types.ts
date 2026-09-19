@@ -1,7 +1,8 @@
-import type { TripOrder } from '@repo/domain'
+import type { Order, TripOrder } from '@repo/domain'
 
 export interface TripOrderCardProps {
   tripOrder: TripOrder
+  order: Order | null
   isLoading?: boolean
   riderLocation?: { latitude: number; longitude: number } | null
   onPickup: () => void

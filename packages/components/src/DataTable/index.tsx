@@ -16,6 +16,7 @@ export const DataTable = <T,>({
   error = false,
   emptyTitle = 'No hay resultados',
   emptyDescription = 'No se encontraron registros para mostrar.',
+  emptyIcon,
   onRowClick,
   skeletonRows = 5,
 }: DataTableProps<T>) => {
@@ -29,7 +30,7 @@ export const DataTable = <T,>({
   }
 
   if (!isLoading && rows.length === 0) {
-    return <EmptyState title={emptyTitle} description={emptyDescription} />
+    return <EmptyState icon={emptyIcon} title={emptyTitle} description={emptyDescription} />
   }
 
   return (

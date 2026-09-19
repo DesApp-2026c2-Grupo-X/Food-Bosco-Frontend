@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import type { AddCartItemInput, Cart, UpdateCartItemInput } from '@repo/domain'
 import { ADD_CART_ITEM, MY_CART, REMOVE_CART_ITEM, UPDATE_CART_ITEM, toCart } from '../client/store'
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseCartReturn {
   cart: Cart | null
@@ -52,7 +53,7 @@ export const useCart = (): UseCartReturn => {
   return {
     cart: data?.myCart ? toCart(data.myCart) : null,
     isLoading: loading,
-    isMutating: adding || updating || removing,
+    isMutating: combineLoading(adding, updating, removing),
     addItem,
     updateItem,
     removeItem,

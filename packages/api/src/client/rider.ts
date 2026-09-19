@@ -8,20 +8,13 @@ import type {
   TripStatus,
   Vehicle,
 } from '@repo/domain'
+import { asList, asNumber, asString } from './mappers'
 
 type Raw = Record<string, unknown>
-
-const asString = (value: unknown, fallback = ''): string =>
-  value == null ? fallback : String(value)
-
-const asNumber = (value: unknown): number => (value == null ? 0 : Number(value))
 
 const nullableString = (value: unknown): string | null => (value == null ? null : String(value))
 
 const nullableNumber = (value: unknown): number | null => (value == null ? null : Number(value))
-
-const asList = <T>(value: unknown, map: (raw: Raw) => T): T[] =>
-  Array.isArray(value) ? value.map((entry) => map(entry as Raw)) : []
 
 const GEO_POINT_FIELDS = `
   latitude
@@ -170,14 +163,6 @@ export const TRIP_OFFERS = gql`
 export const MY_TRIPS = gql`
   query MyTrips {
     myTrips {
-      ${TRIP_FIELDS}
-    }
-  }
-`
-
-export const TRIP = gql`
-  query Trip($id: ID!) {
-    trip(id: $id) {
       ${TRIP_FIELDS}
     }
   }

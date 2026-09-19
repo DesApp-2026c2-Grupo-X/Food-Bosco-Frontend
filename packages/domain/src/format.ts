@@ -1,5 +1,11 @@
 import type { Order, OrderStatus } from './order'
 
+export const toTitleCase = (value: string): string =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/(^|\s)\S/g, (match) => match.toUpperCase())
+
 export const formatPrice = (value: number) =>
   new Intl.NumberFormat('es-AR', {
     style: 'currency',

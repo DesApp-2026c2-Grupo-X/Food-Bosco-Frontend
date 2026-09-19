@@ -1,4 +1,4 @@
-import type { OrderStatus } from './order'
+import type { OrderAddress, OrderStatus } from './order'
 import type { GeoPoint } from './rider'
 
 export type TripStatus = 'OFFERED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
@@ -10,11 +10,7 @@ export const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
   CANCELLED: 'Cancelado',
 }
 
-export interface TripAddress {
-  text: string
-  latitude: number
-  longitude: number
-}
+export type TripAddress = OrderAddress
 
 export interface TripOrder {
   orderId: string

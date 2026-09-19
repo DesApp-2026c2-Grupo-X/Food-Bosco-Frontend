@@ -1,46 +1,43 @@
-import { Box, Link as ChakraLink, HStack } from '@chakra-ui/react'
-import Person from '@gravity-ui/icons/Person'
-import { NavLink } from 'react-router-dom'
+import { Box, HStack } from '@chakra-ui/react'
+import { useAddresses } from '@repo/api'
 import { routes } from '../../routes'
+import { useAddressStore } from '../../stores/addressStore'
 import { CartButton } from '../CartButton'
-import { ColorModeButton } from '@repo/components'
+import { ColorModeButton, ProfileIconLink } from '@repo/components'
 import { LocationButton } from '../LocationButton'
 
 interface HeaderActionsProps {
+  count: number
   onOpenCart: () => void
   onOpenLocation: () => void
   showMobileLocation: boolean
 }
 
 export const HeaderActions = ({
+  count,
   onOpenCart,
   onOpenLocation,
   showMobileLocation,
 }: HeaderActionsProps) => {
+  const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
+  const { addresses } = useAddresses()
+  const selected = addresses.find((address) => address.id === selectedAddressId)
+  const label = selected ? selected.text : 'Elegí tu dirección'
+
   return (
     <HStack gap="1">
       <Box display={{ base: showMobileLocation ? 'block' : 'none', md: 'block' }}>
-        <LocationButton onOpen={onOpenLocation} />
+        <LocationButton label={label} onOpen={onOpenLocation} />
       </Box>
       <Box display={{ base: 'none', md: 'block' }}>
         <ColorModeButton />
       </Box>
       <Box display={{ base: 'none', md: 'block' }}>
-        <CartButton onClick={onOpenCart} />
+        <CartButton count={count} onClick={onOpenCart} />
       </Box>
-      <ChakraLink
-        asChild
-        display={{ base: 'none', md: 'flex' }}
-        aria-label="Perfil"
-        padding="2"
-        borderRadius="full"
-        color="fg.muted"
-        _hover={{ color: 'fg', bg: 'bg.muted' }}
-      >
-        <NavLink to={routes.profile}>
-          <Person width={20} height={20} />
-        </NavLink>
-      </ChakraLink>
+      <Box display={{ base: 'none', md: 'block' }}>
+        <ProfileIconLink to={routes.profile} />
+      </Box>
     </HStack>
   )
 }

@@ -1,13 +1,11 @@
 import { Box, HStack } from '@chakra-ui/react'
 import { useLocation } from 'react-router-dom'
+import { isNavItemActive } from '../navigation'
 import { MobileNavItem } from './MobileNavItem'
 import type { MobileNavProps } from './types'
 
 export const MobileNav = ({ items, ariaLabel = 'Navegación principal' }: MobileNavProps) => {
   const { pathname } = useLocation()
-
-  const isActive = (path: string, exact?: boolean) =>
-    exact ? pathname === path : pathname.startsWith(path)
 
   return (
     <Box
@@ -34,7 +32,11 @@ export const MobileNav = ({ items, ariaLabel = 'Navegación principal' }: Mobile
         aria-label={ariaLabel}
       >
         {items.map((item) => (
-          <MobileNavItem key={item.id} item={item} isActive={isActive(item.path, item.exact)} />
+          <MobileNavItem
+            key={item.id}
+            item={item}
+            isActive={isNavItemActive(pathname, item.path, item.exact)}
+          />
         ))}
       </HStack>
     </Box>

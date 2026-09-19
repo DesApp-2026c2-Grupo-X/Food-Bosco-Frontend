@@ -1,9 +1,10 @@
 import { Box, HStack, Image, Spinner, Text, VStack } from '@chakra-ui/react'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import { useState } from 'react'
-import { GhostButton, Muted, PrimaryButton, Strong } from '@repo/components'
+import { Card, GhostButton, Muted, PrimaryButton, Strong } from '@repo/components'
 import type { AddressInput } from '@repo/domain'
-import { buildStaticMapUrl } from '../../utils/geoapify'
+import { MAP_MARKER_COLORS } from '@repo/theme'
+import { buildStaticMapUrl } from '@repo/api'
 
 interface AddressMapPreviewProps {
   input: AddressInput
@@ -23,7 +24,9 @@ export const AddressMapPreview = ({
   const [loaded, setLoaded] = useState(false)
 
   const mapUrl = buildStaticMapUrl({
-    markers: [{ lat: input.latitude, lon: input.longitude, color: '#ea580c', icon: 'pin' }],
+    markers: [
+      { lat: input.latitude, lon: input.longitude, color: MAP_MARKER_COLORS.rider, icon: 'pin' },
+    ],
     centerLat: input.latitude,
     centerLon: input.longitude,
     zoom: 16,
@@ -67,7 +70,7 @@ export const AddressMapPreview = ({
         )}
       </Box>
 
-      <Box bg="bg.muted" borderRadius="xl" padding="4">
+      <Card variant="subtle" borderRadius="xl" padding="4">
         <HStack gap="2" color="brand.600">
           <GeoPin width={16} height={16} />
           <Strong fontSize="sm">{input.label}</Strong>
@@ -77,7 +80,7 @@ export const AddressMapPreview = ({
           {input.city}
           {input.postalCode ? ` · CP ${input.postalCode}` : ''}
         </Muted>
-      </Box>
+      </Card>
 
       {error ? (
         <Text color="danger" fontSize="sm">

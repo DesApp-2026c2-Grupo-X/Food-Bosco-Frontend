@@ -23,6 +23,7 @@ import {
   toConfigGroupType,
   toProduct,
 } from '../client/admin'
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseProductEditorReturn {
   product: Product | null
@@ -173,18 +174,19 @@ export const useProductEditor = (productId: string | undefined): UseProductEdito
   return {
     product: data?.product ? toProduct(data.product) : null,
     isLoading: loading,
-    isMutating:
-      savingProduct ||
-      updatingProduct ||
-      creatingGroup ||
-      updatingGroup ||
-      deletingGroup ||
-      creatingOption ||
-      updatingOption ||
-      deletingOption ||
-      addingRecipe ||
-      updatingRecipe ||
+    isMutating: combineLoading(
+      savingProduct,
+      updatingProduct,
+      creatingGroup,
+      updatingGroup,
+      deletingGroup,
+      creatingOption,
+      updatingOption,
+      deletingOption,
+      addingRecipe,
+      updatingRecipe,
       removingRecipe,
+    ),
     save,
     addGroup,
     updateGroup,

@@ -1,22 +1,18 @@
-import type { TripOrder } from '@repo/domain'
-import type { StaticMapMarker } from './geoapify'
+import type { StaticMapMarker } from '@repo/api'
+import type { GeoPoint, TripOrder } from '@repo/domain'
+import { MAP_MARKER_COLORS } from '@repo/theme'
 
-interface LatLon {
-  lat: number
-  lon: number
-}
-
-export const tripStops = (orders: TripOrder[]): LatLon[] =>
+export const tripStops = (orders: TripOrder[]): GeoPoint[] =>
   orders.flatMap((order) => [
-    { lat: order.pickupLocation.latitude, lon: order.pickupLocation.longitude },
-    { lat: order.deliveryAddress.latitude, lon: order.deliveryAddress.longitude },
+    order.pickupLocation,
+    { latitude: order.deliveryAddress.latitude, longitude: order.deliveryAddress.longitude },
   ])
 
-export const tripCenter = (orders: TripOrder[]): LatLon => {
+export const tripCenter = (orders: TripOrder[]): GeoPoint => {
   const stops = tripStops(orders)
-  const lat = stops.reduce((sum, stop) => sum + stop.lat, 0) / stops.length
-  const lon = stops.reduce((sum, stop) => sum + stop.lon, 0) / stops.length
-  return { lat, lon }
+  const latitude = stops.reduce((sum, stop) => sum + stop.latitude, 0) / stops.length
+  const longitude = stops.reduce((sum, stop) => sum + stop.longitude, 0) / stops.length
+  return { latitude, longitude }
 }
 
 export const tripMarkers = (orders: TripOrder[]): StaticMapMarker[] =>
@@ -24,13 +20,13 @@ export const tripMarkers = (orders: TripOrder[]): StaticMapMarker[] =>
     {
       lat: order.pickupLocation.latitude,
       lon: order.pickupLocation.longitude,
-      color: '#1d4ed8',
+      color: MAP_MARKER_COLORS.branch,
       label: 'R',
     },
     {
       lat: order.deliveryAddress.latitude,
       lon: order.deliveryAddress.longitude,
-      color: '#15803d',
+      color: MAP_MARKER_COLORS.client,
       label: 'E',
     },
   ])

@@ -1,13 +1,12 @@
-import { VStack } from '@chakra-ui/react'
+import { Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
-import { FormField, Muted, PrimaryButton, TextLink } from '@repo/components'
+import { FormField, Muted, PageHeader, PrimaryButton, TextLink } from '@repo/components'
 import { AuthSuccess } from '../../components/AuthSuccess'
-import { PageHeader } from '../../components/PageHeader'
 import { authRoutes } from '../../routes'
 import { useForgotPassword } from './hooks/useForgotPassword'
 
 export const ForgotPasswordPage = () => {
-  const { form, submitting, sent, onSubmit } = useForgotPassword()
+  const { form, submitting, sent, error, onSubmit } = useForgotPassword()
 
   if (sent) {
     return (
@@ -38,6 +37,11 @@ export const ForgotPasswordPage = () => {
               autoComplete="email"
               placeholder="juan.perez@unahur.edu.ar"
             />
+            {error ? (
+              <Text color="danger" fontSize="sm">
+                {error}
+              </Text>
+            ) : null}
             <PrimaryButton
               type="submit"
               disabled={!form.formState.isValid || submitting}

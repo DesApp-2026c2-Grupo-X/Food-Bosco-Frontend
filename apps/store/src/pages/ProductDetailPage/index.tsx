@@ -3,6 +3,7 @@ import Check from '@gravity-ui/icons/Check'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   BackButton,
+  Card,
   Muted,
   PageTitle,
   Price,
@@ -100,17 +101,12 @@ export const ProductDetailPage = () => {
           <TextAreaField
             label="Observaciones"
             value={config.notes}
+            maxLength={500}
             onChange={(e) => config.setNotes(e.target.value)}
             placeholder="Sin cebolla, extra salsa, etc."
           />
 
-          <Box
-            bg="bg.subtle"
-            border="1px solid"
-            borderColor="border.subtle"
-            borderRadius="2xl"
-            padding="5"
-          >
+          <Card variant="subtle">
             <HStack justify="space-between" marginBottom="4">
               <Strong>Cantidad</Strong>
               <QuantityStepper value={config.quantity} onChange={config.setQuantity} />
@@ -126,6 +122,11 @@ export const ProductDetailPage = () => {
                 Seleccioná las opciones obligatorias para continuar.
               </Text>
             ) : null}
+            {config.error ? (
+              <Text color="danger" fontSize="sm" marginBottom="3">
+                {config.error}
+              </Text>
+            ) : null}
             <PrimaryButton
               width="full"
               disabled={!config.canAdd}
@@ -135,7 +136,7 @@ export const ProductDetailPage = () => {
             >
               Agregar al carrito
             </PrimaryButton>
-          </Box>
+          </Card>
         </VStack>
       </Grid>
     </WidePageContainer>

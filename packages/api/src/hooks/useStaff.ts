@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
-import type { StaffInput, StaffMember } from '@repo/domain'
+import type { StaffInput, StaffMember, StaffUpdateInput } from '@repo/domain'
 import {
   ADMIN_BRANCHES,
   ADMIN_USERS,
@@ -11,8 +11,7 @@ import {
   toBranch,
   toStaffMember,
 } from '../client/admin'
-
-type StaffUpdateInput = Omit<StaffInput, 'password'>
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseStaffReturn {
   staff: StaffMember[]
@@ -120,7 +119,7 @@ export const useStaff = (): UseStaffReturn => {
   return {
     staff,
     isLoading: loading,
-    isMutating: creatingStaff || creatingAdmin || updating || toggling,
+    isMutating: combineLoading(creatingStaff, creatingAdmin, updating, toggling),
     create,
     update,
     toggle,
