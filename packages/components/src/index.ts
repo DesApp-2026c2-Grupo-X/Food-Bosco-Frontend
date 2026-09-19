@@ -152,6 +152,12 @@ export type { FormPasswordFieldProps } from './FormPasswordField/types'
 export { FormTextAreaField } from './FormTextAreaField'
 export type { FormTextAreaFieldProps } from './FormTextAreaField/types'
 
+export { FormImageField } from './FormImageField'
+export type { FormImageFieldProps } from './FormImageField/types'
+
+export { ImageUploadField } from './ImageUploadField'
+export type { ImageUploadFieldProps } from './ImageUploadField/types'
+
 export { TextAreaField } from './TextAreaField'
 export type { TextAreaFieldProps } from './TextAreaField/types'
 

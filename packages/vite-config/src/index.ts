@@ -33,6 +33,10 @@ export function createAppViteConfig({
             target: apiUrl,
             changeOrigin: true,
           },
+          '/v1': {
+            target: apiUrl,
+            changeOrigin: true,
+          },
           ...proxy,
         },
       },
