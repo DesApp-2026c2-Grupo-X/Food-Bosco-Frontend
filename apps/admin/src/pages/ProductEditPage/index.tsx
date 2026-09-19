@@ -13,6 +13,7 @@ import {
   EmptyState,
   FormActions,
   FormField,
+  FormImageField,
   FormLayout,
   FormSelectField,
   FormTextAreaField,
@@ -22,7 +23,7 @@ import {
   Strong,
   SwitchRow,
 } from '@repo/components'
-import { useAdminCategories, useIngredients, useProductEditor } from '@repo/api'
+import { useAdminCategories, useImageUpload, useIngredients, useProductEditor } from '@repo/api'
 import {
   formatPrice,
   optionsFromEntities,
@@ -47,11 +48,21 @@ interface DataFormProps {
   categories: { value: string; label: string }[]
   product: Product | null
   isSubmitting: boolean
+  onUploadImage: (file: File) => Promise<string>
+  isUploadingImage: boolean
   onSubmit: (input: ProductInput) => Promise<void>
   onCancel: () => void
 }
 
-const DataForm = ({ categories, product, isSubmitting, onSubmit, onCancel }: DataFormProps) => {
+const DataForm = ({
+  categories,
+  product,
+  isSubmitting,
+  onUploadImage,
+  isUploadingImage,
+  onSubmit,
+  onCancel,
+}: DataFormProps) => {
   const form = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -97,7 +108,12 @@ const DataForm = ({ categories, product, isSubmitting, onSubmit, onCancel }: Dat
             placeholder="Seleccionar categoría..."
           />
           <FormField name="price" label="Precio" required inputMode="decimal" placeholder="0" />
-          <FormField name="image" label="Imagen (URL)" placeholder="https://..." />
+          <FormImageField
+            name="image"
+            label="Imagen"
+            onUpload={onUploadImage}
+            isUploading={isUploadingImage}
+          />
           <SwitchRow
             label="Disponible"
             checked={available}
@@ -382,6 +398,7 @@ export const ProductEditPage = () => {
   } = useProductEditor(id)
   const { categories } = useAdminCategories()
   const { ingredients } = useIngredients()
+  const { uploadImage, isUploading: isUploadingImage } = useImageUpload()
 
   const categoryOptions = useMemo(() => optionsFromEntities(categories), [categories])
 
@@ -406,7 +423,9 @@ export const ProductEditPage = () => {
         <DataForm
           categories={categoryOptions}
           product={null}
-          isSubmitting={isMutating}
+          isSubmitting={isMutating || isUploadingImage}
+          onUploadImage={uploadImage}
+          isUploadingImage={isUploadingImage}
           onSubmit={handleSave}
           onCancel={() => navigate(routes.products)}
         />
@@ -421,7 +440,9 @@ export const ProductEditPage = () => {
                 <DataForm
                   categories={categoryOptions}
                   product={product}
-                  isSubmitting={isMutating}
+                  isSubmitting={isMutating || isUploadingImage}
+                  onUploadImage={uploadImage}
+                  isUploadingImage={isUploadingImage}
                   onSubmit={handleSave}
                   onCancel={() => navigate(routes.products)}
                 />
