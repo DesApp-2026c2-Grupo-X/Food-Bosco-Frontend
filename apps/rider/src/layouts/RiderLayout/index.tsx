@@ -5,11 +5,7 @@ import { MobileRiderNavigation } from '../../components/MobileRiderNavigation'
 import { routes } from '../../routes'
 
 export const RiderLayout = () => {
-  const hasBackHeader = useHasBackHeader([
-    routes.tripOrderDetail,
-    routes.profileEdit,
-    routes.profileVehicle,
-  ])
+  const hasBackHeader = useHasBackHeader([routes.profileEdit, routes.profileVehicle])
 
   useAudioUnlock('/incomingOrder.mp3')
 

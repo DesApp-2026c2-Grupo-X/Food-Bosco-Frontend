@@ -7,16 +7,9 @@ import { useRiderLocation } from './useRiderLocation'
 export const useRiderHome = () => {
   const isOnline = useRiderStore((state) => state.isOnline)
   const { offer, isLoading, isMutating, accept, reject } = useTripOffers(isOnline)
-  const {
-    trip,
-    isLoading: tripLoading,
-    isMutating: tripMutating,
-    pickup,
-    deliver,
-  } = useActiveTrip()
+  const { trip, isLoading: tripLoading } = useActiveTrip()
   const { updateLocation } = useRiderProfile()
   useRiderLocation(isOnline, updateLocation)
-  const riderLocation = useRiderStore((state) => state.location)
 
   const [dismissedOfferId, setDismissedOfferId] = useState<string | null>(null)
   const visibleOffer = offer && offer.id !== dismissedOfferId ? offer : null
@@ -42,20 +35,6 @@ export const useRiderHome = () => {
     void reject(offer.id).catch(() => undefined)
   }, [offer, reject])
 
-  const handlePickup = useCallback(
-    (orderId: string) => {
-      void pickup(orderId)
-    },
-    [pickup],
-  )
-
-  const handleDeliver = useCallback(
-    async (orderId: string) => {
-      await deliver(orderId)
-    },
-    [deliver],
-  )
-
   return {
     isOnline,
     visibleOffer,
@@ -63,11 +42,7 @@ export const useRiderHome = () => {
     isMutating,
     trip,
     tripLoading,
-    tripMutating,
-    riderLocation: riderLocation as { latitude: number; longitude: number } | null,
     handleAccept,
     handleReject,
-    handlePickup,
-    handleDeliver,
   }
 }

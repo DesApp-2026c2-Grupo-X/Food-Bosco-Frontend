@@ -1,4 +1,4 @@
-import { Box, Text, VStack } from '@chakra-ui/react'
+import { Box, Link as ChakraLink, Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
 import {
   FormField,
@@ -11,6 +11,7 @@ import {
 } from '@repo/components'
 import { SegmentedChoice } from '../../components/SegmentedChoice'
 import type { RegisterRole } from '../../authConfigContext'
+import { useAuthConfig } from '../../authConfigContext'
 import { authRoutes } from '../../routes'
 import { useRegister } from './hooks/useRegister'
 
@@ -21,11 +22,13 @@ const VEHICLE_OPTIONS = [
 
 export const RegisterPage = () => {
   const { form, role, vehicleType, submitting, error, onSubmit, registerRoles } = useRegister()
+  const { riderUrl } = useAuthConfig()
   const showRoleSwitch = registerRoles.length > 1
   const roleOptions = registerRoles.map((registerRole) => ({
     value: registerRole,
     label: registerRole === 'customer' ? 'Cliente' : 'Repartidor',
   }))
+  const riderRegisterUrl = riderUrl ? `${riderUrl.replace(/\/$/, '')}${authRoutes.register}` : null
 
   return (
     <VStack gap="8" align="stretch">
@@ -135,6 +138,15 @@ export const RegisterPage = () => {
       <Muted fontSize="sm" textAlign="center">
         ¿Ya tenés cuenta? <TextLink to={authRoutes.login}>Ingresá</TextLink>
       </Muted>
+
+      {!registerRoles.includes('rider') && riderRegisterUrl ? (
+        <Muted fontSize="sm" textAlign="center">
+          ¿Sos repartidor?{' '}
+          <ChakraLink href={riderRegisterUrl} color="brand.600" fontWeight="semibold">
+            Registrate en la app de Rider
+          </ChakraLink>
+        </Muted>
+      ) : null}
     </VStack>
   )
 }

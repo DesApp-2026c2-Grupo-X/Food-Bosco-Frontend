@@ -1,23 +1,17 @@
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { DashboardLayout, IncomingOrderModal, useAudioUnlock } from '@repo/components'
-import { MOCK_BRANCH_NAME, useAuthStore, useIncomingOrder } from '@repo/api'
-import { authRoutes } from '@repo/auth'
+import { MOCK_BRANCH_NAME, useIncomingOrder } from '@repo/api'
+import { useLogout } from '@repo/auth'
 import { Logo } from '../../components/logo'
 import { BranchStatusButton } from '../../components/BranchStatusButton'
 import { orderDetailPath } from '../../routes'
 import { navItems } from './utils/navigation'
 
 export const BranchLayout = () => {
-  const navigate = useNavigate()
-  const logout = useAuthStore((state) => state.logout)
+  const handleLogout = useLogout()
   const { incoming, acknowledge } = useIncomingOrder()
 
   useAudioUnlock('/incomingOrder.mp3')
-
-  const handleLogout = () => {
-    logout()
-    navigate(authRoutes.login)
-  }
 
   return (
     <DashboardLayout

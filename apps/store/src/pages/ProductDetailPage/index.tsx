@@ -129,9 +129,12 @@ export const ProductDetailPage = () => {
             ) : null}
             <PrimaryButton
               width="full"
-              disabled={!config.canAdd}
+              loading={config.isAdding}
+              disabled={!config.canAdd || config.isAdding}
               onClick={() => {
-                void config.addToCart().then(() => navigate(routes.cart))
+                void config.addToCart().then((added) => {
+                  if (added) navigate(routes.cart)
+                })
               }}
             >
               Agregar al carrito

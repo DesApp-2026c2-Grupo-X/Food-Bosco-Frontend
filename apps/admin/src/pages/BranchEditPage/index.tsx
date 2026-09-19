@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Box, HStack, Input, Text, VStack } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -9,13 +9,19 @@ import {
   FormActions,
   FormField,
   FormLayout,
+  InteractiveMap,
   Muted,
   PrimaryButton,
+  SecondaryButton,
   Strong,
   SwitchRow,
   ToggleSwitch,
+  notifyError,
+  notifySuccess,
+  type InteractiveMapMarker,
 } from '@repo/components'
-import { useBranches } from '@repo/api'
+import { geocodeAddress, useBranches } from '@repo/api'
+import { MAP_MARKER_COLORS } from '@repo/theme'
 import {
   branchSchema,
   DEFAULT_HOURS,
@@ -48,6 +54,81 @@ const InfoForm = ({ branch, isSubmitting, onSubmit, onCancel }: InfoFormProps) =
     reValidateMode: 'onChange',
   })
   const [active, setActive] = useState(branch?.active ?? true)
+  const [locating, setLocating] = useState(false)
+  const [locationError, setLocationError] = useState<string | null>(null)
+  const skipInitialAddress = useRef(true)
+
+  useEffect(() => {
+    form.reset({
+      name: branch?.name ?? '',
+      addressText: branch?.addressText ?? '',
+      latitude: branch ? String(branch.latitude) : '',
+      longitude: branch ? String(branch.longitude) : '',
+      phone: branch?.phone ?? '',
+    })
+    setActive(branch?.active ?? true)
+    setLocationError(null)
+    skipInitialAddress.current = true
+  }, [branch, form])
+
+  const addressText = form.watch('addressText')
+  const latitude = form.watch('latitude')
+  const longitude = form.watch('longitude')
+  const parsedLatitude = Number(latitude)
+  const parsedLongitude = Number(longitude)
+  const hasCoordinates =
+    latitude.trim() !== '' &&
+    longitude.trim() !== '' &&
+    Number.isFinite(parsedLatitude) &&
+    Number.isFinite(parsedLongitude)
+
+  const locate = useCallback(
+    async (query: string) => {
+      const text = query.trim()
+      if (text.length < 5) return
+      setLocating(true)
+      setLocationError(null)
+      try {
+        const coords = await geocodeAddress(text)
+        if (!coords) {
+          setLocationError('No pudimos ubicar esa dirección. Ingresá las coordenadas a mano.')
+          return
+        }
+        form.setValue('latitude', String(coords.lat), { shouldValidate: true, shouldDirty: true })
+        form.setValue('longitude', String(coords.lon), { shouldValidate: true, shouldDirty: true })
+      } catch {
+        setLocationError('No pudimos ubicar esa dirección. Ingresá las coordenadas a mano.')
+      } finally {
+        setLocating(false)
+      }
+    },
+    [form],
+  )
+
+  useEffect(() => {
+    if (skipInitialAddress.current) {
+      skipInitialAddress.current = false
+      return
+    }
+    const query = addressText?.trim() ?? ''
+    if (query.length < 5) return
+    const timeout = setTimeout(() => {
+      void locate(query)
+    }, 600)
+    return () => clearTimeout(timeout)
+  }, [addressText, locate])
+
+  const mapCenter = { latitude: parsedLatitude, longitude: parsedLongitude }
+  const mapMarkers: InteractiveMapMarker[] = hasCoordinates
+    ? [
+        {
+          latitude: parsedLatitude,
+          longitude: parsedLongitude,
+          color: MAP_MARKER_COLORS.branch,
+          label: 'S',
+        },
+      ]
+    : []
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const input: BranchInput = {
@@ -66,12 +147,32 @@ const InfoForm = ({ branch, isSubmitting, onSubmit, onCancel }: InfoFormProps) =
       <form onSubmit={handleSubmit}>
         <FormLayout>
           <FormField name="name" label="Nombre" required placeholder="Ej: Centro" />
-          <FormField
-            name="addressText"
-            label="Dirección"
-            required
-            placeholder="Ej: Av. Vergara 1200, Hurlingham"
-          />
+          <Box>
+            <FormField
+              name="addressText"
+              label="Dirección"
+              required
+              placeholder="Ej: Av. Vergara 1200, Hurlingham"
+            />
+            <HStack marginTop="2" gap="3" align="center" wrap="wrap">
+              <SecondaryButton
+                type="button"
+                size="sm"
+                loading={locating}
+                onClick={() => void locate(form.getValues('addressText') ?? '')}
+              >
+                Ubicar en el mapa
+              </SecondaryButton>
+              <Muted fontSize="sm">
+                Calculamos latitud y longitud automáticamente desde la dirección.
+              </Muted>
+            </HStack>
+            {locationError ? (
+              <Text color="danger" fontSize="sm" marginTop="2">
+                {locationError}
+              </Text>
+            ) : null}
+          </Box>
           <HStack gap="4" align="start">
             <Box flex="1">
               <FormField
@@ -92,6 +193,15 @@ const InfoForm = ({ branch, isSubmitting, onSubmit, onCancel }: InfoFormProps) =
               />
             </Box>
           </HStack>
+          {hasCoordinates ? (
+            <InteractiveMap
+              center={mapCenter}
+              markers={mapMarkers}
+              zoom={15}
+              height="220px"
+              alt="Ubicación de la sucursal"
+            />
+          ) : null}
           <FormField name="phone" label="Teléfono" placeholder="Ej: 11 5555 1111" />
           <SwitchRow
             label="Activa"
@@ -103,7 +213,7 @@ const InfoForm = ({ branch, isSubmitting, onSubmit, onCancel }: InfoFormProps) =
             onCancel={onCancel}
             submitLabel="Guardar"
             isSubmitting={isSubmitting}
-            disabled={!form.formState.isValid}
+            cancelDisabled={isSubmitting}
           />
         </FormLayout>
       </form>
@@ -122,6 +232,10 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
     branch.hours.length > 0 ? branch.hours : DEFAULT_HOURS,
   )
 
+  useEffect(() => {
+    setHours(branch.hours.length > 0 ? branch.hours : DEFAULT_HOURS)
+  }, [branch.id, branch.hours])
+
   const update = (dayOfWeek: number, patch: Partial<BranchHoursInput>) => {
     setHours((current) =>
       current.map((hour) => (hour.dayOfWeek === dayOfWeek ? { ...hour, ...patch } : hour)),
@@ -134,6 +248,11 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
     }
   }
 
+  const invalidDay = hours.find(
+    (hour) => !hour.closed && (!hour.opening || !hour.closing || hour.opening >= hour.closing),
+  )
+  const saveDisabled = invalidDay != null || isSubmitting
+
   return (
     <FormLayout>
       <VStack align="stretch" gap="2">
@@ -144,6 +263,8 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
             closing: '',
             closed: false,
           }
+          const invalid =
+            !hour.closed && (!hour.opening || !hour.closing || hour.opening >= hour.closing)
           return (
             <HStack key={day.value} gap="3" align="center">
               <Text fontSize="sm" width="90px" fontWeight="medium">
@@ -154,20 +275,22 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
                 size="sm"
                 borderRadius="lg"
                 width="130px"
-                defaultValue={hour.opening ?? ''}
+                value={hour.opening ?? ''}
                 disabled={hour.closed}
                 onChange={(event) => handleTimeChange(day.value, 'opening', event.target.value)}
                 aria-label={`Apertura ${day.label}`}
+                aria-invalid={invalid}
               />
               <Input
                 type="time"
                 size="sm"
                 borderRadius="lg"
                 width="130px"
-                defaultValue={hour.closing ?? ''}
+                value={hour.closing ?? ''}
                 disabled={hour.closed}
                 onChange={(event) => handleTimeChange(day.value, 'closing', event.target.value)}
                 aria-label={`Cierre ${day.label}`}
+                aria-invalid={invalid}
               />
               <HStack gap="2">
                 <Text fontSize="sm" color="fg.muted">
@@ -183,8 +306,19 @@ const HoursForm = ({ branch, isSubmitting, onSave }: HoursFormProps) => {
           )
         })}
       </VStack>
+      {invalidDay ? (
+        <Text color="danger" fontSize="sm">
+          Revisá los horarios: la apertura debe ser anterior al cierre y ambos campos son
+          obligatorios en los días abiertos.
+        </Text>
+      ) : null}
       <HStack justify="end">
-        <PrimaryButton size="md" loading={isSubmitting} onClick={() => onSave(hours)}>
+        <PrimaryButton
+          size="md"
+          loading={isSubmitting}
+          disabled={saveDisabled}
+          onClick={() => onSave(hours)}
+        >
           Guardar horarios
         </PrimaryButton>
       </HStack>
@@ -202,11 +336,29 @@ export const BranchEditPage = () => {
   const branch = id != null ? branches.find((b) => b.id === id) : undefined
 
   const handleSave = async (input: BranchInput) => {
-    if (isNew) {
-      const createdId = await create(input)
-      if (createdId != null) navigate(branchEditPath(createdId))
-    } else if (id != null) {
-      await update(id, input)
+    try {
+      if (isNew) {
+        const createdId = await create(input)
+        if (createdId != null) {
+          notifySuccess({ title: 'Sucursal creada' })
+          navigate(branchEditPath(createdId))
+        }
+      } else if (id != null) {
+        await update(id, input)
+        notifySuccess({ title: 'Sucursal actualizada' })
+      }
+    } catch {
+      notifyError({ title: 'No pudimos guardar la sucursal' })
+    }
+  }
+
+  const handleSaveHours = async (hours: BranchHoursInput[]) => {
+    if (!branch) return
+    try {
+      await saveHours(branch.id, hours)
+      notifySuccess({ title: 'Horarios actualizados' })
+    } catch {
+      notifyError({ title: 'No pudimos guardar los horarios' })
     }
   }
 
@@ -254,11 +406,7 @@ export const BranchEditPage = () => {
                     <Strong fontSize="lg">Horarios de atención</Strong>
                     <Muted>Definí apertura y cierre por día.</Muted>
                   </VStack>
-                  <HoursForm
-                    branch={branch}
-                    isSubmitting={isMutating}
-                    onSave={(hours) => saveHours(branch.id, hours)}
-                  />
+                  <HoursForm branch={branch} isSubmitting={isMutating} onSave={handleSaveHours} />
                 </>
               ),
             },

@@ -22,6 +22,9 @@ export const formatOrderDate = (iso: string) =>
     minute: '2-digit',
   })
 
+export const formatOrderTime = (iso: string) =>
+  new Date(iso).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+
 export const isActiveOrder = (status: OrderStatus) =>
   status !== 'DELIVERED' && status !== 'CANCELLED'
 
@@ -32,7 +35,7 @@ export const getStatusSince = (order: Order): string => {
 }
 
 export const getElapsedMinutes = (iso: string, now: number = Date.now()): number =>
-  Math.max(0, Math.round((now - new Date(iso).getTime()) / 60000))
+  Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60000))
 
 export const formatEta = (iso: string): string => {
   const minutes = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 60000))
@@ -43,7 +46,7 @@ export const formatEta = (iso: string): string => {
 
 export const formatElapsed = (iso: string, now: number = Date.now()): string => {
   const minutes = getElapsedMinutes(iso, now)
-  if (minutes < 1) return 'recién'
+  if (minutes < 1) return 'menos de 1 min'
   if (minutes < 60) return `${minutes} min`
   const hours = Math.floor(minutes / 60)
   if (hours < 24) {
@@ -52,4 +55,10 @@ export const formatElapsed = (iso: string, now: number = Date.now()): string => 
   }
   const days = Math.floor(hours / 24)
   return `${days}d`
+}
+
+export const formatElapsedAgo = (iso: string, now: number = Date.now()): string => {
+  const minutes = getElapsedMinutes(iso, now)
+  if (minutes < 1) return 'recién'
+  return `hace ${formatElapsed(iso, now)}`
 }

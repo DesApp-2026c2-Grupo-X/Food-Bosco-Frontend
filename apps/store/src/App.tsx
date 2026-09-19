@@ -30,6 +30,8 @@ export const App = () => {
       riderUrl: RIDER_URL,
       logoLight,
       logoDark,
+      registerDefaultRole: 'customer',
+      registerRoles: ['customer'],
     }),
     {
       element: <RequireAuth loginPath={authRoutes.login} mockAuth={MOCK_AUTH} />,

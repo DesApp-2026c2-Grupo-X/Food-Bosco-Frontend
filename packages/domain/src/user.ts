@@ -12,6 +12,11 @@ export const ROLE_OPTIONS: { value: string; label: string }[] = [
   { value: 'super_admin', label: 'Admin global' },
 ]
 
+export const STAFF_ROLES: UserRole[] = ['branch_admin', 'super_admin']
+
+export const isStaffRole = (role: UserRole): boolean =>
+  role === 'branch_admin' || role === 'super_admin'
+
 export interface User {
   id: string
   email: string

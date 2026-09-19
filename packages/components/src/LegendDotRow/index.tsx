@@ -1,5 +1,5 @@
 import { Box, HStack } from '@chakra-ui/react'
-import { Muted } from '../Muted'
+import { Muted } from '../typography'
 import type { LegendDotRowProps } from './types'
 
 export const LegendDotRow = ({ color, label }: LegendDotRowProps) => (

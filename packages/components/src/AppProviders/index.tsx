@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { GraphQLProvider } from '@repo/api'
 import { config } from '@repo/theme'
 import { ColorModeProvider } from '../ColorModeProvider'
+import { Toaster } from '../Toaster'
 import type { AppProvidersProps } from './types'
 
 const system = createSystem(defaultConfig, config)
@@ -15,6 +16,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => (
         <GraphQLProvider>
           <BrowserRouter>{children}</BrowserRouter>
         </GraphQLProvider>
+        <Toaster />
       </ChakraProvider>
     </ColorModeProvider>
   </StrictMode>

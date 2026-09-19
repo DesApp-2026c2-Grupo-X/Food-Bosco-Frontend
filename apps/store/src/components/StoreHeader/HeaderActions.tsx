@@ -1,9 +1,9 @@
-import { Box, HStack } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
+import { HeaderActionsBar } from '@repo/components'
 import { useAddresses } from '@repo/api'
 import { routes } from '../../routes'
 import { useAddressStore } from '../../stores/addressStore'
 import { CartButton } from '../CartButton'
-import { ColorModeButton, ProfileIconLink } from '@repo/components'
 import { LocationButton } from '../LocationButton'
 
 interface HeaderActionsProps {
@@ -25,19 +25,13 @@ export const HeaderActions = ({
   const label = selected ? selected.text : 'Elegí tu dirección'
 
   return (
-    <HStack gap="1">
+    <HeaderActionsBar profilePath={routes.profile}>
       <Box display={{ base: showMobileLocation ? 'block' : 'none', md: 'block' }}>
         <LocationButton label={label} onOpen={onOpenLocation} />
       </Box>
       <Box display={{ base: 'none', md: 'block' }}>
-        <ColorModeButton />
-      </Box>
-      <Box display={{ base: 'none', md: 'block' }}>
         <CartButton count={count} onClick={onOpenCart} />
       </Box>
-      <Box display={{ base: 'none', md: 'block' }}>
-        <ProfileIconLink to={routes.profile} />
-      </Box>
-    </HStack>
+    </HeaderActionsBar>
   )
 }

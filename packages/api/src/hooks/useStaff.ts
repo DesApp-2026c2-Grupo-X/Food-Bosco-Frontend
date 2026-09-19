@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import type { StaffInput, StaffMember, StaffUpdateInput } from '@repo/domain'
+import { isStaffRole } from '@repo/domain'
 import {
   ADMIN_BRANCHES,
   ADMIN_USERS,
@@ -111,10 +112,17 @@ export const useStaff = (): UseStaffReturn => {
     [setActiveMutation, refetch],
   )
 
-  const staff = (data?.users.data ?? []).map(toStaffMember).map((member) => ({
-    ...member,
-    branchName: member.branchId == null ? undefined : branchNames.get(member.branchId),
-  }))
+  const staff = useMemo(
+    () =>
+      (data?.users.data ?? [])
+        .map(toStaffMember)
+        .filter((member) => isStaffRole(member.role))
+        .map((member) => ({
+          ...member,
+          branchName: member.branchId == null ? undefined : branchNames.get(member.branchId),
+        })),
+    [data, branchNames],
+  )
 
   return {
     staff,

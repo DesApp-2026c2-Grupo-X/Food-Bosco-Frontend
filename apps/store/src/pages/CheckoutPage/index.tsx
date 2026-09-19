@@ -15,6 +15,7 @@ import {
   PrimaryButton,
   SecondaryButton,
   Strong,
+  notifyError,
 } from '@repo/components'
 import { routes } from '../../routes'
 import { useAddressStore } from '../../stores/addressStore'
@@ -95,10 +96,13 @@ export const CheckoutPage = () => {
 
       <OrderItemsCard
         items={lines.map((item) => ({
-          productId: String(item.id),
+          key: item.id,
+          productId: item.productId,
           name: item.product?.name ?? '',
           quantity: item.quantity,
           subtotal: cartLineTotal(item),
+          options: item.options,
+          observations: item.observations,
         }))}
       />
 
@@ -115,15 +119,17 @@ export const CheckoutPage = () => {
       <PrimaryButton
         width="full"
         loading={isCreating}
-        disabled={!selectedAddressId}
+        disabled={!selectedAddressId || !selected || isCreating}
         onClick={async () => {
-          if (!selectedAddressId) return
+          if (!selectedAddressId || !selected) return
           setError(null)
           try {
             const order = await createOrder(selectedAddressId)
             if (order) setConfirmedOrder(order)
           } catch {
-            setError('No pudimos confirmar tu pedido. Intentá de nuevo.')
+            const message = 'No pudimos confirmar tu pedido. Intentá de nuevo.'
+            setError(message)
+            notifyError({ title: 'Error al confirmar', description: message })
           }
         }}
       >

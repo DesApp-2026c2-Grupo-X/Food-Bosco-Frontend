@@ -1,35 +1,32 @@
 import { HStack, Text, VStack } from '@chakra-ui/react'
 import { useParams } from 'react-router-dom'
 import { useOrderTransition } from '@repo/api'
-import { formatOrderDate, formatPrice, ORDER_STATUS_LABELS, type OrderStatus } from '@repo/domain'
+import {
+  formatOrderDate,
+  formatOrderTime,
+  ORDER_STATUS_LABELS,
+  type OrderStatus,
+} from '@repo/domain'
 import { BackButton } from '../BackButton'
-import { EmptyState } from '../EmptyState'
-import { Muted } from '../Muted'
+import { Card } from '../Card'
+import { ConfirmDeleteModal } from '../ConfirmDeleteModal'
+import { EmptyState } from '../feedback'
+import { OrderItemsCard } from '../OrderItemsCard'
 import { OrderStatusBadge } from '../OrderStatusBadge'
+import { OrderTotalCard } from '../OrderTotalCard'
 import { PageContainer } from '../PageContainer'
-import { PageTitle } from '../PageTitle'
 import { PrimaryButton } from '../Button'
-import { ResponsiveModal } from '../ResponsiveModal'
 import { SelectField } from '../SelectField'
-import { Strong } from '../Strong'
+import { Muted, PageTitle, Strong } from '../typography'
 import type { OrderDetailCardProps } from './types'
 
-const formatTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-
-const Card = ({ title, children }: OrderDetailCardProps) => (
-  <VStack
-    align="start"
-    gap="2"
-    bg="bg.panel"
-    border="1px solid"
-    borderColor="border.subtle"
-    borderRadius="2xl"
-    padding="5"
-  >
-    <Strong fontSize="lg">{title}</Strong>
-    {children}
-  </VStack>
+const SectionCard = ({ title, children }: OrderDetailCardProps) => (
+  <Card>
+    <VStack align="start" gap="2">
+      <Strong fontSize="lg">{title}</Strong>
+      {children}
+    </VStack>
+  </Card>
 )
 
 export const OrderDetailView = () => {
@@ -75,58 +72,39 @@ export const OrderDetailView = () => {
 
       {order ? (
         <>
-          <Card title="Cliente">
+          <SectionCard title="Cliente">
             <Text fontWeight="medium">
               {order.client ? `${order.client.firstName} ${order.client.lastName}` : '—'}
             </Text>
             <Muted fontSize="sm">{order.client?.phone ?? '—'}</Muted>
             <Muted fontSize="sm">{order.client?.email ?? '—'}</Muted>
-          </Card>
+          </SectionCard>
 
-          <Card title="Entrega">
+          <SectionCard title="Entrega">
             <Muted fontSize="sm">{order.deliveryAddress.text}</Muted>
             <Muted fontSize="sm">Sucursal asignada: {order.branch?.name ?? '—'}</Muted>
-          </Card>
+          </SectionCard>
 
-          <Card title="Detalle">
-            <VStack align="stretch" gap="2" width="full">
-              {order.items.map((item) => (
-                <HStack key={item.productId} justify="space-between">
-                  <Text fontSize="sm">
-                    {item.quantity} × {item.name}
-                  </Text>
-                  <Muted fontSize="sm">{formatPrice(item.unitPrice * item.quantity)}</Muted>
-                </HStack>
-              ))}
-            </VStack>
-            <HStack
-              justify="space-between"
-              width="full"
-              borderTop="1px solid"
-              borderColor="border.subtle"
-              paddingTop="2"
-            >
-              <Strong>Total</Strong>
-              <Strong>{formatPrice(order.total)}</Strong>
-            </HStack>
-          </Card>
+          <OrderItemsCard title="Detalle" items={order.items} />
 
-          <Card title="Historial de estados">
+          <OrderTotalCard total={order.total} />
+
+          <SectionCard title="Historial de estados">
             {order.statusHistory && order.statusHistory.length > 0 ? (
               <VStack align="stretch" gap="2" width="full">
                 {order.statusHistory.map((entry, index) => (
                   <HStack key={`${entry.changedAt}-${index}`} justify="space-between">
                     <Muted fontSize="sm">{ORDER_STATUS_LABELS[entry.newStatus]}</Muted>
-                    <Muted fontSize="xs">{formatTime(entry.changedAt)}</Muted>
+                    <Muted fontSize="xs">{formatOrderTime(entry.changedAt)}</Muted>
                   </HStack>
                 ))}
               </VStack>
             ) : (
               <Muted fontSize="sm">Sin cambios de estado aún.</Muted>
             )}
-          </Card>
+          </SectionCard>
 
-          <Card title="Cambiar estado">
+          <SectionCard title="Cambiar estado">
             {transitions.length > 0 ? (
               <VStack align="stretch" gap="3" width="full">
                 <SelectField
@@ -147,23 +125,21 @@ export const OrderDetailView = () => {
             ) : (
               <Muted fontSize="sm">No hay transiciones disponibles para este pedido.</Muted>
             )}
-          </Card>
+          </SectionCard>
         </>
       ) : null}
 
-      <ResponsiveModal open={confirmOpen} onClose={cancel}>
-        <VStack align="stretch" gap="4">
-          <Strong fontSize="lg">Confirmar cambio de estado</Strong>
-          <Muted>
-            ¿Cambiar el pedido a {nextStatus ? ORDER_STATUS_LABELS[nextStatus as OrderStatus] : ''}?
-          </Muted>
-          <HStack justify="end" gap="2">
-            <PrimaryButton size="md" loading={isMutating} onClick={confirmChange}>
-              Confirmar
-            </PrimaryButton>
-          </HStack>
-        </VStack>
-      </ResponsiveModal>
+      <ConfirmDeleteModal
+        open={confirmOpen}
+        title="Confirmar cambio de estado"
+        description={`¿Cambiar el pedido a ${
+          nextStatus ? ORDER_STATUS_LABELS[nextStatus as OrderStatus] : ''
+        }?`}
+        confirmLabel="Confirmar"
+        isSubmitting={isMutating}
+        onClose={cancel}
+        onConfirm={confirmChange}
+      />
     </PageContainer>
   )
 }

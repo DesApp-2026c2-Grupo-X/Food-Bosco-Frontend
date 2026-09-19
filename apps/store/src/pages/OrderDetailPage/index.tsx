@@ -6,9 +6,9 @@ import { Link, useParams } from 'react-router-dom'
 import {
   Card,
   EmptyState,
+  InteractiveMap,
   LegendDotRow,
   LoadingState,
-  MapCard,
   Muted,
   OrderDetailShell,
   OrderItemsCard,
@@ -17,9 +17,9 @@ import {
   PrimaryButton,
   Strong,
   Subtle,
-  useIsDesktop,
+  type InteractiveMapMarker,
 } from '@repo/components'
-import { buildStaticMapUrl, useOrder, type StaticMapMarker } from '@repo/api'
+import { useOrder } from '@repo/api'
 import { routes } from '../../routes'
 import type { Order } from '@repo/domain'
 import { formatEta, formatOrderDate, isActiveOrder } from '@repo/domain'
@@ -111,20 +111,30 @@ export const OrderDetailPage = () => {
 }
 
 const TrackingMap = ({ order }: { order: Order }) => {
-  const isDesktop = useIsDesktop()
   const branch = order.branch
   const riderLocation = order.riderLocation ?? null
 
   if (!branch) return null
 
-  const centerLat = (branch.latitude + order.deliveryAddress.latitude) / 2
-  const centerLon = (branch.longitude + order.deliveryAddress.longitude) / 2
+  const delivery = {
+    latitude: order.deliveryAddress.latitude,
+    longitude: order.deliveryAddress.longitude,
+  }
+  const center = riderLocation ?? {
+    latitude: (branch.latitude + delivery.latitude) / 2,
+    longitude: (branch.longitude + delivery.longitude) / 2,
+  }
 
-  const markers: StaticMapMarker[] = [
-    { lat: branch.latitude, lon: branch.longitude, color: MAP_MARKER_COLORS.branch, label: 'T' },
+  const markers: InteractiveMapMarker[] = [
     {
-      lat: order.deliveryAddress.latitude,
-      lon: order.deliveryAddress.longitude,
+      latitude: branch.latitude,
+      longitude: branch.longitude,
+      color: MAP_MARKER_COLORS.branch,
+      label: 'T',
+    },
+    {
+      latitude: delivery.latitude,
+      longitude: delivery.longitude,
       color: MAP_MARKER_COLORS.client,
       label: 'C',
     },
@@ -132,21 +142,12 @@ const TrackingMap = ({ order }: { order: Order }) => {
 
   if (riderLocation) {
     markers.push({
-      lat: riderLocation.latitude,
-      lon: riderLocation.longitude,
+      latitude: riderLocation.latitude,
+      longitude: riderLocation.longitude,
       color: MAP_MARKER_COLORS.rider,
-      icon: 'person-biking',
+      label: 'R',
     })
   }
-
-  const mapUrl = buildStaticMapUrl({
-    centerLat,
-    centerLon,
-    zoom: 13,
-    width: isDesktop ? 1200 : 600,
-    height: isDesktop ? 340 : 700,
-    markers,
-  })
 
   const legend = [
     { color: 'info', title: 'Tienda', subtitle: branch.addressText },
@@ -162,10 +163,12 @@ const TrackingMap = ({ order }: { order: Order }) => {
   }
 
   return (
-    <MapCard
-      src={mapUrl}
+    <InteractiveMap
+      center={center}
+      markers={markers}
+      zoom={13}
+      height="320px"
       alt="Mapa de seguimiento del pedido"
-      height={isDesktop ? '340px' : '700px'}
       legend={
         <VStack gap="2.5" align="stretch">
           <HStack justify="space-between">
@@ -191,7 +194,7 @@ const TrackingMap = ({ order }: { order: Order }) => {
       }
       note={
         <Subtle fontSize="2xs" marginTop="3">
-          © OpenStreetMap · Geoapify
+          Mapa interactivo
         </Subtle>
       }
     />

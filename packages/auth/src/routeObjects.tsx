@@ -25,13 +25,16 @@ export const authRouteObjects = (config: AuthRoutesConfig = {}): RouteObject[] =
         redirectByRole={config.redirectByRole}
         registerDefaultRole={config.registerDefaultRole}
         registerRoles={config.registerRoles}
+        showRegister={config.showRegister}
       >
         <AuthLayout logoLight={config.logoLight} logoDark={config.logoDark} image={config.image} />
       </AuthProvider>
     ),
     children: [
       { path: authRoutes.login, element: <LoginPage /> },
-      { path: authRoutes.register, element: <RegisterPage /> },
+      ...(config.showRegister === false
+        ? []
+        : [{ path: authRoutes.register, element: <RegisterPage /> }]),
       { path: authRoutes.forgotPassword, element: <ForgotPasswordPage /> },
       { path: authRoutes.resetPassword, element: <ResetPasswordPage /> },
     ],

@@ -4,7 +4,7 @@ import { Card } from '../Card'
 import { DetailRow } from '../DetailRow'
 import { PageContainer } from '../PageContainer'
 import { PageHeader } from '../PageHeader'
-import { Strong } from '../Strong'
+import { Strong } from '../typography'
 import type { ProfileViewProps } from './types'
 
 export const ProfileView = ({ user, description }: ProfileViewProps) => (

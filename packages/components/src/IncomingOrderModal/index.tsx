@@ -5,9 +5,8 @@ import { formatPrice } from '@repo/domain'
 import { playIncomingSound, stopIncomingSound } from '../AudioUnlock/playIncomingSound'
 import { GhostButton, PrimaryButton } from '../Button'
 import { Card } from '../Card'
-import { Muted } from '../Muted'
 import { ResponsiveModal } from '../ResponsiveModal'
-import { Strong } from '../Strong'
+import { Muted, Strong } from '../typography'
 import type { IncomingOrderModalProps } from './types'
 
 export const IncomingOrderModal = ({

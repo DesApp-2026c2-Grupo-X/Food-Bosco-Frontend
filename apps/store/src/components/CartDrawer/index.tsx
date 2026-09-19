@@ -9,7 +9,7 @@ import { EmptyState, LoadingState, Muted, Price, PrimaryButton, SidePanel } from
 import type { CartDrawerProps } from './types'
 
 export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
-  const { cart, isLoading, updateItem, removeItem } = useCart()
+  const { cart, isLoading, isMutating, updateItem, removeItem } = useCart()
   const lines = cart?.items ?? []
   const isEmpty = !isLoading && lines.length === 0
 
@@ -27,6 +27,7 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
         <CartLineCard
           key={item.id}
           item={item}
+          disabled={isMutating}
           onQuantityChange={(id, quantity) => void updateItem(id, { quantity })}
           onRemove={removeItem}
         />

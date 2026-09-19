@@ -11,4 +11,5 @@ export const MOCK_BRANCH_ADMIN: User = {
   phone: '+54 11 5555 1234',
   active: true,
   createdAt: '2025-01-15T09:00:00',
+  branchId: 'mock-branch-centro',
 }

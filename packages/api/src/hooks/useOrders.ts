@@ -11,9 +11,14 @@ interface MyOrdersResult {
   myOrders: Record<string, unknown>[]
 }
 
-export const useOrders = (): UseOrdersReturn => {
+interface UseOrdersOptions {
+  pollIntervalMs?: number
+}
+
+export const useOrders = (options?: UseOrdersOptions): UseOrdersReturn => {
   const { data, loading } = useQuery<MyOrdersResult>(MY_ORDERS, {
     fetchPolicy: 'network-only',
+    pollInterval: options?.pollIntervalMs,
   })
 
   return {

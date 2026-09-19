@@ -3,17 +3,20 @@ import ListUl from '@gravity-ui/icons/ListUl'
 import { Link } from 'react-router-dom'
 import { formatOrderDate, formatPrice, ORDER_STATUS_OPTIONS, type Order } from '@repo/domain'
 import { GhostButton } from '../Button'
-import { DataTable } from '../DataTable'
+import { CrudListPage } from '../CrudListPage'
 import type { DataTableColumn } from '../DataTable/types'
-import { ListToolbar } from '../ListToolbar'
-import { Muted } from '../Muted'
 import { OrderStatusBadge } from '../OrderStatusBadge'
-import { PageHeader } from '../PageHeader'
-import { SearchInput } from '../SearchInput'
 import { SelectField } from '../SelectField'
-import { Strong } from '../Strong'
-import { WidePageContainer } from '../WidePageContainer'
+import { useListFilters } from '../useListFilters'
+import { Muted, Strong } from '../typography'
 import type { OrdersListViewProps } from './types'
+
+const ORDER_SEARCH_KEYS = [
+  (order: Order) => String(order.number),
+  (order: Order) => (order.client ? `${order.client.firstName} ${order.client.lastName}` : null),
+]
+
+const matchesOrderStatus = (order: Order, status: string) => order.status === status
 
 export const OrdersListView = ({
   orders,
@@ -23,33 +26,29 @@ export const OrdersListView = ({
   showBranchFilter = false,
   branchColumnHideBelow,
 }: OrdersListViewProps) => {
-  const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('')
   const [branch, setBranch] = useState('')
 
-  const branchOptions = useMemo(
-    () =>
-      [...new Set(orders.map((order) => order.branch?.name ?? '—'))].map((name) => ({
-        value: name,
-        label: name,
-      })),
-    [orders],
-  )
+  const branchOptions = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const order of orders) {
+      const id = order.branchId || '—'
+      if (!map.has(id)) map.set(id, order.branch?.name ?? 'Sin sucursal')
+    }
+    return [...map.entries()].map(([value, label]) => ({ value, label }))
+  }, [orders])
 
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
-    return orders.filter((order) => {
-      const matchesSearch =
-        !query ||
-        String(order.number).includes(query) ||
-        (order.client ? `${order.client.firstName} ${order.client.lastName}` : '')
-          .toLowerCase()
-          .includes(query)
-      const matchesStatus = !status || order.status === status
-      const matchesBranch = !showBranchFilter || !branch || order.branch?.name === branch
-      return matchesSearch && matchesStatus && matchesBranch
-    })
-  }, [orders, search, status, branch, showBranchFilter])
+  const filters = useListFilters(orders, {
+    searchKeys: ORDER_SEARCH_KEYS,
+    matchesStatus: matchesOrderStatus,
+  })
+
+  const rows = useMemo(
+    () =>
+      filters.rows.filter(
+        (order) => !showBranchFilter || !branch || (order.branchId || '—') === branch,
+      ),
+    [filters.rows, showBranchFilter, branch],
+  )
 
   const columns: DataTableColumn<Order>[] = [
     { key: 'number', header: 'Número', render: (order) => <Strong>#{order.number}</Strong> },
@@ -97,46 +96,41 @@ export const OrdersListView = ({
   ]
 
   return (
-    <WidePageContainer>
-      <PageHeader title="Pedidos" description={description} />
-
-      <ListToolbar
-        filters={
-          <>
-            <SearchInput
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Número o cliente..."
-            />
+    <CrudListPage
+      title="Pedidos"
+      description={description}
+      search={{
+        value: filters.search,
+        onChange: filters.setSearch,
+        placeholder: 'Número o cliente...',
+      }}
+      toolbar={
+        <>
+          <SelectField
+            value={filters.status}
+            onChange={filters.setStatus}
+            options={ORDER_STATUS_OPTIONS}
+            placeholder="Estado: Todos"
+            width="filterControl"
+          />
+          {showBranchFilter ? (
             <SelectField
-              value={status}
-              onChange={setStatus}
-              options={ORDER_STATUS_OPTIONS}
-              placeholder="Estado: Todos"
+              value={branch}
+              onChange={setBranch}
+              options={branchOptions}
+              placeholder="Sucursal: Todas"
               width="filterControl"
             />
-            {showBranchFilter ? (
-              <SelectField
-                value={branch}
-                onChange={setBranch}
-                options={branchOptions}
-                placeholder="Sucursal: Todas"
-                width="filterControl"
-              />
-            ) : null}
-          </>
-        }
-      />
-
-      <DataTable
-        columns={columns}
-        rows={filtered}
-        getRowKey={(order) => order.id}
-        isLoading={isLoading}
-        emptyIcon={<ListUl width={40} height={40} />}
-        emptyTitle="Sin pedidos"
-        emptyDescription="No hay pedidos que coincidan con los filtros."
-      />
-    </WidePageContainer>
+          ) : null}
+        </>
+      }
+      columns={columns}
+      rows={rows}
+      getRowKey={(order) => order.id}
+      isLoading={isLoading}
+      emptyIcon={<ListUl width={40} height={40} />}
+      emptyTitle="Sin pedidos"
+      emptyDescription="No hay pedidos que coincidan con los filtros."
+    />
   )
 }

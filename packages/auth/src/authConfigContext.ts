@@ -11,6 +11,7 @@ export interface AuthAppConfig {
   redirectByRole?: (role?: UserRole) => void
   registerDefaultRole?: RegisterRole
   registerRoles?: RegisterRole[]
+  showRegister?: boolean
 }
 
 export const AuthConfigContext = createContext<AuthAppConfig>({ defaultPath: '/' })

@@ -5,6 +5,8 @@ export interface ProfileNavItem {
   label: string
   path: string
   icon: ReactNode
+  disabled?: boolean
+  hint?: string
 }
 
 export interface ProfileNavProps {

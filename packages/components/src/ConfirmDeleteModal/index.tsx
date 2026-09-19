@@ -1,8 +1,7 @@
 import { HStack, VStack } from '@chakra-ui/react'
 import { GhostButton, PrimaryButton } from '../Button'
-import { Muted } from '../Muted'
 import { ResponsiveModal } from '../ResponsiveModal'
-import { Strong } from '../Strong'
+import { Muted, Strong } from '../typography'
 import type { ConfirmDeleteModalProps } from './types'
 
 export const ConfirmDeleteModal = ({

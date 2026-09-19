@@ -2,6 +2,7 @@ export interface DesktopNavItem {
   id: string
   label: string
   path: string
+  activePaths?: string[]
 }
 
 export interface DesktopNavProps {

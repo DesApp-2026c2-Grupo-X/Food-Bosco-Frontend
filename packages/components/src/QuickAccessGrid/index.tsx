@@ -1,7 +1,6 @@
-import { Box, Link as ChakraLink, SimpleGrid } from '@chakra-ui/react'
-import { Link } from 'react-router-dom'
-import { Muted } from '../Muted'
-import { Strong } from '../Strong'
+import { Box, SimpleGrid } from '@chakra-ui/react'
+import { MenuLink } from '../MenuLink'
+import { Muted, Strong } from '../typography'
 import type { QuickAccessGridProps } from './types'
 
 export const QuickAccessGrid = ({ items, columns = { base: 2, md: 4 } }: QuickAccessGridProps) => (
@@ -9,9 +8,9 @@ export const QuickAccessGrid = ({ items, columns = { base: 2, md: 4 } }: QuickAc
     {items.map((item) => {
       const Icon = item.icon
       return (
-        <ChakraLink
-          asChild
+        <MenuLink
           key={item.id}
+          to={item.path}
           display="block"
           bg="bg.panel"
           border="1px solid"
@@ -20,14 +19,12 @@ export const QuickAccessGrid = ({ items, columns = { base: 2, md: 4 } }: QuickAc
           padding="5"
           _hover={{ borderColor: 'border.emphasized' }}
         >
-          <Link to={item.path}>
-            <Box color="brand.600" marginBottom="3">
-              <Icon width={26} height={26} />
-            </Box>
-            <Strong>{item.label}</Strong>
-            <Muted fontSize="sm">{item.description}</Muted>
-          </Link>
-        </ChakraLink>
+          <Box color="brand.600" marginBottom="3">
+            <Icon width={26} height={26} />
+          </Box>
+          <Strong>{item.label}</Strong>
+          <Muted fontSize="sm">{item.description}</Muted>
+        </MenuLink>
       )
     })}
   </SimpleGrid>

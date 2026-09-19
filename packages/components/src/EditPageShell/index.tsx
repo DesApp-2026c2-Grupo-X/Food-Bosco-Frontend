@@ -1,7 +1,7 @@
 import { BackButton } from '../BackButton'
-import { EmptyState } from '../EmptyState'
+import { EmptyState } from '../feedback'
 import { PageHeader } from '../PageHeader'
-import { PageTitle } from '../PageTitle'
+import { PageTitle } from '../typography'
 import { WidePageContainer } from '../WidePageContainer'
 import type { EditPageShellProps } from './types'
 

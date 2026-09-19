@@ -29,6 +29,7 @@ export const App = () =>
       riderUrl: RIDER_URL,
       logoLight,
       logoDark,
+      showRegister: false,
     }),
     {
       element: (

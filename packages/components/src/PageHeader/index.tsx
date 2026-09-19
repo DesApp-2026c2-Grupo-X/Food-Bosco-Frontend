@@ -1,6 +1,5 @@
 import { HStack, VStack } from '@chakra-ui/react'
-import { Muted } from '../Muted'
-import { PageTitle } from '../PageTitle'
+import { Muted, PageTitle } from '../typography'
 import type { PageHeaderProps } from './types'
 
 export const PageHeader = ({ title, description, action }: PageHeaderProps) => (

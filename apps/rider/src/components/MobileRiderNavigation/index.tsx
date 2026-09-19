@@ -7,7 +7,14 @@ import { routes } from '../../routes'
 
 export const MobileRiderNavigation = () => {
   const items: MobileNavItem[] = [
-    { id: 'home', label: 'Inicio', path: routes.home, icon: House, exact: true },
+    {
+      id: 'home',
+      label: 'Inicio',
+      path: routes.home,
+      icon: House,
+      exact: true,
+      activePaths: [routes.tripOrderDetail],
+    },
     { id: 'history', label: 'Historial', path: routes.history, icon: Receipt },
     { id: 'profile', label: 'Perfil', path: routes.profile, icon: Person },
   ]

@@ -5,7 +5,12 @@ import { formatPrice } from '@repo/domain'
 import { Card, GhostButton, Muted, Price, QuantityStepper, Strong, Subtle } from '@repo/components'
 import type { CartLineCardProps } from './types'
 
-export const CartLineCard = ({ item, onQuantityChange, onRemove }: CartLineCardProps) => {
+export const CartLineCard = ({
+  item,
+  onQuantityChange,
+  onRemove,
+  disabled = false,
+}: CartLineCardProps) => {
   const optionsLabel = item.options.map((option) => option.name).join(' · ')
 
   return (
@@ -50,6 +55,7 @@ export const CartLineCard = ({ item, onQuantityChange, onRemove }: CartLineCardP
           color="fg.subtle"
           paddingX="0"
           _hover={{ color: 'danger' }}
+          disabled={disabled}
           onClick={() => onRemove(item.id)}
         >
           <TrashBin width={14} height={14} />
@@ -60,6 +66,7 @@ export const CartLineCard = ({ item, onQuantityChange, onRemove }: CartLineCardP
         <Price>{formatPrice(cartLineTotal(item))}</Price>
         <QuantityStepper
           value={item.quantity}
+          disabled={disabled}
           onChange={(value) => onQuantityChange(item.id, value)}
         />
       </VStack>

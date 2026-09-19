@@ -21,11 +21,13 @@ import {
   WidePageContainer,
 } from '@repo/components'
 import { ProductCard } from '../../components/ProductCard'
+import { ActiveOrderCard } from '../../components/ActiveOrderCard'
 import { SectionHeader } from '@repo/components'
 import { routes } from '../../routes'
-import { useAvailableBranches, useCatalog, useProfile } from '@repo/api'
+import { useAvailableBranches, useCatalog, useOrders, useProfile } from '@repo/api'
 import { useAddresses } from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
+import { isActiveOrder } from '@repo/domain'
 
 const STEPS = [
   { icon: LayoutCells, title: 'Elegí', text: 'Explorá el catálogo y encontrá tu antojo.' },
@@ -42,12 +44,23 @@ export const HomePage = () => {
     selected?.latitude,
     selected?.longitude,
   )
+  const { orders } = useOrders({ pollIntervalMs: 15000 })
+  const activeOrders = orders.filter((order) => isActiveOrder(order.status))
 
   const hasAvailableBranch = !branchesLoading && branches.length > 0
 
   return (
     <WidePageContainer>
       <Hero userFirstName={user?.firstName} />
+
+      {activeOrders.length > 0 ? (
+        <VStack align="stretch" gap="4">
+          <SectionTitle>Pedidos en curso</SectionTitle>
+          {activeOrders.map((order) => (
+            <ActiveOrderCard key={order.id} order={order} />
+          ))}
+        </VStack>
+      ) : null}
 
       {hasAvailableBranch ? (
         <HomeCatalog lat={selected?.latitude} lng={selected?.longitude} />

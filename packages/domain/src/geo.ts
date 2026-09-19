@@ -16,3 +16,9 @@ export const haversineDistanceMeters = (from: GeoPoint, to: GeoPoint): number =>
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h))
 }
+
+export const formatDistance = (meters: number): string => {
+  if (!Number.isFinite(meters)) return '—'
+  if (meters < 1000) return `${Math.round(meters)} m`
+  return `${(meters / 1000).toFixed(1)} km`
+}

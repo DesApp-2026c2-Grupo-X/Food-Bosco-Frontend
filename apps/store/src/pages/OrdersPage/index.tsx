@@ -2,26 +2,24 @@ import { HStack, VStack } from '@chakra-ui/react'
 import ListUl from '@gravity-ui/icons/ListUl'
 import { Link } from 'react-router-dom'
 import {
-  Card,
   EmptyState,
   Muted,
   OrderStatusBadge,
-  OrderTimeline,
   PageContainer,
   PageHeader,
   Price,
   PrimaryButton,
-  Strong,
   SummaryCard,
 } from '@repo/components'
 import { orderDetailPath, routes } from '../../routes'
+import { ActiveOrderCard } from '../../components/ActiveOrderCard'
 import { formatPrice } from '@repo/domain'
-import { formatEta, formatOrderDate, isActiveOrder } from '@repo/domain'
+import { formatOrderDate, isActiveOrder } from '@repo/domain'
 import { useOrders } from '@repo/api'
 
 export const OrdersPage = () => {
-  const { orders, isLoading } = useOrders()
-  const activeOrder = orders.find((order) => isActiveOrder(order.status))
+  const { orders, isLoading } = useOrders({ pollIntervalMs: 15000 })
+  const activeOrders = orders.filter((order) => isActiveOrder(order.status))
   const pastOrders = orders.filter((order) => !isActiveOrder(order.status))
 
   return (
@@ -31,23 +29,12 @@ export const OrdersPage = () => {
         description="Seguí los pedidos en curso y revisá el historial."
       />
 
-      {activeOrder ? (
-        <Card variant="subtle">
-          <HStack justify="space-between" marginBottom="2">
-            <Strong fontSize="lg">Pedido #{activeOrder.number}</Strong>
-            <OrderStatusBadge status={activeOrder.status} />
-          </HStack>
-          <Muted fontSize="sm" marginBottom="4">
-            {activeOrder.branch?.name ?? 'Sucursal'} ·{' '}
-            {activeOrder.estimatedDeliveryAt
-              ? formatEta(activeOrder.estimatedDeliveryAt)
-              : 'Estimando tiempo'}
-          </Muted>
-          <OrderTimeline status={activeOrder.status} />
-          <PrimaryButton asChild marginTop="5" width="full">
-            <Link to={orderDetailPath(activeOrder.id)}>Ver seguimiento</Link>
-          </PrimaryButton>
-        </Card>
+      {activeOrders.length > 0 ? (
+        <VStack align="stretch" gap="3">
+          {activeOrders.map((order) => (
+            <ActiveOrderCard key={order.id} order={order} />
+          ))}
+        </VStack>
       ) : null}
 
       <VStack gap="3" align="stretch">

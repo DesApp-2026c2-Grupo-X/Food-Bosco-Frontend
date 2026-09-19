@@ -1,6 +1,4 @@
-import { Link as ChakraLink } from '@chakra-ui/react'
-import { NavLink } from 'react-router-dom'
-import { AppHeader, createLogo, useDesktopNavigation } from '@repo/components'
+import { AppHeader, createLogo, LogoLink, useDesktopNavigation } from '@repo/components'
 import { routes } from '../../routes'
 import { HeaderActions } from './HeaderActions'
 import { getDesktopNavItems } from './utils/navigation'
@@ -17,11 +15,9 @@ export const RiderHeader = () => {
       navItems={navItems}
       isActive={isActive}
       logo={
-        <ChakraLink asChild>
-          <NavLink to={routes.home} aria-label="Ir al inicio">
-            <Logo height="40px" />
-          </NavLink>
-        </ChakraLink>
+        <LogoLink to={routes.home}>
+          <Logo height="40px" />
+        </LogoLink>
       }
       actions={<HeaderActions />}
     />
