@@ -5,5 +5,6 @@ export interface OrderDetailShellProps {
   orderNumber?: number | string
   status: OrderStatus
   description?: ReactNode
+  showBack?: boolean
   children: ReactNode
 }

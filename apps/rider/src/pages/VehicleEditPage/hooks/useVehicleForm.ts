@@ -6,11 +6,13 @@ import { useNavigate } from 'react-router-dom'
 import { useRiderProfile } from '@repo/api'
 import { vehicleSchema } from '@repo/domain'
 import { routes } from '../../../routes'
+import { useRiderStore } from '../../../stores/riderStore'
 
 type VehicleValues = z.infer<typeof vehicleSchema>
 
 export const useVehicleForm = () => {
   const navigate = useNavigate()
+  const isOnline = useRiderStore((state) => state.isOnline)
   const { profile, isLoading, updateVehicle } = useRiderProfile()
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -42,10 +44,12 @@ export const useVehicleForm = () => {
   const isDirty = form.formState.isDirty
 
   const selectMoto = () => {
+    if (isOnline) return
     form.setValue('type', 'moto', { shouldDirty: false, shouldValidate: false })
   }
 
   const selectBici = async () => {
+    if (isOnline) return
     setError(null)
     form.reset({ type: 'bici', brand: '', model: '', plate: '' })
     try {
@@ -56,6 +60,7 @@ export const useVehicleForm = () => {
   }
 
   const onSave = form.handleSubmit(async (values) => {
+    if (isOnline) return
     setSubmitting(true)
     setError(null)
     try {

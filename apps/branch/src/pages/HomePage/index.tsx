@@ -18,7 +18,7 @@ import {
 } from '@repo/components'
 import { useBranchOrders } from '@repo/api'
 import {
-  formatElapsed,
+  formatElapsedAgo,
   getElapsedMinutes,
   getStatusSince,
   groupAttentionOrders,
@@ -106,7 +106,7 @@ export const HomePage = () => {
                             : 'Cliente'}
                         </Strong>
                         <Text fontSize="sm" fontWeight="medium" color={elapsedTone(minutes)}>
-                          hace {formatElapsed(getStatusSince(order))}
+                          {formatElapsedAgo(getStatusSince(order))}
                         </Text>
                       </VStack>
                       <PrimaryButton asChild size="md">

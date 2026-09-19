@@ -20,8 +20,9 @@ import {
 } from '@chakra-ui/react'
 import ArrowRightFromSquare from '@gravity-ui/icons/ArrowRightFromSquare'
 import Bars from '@gravity-ui/icons/Bars'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { ColorModeButton } from '../ColorModeProvider/ColorModeButton'
+import { NavItem } from '../NavItem'
 import { isNavItemActive } from '../navigation'
 import type { DashboardLayoutProps, DashboardNavItem } from './types'
 
@@ -45,25 +46,16 @@ export const DashboardLayout = ({
     const active = isNavItemActive(pathname, item.path, item.exact)
     const Icon = item.icon
     return (
-      <ChakraLink
-        asChild
+      <NavItem
         key={item.id}
-        display="flex"
-        alignItems="center"
-        gap="3"
-        paddingX="3"
+        to={item.path}
+        label={item.label}
+        active={active}
+        icon={<Icon width={20} height={20} />}
+        variant="sidebar"
         paddingY={paddingY}
-        borderRadius="full"
-        color={active ? 'brand.700' : 'fg.muted'}
-        bg={active ? 'bg.muted' : 'transparent'}
-        _hover={{ color: 'brand.600', bg: 'bg.muted' }}
-        fontWeight={active ? 'semibold' : 'normal'}
-      >
-        <NavLink to={item.path} onClick={onNavigate}>
-          <Icon width={20} height={20} />
-          {item.label}
-        </NavLink>
-      </ChakraLink>
+        onClick={onNavigate}
+      />
     )
   }
 
@@ -103,7 +95,8 @@ export const DashboardLayout = ({
       paddingY={paddingY}
       borderRadius="full"
       color="fg.muted"
-      _hover={{ bg: 'bg.muted' }}
+      textDecoration="none"
+      _hover={{ bg: 'bg.muted', textDecoration: 'none' }}
     >
       <ArrowRightFromSquare width={20} height={20} />
       Salir

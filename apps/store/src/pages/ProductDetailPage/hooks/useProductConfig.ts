@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { useCart, useProduct } from '@repo/api'
+import { notifyError, notifySuccess } from '@repo/components'
 import type { ProductOptionType } from '@repo/domain'
 
 type SelectionMap = Record<string, string | string[]>
 
 export const useProductConfig = (productId: string | undefined) => {
   const { product, isLoading } = useProduct(productId)
-  const { addItem } = useCart()
+  const { addItem, isMutating } = useCart()
 
   const [selection, setSelection] = useState<SelectionMap>({})
   const [quantity, setQuantity] = useState(1)
@@ -59,8 +60,8 @@ export const useProductConfig = (productId: string | undefined) => {
 
   const canAdd = Boolean(product && product.available && !missingRequired)
 
-  const addToCart = async () => {
-    if (!product || !canAdd) return
+  const addToCart = async (): Promise<boolean> => {
+    if (!product || !canAdd || isMutating) return false
     setError(null)
     try {
       await addItem({
@@ -69,14 +70,23 @@ export const useProductConfig = (productId: string | undefined) => {
         observations: notes.trim().slice(0, 500) || null,
         optionIds: selectedOptionIds,
       })
+      notifySuccess({
+        title: 'Producto agregado',
+        description: `${product.name} se sumó a tu carrito.`,
+      })
+      return true
     } catch {
-      setError('No pudimos agregar el producto. Intentá de nuevo.')
+      const message = 'No pudimos agregar el producto. Intentá de nuevo.'
+      setError(message)
+      notifyError({ title: 'No se pudo agregar', description: message })
+      return false
     }
   }
 
   return {
     product,
     isLoading,
+    isAdding: isMutating,
     selection,
     selectOption,
     quantity,

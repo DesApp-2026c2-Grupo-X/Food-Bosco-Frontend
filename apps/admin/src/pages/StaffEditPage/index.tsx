@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Box, HStack } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
@@ -120,7 +120,6 @@ const CreateStaffForm = ({
             onCancel={onCancel}
             submitLabel="Crear colaborador"
             isSubmitting={isSubmitting}
-            disabled={!form.formState.isValid}
           />
         </FormLayout>
       </form>
@@ -157,6 +156,17 @@ const EditStaffForm = ({
     reValidateMode: 'onChange',
   })
 
+  useEffect(() => {
+    form.reset({
+      firstName: member.firstName,
+      lastName: member.lastName,
+      email: member.email,
+      phone: member.phone,
+      role: member.role,
+      branchId: member.branchId != null ? String(member.branchId) : '',
+    })
+  }, [member, form])
+
   const handleSubmit = form.handleSubmit(async (values) => {
     const input: Omit<StaffInput, 'password' | 'email' | 'role'> = {
       firstName: values.firstName.trim(),
@@ -172,12 +182,7 @@ const EditStaffForm = ({
       <form onSubmit={handleSubmit}>
         <FormLayout>
           <StaffCommonFields branchOptions={branchOptions} editing />
-          <FormActions
-            onCancel={onCancel}
-            submitLabel="Guardar"
-            isSubmitting={isSubmitting}
-            disabled={!form.formState.isValid}
-          />
+          <FormActions onCancel={onCancel} submitLabel="Guardar" isSubmitting={isSubmitting} />
         </FormLayout>
       </form>
     </FormProvider>

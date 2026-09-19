@@ -8,10 +8,11 @@ export const OrderDetailShell = ({
   orderNumber,
   status,
   description,
+  showBack = true,
   children,
 }: OrderDetailShellProps) => (
   <PageContainer>
-    <BackButton />
+    {showBack ? <BackButton /> : null}
 
     <PageHeader
       title={orderNumber != null ? `Pedido #${orderNumber}` : 'Pedido'}

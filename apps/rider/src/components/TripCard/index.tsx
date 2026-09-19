@@ -1,17 +1,28 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import { Price, SummaryCard } from '@repo/components'
-import { TRIP_STATUS_LABELS, formatOrderDate, formatPrice } from '@repo/domain'
+import {
+  TRIP_STATUS_LABELS,
+  formatDistance,
+  formatOrderDate,
+  formatPrice,
+  tripDeliveryDistanceMeters,
+} from '@repo/domain'
 import type { TripCardProps } from './types'
 
 export const TripCard = ({ trip }: TripCardProps) => {
   const orderCount = trip.orders.length
-  const distance = trip.distanceKm
+  const distanceLabel =
+    trip.orders.length > 0
+      ? formatDistance(tripDeliveryDistanceMeters(trip.orders))
+      : trip.distanceKm != null
+        ? `${trip.distanceKm} km`
+        : null
 
   return (
     <SummaryCard
       title={trip.completedAt ? formatOrderDate(trip.completedAt) : '—'}
       meta={`${orderCount} ${orderCount === 1 ? 'orden' : 'órdenes'}${
-        distance != null ? ` · ${distance} km` : ''
+        distanceLabel != null ? ` · ${distanceLabel}` : ''
       }`}
       trailing={
         <VStack align="end" gap="1">

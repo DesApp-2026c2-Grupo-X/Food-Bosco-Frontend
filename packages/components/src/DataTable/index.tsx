@@ -1,5 +1,5 @@
 import { Box, Skeleton, Table } from '@chakra-ui/react'
-import { EmptyState } from '../EmptyState'
+import { EmptyState } from '../feedback'
 import type { DataTableProps, ResponsiveBreakpoint } from './types'
 
 const HIDE_MAP: Record<ResponsiveBreakpoint, Record<string, string>> = {

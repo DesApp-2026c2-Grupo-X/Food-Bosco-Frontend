@@ -18,7 +18,7 @@ import { useCart } from '@repo/api'
 import { cartItemCount, cartTotal, formatPrice } from '@repo/domain'
 
 export const CartPage = () => {
-  const { cart, isLoading, updateItem, removeItem } = useCart()
+  const { cart, isLoading, isMutating, updateItem, removeItem } = useCart()
   const lines = cart?.items ?? []
 
   const count = cartItemCount(lines)
@@ -53,6 +53,7 @@ export const CartPage = () => {
             <CartLineCard
               key={item.id}
               item={item}
+              disabled={isMutating}
               onQuantityChange={(id, quantity) => void updateItem(id, { quantity })}
               onRemove={removeItem}
             />

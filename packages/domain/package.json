@@ -15,7 +15,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit",
-    "lint": "eslint . --max-warnings 0"
+    "lint": "eslint . --max-warnings 0",
+    "test": "npm run build && node --test test"
   },
   "dependencies": {
     "zod": "^4.4.3"

@@ -1,19 +1,18 @@
-import { useMemo, useState } from 'react'
 import { Box, Image } from '@chakra-ui/react'
 import ListUl from '@gravity-ui/icons/ListUl'
 import { formatPrice } from '@repo/domain'
-import { DataTable } from '../DataTable'
+import { CrudListPage } from '../CrudListPage'
 import type { DataTableColumn } from '../DataTable/types'
-import { ListToolbar } from '../ListToolbar'
-import { Muted } from '../Muted'
-import { PageHeader } from '../PageHeader'
-import { Price } from '../Price'
 import { PrimaryButton } from '../Button'
-import { SearchInput } from '../SearchInput'
-import { Strong } from '../Strong'
+import { useListFilters } from '../useListFilters'
+import { Muted, Price, Strong } from '../typography'
 import { ToggleSwitch } from '../ToggleSwitch'
-import { WidePageContainer } from '../WidePageContainer'
 import type { ProductListLine, ProductsListViewProps } from './types'
+
+const PRODUCT_SEARCH_KEYS = [
+  (row: ProductListLine) => row.product.name,
+  (row: ProductListLine) => row.categoryName,
+]
 
 export const ProductsListView = ({
   rows,
@@ -26,17 +25,7 @@ export const ProductsListView = ({
   createLabel = 'Nuevo producto',
   rowAction,
 }: ProductsListViewProps) => {
-  const [search, setSearch] = useState('')
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
-    if (!query) return rows
-    return rows.filter(
-      (row) =>
-        row.product.name.toLowerCase().includes(query) ||
-        row.categoryName.toLowerCase().includes(query),
-    )
-  }, [rows, search])
+  const list = useListFilters(rows, { searchKeys: PRODUCT_SEARCH_KEYS })
 
   const columns: DataTableColumn<ProductListLine>[] = [
     {
@@ -87,38 +76,25 @@ export const ProductsListView = ({
   ]
 
   return (
-    <WidePageContainer>
-      <PageHeader title="Productos" description={description} />
-
-      <ListToolbar
-        filters={
-          <>
-            <SearchInput
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar producto..."
-            />
-            {filters}
-          </>
-        }
-        action={
-          onCreate ? (
-            <PrimaryButton size="md" onClick={onCreate}>
-              {createLabel}
-            </PrimaryButton>
-          ) : undefined
-        }
-      />
-
-      <DataTable
-        columns={columns}
-        rows={filtered}
-        getRowKey={(row) => row.product.id}
-        isLoading={isLoading}
-        emptyIcon={<ListUl width={40} height={40} />}
-        emptyTitle="Sin productos"
-        emptyDescription="No hay productos que coincidan con los filtros."
-      />
-    </WidePageContainer>
+    <CrudListPage
+      title="Productos"
+      description={description}
+      search={{ value: list.search, onChange: list.setSearch, placeholder: 'Buscar producto...' }}
+      toolbar={filters}
+      action={
+        onCreate ? (
+          <PrimaryButton size="md" onClick={onCreate}>
+            {createLabel}
+          </PrimaryButton>
+        ) : undefined
+      }
+      columns={columns}
+      rows={list.rows}
+      getRowKey={(row) => row.product.id}
+      isLoading={isLoading}
+      emptyIcon={<ListUl width={40} height={40} />}
+      emptyTitle="Sin productos"
+      emptyDescription="No hay productos que coincidan con los filtros."
+    />
   )
 }

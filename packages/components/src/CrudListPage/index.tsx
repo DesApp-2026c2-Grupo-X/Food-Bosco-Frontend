@@ -1,12 +1,14 @@
+import { HStack } from '@chakra-ui/react'
 import { DataTable } from '../DataTable'
-import { ListToolbar } from '../ListToolbar'
 import { PageHeader } from '../PageHeader'
+import { SearchInput } from '../SearchInput'
 import { WidePageContainer } from '../WidePageContainer'
 import type { CrudListPageProps } from './types'
 
 export const CrudListPage = <T,>({
   title,
   description,
+  search,
   toolbar,
   action,
   isLoading,
@@ -21,7 +23,21 @@ export const CrudListPage = <T,>({
   <WidePageContainer>
     <PageHeader title={title} description={description} />
 
-    {toolbar != null || action != null ? <ListToolbar filters={toolbar} action={action} /> : null}
+    {search != null || toolbar != null || action != null ? (
+      <HStack justify="space-between" align="center" width="full" wrap="wrap" gap="3">
+        <HStack gap="3" wrap="wrap" width="auto" flexGrow="1">
+          {search ? (
+            <SearchInput
+              value={search.value}
+              onChange={(event) => search.onChange(event.target.value)}
+              placeholder={search.placeholder}
+            />
+          ) : null}
+          {toolbar}
+        </HStack>
+        {action}
+      </HStack>
+    ) : null}
 
     <DataTable
       columns={columns}

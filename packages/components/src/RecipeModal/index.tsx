@@ -1,5 +1,5 @@
 import { Heading, HStack, Text, VStack } from '@chakra-ui/react'
-import { Muted } from '../Muted'
+import { Muted } from '../typography'
 import { ResponsiveModal } from '../ResponsiveModal'
 import type { RecipeModalProps } from './types'
 

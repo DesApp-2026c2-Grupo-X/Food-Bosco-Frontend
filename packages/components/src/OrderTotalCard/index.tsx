@@ -1,9 +1,7 @@
 import { HStack } from '@chakra-ui/react'
 import { formatPrice } from '@repo/domain'
 import { Card } from '../Card'
-import { Strong } from '../Strong'
-import { Price } from '../Price'
-import { Subtle } from '../Subtle'
+import { Price, Strong, Subtle } from '../typography'
 import type { OrderTotalCardProps } from './types'
 
 export const OrderTotalCard = ({ total, subtitle }: OrderTotalCardProps) => (

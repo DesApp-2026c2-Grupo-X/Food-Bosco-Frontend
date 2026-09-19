@@ -1,6 +1,6 @@
 import { HStack } from '@chakra-ui/react'
 import { GhostButton } from '../Button'
-import { Muted } from '../Muted'
+import { Muted } from '../typography'
 import { ToggleSwitch } from '../ToggleSwitch'
 import type { RowEditToggleActionsProps } from './types'
 

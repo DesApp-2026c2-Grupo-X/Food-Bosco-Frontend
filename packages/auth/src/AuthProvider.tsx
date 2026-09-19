@@ -13,6 +13,7 @@ export const AuthProvider = ({
   redirectByRole,
   registerDefaultRole = 'customer',
   registerRoles = ['customer', 'rider'],
+  showRegister = true,
   children,
 }: AuthProviderProps) => {
   const value = useMemo(
@@ -24,6 +25,7 @@ export const AuthProvider = ({
       redirectByRole,
       registerDefaultRole,
       registerRoles,
+      showRegister,
     }),
     [
       defaultPath,
@@ -33,6 +35,7 @@ export const AuthProvider = ({
       redirectByRole,
       registerDefaultRole,
       registerRoles,
+      showRegister,
     ],
   )
   return <AuthConfigContext.Provider value={value}>{children}</AuthConfigContext.Provider>

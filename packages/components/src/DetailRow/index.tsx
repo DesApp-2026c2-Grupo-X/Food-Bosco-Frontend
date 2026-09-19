@@ -1,6 +1,5 @@
 import { HStack } from '@chakra-ui/react'
-import { Muted } from '../Muted'
-import { Strong } from '../Strong'
+import { Muted, Strong } from '../typography'
 import type { DetailRowProps } from './types'
 
 export const DetailRow = ({ label, value }: DetailRowProps) => (

@@ -19,7 +19,7 @@ import {
 import { useAddresses } from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
 import type { Address } from '@repo/domain'
-import { AddressFormDialog } from './AddressFormDialog'
+import { AddressSheet } from '../../components/AddressForm/AddressSheet'
 import { useAddressForm } from './hooks/useAddressForm'
 
 export const AddressesPage = () => {
@@ -75,14 +75,12 @@ export const AddressesPage = () => {
         </VStack>
       )}
 
-      <AddressFormDialog
+      <AddressSheet
         open={form.open}
         editing={form.editing}
-        submitting={form.submitting}
-        error={form.error}
-        form={form.form}
+        mode="manage"
         onClose={form.close}
-        onSubmit={form.onSubmit}
+        onSaved={form.close}
       />
     </PageContainer>
   )

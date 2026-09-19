@@ -7,6 +7,7 @@ export interface MobileNavItem {
   icon: ComponentType<SVGProps<SVGSVGElement>>
   badge?: number
   exact?: boolean
+  activePaths?: string[]
 }
 
 export interface MobileNavProps {

@@ -1,16 +1,13 @@
-import { useMemo, useState } from 'react'
 import BoxIcon from '@gravity-ui/icons/Box'
 import type { BranchStock } from '@repo/domain'
-import { DataTable } from '../DataTable'
+import { CrudListPage } from '../CrudListPage'
 import type { DataTableColumn } from '../DataTable/types'
-import { ListToolbar } from '../ListToolbar'
-import { Muted } from '../Muted'
-import { PageHeader } from '../PageHeader'
 import { OutlineButton } from '../Button'
-import { SearchInput } from '../SearchInput'
-import { Strong } from '../Strong'
-import { WidePageContainer } from '../WidePageContainer'
+import { useListFilters } from '../useListFilters'
+import { Muted, Strong } from '../typography'
 import type { StockListViewProps } from './types'
+
+const STOCK_SEARCH_KEYS = [(row: BranchStock) => row.ingredient?.name]
 
 export const StockListView = ({
   rows,
@@ -25,13 +22,7 @@ export const StockListView = ({
   emptyTitle = 'Sin stock',
   emptyDescription = 'No hay ingredientes que coincidan con los filtros.',
 }: StockListViewProps) => {
-  const [search, setSearch] = useState('')
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
-    if (!query) return rows
-    return rows.filter((row) => (row.ingredient?.name ?? '').toLowerCase().includes(query))
-  }, [rows, search])
+  const list = useListFilters(rows, { searchKeys: STOCK_SEARCH_KEYS })
 
   const columns: DataTableColumn<BranchStock>[] = [
     {
@@ -72,31 +63,22 @@ export const StockListView = ({
   ]
 
   return (
-    <WidePageContainer>
-      <PageHeader title={title} description={description} />
-
-      <ListToolbar
-        filters={
-          <>
-            <SearchInput
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar ingrediente..."
-            />
-            {filters}
-          </>
-        }
-      />
-
-      <DataTable
-        columns={columns}
-        rows={filtered}
-        getRowKey={(row) => `${row.branchId}-${row.ingredientId}`}
-        isLoading={isLoading}
-        emptyIcon={<BoxIcon width={40} height={40} />}
-        emptyTitle={emptyTitle}
-        emptyDescription={emptyDescription}
-      />
-    </WidePageContainer>
+    <CrudListPage
+      title={title}
+      description={description}
+      search={{
+        value: list.search,
+        onChange: list.setSearch,
+        placeholder: 'Buscar ingrediente...',
+      }}
+      toolbar={filters}
+      columns={columns}
+      rows={list.rows}
+      getRowKey={(row) => `${row.branchId}-${row.ingredientId}`}
+      isLoading={isLoading}
+      emptyIcon={<BoxIcon width={40} height={40} />}
+      emptyTitle={emptyTitle}
+      emptyDescription={emptyDescription}
+    />
   )
 }

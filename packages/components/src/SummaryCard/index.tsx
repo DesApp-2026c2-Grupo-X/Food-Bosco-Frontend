@@ -1,8 +1,7 @@
-import { HStack, Link as ChakraLink, VStack } from '@chakra-ui/react'
-import { NavLink } from 'react-router-dom'
+import { HStack, VStack } from '@chakra-ui/react'
 import { Card } from '../Card'
-import { Muted } from '../Muted'
-import { Strong } from '../Strong'
+import { MenuLink } from '../MenuLink'
+import { Muted, Strong } from '../typography'
 import type { SummaryCardProps } from './types'
 
 export const SummaryCard = ({ title, meta, trailing, children, href }: SummaryCardProps) => {
@@ -21,11 +20,9 @@ export const SummaryCard = ({ title, meta, trailing, children, href }: SummaryCa
 
   if (href) {
     return (
-      <ChakraLink asChild display="block" _hover={{ textDecoration: 'none' }}>
-        <NavLink to={href}>
-          <Card interactive>{body}</Card>
-        </NavLink>
-      </ChakraLink>
+      <MenuLink to={href} display="block">
+        <Card interactive>{body}</Card>
+      </MenuLink>
     )
   }
 

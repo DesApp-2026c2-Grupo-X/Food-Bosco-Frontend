@@ -1,6 +1,6 @@
-import { Link as ChakraLink, useDisclosure } from '@chakra-ui/react'
-import { NavLink, useLocation } from 'react-router-dom'
-import { AppHeader, createLogo, useDesktopNavigation } from '@repo/components'
+import { useDisclosure } from '@chakra-ui/react'
+import { useLocation } from 'react-router-dom'
+import { AppHeader, createLogo, LogoLink, useDesktopNavigation } from '@repo/components'
 import { routes } from '../../routes'
 import { CartDrawer } from '../CartDrawer'
 import { HeaderActions } from './HeaderActions'
@@ -24,11 +24,9 @@ export const StoreHeader = ({ count, onOpenLocation }: StoreHeaderProps) => {
       navItems={navItems}
       isActive={isActive}
       logo={
-        <ChakraLink asChild>
-          <NavLink to={routes.home} aria-label="Ir al inicio">
-            <Logo height="40px" />
-          </NavLink>
-        </ChakraLink>
+        <LogoLink to={routes.home}>
+          <Logo height="40px" />
+        </LogoLink>
       }
       actions={
         <HeaderActions

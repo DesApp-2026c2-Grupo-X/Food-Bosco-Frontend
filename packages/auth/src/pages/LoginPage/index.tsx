@@ -1,11 +1,13 @@
 import { HStack, Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
 import { FormField, FormPasswordField, PageHeader, PrimaryButton, TextLink } from '@repo/components'
+import { useAuthConfig } from '../../authConfigContext'
 import { authRoutes } from '../../routes'
 import { useLogin } from './hooks/useLogin'
 
 export const LoginPage = () => {
   const { form, submitting, error, onSubmit } = useLogin()
+  const { showRegister } = useAuthConfig()
 
   return (
     <VStack gap="8" align="stretch">
@@ -48,7 +50,7 @@ export const LoginPage = () => {
 
       <HStack justify="space-between" fontSize="sm" flexWrap="wrap" gap="2">
         <TextLink to={authRoutes.forgotPassword}>Olvidé mi contraseña</TextLink>
-        <TextLink to={authRoutes.register}>Crear cuenta</TextLink>
+        {showRegister === false ? null : <TextLink to={authRoutes.register}>Crear cuenta</TextLink>}
       </HStack>
     </VStack>
   )

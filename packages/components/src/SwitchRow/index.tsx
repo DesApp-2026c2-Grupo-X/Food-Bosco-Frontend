@@ -1,5 +1,5 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
-import { Muted } from '../Muted'
+import { Muted } from '../typography'
 import { ToggleSwitch } from '../ToggleSwitch'
 import type { SwitchRowProps } from './types'
 
