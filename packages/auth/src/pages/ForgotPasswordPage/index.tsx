@@ -12,7 +12,7 @@ export const ForgotPasswordPage = () => {
     return (
       <AuthSuccess
         title="Revisá tu email"
-        description={`Te enviamos un enlace para restablecer tu contraseña a ${form.getValues('email')}.`}
+        description="Si existe una cuenta asociada a ese email, recibirás un correo con las instrucciones para restablecer tu contraseña."
         buttonLabel="Volver al login"
         to={authRoutes.login}
       />
@@ -48,7 +48,7 @@ export const ForgotPasswordPage = () => {
               loading={submitting}
               marginTop="2"
             >
-              Enviar instrucciones
+              {submitting ? 'Enviando...' : 'Enviar instrucciones'}
             </PrimaryButton>
           </VStack>
         </FormProvider>
