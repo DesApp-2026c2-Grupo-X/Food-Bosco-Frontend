@@ -4,3 +4,9 @@ export interface OrderState {
   order: number
   active: boolean
 }
+
+export interface OrderStateInput {
+  name: string
+  order: number
+  active: boolean
+}

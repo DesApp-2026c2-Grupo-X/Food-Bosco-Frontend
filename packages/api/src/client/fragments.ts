@@ -65,6 +65,22 @@ export const INGREDIENT_FIELDS = `
   active
 `
 
+export const PROMOTION_FIELDS = `
+  id
+  name
+  description
+  startDate
+  endDate
+  active
+`
+
+export const ORDER_STATE_FIELDS = `
+  code
+  name
+  order
+  active
+`
+
 export const BRANCH_HOURS_FIELDS = `
   dayOfWeek
   opening

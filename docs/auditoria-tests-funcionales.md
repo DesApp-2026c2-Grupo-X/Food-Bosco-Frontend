@@ -23,16 +23,16 @@ suite de tests funcionales y de comportamiento del monorepo frontend.
 
 ### Resumen de la suite
 
-| Área | Archivos de test | Foco |
-| --- | --- | --- |
-| `@repo/domain` | 5 | reglas de negocio puras, schemas de formularios, cart, formatos, geo |
-| `@repo/api` | 16 | mappers, hooks de datos (payloads, loading, error), authStore, tiempo real |
-| `@repo/auth` | 1 | `useAuthForm`, login/registro (incl. rider), redirect, logout |
-| `@repo/components` | 4 | encuesta de filtros, navegación, controles, modales |
-| `@repo/store` | 6 | carrito, config de producto, checkout, catálogo, direcciones |
-| `@repo/admin` | 1 | validación/payload de modales de alta/edición |
-| `@repo/branch` | 2 | estado de sucursal y botón de apertura |
-| `@repo/rider` | 7 | disponibilidad, ofertas, countdown, ubicación, vehículo, perfil |
+| Área               | Archivos de test | Foco                                                                       |
+| ------------------ | ---------------- | -------------------------------------------------------------------------- |
+| `@repo/domain`     | 5                | reglas de negocio puras, schemas de formularios, cart, formatos, geo       |
+| `@repo/api`        | 16               | mappers, hooks de datos (payloads, loading, error), authStore, tiempo real |
+| `@repo/auth`       | 1                | `useAuthForm`, login/registro (incl. rider), redirect, logout              |
+| `@repo/components` | 4                | encuesta de filtros, navegación, controles, modales                        |
+| `@repo/store`      | 6                | carrito, config de producto, checkout, catálogo, direcciones               |
+| `@repo/admin`      | 1                | validación/payload de modales de alta/edición                              |
+| `@repo/branch`     | 2                | estado de sucursal y botón de apertura                                     |
+| `@repo/rider`      | 7                | disponibilidad, ofertas, countdown, ubicación, vehículo, perfil            |
 
 Total: **42 archivos / 309 tests**.
 
@@ -81,7 +81,7 @@ Total: **42 archivos / 309 tests**.
   manualmente.
 - **Test que lo detectó / lo fija:**
   `packages/api/src/hooks/__tests__/useIncomingOrder.test.ts` →
-  *“ignores the first batch and surfaces only genuinely new orders”*.
+  _“ignores the first batch and surfaces only genuinely new orders”_.
 
 ### 3. Placeholder de restablecer contraseña inconsistente con la validación
 
@@ -96,7 +96,7 @@ Total: **42 archivos / 309 tests**.
 - **Severidad / impacto:** Baja (UX, no rompe datos).
 - **Test que lo detectó:**
   `packages/domain/src/__tests__/schemas.test.ts` →
-  *“new password enforces at least 8 characters”* (y lectura de `ResetPasswordPage/index.tsx`).
+  _“new password enforces at least 8 characters”_ (y lectura de `ResetPasswordPage/index.tsx`).
 
 ### 4. `useRiderHome` no descarta la oferta aceptada hasta el refetch
 
@@ -112,8 +112,8 @@ Total: **42 archivos / 309 tests**.
   sí setea `dismissedOfferId`).
 - **Severidad / impacto:** Media-baja. Riesgo de doble aceptación / requests duplicados.
 - **Test que lo detectó / lo fija:**
-  `apps/rider/src/hooks/__tests__/useRiderHome.test.ts` → *“accepts the current offer”*
-  (contrasta con *“dismisses and rejects the offer”*).
+  `apps/rider/src/hooks/__tests__/useRiderHome.test.ts` → _“accepts the current offer”_
+  (contrasta con _“dismisses and rejects the offer”_).
 
 ### 5. El submit de los `FormModal` permanece deshabilitado hasta hacer blur
 

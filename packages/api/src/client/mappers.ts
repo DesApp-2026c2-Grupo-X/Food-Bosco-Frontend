@@ -1,4 +1,4 @@
-import type { Ingredient, RecipeItem, User, UserRole } from '@repo/domain'
+import type { Ingredient, OrderState, Promotion, RecipeItem, User, UserRole } from '@repo/domain'
 
 export type Raw = Record<string, unknown>
 
@@ -23,6 +23,22 @@ export const toIngredient = (raw: Raw): Ingredient => ({
   id: asString(raw.id),
   name: asString(raw.name),
   unit: asString(raw.unit),
+  active: asBoolean(raw.active),
+})
+
+export const toPromotion = (raw: Raw): Promotion => ({
+  id: asString(raw.id),
+  name: asString(raw.name),
+  description: raw.description == null ? null : String(raw.description),
+  startDate: asString(raw.startDate),
+  endDate: asString(raw.endDate),
+  active: asBoolean(raw.active),
+})
+
+export const toOrderState = (raw: Raw): OrderState => ({
+  code: asString(raw.code),
+  name: asString(raw.name),
+  order: asNumber(raw.order),
   active: asBoolean(raw.active),
 })
 

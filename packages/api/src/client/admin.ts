@@ -7,7 +7,15 @@ import type {
   StaffMember,
 } from '@repo/domain'
 import { toBranch, toCategory, toOrder, toProduct } from './store'
-import { ROLE_FROM_API, asBoolean, asNumber, asString, toIngredient } from './mappers'
+import {
+  ROLE_FROM_API,
+  asBoolean,
+  asNumber,
+  asString,
+  toIngredient,
+  toOrderState,
+  toPromotion,
+} from './mappers'
 import type { Raw } from './mappers'
 import {
   BRANCH_FIELDS,
@@ -18,8 +26,10 @@ import {
   CONFIG_OPTION_FIELDS,
   INGREDIENT_FIELDS,
   ORDER_FIELDS,
+  ORDER_STATE_FIELDS,
   OUT_OF_STOCK_ROW_FIELDS,
   PARAMETER_FIELDS,
+  PROMOTION_FIELDS,
   PRODUCT_DETAIL_FIELDS,
   PRODUCT_LIST_FIELDS,
   PRODUCT_REPORT_ROW_FIELDS,
@@ -135,6 +145,22 @@ export const ADMIN_PARAMETERS = gql`
   query AdminParameters {
     parameters {
       ${PARAMETER_FIELDS}
+    }
+  }
+`
+
+export const ADMIN_PROMOTIONS = gql`
+  query AdminPromotions {
+    promotions {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const ADMIN_ORDER_STATES = gql`
+  query AdminOrderStates {
+    orderStates {
+      ${ORDER_STATE_FIELDS}
     }
   }
 `
@@ -409,6 +435,54 @@ export const UPDATE_PARAMETER = gql`
   }
 `
 
+export const CREATE_PROMOTION = gql`
+  mutation CreatePromotion($input: PromotionInput!) {
+    createPromotion(input: $input) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const UPDATE_PROMOTION = gql`
+  mutation UpdatePromotion($id: ID!, $input: PromotionInput!) {
+    updatePromotion(id: $id, input: $input) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const SET_PROMOTION_ACTIVE = gql`
+  mutation SetPromotionActive($id: ID!, $active: Boolean!) {
+    setPromotionActive(id: $id, active: $active) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const CREATE_ORDER_STATE = gql`
+  mutation CreateOrderState($input: OrderStateInput!) {
+    createOrderState(input: $input) {
+      ${ORDER_STATE_FIELDS}
+    }
+  }
+`
+
+export const UPDATE_ORDER_STATE = gql`
+  mutation UpdateOrderState($code: String!, $input: OrderStateInput!) {
+    updateOrderState(code: $code, input: $input) {
+      ${ORDER_STATE_FIELDS}
+    }
+  }
+`
+
+export const SET_ORDER_STATE_ACTIVE = gql`
+  mutation SetOrderStateActive($code: String!, $active: Boolean!) {
+    setOrderStateActive(code: $code, active: $active) {
+      ${ORDER_STATE_FIELDS}
+    }
+  }
+`
+
 export const CHANGE_ORDER_STATUS = gql`
   mutation ChangeOrderStatus($orderId: ID!, $status: OrderStatus!) {
     changeOrderStatus(orderId: $orderId, status: $status) {
@@ -428,4 +502,4 @@ export const ADJUST_STOCK = gql`
 export type { Raw }
 
 // Re-export mappers from the shared store layer for admin consumers.
-export { toBranch, toCategory, toIngredient, toOrder, toProduct }
+export { toBranch, toCategory, toIngredient, toOrder, toProduct, toOrderState, toPromotion }

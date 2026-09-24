@@ -11,8 +11,7 @@ interface ApolloErrorLike {
 }
 
 export const AUTH_ERROR_MESSAGES = {
-  throttled:
-    'Se realizaron demasiados intentos. Esperá unos minutos antes de volver a intentarlo.',
+  throttled: 'Se realizaron demasiados intentos. Esperá unos minutos antes de volver a intentarlo.',
   invalidToken:
     'El enlace de recuperación no es válido o ya expiró. Solicitá un nuevo enlace para continuar.',
   network: 'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
