@@ -41,6 +41,7 @@ export const useActiveTrip = (): UseActiveTripReturn => {
       await pickupMutation({
         variables: { tripId: trip.id, orderId },
         refetchQueries: [MY_TRIPS],
+        awaitRefetchQueries: true,
       })
     },
     [trip, pickupMutation],
@@ -52,6 +53,7 @@ export const useActiveTrip = (): UseActiveTripReturn => {
       await deliverMutation({
         variables: { tripId: trip.id, orderId },
         refetchQueries: [MY_TRIPS],
+        awaitRefetchQueries: true,
       })
     },
     [trip, deliverMutation],
@@ -62,6 +64,7 @@ export const useActiveTrip = (): UseActiveTripReturn => {
       await releaseMutation({
         variables: { orderId },
         refetchQueries: [MY_TRIPS],
+        awaitRefetchQueries: true,
       })
     },
     [releaseMutation],
