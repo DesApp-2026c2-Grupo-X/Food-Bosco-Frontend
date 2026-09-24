@@ -39,6 +39,8 @@ export interface OrderAddress {
   longitude: number
 }
 
+export type OrderCancelReason = 'lost'
+
 export interface Order {
   id: string
   number: string
@@ -52,6 +54,7 @@ export interface Order {
   status: OrderStatus
   total: number
   estimatedDeliveryAt: string | null
+  cancelReason?: OrderCancelReason | null
   createdAt: string
   items: OrderItem[]
   statusHistory: OrderStatusHistory[]

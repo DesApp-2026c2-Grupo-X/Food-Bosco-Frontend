@@ -229,3 +229,13 @@ export const MARK_ORDER_DELIVERED = gql`
     }
   }
 `
+
+export const RELEASE_ORDER = gql`
+  mutation ReleaseOrderRider($orderId: ID!) {
+    releaseOrderRider(orderId: $orderId) {
+      id
+      status
+      riderId
+    }
+  }
+`

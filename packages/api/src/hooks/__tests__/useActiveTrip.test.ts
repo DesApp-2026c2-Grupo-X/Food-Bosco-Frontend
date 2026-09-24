@@ -24,6 +24,7 @@ const setup = (trips: unknown[]) => {
     if (operation.operationName === 'MarkOrderPickup') return { data: { markOrderPickup: {} } }
     if (operation.operationName === 'MarkOrderDelivered')
       return { data: { markOrderDelivered: {} } }
+    if (operation.operationName === 'ReleaseOrderRider') return { data: { releaseOrderRider: {} } }
     return { data: {} }
   })
   const rendered = renderHookWithProviders(() => useActiveTrip(), { client: testClient.client })
@@ -72,6 +73,20 @@ describe('useActiveTrip', () => {
       tripId: 't-active',
       orderId: 'o2',
     })
+  })
+
+  it('release sends only the order id and refetches trips', async () => {
+    const { testClient, result } = setup([trip('t-active', 'ACTIVE')])
+    await waitFor(() => expect(result.current.trip).not.toBeNull())
+
+    await act(async () => {
+      await result.current.release('o3')
+    })
+
+    expect(operationVariables(testClient.lastRequest('ReleaseOrderRider'))).toEqual({
+      orderId: 'o3',
+    })
+    expect(testClient.requestsByName('MyTrips').length).toBeGreaterThan(1)
   })
 
   it('does not mutate when there is no active trip', async () => {

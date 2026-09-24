@@ -1,8 +1,9 @@
 import { registerFormSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
 import { useAuthConfig, type RegisterRole } from '../../../authConfigContext'
-import { useAuthForm } from '../../../hooks/useAuthForm'
+import { AuthSubmitError, useAuthForm } from '../../../hooks/useAuthForm'
 import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
+import { authErrorMessage, classifyAuthError } from '../../../utils/authErrors'
 
 export const useRegister = () => {
   const register = useAuthStore((state) => state.register)
@@ -11,6 +12,7 @@ export const useRegister = () => {
   const config = useAuthConfig()
   const registerDefaultRole = config.registerDefaultRole ?? 'customer'
   const registerRoles = config.registerRoles ?? ['customer', 'rider']
+  const genericError = 'No pudimos crear tu cuenta. Revisá los datos e intentá de nuevo.'
 
   const { form, submitting, error, onSubmit } = useAuthForm({
     schema: registerFormSchema,
@@ -27,7 +29,7 @@ export const useRegister = () => {
       model: '',
       plate: '',
     },
-    errorMessage: 'No pudimos crear tu cuenta. Revisá los datos e intentá de nuevo.',
+    errorMessage: genericError,
     submit: async (values) => {
       const base = {
         firstName: values.firstName.trim(),
@@ -37,16 +39,20 @@ export const useRegister = () => {
         password: values.password,
       }
 
-      if (values.role === 'rider') {
-        const vehicle =
-          values.vehicleType === 'bici'
-            ? 'Bici'
-            : ['Moto', values.brand?.trim(), values.model?.trim(), values.plate?.trim()]
-                .filter(Boolean)
-                .join(' · ')
-        await registerRider({ ...base, vehicle })
-      } else {
-        await register(base)
+      try {
+        if (values.role === 'rider') {
+          const vehicle =
+            values.vehicleType === 'bici'
+              ? 'Bici'
+              : ['Moto', values.brand?.trim(), values.model?.trim(), values.plate?.trim()]
+                  .filter(Boolean)
+                  .join(' · ')
+          await registerRider({ ...base, vehicle })
+        } else {
+          await register(base)
+        }
+      } catch (caught) {
+        throw new AuthSubmitError(authErrorMessage(classifyAuthError(caught), genericError))
       }
 
       redirect(values.role as RegisterRole)

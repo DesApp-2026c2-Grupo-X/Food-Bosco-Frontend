@@ -491,6 +491,14 @@ export const CHANGE_ORDER_STATUS = gql`
   }
 `
 
+export const RELEASE_ORDER_RIDER = gql`
+  mutation ReleaseOrderRider($orderId: ID!) {
+    releaseOrderRider(orderId: $orderId) {
+      ${ORDER_FIELDS}
+    }
+  }
+`
+
 export const ADJUST_STOCK = gql`
   mutation AdjustStock($input: AdjustStockInput!) {
     adjustStock(input: $input) {

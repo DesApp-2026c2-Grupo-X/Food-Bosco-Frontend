@@ -1,7 +1,10 @@
-import { useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { Box, HStack, VStack } from '@chakra-ui/react'
 import CircleCheckFill from '@gravity-ui/icons/CircleCheckFill'
 import CircleXmarkFill from '@gravity-ui/icons/CircleXmarkFill'
+import House from '@gravity-ui/icons/House'
+import MapPin from '@gravity-ui/icons/MapPin'
+import Person from '@gravity-ui/icons/Person'
 import { Link, useParams } from 'react-router-dom'
 import {
   Card,
@@ -27,12 +30,12 @@ import { MAP_MARKER_COLORS } from '@repo/theme'
 
 export const OrderDetailPage = () => {
   const { orderId } = useParams()
-  const orderRef = useRef<Order | null>(null)
-  const pollActive = orderRef.current ? isActiveOrder(orderRef.current.status) : false
-  const { order, isLoading } = useOrder(orderId, {
-    pollIntervalMs: orderId && pollActive ? 4000 : undefined,
-  })
-  orderRef.current = order
+  const [pollIntervalMs, setPollIntervalMs] = useState(0)
+  const { order, isLoading } = useOrder(orderId, { pollIntervalMs })
+
+  useEffect(() => {
+    setPollIntervalMs(orderId && order && isActiveOrder(order.status) ? 4000 : 0)
+  }, [order, orderId])
 
   if (isLoading) {
     return <LoadingState />
@@ -130,13 +133,13 @@ const TrackingMap = ({ order }: { order: Order }) => {
       latitude: branch.latitude,
       longitude: branch.longitude,
       color: MAP_MARKER_COLORS.branch,
-      label: 'T',
+      icon: <House width={14} height={14} />,
     },
     {
       latitude: delivery.latitude,
       longitude: delivery.longitude,
       color: MAP_MARKER_COLORS.client,
-      label: 'C',
+      icon: <MapPin width={14} height={14} />,
     },
   ]
 
@@ -145,7 +148,7 @@ const TrackingMap = ({ order }: { order: Order }) => {
       latitude: riderLocation.latitude,
       longitude: riderLocation.longitude,
       color: MAP_MARKER_COLORS.rider,
-      label: 'R',
+      icon: <Person width={14} height={14} />,
     })
   }
 

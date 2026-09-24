@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCart, useProduct } from '@repo/api'
-import { notifyError, notifySuccess } from '@repo/components'
+import { notifyCart, notifyCartError } from '@repo/components'
 import type { ProductOptionType } from '@repo/domain'
 
 type SelectionMap = Record<string, string | string[]>
@@ -70,7 +70,7 @@ export const useProductConfig = (productId: string | undefined) => {
         observations: notes.trim().slice(0, 500) || null,
         optionIds: selectedOptionIds,
       })
-      notifySuccess({
+      notifyCart({
         title: 'Producto agregado',
         description: `${product.name} se sumó a tu carrito.`,
       })
@@ -78,7 +78,7 @@ export const useProductConfig = (productId: string | undefined) => {
     } catch {
       const message = 'No pudimos agregar el producto. Intentá de nuevo.'
       setError(message)
-      notifyError({ title: 'No se pudo agregar', description: message })
+      notifyCartError({ title: 'No se pudo agregar', description: message })
       return false
     }
   }

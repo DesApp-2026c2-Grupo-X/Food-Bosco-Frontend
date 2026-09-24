@@ -1,5 +1,6 @@
 import { Box, Spinner, Text, VStack } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { buildLeafletTileUrl } from '@repo/api'
 import { Card } from '../Card'
 import {
@@ -83,7 +84,10 @@ export const InteractiveMap = ({
   }, [interactive, attributionControl])
 
   const markerSignature = markers
-    .map((marker) => `${marker.latitude},${marker.longitude},${marker.color},${marker.label ?? ''}`)
+    .map(
+      (marker) =>
+        `${marker.latitude},${marker.longitude},${marker.color},${marker.icon ? 'icon' : ''}${marker.label ?? ''}`,
+    )
     .join('|')
 
   useEffect(() => {
@@ -97,9 +101,14 @@ export const InteractiveMap = ({
 
     for (const marker of markers) {
       points.push([marker.latitude, marker.longitude])
+      const content = marker.icon
+        ? renderToStaticMarkup(
+            <span style={{ display: 'flex', color: '#fff' }}>{marker.icon}</span>,
+          )
+        : (marker.label ?? '')
       const icon = leaflet.divIcon({
         className: 'fb-map-marker',
-        html: `<span style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:9999px;background:${marker.color};color:#fff;font-size:11px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)">${marker.label ?? ''}</span>`,
+        html: `<span style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:9999px;background:${marker.color};color:#fff;font-size:11px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)">${content}</span>`,
         iconSize: [26, 26],
         iconAnchor: [13, 13],
       })

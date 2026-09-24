@@ -1,4 +1,4 @@
-import { HStack, Text, VStack } from '@chakra-ui/react'
+import { Badge, HStack, Text, VStack } from '@chakra-ui/react'
 import { useParams } from 'react-router-dom'
 import {
   BackButton,
@@ -9,6 +9,7 @@ import {
   PageTitle,
   PrimaryButton,
   ResponsiveModal,
+  SecondaryButton,
   SelectField,
   Strong,
 } from '@repo/components'
@@ -45,6 +46,10 @@ export const OrderDetailPage = () => {
     requestChange,
     confirmChange,
     cancel,
+    releaseConfirmOpen,
+    requestRelease,
+    confirmRelease,
+    cancelRelease,
   } = useOrderTransition(orderId)
 
   if (!isLoading && !order) {
@@ -88,6 +93,39 @@ export const OrderDetailPage = () => {
             <Muted fontSize="sm">{order.deliveryAddress.text}</Muted>
             <Muted fontSize="sm">Sucursal asignada: {order.branch?.name ?? '—'}</Muted>
           </Card>
+
+          {order.cancelReason === 'lost' ? (
+            <Card title="Pedido robado">
+              <HStack gap="2" align="center">
+                <Badge colorPalette="red" variant="subtle" borderRadius="full">
+                  Robado
+                </Badge>
+                <Muted fontSize="sm">
+                  El pedido fue retirado y luego liberado. Se canceló y quedó registrado como
+                  robado.
+                </Muted>
+              </HStack>
+            </Card>
+          ) : null}
+
+          {order.riderId &&
+          (order.status === 'READY_FOR_DELIVERY' || order.status === 'ON_THE_WAY') ? (
+            <Card title="Rider asignado">
+              <Muted fontSize="sm">
+                {order.status === 'ON_THE_WAY'
+                  ? 'El pedido ya fue retirado. Si lo liberás, se cancelará y quedará registrado como robado.'
+                  : 'Podés liberar el pedido para que otro repartidor lo tome.'}
+              </Muted>
+              <SecondaryButton
+                size="md"
+                color="danger"
+                borderColor="danger"
+                onClick={requestRelease}
+              >
+                Liberar rider
+              </SecondaryButton>
+            </Card>
+          ) : null}
 
           <Card title="Detalle">
             <VStack align="stretch" gap="2" width="full">
@@ -161,6 +199,25 @@ export const OrderDetailPage = () => {
           <HStack justify="end" gap="2">
             <PrimaryButton size="md" loading={isMutating} onClick={confirmChange}>
               Confirmar
+            </PrimaryButton>
+          </HStack>
+        </VStack>
+      </ResponsiveModal>
+
+      <ResponsiveModal open={releaseConfirmOpen} onClose={cancelRelease}>
+        <VStack align="stretch" gap="4">
+          <Strong fontSize="lg">Liberar rider</Strong>
+          <Muted>
+            {order?.status === 'ON_THE_WAY'
+              ? 'El pedido ya fue retirado. Al liberarlo se cancelará y quedará registrado como robado. El rider queda libre, sin sanción.'
+              : 'El pedido volverá a estar disponible para que otro repartidor lo tome. El rider queda libre, sin sanción.'}
+          </Muted>
+          <HStack justify="end" gap="2">
+            <SecondaryButton size="md" onClick={cancelRelease} disabled={isMutating}>
+              Cancelar
+            </SecondaryButton>
+            <PrimaryButton size="md" loading={isMutating} onClick={confirmRelease}>
+              Liberar
             </PrimaryButton>
           </HStack>
         </VStack>

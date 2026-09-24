@@ -6,6 +6,12 @@ export const toaster = createToaster({
   duration: 4000,
 })
 
+export const cartToaster = createToaster({
+  placement: 'bottom',
+  pauseOnPageIdle: true,
+  duration: 4000,
+})
+
 type NotifyOptions = {
   title: string
   description?: string
@@ -21,4 +27,12 @@ export const notifyError = ({ title, description }: NotifyOptions) => {
 
 export const notifyInfo = ({ title, description }: NotifyOptions) => {
   toaster.create({ type: 'info', title, description })
+}
+
+export const notifyCart = ({ title, description }: NotifyOptions) => {
+  cartToaster.create({ type: 'success', title, description })
+}
+
+export const notifyCartError = ({ title, description }: NotifyOptions) => {
+  cartToaster.create({ type: 'error', title, description })
 }

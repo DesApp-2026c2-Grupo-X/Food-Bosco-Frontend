@@ -8,6 +8,7 @@ export interface InteractiveMapPoint {
 export interface InteractiveMapMarker extends InteractiveMapPoint {
   color: string
   label?: string
+  icon?: ReactNode
 }
 
 export interface InteractiveMapProps {

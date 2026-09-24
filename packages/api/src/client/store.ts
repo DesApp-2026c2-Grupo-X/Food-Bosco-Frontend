@@ -125,6 +125,7 @@ export const toOrder = (raw: Raw): Order => ({
   status: asString(raw.status) as OrderStatus,
   total: asNumber(raw.total),
   estimatedDeliveryAt: raw.estimatedDeliveryAt == null ? null : String(raw.estimatedDeliveryAt),
+  cancelReason: raw.cancelReason === 'lost' ? 'lost' : null,
   createdAt: asString(raw.createdAt),
   items: asList(raw.items, toOrderItem),
   statusHistory: asList(raw.statusHistory, toOrderStatusHistory),

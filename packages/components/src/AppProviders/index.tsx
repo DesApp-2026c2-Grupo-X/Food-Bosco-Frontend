@@ -5,6 +5,7 @@ import { GraphQLProvider } from '@repo/api'
 import { config } from '@repo/theme'
 import { ColorModeProvider } from '../ColorModeProvider'
 import { Toaster } from '../Toaster'
+import { cartToaster } from '../Toaster/toaster'
 import type { AppProvidersProps } from './types'
 
 const system = createSystem(defaultConfig, config)
@@ -17,6 +18,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => (
           <BrowserRouter>{children}</BrowserRouter>
         </GraphQLProvider>
         <Toaster />
+        <Toaster toaster={cartToaster} />
       </ChakraProvider>
     </ColorModeProvider>
   </StrictMode>

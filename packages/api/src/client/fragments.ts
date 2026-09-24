@@ -130,6 +130,7 @@ export const ORDER_FIELDS = `
   id
   number
   clientId
+  riderId
   branchId
   branch {
     ${BRANCH_FIELDS}
@@ -145,6 +146,7 @@ export const ORDER_FIELDS = `
   status
   total
   estimatedDeliveryAt
+  cancelReason
   createdAt
   items {
     ${ORDER_ITEM_FIELDS}
@@ -182,6 +184,7 @@ export const STORE_ORDER_FIELDS = `
   status
   total
   estimatedDeliveryAt
+  cancelReason
   createdAt
   items {
     ${ORDER_ITEM_FIELDS}

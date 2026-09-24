@@ -3,9 +3,10 @@ import type { OrderStatus } from '@repo/domain'
 import { useAdminOrder } from '@repo/api'
 
 export const useOrderTransition = (orderId: string | undefined) => {
-  const { order, isLoading, isMutating, changeStatus } = useAdminOrder(orderId)
+  const { order, isLoading, isMutating, changeStatus, releaseRider } = useAdminOrder(orderId)
   const [nextStatus, setNextStatus] = useState<OrderStatus | ''>('')
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [releaseConfirmOpen, setReleaseConfirmOpen] = useState(false)
 
   const requestChange = (status: OrderStatus) => {
     setNextStatus(status)
@@ -24,6 +25,15 @@ export const useOrderTransition = (orderId: string | undefined) => {
     setNextStatus('')
   }
 
+  const requestRelease = () => setReleaseConfirmOpen(true)
+
+  const confirmRelease = async () => {
+    await releaseRider()
+    setReleaseConfirmOpen(false)
+  }
+
+  const cancelRelease = () => setReleaseConfirmOpen(false)
+
   return {
     order,
     isLoading,
@@ -34,5 +44,9 @@ export const useOrderTransition = (orderId: string | undefined) => {
     requestChange,
     confirmChange,
     cancel,
+    releaseConfirmOpen,
+    requestRelease,
+    confirmRelease,
+    cancelRelease,
   }
 }

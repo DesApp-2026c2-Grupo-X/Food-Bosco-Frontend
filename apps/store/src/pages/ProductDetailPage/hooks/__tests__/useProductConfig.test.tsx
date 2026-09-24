@@ -4,15 +4,15 @@ import { useProductConfig } from '../useProductConfig'
 import { createTestClient, operationVariables } from '@test/apollo'
 import { renderHookWithProviders } from '@test/utils'
 
-const { notifySuccess, notifyError } = vi.hoisted(() => ({
-  notifySuccess: vi.fn(),
-  notifyError: vi.fn(),
+const { notifyCart, notifyCartError } = vi.hoisted(() => ({
+  notifyCart: vi.fn(),
+  notifyCartError: vi.fn(),
 }))
 
 vi.mock('@repo/components', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@repo/components')>()),
-  notifySuccess,
-  notifyError,
+  notifyCart,
+  notifyCartError,
 }))
 
 const rawProduct = {
@@ -139,9 +139,7 @@ describe('useProductConfig', () => {
       observations: 'sin sal',
       optionIds: ['o1', 'o3'],
     })
-    expect(notifySuccess).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Producto agregado' }),
-    )
+    expect(notifyCart).toHaveBeenCalledWith(expect.objectContaining({ title: 'Producto agregado' }))
   })
 
   it('does nothing when a required group is missing', async () => {
@@ -170,6 +168,6 @@ describe('useProductConfig', () => {
 
     expect(added).toBe(false)
     expect(result.current.error).toBe('No pudimos agregar el producto. Intentá de nuevo.')
-    expect(notifyError).toHaveBeenCalled()
+    expect(notifyCartError).toHaveBeenCalled()
   })
 })

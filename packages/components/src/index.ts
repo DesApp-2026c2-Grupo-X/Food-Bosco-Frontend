@@ -2,7 +2,15 @@ export { AppProviders } from './AppProviders'
 export type { AppProvidersProps } from './AppProviders/types'
 
 export { Toaster } from './Toaster'
-export { notifyError, notifyInfo, notifySuccess, toaster } from './Toaster/toaster'
+export {
+  cartToaster,
+  notifyCart,
+  notifyCartError,
+  notifyError,
+  notifyInfo,
+  notifySuccess,
+  toaster,
+} from './Toaster/toaster'
 export type { NotifyOptions } from './Toaster/types'
 
 export { ColorModeProvider } from './ColorModeProvider'

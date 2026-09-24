@@ -1,7 +1,11 @@
 import { Badge, Box, HStack, Text, VStack } from '@chakra-ui/react'
 import Check from '@gravity-ui/icons/Check'
+import House from '@gravity-ui/icons/House'
+import MapPin from '@gravity-ui/icons/MapPin'
+import Person from '@gravity-ui/icons/Person'
 import RouteIcon from '@gravity-ui/icons/Route'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   Card,
   EmptyState,
@@ -14,6 +18,7 @@ import {
   OrderTotalCard,
   Price,
   PrimaryButton,
+  ResponsiveModal,
   SecondaryButton,
   Strong,
   type InteractiveMapMarker,
@@ -30,12 +35,14 @@ const PROXIMITY_LIMIT_M = 50
 export const TripOrderDetailPage = () => {
   const { orderId } = useParams()
   const navigate = useNavigate()
-  const { trip, isLoading: tripLoading, isMutating, pickup, deliver } = useActiveTrip()
+  const { trip, isLoading: tripLoading, isMutating, pickup, deliver, release } = useActiveTrip()
+  const [releaseOpen, setReleaseOpen] = useState(false)
   const { order, isLoading: orderLoading } = useOrder(orderId, { pollIntervalMs: 15000 })
-  const { updateLocation } = useRiderProfile()
+  const { updateLocation, profile } = useRiderProfile()
   const isOnline = useRiderStore((state) => state.isOnline)
   useRiderLocation(isOnline, updateLocation)
-  const riderLocation = useRiderStore((state) => state.location)
+  const currentLocation = useRiderStore((state) => state.location)
+  const riderLocation = currentLocation ?? profile?.currentLocation ?? null
 
   if (tripLoading || orderLoading) {
     return <LoadingState />
@@ -57,6 +64,20 @@ export const TripOrderDetailPage = () => {
       <EmptyState
         title="Pedido no encontrado"
         description="No pudimos encontrar este pedido dentro del viaje."
+      />
+    )
+  }
+
+  if (tripOrder.status === 'CANCELLED') {
+    return (
+      <EmptyState
+        title="Pedido cancelado"
+        description="Este pedido fue cancelado y ya no forma parte del viaje."
+        action={
+          <PrimaryButton asChild>
+            <Link to={routes.home}>Volver al inicio</Link>
+          </PrimaryButton>
+        }
       />
     )
   }
@@ -90,13 +111,13 @@ export const TripOrderDetailPage = () => {
       latitude: tripOrder.pickupLocation.latitude,
       longitude: tripOrder.pickupLocation.longitude,
       color: MAP_MARKER_COLORS.branch,
-      label: 'R',
+      icon: <House width={14} height={14} />,
     },
     {
       latitude: tripOrder.deliveryAddress.latitude,
       longitude: tripOrder.deliveryAddress.longitude,
       color: MAP_MARKER_COLORS.client,
-      label: 'E',
+      icon: <MapPin width={14} height={14} />,
     },
   ]
 
@@ -105,12 +126,19 @@ export const TripOrderDetailPage = () => {
       latitude: riderLocation.latitude,
       longitude: riderLocation.longitude,
       color: MAP_MARKER_COLORS.rider,
-      label: 'T',
+      icon: <Person width={14} height={14} />,
     })
   }
 
   const handleDeliver = async () => {
     await deliver(tripOrder.orderId)
+    navigate(routes.home)
+  }
+
+  const canRelease = tripOrder.status === 'READY_FOR_DELIVERY'
+
+  const handleRelease = async () => {
+    await release(tripOrder.orderId)
     navigate(routes.home)
   }
 
@@ -156,6 +184,17 @@ export const TripOrderDetailPage = () => {
                 </Box>
               }
             />
+            {riderLocation ? (
+              <LegendDotRow
+                color="brand.500"
+                label={
+                  <Box>
+                    <Strong fontSize="sm">Tu posición</Strong>
+                    <Muted fontSize="sm">Ubicación en vivo</Muted>
+                  </Box>
+                }
+              />
+            ) : null}
             <Muted fontSize="sm">
               Distancia de entrega (sucursal → dirección): {formatDistance(deliveryDistanceMeters)}
             </Muted>
@@ -236,6 +275,30 @@ export const TripOrderDetailPage = () => {
           ) : null}
         </>
       )}
+
+      {canRelease ? (
+        <SecondaryButton width="full" disabled={isMutating} onClick={() => setReleaseOpen(true)}>
+          Liberar pedido
+        </SecondaryButton>
+      ) : null}
+
+      <ResponsiveModal open={releaseOpen} onClose={() => setReleaseOpen(false)}>
+        <VStack align="stretch" gap="4">
+          <Strong fontSize="lg">Liberar pedido</Strong>
+          <Muted>
+            Vas a liberar este pedido del viaje. Volverá a estar disponible para otro repartidor y
+            no recibís ninguna sanción.
+          </Muted>
+          <HStack justify="end" gap="2">
+            <SecondaryButton size="md" onClick={() => setReleaseOpen(false)} disabled={isMutating}>
+              Cancelar
+            </SecondaryButton>
+            <PrimaryButton size="md" loading={isMutating} onClick={handleRelease}>
+              Liberar
+            </PrimaryButton>
+          </HStack>
+        </VStack>
+      </ResponsiveModal>
     </OrderDetailShell>
   )
 }

@@ -1,7 +1,11 @@
-import { Stack, Toast, Toaster as ChakraToaster } from '@chakra-ui/react'
-import { toaster } from './toaster'
+import { Stack, Toast, Toaster as ChakraToaster, type CreateToasterReturn } from '@chakra-ui/react'
+import { toaster as defaultToaster } from './toaster'
 
-export const Toaster = () => (
+interface ToasterProps {
+  toaster?: CreateToasterReturn
+}
+
+export const Toaster = ({ toaster = defaultToaster }: ToasterProps = {}) => (
   <ChakraToaster toaster={toaster} insetInline={{ mdDown: '4' }}>
     {(toast) => (
       <Toast.Root width={{ md: 'sm' }}>
@@ -10,7 +14,6 @@ export const Toaster = () => (
           {toast.title ? <Toast.Title>{toast.title}</Toast.Title> : null}
           {toast.description ? <Toast.Description>{toast.description}</Toast.Description> : null}
         </Stack>
-        <Toast.CloseTrigger />
       </Toast.Root>
     )}
   </ChakraToaster>

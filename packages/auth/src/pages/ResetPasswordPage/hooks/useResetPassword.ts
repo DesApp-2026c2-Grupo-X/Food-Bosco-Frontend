@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { resetPasswordSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
 import { AuthSubmitError, useAuthForm } from '../../../hooks/useAuthForm'
-import { AUTH_ERROR_MESSAGES, classifyAuthError } from '../../../utils/authErrors'
+import { authErrorMessage, classifyAuthError } from '../../../utils/authErrors'
 
 const GENERIC_ERROR = 'No pudimos restablecer tu contraseña. Intentá de nuevo.'
 
@@ -34,9 +34,7 @@ export const useResetPassword = () => {
           return
         }
 
-        const message =
-          kind === 'throttled' || kind === 'network' ? AUTH_ERROR_MESSAGES[kind] : GENERIC_ERROR
-        throw new AuthSubmitError(message)
+        throw new AuthSubmitError(authErrorMessage(kind, GENERIC_ERROR))
       }
 
       setDone(true)
