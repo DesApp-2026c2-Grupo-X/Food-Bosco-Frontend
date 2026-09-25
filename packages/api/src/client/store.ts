@@ -241,3 +241,11 @@ export const AVAILABLE_BRANCHES = gql`
     }
   }
 `
+
+export const NEARBY_BRANCHES = gql`
+  query NearbyBranches($lat: Float!, $lng: Float!) {
+    nearbyBranches(lat: $lat, lng: $lng) {
+      ${BRANCH_FIELDS}
+    }
+  }
+`

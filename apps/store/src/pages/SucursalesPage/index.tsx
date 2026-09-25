@@ -11,10 +11,10 @@ import {
   PageHeader,
   Strong,
 } from '@repo/components'
-import { useAddresses, useAvailableBranches } from '@repo/api'
+import { useAddresses, useNearbyBranches } from '@repo/api'
 import { MAP_MARKER_COLORS } from '@repo/theme'
 import { useAddressStore } from '../../stores/addressStore'
-import type { Branch } from '@repo/domain'
+import { isBranchOpenNow, type Branch } from '@repo/domain'
 
 const todayOfWeek = () => new Date().getDay()
 
@@ -24,26 +24,29 @@ const todayHours = (branch: Branch): string => {
   return `${today.opening} a ${today.closing}`
 }
 
+const isOpen = (branch: Branch): boolean => branch.active && isBranchOpenNow(branch.hours)
+
 export const SucursalesPage = () => {
   const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
   const { addresses } = useAddresses()
   const selected = addresses.find((address) => address.id === selectedAddressId)
-  const { branches, isLoading } = useAvailableBranches(selected?.latitude, selected?.longitude)
+  const { branches, isLoading } = useNearbyBranches(selected?.latitude, selected?.longitude)
+  const firstOpenId = branches.find(isOpen)?.id
 
   return (
     <PageContainer>
       <BackButton />
-      <PageHeader title="Sucursales" description="Los locales que pueden atender tu zona." />
+      <PageHeader title="Sucursales" description="Los locales de tu zona y su estado actual." />
 
       <VStack gap="3" align="stretch">
-        {branches.map((branch, index) => (
+        {branches.map((branch) => (
           <Card key={branch.id}>
             <Stack direction={{ base: 'column', md: 'row' }} gap="4" align="stretch">
               <VStack flex="1" align="stretch" gap="3" minWidth="0">
                 <HStack justify="space-between" gap="2">
                   <HStack gap="2" minWidth="0">
                     <Strong fontSize="lg">{branch.name}</Strong>
-                    {index === 0 ? (
+                    {branch.id === firstOpenId ? (
                       <Badge
                         colorPalette="blue"
                         variant="subtle"
@@ -57,14 +60,14 @@ export const SucursalesPage = () => {
                     ) : null}
                   </HStack>
                   <Badge
-                    colorPalette={branch.active ? 'green' : 'red'}
+                    colorPalette={isOpen(branch) ? 'green' : 'red'}
                     variant="subtle"
                     borderRadius="full"
                     paddingX="2.5"
                     paddingY="1"
                     flexShrink={0}
                   >
-                    {branch.active ? 'Abierta' : 'Cerrada'}
+                    {isOpen(branch) ? 'Abierta' : 'Cerrada'}
                   </Badge>
                 </HStack>
                 <VStack gap="2" align="stretch" color="fg.muted" fontSize="sm">
