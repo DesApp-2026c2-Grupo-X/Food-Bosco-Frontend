@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import type { BranchProduct, RecipeItem } from '@repo/domain'
 import { toProduct } from './store'
 import { asBoolean, toRecipeItem as toSharedRecipeItem } from './mappers'
-import { BRANCH_PRODUCT_FIELDS } from './fragments'
+import { BRANCH_FIELDS, BRANCH_PRODUCT_FIELDS } from './fragments'
 
 type Raw = Record<string, unknown>
 
@@ -25,6 +25,14 @@ export const toBranchProduct = (raw: Raw): BranchProduct => {
     available: asBoolean(raw.available),
   }
 }
+
+export const BRANCH = gql`
+  query Branch($id: ID!) {
+    branch(id: $id) {
+      ${BRANCH_FIELDS}
+    }
+  }
+`
 
 export const BRANCH_PRODUCTS = gql`
   query BranchProducts($branchId: ID!) {
