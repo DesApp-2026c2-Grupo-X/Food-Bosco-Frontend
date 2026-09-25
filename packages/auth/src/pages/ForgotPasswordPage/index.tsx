@@ -1,19 +1,18 @@
-import { VStack } from '@chakra-ui/react'
+import { Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
-import { FormField, Muted, PrimaryButton, TextLink } from '@repo/components'
+import { FormField, Muted, PageHeader, PrimaryButton, TextLink } from '@repo/components'
 import { AuthSuccess } from '../../components/AuthSuccess'
-import { PageHeader } from '../../components/PageHeader'
 import { authRoutes } from '../../routes'
 import { useForgotPassword } from './hooks/useForgotPassword'
 
 export const ForgotPasswordPage = () => {
-  const { form, submitting, sent, onSubmit } = useForgotPassword()
+  const { form, submitting, sent, error, onSubmit } = useForgotPassword()
 
   if (sent) {
     return (
       <AuthSuccess
         title="Revisá tu email"
-        description={`Te enviamos un enlace para restablecer tu contraseña a ${form.getValues('email')}.`}
+        description="Si existe una cuenta asociada a ese email, recibirás un correo con las instrucciones para restablecer tu contraseña."
         buttonLabel="Volver al login"
         to={authRoutes.login}
       />
@@ -38,13 +37,18 @@ export const ForgotPasswordPage = () => {
               autoComplete="email"
               placeholder="juan.perez@unahur.edu.ar"
             />
+            {error ? (
+              <Text color="danger" fontSize="sm">
+                {error}
+              </Text>
+            ) : null}
             <PrimaryButton
               type="submit"
               disabled={!form.formState.isValid || submitting}
               loading={submitting}
               marginTop="2"
             >
-              Enviar instrucciones
+              {submitting ? 'Enviando...' : 'Enviar instrucciones'}
             </PrimaryButton>
           </VStack>
         </FormProvider>

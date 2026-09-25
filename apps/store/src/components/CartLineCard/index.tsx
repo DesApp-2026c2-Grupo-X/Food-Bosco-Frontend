@@ -1,23 +1,20 @@
-import { Box, HStack, Image, VStack } from '@chakra-ui/react'
+import { Box, Image, VStack } from '@chakra-ui/react'
 import TrashBin from '@gravity-ui/icons/TrashBin'
 import { cartLineTotal, cartLineUnitPrice } from '@repo/domain'
 import { formatPrice } from '@repo/domain'
-import { GhostButton, Muted, Price, QuantityStepper, Strong, Subtle } from '@repo/components'
+import { Card, GhostButton, Muted, Price, QuantityStepper, Strong, Subtle } from '@repo/components'
 import type { CartLineCardProps } from './types'
 
-export const CartLineCard = ({ item, onQuantityChange, onRemove }: CartLineCardProps) => {
+export const CartLineCard = ({
+  item,
+  onQuantityChange,
+  onRemove,
+  disabled = false,
+}: CartLineCardProps) => {
   const optionsLabel = item.options.map((option) => option.name).join(' · ')
 
   return (
-    <HStack
-      gap="3"
-      align="start"
-      bg="bg.panel"
-      border="1px solid"
-      borderColor="border.subtle"
-      borderRadius="2xl"
-      padding="3"
-    >
+    <Card display="flex" gap="3" alignItems="flex-start" padding="3">
       <Box
         width="64px"
         height="64px"
@@ -58,6 +55,7 @@ export const CartLineCard = ({ item, onQuantityChange, onRemove }: CartLineCardP
           color="fg.subtle"
           paddingX="0"
           _hover={{ color: 'danger' }}
+          disabled={disabled}
           onClick={() => onRemove(item.id)}
         >
           <TrashBin width={14} height={14} />
@@ -68,9 +66,10 @@ export const CartLineCard = ({ item, onQuantityChange, onRemove }: CartLineCardP
         <Price>{formatPrice(cartLineTotal(item))}</Price>
         <QuantityStepper
           value={item.quantity}
+          disabled={disabled}
           onChange={(value) => onQuantityChange(item.id, value)}
         />
       </VStack>
-    </HStack>
+    </Card>
   )
 }

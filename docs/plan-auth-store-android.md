@@ -72,7 +72,7 @@ apps/
 | ------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `AuthRoutes`        | componente  | `<Routes>` con `AuthLayout` + login/registro/recuperar/restablecer. El store solo hace `<AuthRoutes />` dentro de su `<Routes>`. |
 | `authRoutes`        | objeto      | `{ login, register, forgotPassword, resetPassword }` — renombrado para no chocar con `routes` del store.                         |
-| `resetPasswordPath` | helper      | `(token) => /reset-password/${token}`                                                                                            |
+| `resetPasswordPath` | helper      | `(token) => /reset-password?token=${token}`                                                                                      |
 | `useAuthRedirect`   | hook        | reemplaza `redirectByRole` (ver §7).                                                                                             |
 | Páginas/Layout      | componentes | `LoginPage`, `RegisterPage`, `ForgotPasswordPage`, `ResetPasswordPage`, `AuthLayout` (por si se quiere montar sin `AuthRoutes`). |
 

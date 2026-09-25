@@ -6,6 +6,7 @@ import LayoutCells from '@gravity-ui/icons/LayoutCells'
 import Sliders from '@gravity-ui/icons/Sliders'
 import { Link, useNavigate } from 'react-router-dom'
 import {
+  Card,
   ChipCarousel,
   Eyebrow,
   Footer,
@@ -20,11 +21,13 @@ import {
   WidePageContainer,
 } from '@repo/components'
 import { ProductCard } from '../../components/ProductCard'
+import { ActiveOrderCard } from '../../components/ActiveOrderCard'
 import { SectionHeader } from '@repo/components'
 import { routes } from '../../routes'
-import { useAvailableBranches, useCatalog, useProfile } from '@repo/api'
+import { useAvailableBranches, useCatalog, useOrders, useProfile } from '@repo/api'
 import { useAddresses } from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
+import { isActiveOrder } from '@repo/domain'
 
 const STEPS = [
   { icon: LayoutCells, title: 'Elegí', text: 'Explorá el catálogo y encontrá tu antojo.' },
@@ -41,12 +44,23 @@ export const HomePage = () => {
     selected?.latitude,
     selected?.longitude,
   )
+  const { orders } = useOrders({ pollIntervalMs: 15000 })
+  const activeOrders = orders.filter((order) => isActiveOrder(order.status))
 
   const hasAvailableBranch = !branchesLoading && branches.length > 0
 
   return (
     <WidePageContainer>
       <Hero userFirstName={user?.firstName} />
+
+      {activeOrders.length > 0 ? (
+        <VStack align="stretch" gap="4">
+          <SectionTitle>Pedidos en curso</SectionTitle>
+          {activeOrders.map((order) => (
+            <ActiveOrderCard key={order.id} order={order} />
+          ))}
+        </VStack>
+      ) : null}
 
       {hasAvailableBranch ? (
         <HomeCatalog lat={selected?.latitude} lng={selected?.longitude} />
@@ -58,14 +72,7 @@ export const HomePage = () => {
         <SectionHeader label="Cómo funciona" title="Pedir es así de fácil" />
         <SimpleGrid columns={{ base: 1, sm: 3 }} gap={{ base: '4', md: '6' }} marginTop="6">
           {STEPS.map((step) => (
-            <Box
-              key={step.title}
-              bg="bg.panel"
-              border="1px solid"
-              borderColor="border.subtle"
-              borderRadius="2xl"
-              padding="6"
-            >
+            <Card key={step.title} padding="6">
               <Box
                 color="brand.600"
                 bg="bg.muted"
@@ -80,7 +87,7 @@ export const HomePage = () => {
               <Muted fontSize="sm" marginTop="1">
                 {step.text}
               </Muted>
-            </Box>
+            </Card>
           ))}
         </SimpleGrid>
       </Box>
@@ -146,14 +153,7 @@ const HomeCatalog = ({ lat, lng }: { lat?: number; lng?: number }) => {
 
 const Hero = ({ userFirstName }: { userFirstName?: string }) => {
   return (
-    <Box
-      position="relative"
-      overflow="hidden"
-      borderRadius="3xl"
-      bg="bg.subtle"
-      border="1px solid"
-      borderColor="border.subtle"
-    >
+    <Card variant="subtle" position="relative" overflow="hidden" borderRadius="3xl" padding="0">
       <Box
         position="absolute"
         top="-120px"
@@ -240,13 +240,12 @@ const Hero = ({ userFirstName }: { userFirstName?: string }) => {
               objectFit="cover"
             />
           </Box>
-          <HStack
+          <Card
             position="absolute"
             bottom="-12px"
             left="6"
-            bg="bg.panel"
-            border="1px solid"
-            borderColor="border.subtle"
+            display="flex"
+            alignItems="center"
             borderRadius="full"
             paddingX="4"
             paddingY="2"
@@ -257,10 +256,10 @@ const Hero = ({ userFirstName }: { userFirstName?: string }) => {
               <Clock width={16} height={16} />
             </Box>
             <Strong fontSize="sm">Entrega ~35 min</Strong>
-          </HStack>
+          </Card>
         </Box>
       </Grid>
-    </Box>
+    </Card>
   )
 }
 

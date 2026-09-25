@@ -1,5 +1,5 @@
 import { useRoutes } from 'react-router-dom'
-import { RequireAuth } from '@repo/components'
+import { OrderDetailView as OrderDetailPage, RequireAuth } from '@repo/components'
 import { authRouteObjects, authRoutes } from '@repo/auth'
 import { ADMIN_URL, BRANCH_URL, MOCK_AUTH, RIDER_URL } from './config'
 import { routes } from './routes'
@@ -8,7 +8,6 @@ import { HomePage } from './pages/HomePage'
 import { ProductsPage } from './pages/ProductsPage'
 import { StockPage } from './pages/StockPage'
 import { OrdersPage } from './pages/OrdersPage'
-import { OrderDetailPage } from './pages/OrderDetailPage'
 import { ReportsPage } from './pages/ReportsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import logoLight from './assets/logo-light.svg'
@@ -22,6 +21,7 @@ export const App = () =>
       riderUrl: RIDER_URL,
       logoLight,
       logoDark,
+      showRegister: false,
     }),
     {
       element: (

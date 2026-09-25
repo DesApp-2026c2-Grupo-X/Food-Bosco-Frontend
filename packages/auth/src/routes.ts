@@ -2,7 +2,8 @@ export const authRoutes = {
   login: '/login',
   register: '/register',
   forgotPassword: '/forgot-password',
-  resetPassword: '/reset-password/:token',
+  resetPassword: '/reset-password',
 } as const
 
-export const resetPasswordPath = (token: string) => `/reset-password/${token}`
+export const resetPasswordPath = (token: string) =>
+  `${authRoutes.resetPassword}?token=${encodeURIComponent(token)}`

@@ -200,19 +200,19 @@ Dos contenedores de página, unificados en `@repo/components`. **Ninguna página
 
 **Un mismo look = un mismo token.** No volver a componer Chakra a mano si existe el token.
 
-| Categoría   | Tokens                                                                                                                                                  |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tipografía  | `PageTitle`, `SectionTitle`, `Eyebrow`, `Lead`, `Strong`, `Muted`, `Subtle`, `Price`, `TextLink`                                                        |
-| Botones     | `PrimaryButton`, `SecondaryButton`, `InverseButton`, `GhostButton`, `OutlineButton`                                                                     |
-| Formularios | `TextField`, `PasswordField`, `TextAreaField`, `PasswordInput`, `SearchInput` + `FormField`, `FormPasswordField`, `FormTextAreaField` (React Hook Form) |
-| Layout      | `PageContainer`, `WidePageContainer`, `Footer`, `ResponsiveModal` (dialog + bottom-sheet), `SidePanel`                                                  |
-| Navegación  | `MobileNav`, `ChipCarousel`                                                                                                                             |
-| Feedback    | `EmptyState`, `SplashScreen`                                                                                                                            |
-| Dominio     | `OrderStatusBadge`, `OrderTimeline`                                                                                                                     |
-| Base        | `Logo`, `BackButton`, `ColorModeProvider`/`ColorModeButton`, `QuantityStepper`, `Chip`, `SectionHeader`, `RequireAuth`                                  |
+| Categoría   | Tokens                                                                                                                                                                                       |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tipografía  | `PageTitle`, `SectionTitle`, `Eyebrow`, `Lead`, `Strong`, `Muted`, `Subtle`, `Price`, `TextLink`                                                                                             |
+| Botones     | `PrimaryButton`, `SecondaryButton`, `InverseButton`, `GhostButton`, `OutlineButton`                                                                                                          |
+| Formularios | `TextField`, `PasswordField`, `TextAreaField`, `PasswordInput`, `SearchInput` + `FormField`, `FormPasswordField`, `FormTextAreaField`, `FormImageField`/`ImageUploadField` (React Hook Form) |
+| Layout      | `PageContainer`, `WidePageContainer`, `Footer`, `ResponsiveModal` (dialog + bottom-sheet), `SidePanel`                                                                                       |
+| Navegación  | `MobileNav`, `ChipCarousel`                                                                                                                                                                  |
+| Feedback    | `EmptyState`, `SplashScreen`                                                                                                                                                                 |
+| Dominio     | `OrderStatusBadge`, `OrderTimeline`                                                                                                                                                          |
+| Base        | `Logo`, `BackButton`, `ColorModeProvider`/`ColorModeButton`, `QuantityStepper`, `Chip`, `SectionHeader`, `RequireAuth`                                                                       |
 
 - **Botones** ya traen `size`/`radius`/colores; solo `children` + props semánticas (`asChild`, `type`, `disabled`, `loading`, `width`, `onClick`). No re-estilizar.
-- **Campos** (`TextField`/`PasswordField`/`TextAreaField`) ya traen `size="lg"`, `borderRadius="xl"`, `bg="bg.panel"` y el patrón de validación (`required` + `invalid` + `errorText`).
+- **Campos** (`TextField`/`PasswordField`/`TextAreaField`) ya traen `size="lg"`, `borderRadius="xl"`, `bg="bg.panel"` y el patrón de validación (`required` + `invalid` + `errorText`). `ImageUploadField` (con `FormImageField` para RHF) sube un archivo vía `POST /v1/uploads` y guarda la URL en el campo, con vista previa, "Cambiar"/"Quitar" y fallback para pegar una URL.
 - **Validación de formularios:** React Hook Form + Zod + `@hookform/resolvers`. Los schemas viven en `@repo/domain` (`schemas.ts`) y se comparten entre apps. Patrón: `useForm` + `zodResolver(schema)` (mode `onTouched`) en el hook, `<FormProvider {...form}>` + `FormField`/`FormPasswordField`/`FormTextAreaField` en la página, y `form.handleSubmit(onValid)` como `onSubmit`. No validar a mano en `useState`.
 - **Capas:** tipos/constantes de dominio en `@repo/domain`; hooks/datos en `@repo/api`; tokens de color en `@repo/theme`.
 

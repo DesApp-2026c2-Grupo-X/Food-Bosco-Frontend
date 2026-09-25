@@ -1,28 +1,32 @@
 import { useMemo, useState } from 'react'
-import { Box, HStack, Text, VStack, Tabs } from '@chakra-ui/react'
+import { HStack, VStack } from '@chakra-ui/react'
 import ListUl from '@gravity-ui/icons/ListUl'
 import Layers from '@gravity-ui/icons/Layers'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  BackButton,
+  Card,
+  ConfirmDeleteModal,
+  EditPageShell,
+  EditPageTabs,
   EmptyState,
+  FormActions,
   FormField,
+  FormImageField,
   FormLayout,
+  FormSelectField,
   FormTextAreaField,
   GhostButton,
   Muted,
-  PageTitle,
   PrimaryButton,
-  ResponsiveModal,
   Strong,
-  ToggleSwitch,
-  WidePageContainer,
+  SwitchRow,
 } from '@repo/components'
-import { useAdminCategories, useIngredients, useProductEditor } from '@repo/api'
+import { useAdminCategories, useImageUpload, useIngredients, useProductEditor } from '@repo/api'
 import {
   formatPrice,
+  optionsFromEntities,
   productSchema,
   type ConfigGroupInput,
   type ConfigOptionInput,
@@ -35,7 +39,6 @@ import {
   type RecipeItem,
   type RecipeItemInput,
 } from '@repo/domain'
-import { FormSelectField } from '../../components/FormSelectField'
 import { ConfigGroupFormModal } from '../../components/ConfigGroupFormModal'
 import { ConfigOptionFormModal } from '../../components/ConfigOptionFormModal'
 import { RecipeItemFormModal } from '../../components/RecipeItemFormModal'
@@ -45,11 +48,21 @@ interface DataFormProps {
   categories: { value: string; label: string }[]
   product: Product | null
   isSubmitting: boolean
+  onUploadImage: (file: File) => Promise<string>
+  isUploadingImage: boolean
   onSubmit: (input: ProductInput) => Promise<void>
   onCancel: () => void
 }
 
-const DataForm = ({ categories, product, isSubmitting, onSubmit, onCancel }: DataFormProps) => {
+const DataForm = ({
+  categories,
+  product,
+  isSubmitting,
+  onUploadImage,
+  isUploadingImage,
+  onSubmit,
+  onCancel,
+}: DataFormProps) => {
   const form = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -70,7 +83,7 @@ const DataForm = ({ categories, product, isSubmitting, onSubmit, onCancel }: Dat
       description: values.description.trim(),
       categoryId: values.categoryId,
       price: Number(values.price),
-      image: values.image?.trim() ?? '',
+      image: values.image?.trim() || null,
       available,
     }
     await onSubmit(input)
@@ -95,30 +108,24 @@ const DataForm = ({ categories, product, isSubmitting, onSubmit, onCancel }: Dat
             placeholder="Seleccionar categoría..."
           />
           <FormField name="price" label="Precio" required inputMode="decimal" placeholder="0" />
-          <FormField name="image" label="Imagen (URL)" placeholder="https://..." />
-          <HStack justify="space-between">
-            <Text fontSize="sm" color="fg.muted">
-              Disponible
-            </Text>
-            <ToggleSwitch
-              checked={available}
-              onChange={setAvailable}
-              ariaLabel="Producto disponible"
-            />
-          </HStack>
-          <HStack justify="end" gap="2">
-            <GhostButton type="button" onClick={onCancel}>
-              Cancelar
-            </GhostButton>
-            <PrimaryButton
-              type="submit"
-              size="md"
-              disabled={!form.formState.isValid || isSubmitting}
-              loading={isSubmitting}
-            >
-              Guardar
-            </PrimaryButton>
-          </HStack>
+          <FormImageField
+            name="image"
+            label="Imagen"
+            onUpload={onUploadImage}
+            isUploading={isUploadingImage}
+          />
+          <SwitchRow
+            label="Disponible"
+            checked={available}
+            onChange={setAvailable}
+            ariaLabel="Producto disponible"
+          />
+          <FormActions
+            onCancel={onCancel}
+            submitLabel="Guardar"
+            isSubmitting={isSubmitting}
+            disabled={!form.formState.isValid}
+          />
         </FormLayout>
       </form>
     </FormProvider>
@@ -172,75 +179,71 @@ const ConfigsSection = ({
         />
       ) : (
         groups.map((group) => (
-          <VStack
-            key={group.id}
-            align="stretch"
-            gap="3"
-            bg="bg.panel"
-            border="1px solid"
-            borderColor="border.subtle"
-            borderRadius="2xl"
-            padding="5"
-          >
-            <HStack justify="space-between" gap="4">
-              <VStack align="start" gap="0.5">
-                <Strong>{group.name}</Strong>
-                <Muted fontSize="sm">
-                  {group.type === 'single' ? 'Selección única' : 'Selección múltiple'} ·{' '}
-                  {group.required ? 'Obligatorio' : 'Opcional'} · min {group.min} / max {group.max}
-                </Muted>
-              </VStack>
-              <HStack gap="1">
-                <GhostButton size="sm" onClick={() => setGroupModal(group)}>
-                  Editar
-                </GhostButton>
-                <GhostButton size="sm" color="danger" onClick={() => setConfirmGroup(group)}>
-                  Eliminar
-                </GhostButton>
-              </HStack>
-            </HStack>
-
-            <VStack align="stretch" gap="1">
-              {group.options.map((option) => (
-                <HStack
-                  key={option.id}
-                  justify="space-between"
-                  gap="3"
-                  bg="bg.muted"
-                  borderRadius="xl"
-                  paddingX="3"
-                  paddingY="2"
-                >
-                  <HStack gap="2">
-                    <Strong fontSize="sm">{option.name}</Strong>
-                    <Muted fontSize="sm">
-                      {option.extraPrice > 0 ? `+ ${formatPrice(option.extraPrice)}` : 'Sin cargo'}
-                    </Muted>
-                  </HStack>
-                  <HStack gap="1">
-                    <GhostButton size="xs" onClick={() => setOptionModal({ group, option })}>
-                      Editar
-                    </GhostButton>
-                    <GhostButton
-                      size="xs"
-                      color="danger"
-                      onClick={() => removeOption(group.id, option.id)}
-                    >
-                      Quitar
-                    </GhostButton>
-                  </HStack>
+          <Card key={group.id}>
+            <VStack align="stretch" gap="3">
+              <HStack justify="space-between" gap="4">
+                <VStack align="start" gap="0.5">
+                  <Strong>{group.name}</Strong>
+                  <Muted fontSize="sm">
+                    {group.type === 'single' ? 'Selección única' : 'Selección múltiple'} ·{' '}
+                    {group.required ? 'Obligatorio' : 'Opcional'} · min {group.min} / max{' '}
+                    {group.max}
+                  </Muted>
+                </VStack>
+                <HStack gap="1">
+                  <GhostButton size="sm" onClick={() => setGroupModal(group)}>
+                    Editar
+                  </GhostButton>
+                  <GhostButton size="sm" color="danger" onClick={() => setConfirmGroup(group)}>
+                    Eliminar
+                  </GhostButton>
                 </HStack>
-              ))}
-            </VStack>
+              </HStack>
 
-            <GhostButton
-              size="sm"
-              alignSelf="flex-start"
-              onClick={() => setOptionModal({ group, option: null })}
-            >
-              + Agregar opción
-            </GhostButton>
-          </VStack>
+              <VStack align="stretch" gap="1">
+                {group.options.map((option) => (
+                  <HStack
+                    key={option.id}
+                    justify="space-between"
+                    gap="3"
+                    bg="bg.muted"
+                    borderRadius="xl"
+                    paddingX="3"
+                    paddingY="2"
+                  >
+                    <HStack gap="2">
+                      <Strong fontSize="sm">{option.name}</Strong>
+                      <Muted fontSize="sm">
+                        {option.extraPrice > 0
+                          ? `+ ${formatPrice(option.extraPrice)}`
+                          : 'Sin cargo'}
+                      </Muted>
+                    </HStack>
+                    <HStack gap="1">
+                      <GhostButton size="xs" onClick={() => setOptionModal({ group, option })}>
+                        Editar
+                      </GhostButton>
+                      <GhostButton
+                        size="xs"
+                        color="danger"
+                        onClick={() => removeOption(group.id, option.id)}
+                      >
+                        Quitar
+                      </GhostButton>
+                    </HStack>
+                  </HStack>
+                ))}
+              </VStack>
+
+              <GhostButton
+                size="sm"
+                alignSelf="flex-start"
+                onClick={() => setOptionModal({ group, option: null })}
+              >
+                + Agregar opción
+              </GhostButton>
+            </VStack>
+          </Card>
         ))
       )}
 
@@ -273,28 +276,17 @@ const ConfigsSection = ({
         />
       ) : null}
 
-      <ResponsiveModal open={confirmGroup !== null} onClose={() => setConfirmGroup(null)}>
-        <VStack align="stretch" gap="4">
-          <Strong fontSize="lg">Eliminar grupo</Strong>
-          <Muted>
-            ¿Eliminar el grupo {confirmGroup?.name} y todas sus opciones? Esta acción no se puede
-            deshacer.
-          </Muted>
-          <HStack justify="end" gap="2">
-            <GhostButton onClick={() => setConfirmGroup(null)}>Cancelar</GhostButton>
-            <PrimaryButton
-              size="md"
-              loading={isMutating}
-              onClick={async () => {
-                if (confirmGroup) await removeGroup(confirmGroup.id)
-                setConfirmGroup(null)
-              }}
-            >
-              Eliminar
-            </PrimaryButton>
-          </HStack>
-        </VStack>
-      </ResponsiveModal>
+      <ConfirmDeleteModal
+        open={confirmGroup !== null}
+        title="Eliminar grupo"
+        description={`¿Eliminar el grupo ${confirmGroup?.name} y todas sus opciones? Esta acción no se puede deshacer.`}
+        isSubmitting={isMutating}
+        onClose={() => setConfirmGroup(null)}
+        onConfirm={async () => {
+          if (confirmGroup) await removeGroup(confirmGroup.id)
+          setConfirmGroup(null)
+        }}
+      />
     </VStack>
   )
 }
@@ -337,13 +329,12 @@ const RecipeSection = ({
       ) : (
         <VStack align="stretch" gap="2">
           {recipe.map((item) => (
-            <HStack
+            <Card
               key={item.id}
-              justify="space-between"
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
               gap="4"
-              bg="bg.panel"
-              border="1px solid"
-              borderColor="border.subtle"
               borderRadius="xl"
               paddingX="4"
               paddingY="3"
@@ -362,7 +353,7 @@ const RecipeSection = ({
                   Quitar
                 </GhostButton>
               </HStack>
-            </HStack>
+            </Card>
           ))}
         </VStack>
       )}
@@ -407,102 +398,89 @@ export const ProductEditPage = () => {
   } = useProductEditor(id)
   const { categories } = useAdminCategories()
   const { ingredients } = useIngredients()
+  const { uploadImage, isUploading: isUploadingImage } = useImageUpload()
 
-  const categoryOptions = useMemo(
-    () => categories.map((category) => ({ value: String(category.id), label: category.name })),
-    [categories],
-  )
+  const categoryOptions = useMemo(() => optionsFromEntities(categories), [categories])
 
   const handleSave = async (input: ProductInput) => {
     const savedId = await save(input)
     if (isNew && savedId != null) navigate(productEditPath(savedId))
   }
 
-  if (!isNew && isLoading) {
-    return (
-      <WidePageContainer>
-        <BackButton />
-        <PageTitle>Producto</PageTitle>
-      </WidePageContainer>
-    )
-  }
-
-  if (!isNew && !product) {
-    return (
-      <WidePageContainer>
-        <BackButton />
-        <EmptyState
-          title="Producto no encontrado"
-          description="El producto que buscás no existe."
-        />
-      </WidePageContainer>
-    )
-  }
-
   return (
-    <WidePageContainer>
-      <BackButton />
-      <Box>
-        <PageTitle>{isNew ? 'Nuevo producto' : (product?.name ?? 'Producto')}</PageTitle>
-      </Box>
-
+    <EditPageShell
+      isNew={isNew}
+      isLoading={isLoading}
+      hasEntity={product != null}
+      title={isNew ? 'Nuevo producto' : (product?.name ?? 'Producto')}
+      loadingTitle="Producto"
+      notFound={{
+        title: 'Producto no encontrado',
+        description: 'El producto que buscás no existe.',
+      }}
+    >
       {isNew ? (
         <DataForm
           categories={categoryOptions}
           product={null}
-          isSubmitting={isMutating}
+          isSubmitting={isMutating || isUploadingImage}
+          onUploadImage={uploadImage}
+          isUploadingImage={isUploadingImage}
           onSubmit={handleSave}
           onCancel={() => navigate(routes.products)}
         />
       ) : product ? (
-        <Tabs.Root defaultValue="data">
-          <Tabs.List>
-            <Tabs.Trigger value="data">Datos generales</Tabs.Trigger>
-            <Tabs.Trigger value="configs">Configuraciones</Tabs.Trigger>
-            <Tabs.Trigger value="recipe">Receta</Tabs.Trigger>
-          </Tabs.List>
-
-          <Tabs.Content value="data">
-            <Box marginTop="6">
-              <DataForm
-                categories={categoryOptions}
-                product={product}
-                isSubmitting={isMutating}
-                onSubmit={handleSave}
-                onCancel={() => navigate(routes.products)}
-              />
-            </Box>
-          </Tabs.Content>
-
-          <Tabs.Content value="configs">
-            <Box marginTop="6">
-              <ConfigsSection
-                product={product}
-                isMutating={isMutating}
-                addGroup={addGroup}
-                updateGroup={updateGroup}
-                removeGroup={removeGroup}
-                addOption={addOption}
-                updateOption={updateOption}
-                removeOption={removeOption}
-              />
-            </Box>
-          </Tabs.Content>
-
-          <Tabs.Content value="recipe">
-            <Box marginTop="6">
-              <RecipeSection
-                product={product}
-                ingredients={ingredients}
-                isMutating={isMutating}
-                addRecipeItem={addRecipeItem}
-                updateRecipeItem={updateRecipeItem}
-                removeRecipeItem={removeRecipeItem}
-              />
-            </Box>
-          </Tabs.Content>
-        </Tabs.Root>
+        <EditPageTabs
+          defaultValue="data"
+          tabs={[
+            {
+              value: 'data',
+              label: 'Datos generales',
+              content: (
+                <DataForm
+                  categories={categoryOptions}
+                  product={product}
+                  isSubmitting={isMutating || isUploadingImage}
+                  onUploadImage={uploadImage}
+                  isUploadingImage={isUploadingImage}
+                  onSubmit={handleSave}
+                  onCancel={() => navigate(routes.products)}
+                />
+              ),
+            },
+            {
+              value: 'configs',
+              label: 'Configuraciones',
+              content: (
+                <ConfigsSection
+                  product={product}
+                  isMutating={isMutating}
+                  addGroup={addGroup}
+                  updateGroup={updateGroup}
+                  removeGroup={removeGroup}
+                  addOption={addOption}
+                  updateOption={updateOption}
+                  removeOption={removeOption}
+                />
+              ),
+            },
+            {
+              value: 'recipe',
+              label: 'Receta',
+              content: (
+                <RecipeSection
+                  product={product}
+                  ingredients={ingredients}
+                  isMutating={isMutating}
+                  addRecipeItem={addRecipeItem}
+                  updateRecipeItem={updateRecipeItem}
+                  removeRecipeItem={removeRecipeItem}
+                />
+              ),
+            },
+          ]}
+        />
       ) : null}
-    </WidePageContainer>
+    </EditPageShell>
   )
 }

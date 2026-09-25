@@ -9,6 +9,7 @@ import {
   UPDATE_RIDER_VEHICLE,
   toRider,
 } from '../client/rider'
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseRiderProfileReturn {
   profile: RiderProfile | null
@@ -68,7 +69,7 @@ export const useRiderProfile = (): UseRiderProfileReturn => {
   return {
     profile,
     isLoading: loading,
-    isMutating: updating || updatingVehicle || setting,
+    isMutating: combineLoading(updating, updatingVehicle, setting),
     updateProfile,
     updateVehicle,
     setAvailability,

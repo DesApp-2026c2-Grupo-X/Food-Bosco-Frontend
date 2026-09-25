@@ -61,7 +61,7 @@ export const useAddressPicker = (open: boolean, onClose: () => void): UseAddress
   }
 
   const handleSubmitForm = form.handleSubmit(async (values) => {
-    const coords = await geocodeAddress(`${values.text.trim()}, ${values.city.trim()}`)
+    const coords = await geocodeAddress(`${values.text.trim()}, ${values.city?.trim() ?? ''}`)
     if (!coords) {
       setError('No pudimos ubicar esa dirección. Revisá los datos.')
       return
@@ -70,8 +70,8 @@ export const useAddressPicker = (open: boolean, onClose: () => void): UseAddress
     const input: AddressInput = {
       label: toTitleCase(values.label) || 'Dirección',
       text: toTitleCase(values.text),
-      city: toTitleCase(values.city),
-      postalCode: values.postalCode.trim(),
+      city: values.city ? toTitleCase(values.city) : undefined,
+      postalCode: values.postalCode?.trim(),
       latitude: coords.lat,
       longitude: coords.lon,
     }

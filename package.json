@@ -12,6 +12,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "check-types": "turbo run check-types",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
@@ -21,14 +23,20 @@
     "store:ios:build": "bash apps/store/ios.sh"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "husky": "^9.1.7",
+    "jsdom": "^30.0.1",
     "lint-staged": "^15.5.2",
     "prettier": "^3.7.4",
     "turbo": "^2.10.11",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "^5.0.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "packageManager": "npm@11.4.1",
   "lint-staged": {
@@ -37,6 +45,9 @@
     ]
   },
   "optionalDependencies": {
-    "@rolldown/binding-darwin-arm64": "^1.2.4"
+    "@rolldown/binding-darwin-arm64": "^1.2.4",
+    "@rolldown/binding-linux-x64-gnu": "^1.2.8",
+    "@rollup/rollup-linux-x64-gnu": "4.63.1",
+    "@rollup/rollup-linux-x64-musl": "4.63.1"
   }
 }

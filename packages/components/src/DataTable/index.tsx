@@ -1,5 +1,5 @@
 import { Box, Skeleton, Table } from '@chakra-ui/react'
-import { EmptyState } from '../EmptyState'
+import { EmptyState } from '../feedback'
 import type { DataTableProps, ResponsiveBreakpoint } from './types'
 
 const HIDE_MAP: Record<ResponsiveBreakpoint, Record<string, string>> = {
@@ -16,6 +16,7 @@ export const DataTable = <T,>({
   error = false,
   emptyTitle = 'No hay resultados',
   emptyDescription = 'No se encontraron registros para mostrar.',
+  emptyIcon,
   onRowClick,
   skeletonRows = 5,
 }: DataTableProps<T>) => {
@@ -29,7 +30,7 @@ export const DataTable = <T,>({
   }
 
   if (!isLoading && rows.length === 0) {
-    return <EmptyState title={emptyTitle} description={emptyDescription} />
+    return <EmptyState icon={emptyIcon} title={emptyTitle} description={emptyDescription} />
   }
 
   return (

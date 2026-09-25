@@ -1,0 +1,25 @@
+import { StrictMode } from 'react'
+import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react'
+import { BrowserRouter } from 'react-router-dom'
+import { GraphQLProvider } from '@repo/api'
+import { config } from '@repo/theme'
+import { ColorModeProvider } from '../ColorModeProvider'
+import { Toaster } from '../Toaster'
+import { cartToaster } from '../Toaster/toaster'
+import type { AppProvidersProps } from './types'
+
+const system = createSystem(defaultConfig, config)
+
+export const AppProviders = ({ children }: AppProvidersProps) => (
+  <StrictMode>
+    <ColorModeProvider defaultTheme="system" enableSystem>
+      <ChakraProvider value={system}>
+        <GraphQLProvider>
+          <BrowserRouter>{children}</BrowserRouter>
+        </GraphQLProvider>
+        <Toaster />
+        <Toaster toaster={cartToaster} />
+      </ChakraProvider>
+    </ColorModeProvider>
+  </StrictMode>
+)

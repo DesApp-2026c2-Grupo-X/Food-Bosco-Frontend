@@ -5,6 +5,10 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
-    "types": ["node"]
-  }
+    "types": ["node"],
+    "strictNullChecks": true,
+    "tsBuildInfoFile": "${configDir}/node_modules/.tmp/tsconfig.node.tsbuildinfo"
+  },
+  "include": ["${configDir}/vite.config.ts"],
+  "exclude": ["${configDir}/node_modules", "${configDir}/dist"]
 }

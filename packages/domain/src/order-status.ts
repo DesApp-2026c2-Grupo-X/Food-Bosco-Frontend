@@ -10,6 +10,10 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   CANCELLED: 'Cancelado',
 }
 
+export const ORDER_STATUS_OPTIONS = (
+  Object.entries(ORDER_STATUS_LABELS) as [OrderStatus, string][]
+).map(([value, label]) => ({ value, label }))
+
 export const ORDER_STATUS_PALETTE = {
   PENDING: 'yellow',
   CONFIRMED: 'blue',

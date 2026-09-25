@@ -13,41 +13,19 @@ import type {
   Product,
   ProductConfigGroup,
   ProductOption,
-  RecipeItem,
-  User,
-  UserRole,
 } from '@repo/domain'
+import { asBoolean, asList, asNumber, asString, toRecipeItem, toUser } from './mappers'
+import {
+  BRANCH_FIELDS,
+  CART_FIELDS,
+  CATEGORY_FIELDS,
+  PRODUCT_DETAIL_FIELDS,
+  STORE_ORDER_FIELDS,
+} from './fragments'
 
 type Raw = Record<string, unknown>
 
-const asString = (value: unknown, fallback = ''): string =>
-  value == null ? fallback : String(value)
-
-const asNumber = (value: unknown): number => (value == null ? 0 : Number(value))
-
-const asBoolean = (value: unknown): boolean => Boolean(value)
-
-const asList = <T>(value: unknown, map: (raw: Raw) => T): T[] =>
-  Array.isArray(value) ? value.map((entry) => map(entry as Raw)) : []
-
-const ROLE_FROM_API: Record<string, UserRole> = {
-  CUSTOMER: 'customer',
-  BRANCH_ADMIN: 'branch_admin',
-  SUPER_ADMIN: 'super_admin',
-  RIDER: 'rider',
-}
-
-export const toUser = (raw: Raw): User => ({
-  id: asString(raw.id),
-  email: asString(raw.email),
-  role: ROLE_FROM_API[asString(raw.role)] ?? 'customer',
-  firstName: asString(raw.firstName),
-  lastName: asString(raw.lastName),
-  phone: asString(raw.phone),
-  active: asBoolean(raw.active),
-  branchId: raw.branchId == null ? undefined : String(raw.branchId),
-  createdAt: new Date().toISOString(),
-})
+export { toRecipeItem, toUser }
 
 export const toCategory = (raw: Raw): Category => ({
   id: asString(raw.id),
@@ -70,12 +48,6 @@ export const toConfigGroup = (raw: Raw): ProductConfigGroup => ({
   min: raw.min == null ? null : asNumber(raw.min),
   max: raw.max == null ? null : asNumber(raw.max),
   options: asList(raw.options, toConfigOption),
-})
-
-export const toRecipeItem = (raw: Raw): RecipeItem => ({
-  id: asString(raw.id),
-  ingredientId: asString(raw.ingredientId),
-  quantity: asNumber(raw.quantity),
 })
 
 export const toProduct = (raw: Raw): Product => ({
@@ -153,6 +125,7 @@ export const toOrder = (raw: Raw): Order => ({
   status: asString(raw.status) as OrderStatus,
   total: asNumber(raw.total),
   estimatedDeliveryAt: raw.estimatedDeliveryAt == null ? null : String(raw.estimatedDeliveryAt),
+  cancelReason: raw.cancelReason === 'lost' ? 'lost' : null,
   createdAt: asString(raw.createdAt),
   items: asList(raw.items, toOrderItem),
   statusHistory: asList(raw.statusHistory, toOrderStatusHistory),
@@ -177,148 +150,6 @@ export const toCart = (raw: Raw): Cart => ({
   total: asNumber(raw.total),
 })
 
-const CATEGORY_FIELDS = `
-  id
-  name
-  active
-`
-
-const CONFIG_OPTION_FIELDS = `
-  id
-  name
-  extraPrice
-  available
-`
-
-const CONFIG_GROUP_FIELDS = `
-  id
-  name
-  type
-  required
-  min
-  max
-  options {
-    ${CONFIG_OPTION_FIELDS}
-  }
-`
-
-const RECIPE_ITEM_FIELDS = `
-  id
-  ingredientId
-  quantity
-`
-
-const PRODUCT_FIELDS = `
-  id
-  categoryId
-  name
-  description
-  price
-  image
-  available
-  configGroups {
-    ${CONFIG_GROUP_FIELDS}
-  }
-  recipe {
-    ${RECIPE_ITEM_FIELDS}
-  }
-`
-
-const BRANCH_HOURS_FIELDS = `
-  dayOfWeek
-  opening
-  closing
-  closed
-`
-
-const BRANCH_FIELDS = `
-  id
-  name
-  addressText
-  latitude
-  longitude
-  phone
-  active
-  hours {
-    ${BRANCH_HOURS_FIELDS}
-  }
-`
-
-const ORDER_ITEM_FIELDS = `
-  productId
-  name
-  unitPrice
-  quantity
-  observations
-  subtotal
-  options {
-    optionId
-    name
-    extraPrice
-  }
-`
-
-const ORDER_FIELDS = `
-  id
-  number
-  clientId
-  branchId
-  branch {
-    ${BRANCH_FIELDS}
-  }
-  client {
-    id
-    email
-    firstName
-    lastName
-    phone
-    role
-    active
-  }
-  deliveryAddress {
-    text
-    latitude
-    longitude
-  }
-  status
-  total
-  estimatedDeliveryAt
-  createdAt
-  items {
-    ${ORDER_ITEM_FIELDS}
-  }
-  statusHistory {
-    previousStatus
-    newStatus
-    changedAt
-  }
-  availableTransitions
-`
-
-const CART_ITEM_FIELDS = `
-  id
-  productId
-  product {
-    ${PRODUCT_FIELDS}
-  }
-  quantity
-  observations
-  optionIds
-  options {
-    ${CONFIG_OPTION_FIELDS}
-  }
-`
-
-const CART_FIELDS = `
-  id
-  clientId
-  status
-  total
-  items {
-    ${CART_ITEM_FIELDS}
-  }
-`
-
 export const CATEGORIES = gql`
   query Categories {
     categories {
@@ -330,7 +161,7 @@ export const CATEGORIES = gql`
 export const PRODUCTS = gql`
   query Products($filter: ProductFilterInput) {
     products(filter: $filter) {
-      ${PRODUCT_FIELDS}
+      ${PRODUCT_DETAIL_FIELDS}
     }
   }
 `
@@ -338,7 +169,7 @@ export const PRODUCTS = gql`
 export const PRODUCT = gql`
   query Product($id: ID!) {
     product(id: $id) {
-      ${PRODUCT_FIELDS}
+      ${PRODUCT_DETAIL_FIELDS}
     }
   }
 `
@@ -346,7 +177,7 @@ export const PRODUCT = gql`
 export const MY_ORDERS = gql`
   query MyOrders {
     myOrders {
-      ${ORDER_FIELDS}
+      ${STORE_ORDER_FIELDS}
     }
   }
 `
@@ -354,7 +185,7 @@ export const MY_ORDERS = gql`
 export const ORDER = gql`
   query Order($id: ID!) {
     order(id: $id) {
-      ${ORDER_FIELDS}
+      ${STORE_ORDER_FIELDS}
       riderId
       riderLocation {
         latitude
@@ -367,7 +198,7 @@ export const ORDER = gql`
 export const CREATE_ORDER = gql`
   mutation CreateOrder($addressId: ID!) {
     createOrder(addressId: $addressId) {
-      ${ORDER_FIELDS}
+      ${STORE_ORDER_FIELDS}
     }
   }
 `

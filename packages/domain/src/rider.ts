@@ -1,7 +1,6 @@
-export interface GeoPoint {
-  latitude: number
-  longitude: number
-}
+import type { GeoPoint } from './geo'
+
+export type { GeoPoint } from './geo'
 
 export type VehicleType = 'moto' | 'bici'
 
@@ -34,8 +33,10 @@ export interface UpdateVehicleInput {
   plate?: string
 }
 
-export const formatVehicle = (vehicle: Vehicle): string => {
+export const buildVehicleDescription = (vehicle: Vehicle): string => {
   if (vehicle.type === 'bici') return 'Bici'
   const parts = ['Moto', vehicle.brand, vehicle.model, vehicle.plate].filter(Boolean) as string[]
   return parts.join(' · ')
 }
+
+export const formatVehicle = (vehicle: Vehicle): string => buildVehicleDescription(vehicle)

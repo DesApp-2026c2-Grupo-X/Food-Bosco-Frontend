@@ -1,7 +1,3 @@
-export const ADMIN_URL = import.meta.env.VITE_ADMIN_URL ?? 'http://localhost:5174'
+import { createAppConfig } from '@repo/auth'
 
-export const BRANCH_URL = import.meta.env.VITE_BRANCH_URL ?? 'http://localhost:5175'
-
-export const RIDER_URL = import.meta.env.VITE_RIDER_URL
-
-export const MOCK_AUTH = import.meta.env.VITE_MOCK_AUTH === 'true'
+export const { BRANCH_URL, ADMIN_URL, RIDER_URL, MOCK_AUTH } = createAppConfig({ self: 'admin' })

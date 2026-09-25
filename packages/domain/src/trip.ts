@@ -1,5 +1,6 @@
-import type { OrderStatus } from './order'
+import type { OrderAddress, OrderStatus } from './order'
 import type { GeoPoint } from './rider'
+import { haversineDistanceMeters } from './geo'
 
 export type TripStatus = 'OFFERED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
 
@@ -10,11 +11,7 @@ export const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
   CANCELLED: 'Cancelado',
 }
 
-export interface TripAddress {
-  text: string
-  latitude: number
-  longitude: number
-}
+export type TripAddress = OrderAddress
 
 export interface TripOrder {
   orderId: string
@@ -48,3 +45,9 @@ export interface Trip {
   completedAt: string | null
   expiresAt: string | null
 }
+
+export const tripDeliveryDistanceMeters = (orders: TripOrder[]): number =>
+  orders.reduce(
+    (sum, order) => sum + haversineDistanceMeters(order.pickupLocation, order.deliveryAddress),
+    0,
+  )

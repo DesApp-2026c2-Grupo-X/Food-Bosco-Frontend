@@ -1,8 +1,6 @@
-import { Heading } from '@chakra-ui/react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FormField, FormLayout, PrimaryButton, ResponsiveModal } from '@repo/components'
-import { FormSelectField } from '../FormSelectField'
+import { FormField, FormModal, FormSelectField } from '@repo/components'
 import { recipeItemSchema, type RecipeItemForm, type RecipeItemInput } from '@repo/domain'
 import type { RecipeItemFormModalProps } from './types'
 
@@ -28,47 +26,35 @@ export const RecipeItemFormModal = ({
     label: ingredient.name,
   }))
 
-  const handleSubmit = form.handleSubmit(async (values) => {
-    const input: RecipeItemInput = {
-      ingredientId: values.ingredientId,
-      quantity: Number(values.quantity),
-    }
-    await onSubmit(input)
-  })
-
   return (
-    <ResponsiveModal open onClose={onClose}>
-      <FormProvider {...form}>
-        <form onSubmit={handleSubmit}>
-          <Heading as="h2" fontSize="xl" fontWeight="bold" marginBottom="4">
-            {item ? 'Editar ingrediente' : 'Agregar ingrediente'}
-          </Heading>
-          <FormLayout>
-            <FormSelectField
-              name="ingredientId"
-              label="Ingrediente"
-              required
-              options={options}
-              placeholder="Seleccionar ingrediente..."
-            />
-            <FormField
-              name="quantity"
-              label="Cantidad"
-              required
-              inputMode="decimal"
-              placeholder="Ej: 1"
-            />
-            <PrimaryButton
-              type="submit"
-              width="full"
-              disabled={!form.formState.isValid || isSubmitting}
-              loading={isSubmitting}
-            >
-              Guardar
-            </PrimaryButton>
-          </FormLayout>
-        </form>
-      </FormProvider>
-    </ResponsiveModal>
+    <FormModal
+      open
+      onClose={onClose}
+      title={item ? 'Editar ingrediente' : 'Agregar ingrediente'}
+      form={form}
+      isSubmitting={isSubmitting}
+      onSubmit={async (values) => {
+        const input: RecipeItemInput = {
+          ingredientId: values.ingredientId,
+          quantity: Number(values.quantity),
+        }
+        await onSubmit(input)
+      }}
+    >
+      <FormSelectField
+        name="ingredientId"
+        label="Ingrediente"
+        required
+        options={options}
+        placeholder="Seleccionar ingrediente..."
+      />
+      <FormField
+        name="quantity"
+        label="Cantidad"
+        required
+        inputMode="decimal"
+        placeholder="Ej: 1"
+      />
+    </FormModal>
   )
 }

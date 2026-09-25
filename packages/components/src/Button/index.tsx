@@ -1,5 +1,28 @@
 import { Button, type ButtonProps } from '@chakra-ui/react'
 
+interface OutlineButtonBaseProps extends ButtonProps {
+  borderColorToken: string
+  hoverBorderColorToken?: string
+}
+
+const OutlineButtonBase = ({
+  borderColorToken,
+  hoverBorderColorToken,
+  ...props
+}: OutlineButtonBaseProps) => (
+  <Button
+    variant="outline"
+    borderRadius="full"
+    borderColor={borderColorToken}
+    _hover={
+      hoverBorderColorToken
+        ? { borderColor: hoverBorderColorToken, bg: 'bg.muted' }
+        : { bg: 'bg.muted' }
+    }
+    {...props}
+  />
+)
+
 export const PrimaryButton = ({ size = 'lg', ...props }: ButtonProps) => (
   <Button
     size={size}
@@ -12,15 +35,7 @@ export const PrimaryButton = ({ size = 'lg', ...props }: ButtonProps) => (
 )
 
 export const SecondaryButton = ({ size = 'lg', ...props }: ButtonProps) => (
-  <Button
-    size={size}
-    variant="outline"
-    color="fg"
-    borderColor="border.emphasized"
-    _hover={{ bg: 'bg.muted' }}
-    borderRadius="full"
-    {...props}
-  />
+  <OutlineButtonBase size={size} color="fg" borderColorToken="border.emphasized" {...props} />
 )
 
 export const InverseButton = ({ size = 'lg', ...props }: ButtonProps) => (
@@ -39,11 +54,9 @@ export const GhostButton = (props: ButtonProps) => (
 )
 
 export const OutlineButton = (props: ButtonProps) => (
-  <Button
-    variant="outline"
-    borderRadius="full"
-    borderColor="border.subtle"
-    _hover={{ borderColor: 'border.emphasized', bg: 'bg.muted' }}
+  <OutlineButtonBase
+    borderColorToken="border.subtle"
+    hoverBorderColorToken="border.emphasized"
     {...props}
   />
 )

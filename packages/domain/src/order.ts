@@ -1,4 +1,5 @@
 import type { Branch } from './branch'
+import type { GeoPoint } from './rider'
 import type { User } from './user'
 
 export type OrderStatus =
@@ -38,12 +39,14 @@ export interface OrderAddress {
   longitude: number
 }
 
+export type OrderCancelReason = 'lost'
+
 export interface Order {
   id: string
   number: string
   clientId: string
   riderId?: string | null
-  riderLocation?: { latitude: number; longitude: number } | null
+  riderLocation?: GeoPoint | null
   branchId: string
   branch?: Branch | null
   client?: User | null
@@ -51,6 +54,7 @@ export interface Order {
   status: OrderStatus
   total: number
   estimatedDeliveryAt: string | null
+  cancelReason?: OrderCancelReason | null
   createdAt: string
   items: OrderItem[]
   statusHistory: OrderStatusHistory[]

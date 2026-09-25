@@ -1,38 +1,26 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
-import type { z } from 'zod'
 import { loginSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
+import { AuthSubmitError, useAuthForm } from '../../../hooks/useAuthForm'
 import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
+import { authErrorMessage, classifyAuthError } from '../../../utils/authErrors'
 
-type LoginValues = z.infer<typeof loginSchema>
+const GENERIC_ERROR = 'No pudimos iniciar sesión. Revisá tus datos.'
 
 export const useLogin = () => {
   const login = useAuthStore((state) => state.login)
   const redirect = useAuthRedirect()
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
+  return useAuthForm({
+    schema: loginSchema,
     defaultValues: { email: '', password: '' },
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
-  })
-
-  const onSubmit = form.handleSubmit(async (values) => {
-    setSubmitting(true)
-    setError(null)
-    try {
-      await login({ email: values.email.trim(), password: values.password })
+    errorMessage: GENERIC_ERROR,
+    submit: async (values) => {
+      try {
+        await login({ email: values.email.trim(), password: values.password })
+      } catch (caught) {
+        throw new AuthSubmitError(authErrorMessage(classifyAuthError(caught), GENERIC_ERROR))
+      }
       redirect(useAuthStore.getState().user?.role)
-    } catch {
-      setError('No pudimos iniciar sesión. Revisá tus datos.')
-    } finally {
-      setSubmitting(false)
-    }
+    },
   })
-
-  return { form, submitting, error, onSubmit }
 }

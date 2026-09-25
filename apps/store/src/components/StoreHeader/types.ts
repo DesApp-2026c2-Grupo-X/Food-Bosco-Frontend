@@ -5,5 +5,6 @@ export interface NavItem {
 }
 
 export interface StoreHeaderProps {
+  count: number
   onOpenLocation: () => void
 }

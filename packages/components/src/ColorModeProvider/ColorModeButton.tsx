@@ -11,9 +11,10 @@ export const ColorModeButton = () => {
     <IconButton
       aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
       variant="ghost"
+      size="lg"
       onClick={toggleColorMode}
     >
-      {isDark ? <Sun width={20} height={20} /> : <Moon width={20} height={20} />}
+      {isDark ? <Sun width={22} height={22} /> : <Moon width={22} height={22} />}
     </IconButton>
   )
 }

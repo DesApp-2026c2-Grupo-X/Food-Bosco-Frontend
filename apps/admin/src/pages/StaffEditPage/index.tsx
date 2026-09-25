@@ -1,40 +1,38 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Box, HStack } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { z } from 'zod'
 import {
-  BackButton,
-  EmptyState,
+  EditPageShell,
+  FormActions,
   FormField,
   FormLayout,
   FormPasswordField,
-  GhostButton,
-  PageTitle,
-  PrimaryButton,
+  FormSelectField,
   type SelectFieldOption,
-  WidePageContainer,
 } from '@repo/components'
 import { useBranches, useStaff } from '@repo/api'
 import {
+  optionsFromEntities,
+  ROLE_OPTIONS,
   staffCreateSchema,
   staffUpdateSchema,
-  type StaffCreateForm,
   type StaffInput,
   type StaffMember,
-  type StaffUpdateForm,
 } from '@repo/domain'
-import { FormSelectField } from '../../components/FormSelectField'
 import { routes } from '../../routes'
-
-const ROLE_OPTIONS: SelectFieldOption[] = [
-  { value: 'branch_admin', label: 'Colaborador de sucursal' },
-  { value: 'super_admin', label: 'Admin global' },
-]
 
 type StaffRole = 'branch_admin' | 'super_admin'
 
-const StaffCommonFields = ({ branchOptions }: { branchOptions: SelectFieldOption[] }) => {
+const StaffCommonFields = ({
+  branchOptions,
+  editing = false,
+}: {
+  branchOptions: SelectFieldOption[]
+  editing?: boolean
+}) => {
   const { watch } = useFormContext()
   const role = watch('role') as string
 
@@ -48,7 +46,7 @@ const StaffCommonFields = ({ branchOptions }: { branchOptions: SelectFieldOption
           <FormField name="lastName" label="Apellido" required />
         </Box>
       </HStack>
-      <FormField name="email" label="Correo electrónico" required type="email" />
+      <FormField name="email" label="Correo electrónico" required type="email" disabled={editing} />
       <FormField name="phone" label="Teléfono" required />
       <FormSelectField
         name="role"
@@ -56,6 +54,7 @@ const StaffCommonFields = ({ branchOptions }: { branchOptions: SelectFieldOption
         required
         options={ROLE_OPTIONS}
         placeholder="Seleccionar rol..."
+        disabled={editing}
       />
       {role === 'branch_admin' ? (
         <FormSelectField
@@ -83,7 +82,7 @@ const CreateStaffForm = ({
   onCancel,
   onSubmit,
 }: CreateStaffFormProps) => {
-  const form = useForm<StaffCreateForm>({
+  const form = useForm<z.input<typeof staffCreateSchema>>({
     resolver: zodResolver(staffCreateSchema),
     defaultValues: {
       firstName: '',
@@ -117,19 +116,11 @@ const CreateStaffForm = ({
         <FormLayout>
           <StaffCommonFields branchOptions={branchOptions} />
           <FormPasswordField name="password" label="Contraseña inicial" required />
-          <HStack justify="end" gap="2">
-            <GhostButton type="button" onClick={onCancel}>
-              Cancelar
-            </GhostButton>
-            <PrimaryButton
-              type="submit"
-              size="md"
-              disabled={!form.formState.isValid || isSubmitting}
-              loading={isSubmitting}
-            >
-              Crear colaborador
-            </PrimaryButton>
-          </HStack>
+          <FormActions
+            onCancel={onCancel}
+            submitLabel="Crear colaborador"
+            isSubmitting={isSubmitting}
+          />
         </FormLayout>
       </form>
     </FormProvider>
@@ -141,7 +132,7 @@ interface EditStaffFormProps {
   branchOptions: SelectFieldOption[]
   isSubmitting: boolean
   onCancel: () => void
-  onSubmit: (input: Omit<StaffInput, 'password'>) => Promise<void>
+  onSubmit: (input: Omit<StaffInput, 'password' | 'email' | 'role'>) => Promise<void>
 }
 
 const EditStaffForm = ({
@@ -151,7 +142,7 @@ const EditStaffForm = ({
   onCancel,
   onSubmit,
 }: EditStaffFormProps) => {
-  const form = useForm<StaffUpdateForm>({
+  const form = useForm<z.input<typeof staffUpdateSchema>>({
     resolver: zodResolver(staffUpdateSchema),
     defaultValues: {
       firstName: member.firstName,
@@ -165,13 +156,22 @@ const EditStaffForm = ({
     reValidateMode: 'onChange',
   })
 
+  useEffect(() => {
+    form.reset({
+      firstName: member.firstName,
+      lastName: member.lastName,
+      email: member.email,
+      phone: member.phone,
+      role: member.role,
+      branchId: member.branchId != null ? String(member.branchId) : '',
+    })
+  }, [member, form])
+
   const handleSubmit = form.handleSubmit(async (values) => {
-    const input: Omit<StaffInput, 'password'> = {
+    const input: Omit<StaffInput, 'password' | 'email' | 'role'> = {
       firstName: values.firstName.trim(),
       lastName: values.lastName.trim(),
-      email: values.email.trim(),
       phone: values.phone.trim(),
-      role: values.role as StaffRole,
       branchId: values.branchId || undefined,
     }
     await onSubmit(input)
@@ -181,20 +181,8 @@ const EditStaffForm = ({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit}>
         <FormLayout>
-          <StaffCommonFields branchOptions={branchOptions} />
-          <HStack justify="end" gap="2">
-            <GhostButton type="button" onClick={onCancel}>
-              Cancelar
-            </GhostButton>
-            <PrimaryButton
-              type="submit"
-              size="md"
-              disabled={!form.formState.isValid || isSubmitting}
-              loading={isSubmitting}
-            >
-              Guardar
-            </PrimaryButton>
-          </HStack>
+          <StaffCommonFields branchOptions={branchOptions} editing />
+          <FormActions onCancel={onCancel} submitLabel="Guardar" isSubmitting={isSubmitting} />
         </FormLayout>
       </form>
     </FormProvider>
@@ -210,50 +198,25 @@ export const StaffEditPage = () => {
   const { branches } = useBranches()
   const member = userId ? staff.find((s) => s.id === userId) : undefined
 
-  const branchOptions = useMemo(
-    () => branches.map((branch) => ({ value: String(branch.id), label: branch.name })),
-    [branches],
-  )
-
-  if (!isNew && isLoading) {
-    return (
-      <WidePageContainer>
-        <BackButton />
-        <PageTitle>Personal</PageTitle>
-      </WidePageContainer>
-    )
-  }
-
-  if (!isNew && !member) {
-    return (
-      <WidePageContainer>
-        <BackButton />
-        <EmptyState title="Usuario no encontrado" description="El usuario que buscás no existe." />
-      </WidePageContainer>
-    )
-  }
-
-  if (!isNew && member?.role === 'super_admin') {
-    return (
-      <WidePageContainer>
-        <BackButton />
-        <EmptyState
-          title="Admin global no editable"
-          description="Los admins globales no se pueden editar ni desactivar."
-        />
-      </WidePageContainer>
-    )
-  }
+  const branchOptions = useMemo(() => optionsFromEntities(branches), [branches])
 
   return (
-    <WidePageContainer>
-      <BackButton />
-      <Box>
-        <PageTitle>
-          {isNew ? 'Nuevo colaborador' : `${member?.firstName} ${member?.lastName}`}
-        </PageTitle>
-      </Box>
-
+    <EditPageShell
+      isNew={isNew}
+      isLoading={isLoading}
+      hasEntity={member != null}
+      title={isNew ? 'Nuevo colaborador' : `${member?.firstName} ${member?.lastName}`}
+      loadingTitle="Personal"
+      notFound={{
+        title: 'Usuario no encontrado',
+        description: 'El usuario que buscás no existe.',
+      }}
+      blocked={{
+        when: !isNew && member?.role === 'super_admin',
+        title: 'Admin global no editable',
+        description: 'Los admin globales no se pueden editar ni desactivar.',
+      }}
+    >
       {isNew ? (
         <CreateStaffForm
           branchOptions={branchOptions}
@@ -276,6 +239,6 @@ export const StaffEditPage = () => {
           }}
         />
       ) : null}
-    </WidePageContainer>
+    </EditPageShell>
   )
 }

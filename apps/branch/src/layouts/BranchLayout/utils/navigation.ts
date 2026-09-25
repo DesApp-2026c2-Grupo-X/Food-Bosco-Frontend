@@ -4,10 +4,10 @@ import Receipt from '@gravity-ui/icons/Receipt'
 import Box from '@gravity-ui/icons/Box'
 import ChartColumn from '@gravity-ui/icons/ChartColumn'
 import Person from '@gravity-ui/icons/Person'
+import type { DashboardNavItem } from '@repo/components'
 import { routes } from '../../../routes'
-import type { BranchNavItem } from '../types'
 
-export const navItems: BranchNavItem[] = [
+export const navItems: DashboardNavItem[] = [
   { id: 'home', label: 'Inicio', path: routes.home, icon: House, exact: true },
   { id: 'products', label: 'Productos', path: routes.products, icon: Tag },
   { id: 'orders', label: 'Pedidos', path: routes.orders, icon: Receipt },

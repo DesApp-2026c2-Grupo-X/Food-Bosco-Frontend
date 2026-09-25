@@ -1,46 +1,37 @@
-import { Box, Link as ChakraLink, HStack } from '@chakra-ui/react'
-import Person from '@gravity-ui/icons/Person'
-import { NavLink } from 'react-router-dom'
+import { Box } from '@chakra-ui/react'
+import { HeaderActionsBar } from '@repo/components'
+import { useAddresses } from '@repo/api'
 import { routes } from '../../routes'
+import { useAddressStore } from '../../stores/addressStore'
 import { CartButton } from '../CartButton'
-import { ColorModeButton } from '@repo/components'
 import { LocationButton } from '../LocationButton'
 
 interface HeaderActionsProps {
+  count: number
   onOpenCart: () => void
   onOpenLocation: () => void
   showMobileLocation: boolean
 }
 
 export const HeaderActions = ({
+  count,
   onOpenCart,
   onOpenLocation,
   showMobileLocation,
 }: HeaderActionsProps) => {
+  const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
+  const { addresses } = useAddresses()
+  const selected = addresses.find((address) => address.id === selectedAddressId)
+  const label = selected ? selected.text : 'Elegí tu dirección'
+
   return (
-    <HStack gap="1">
+    <HeaderActionsBar profilePath={routes.profile}>
       <Box display={{ base: showMobileLocation ? 'block' : 'none', md: 'block' }}>
-        <LocationButton onOpen={onOpenLocation} />
+        <LocationButton label={label} onOpen={onOpenLocation} />
       </Box>
       <Box display={{ base: 'none', md: 'block' }}>
-        <ColorModeButton />
+        <CartButton count={count} onClick={onOpenCart} />
       </Box>
-      <Box display={{ base: 'none', md: 'block' }}>
-        <CartButton onClick={onOpenCart} />
-      </Box>
-      <ChakraLink
-        asChild
-        display={{ base: 'none', md: 'flex' }}
-        aria-label="Perfil"
-        padding="2"
-        borderRadius="full"
-        color="fg.muted"
-        _hover={{ color: 'fg', bg: 'bg.muted' }}
-      >
-        <NavLink to={routes.profile}>
-          <Person width={20} height={20} />
-        </NavLink>
-      </ChakraLink>
-    </HStack>
+    </HeaderActionsBar>
   )
 }

@@ -1,5 +1,3 @@
-import { useCallback } from 'react'
-import { useMutation, useQuery } from '@apollo/client'
 import type { Category, CategoryInput } from '@repo/domain'
 import {
   ADMIN_CATEGORIES,
@@ -8,6 +6,7 @@ import {
   UPDATE_CATEGORY,
   toCategory,
 } from '../client/admin'
+import { createCrudResource } from './createCrudResource'
 
 interface UseAdminCategoriesReturn {
   categories: Category[]
@@ -19,58 +18,29 @@ interface UseAdminCategoriesReturn {
   remove: (id: string) => Promise<void>
 }
 
-interface CategoriesResult {
-  categories: Record<string, unknown>[]
-}
-
-export const useAdminCategories = (): UseAdminCategoriesReturn => {
-  const { data, loading, refetch } = useQuery<CategoriesResult>(ADMIN_CATEGORIES, {
+const useAdminCategoriesResource = createCrudResource({
+  query: {
+    document: ADMIN_CATEGORIES,
+    resultKey: 'categories',
+    map: toCategory,
     fetchPolicy: 'network-only',
-  })
+  },
+  create: {
+    document: CREATE_CATEGORY,
+    variables: (input: CategoryInput) => ({ input }),
+  },
+  update: {
+    document: UPDATE_CATEGORY,
+    variables: (id: string, input: CategoryInput) => ({ id, input }),
+  },
+  toggle: {
+    document: SET_CATEGORY_ACTIVE,
+    variables: (id: string, active: boolean) => ({ id, active }),
+  },
+  remove: {
+    document: SET_CATEGORY_ACTIVE,
+    variables: (id: string) => ({ id, active: false }),
+  },
+})
 
-  const [createMutation, { loading: creating }] = useMutation(CREATE_CATEGORY)
-  const [updateMutation, { loading: updating }] = useMutation(UPDATE_CATEGORY)
-  const [setActiveMutation, { loading: toggling }] = useMutation(SET_CATEGORY_ACTIVE)
-
-  const create = useCallback(
-    async (input: CategoryInput) => {
-      await createMutation({ variables: { input } })
-      await refetch()
-    },
-    [createMutation, refetch],
-  )
-
-  const update = useCallback(
-    async (id: string, input: CategoryInput) => {
-      await updateMutation({ variables: { id, input } })
-      await refetch()
-    },
-    [updateMutation, refetch],
-  )
-
-  const toggle = useCallback(
-    async (id: string, active: boolean) => {
-      await setActiveMutation({ variables: { id, active } })
-      await refetch()
-    },
-    [setActiveMutation, refetch],
-  )
-
-  const remove = useCallback(
-    async (id: string) => {
-      await setActiveMutation({ variables: { id, active: false } })
-      await refetch()
-    },
-    [setActiveMutation, refetch],
-  )
-
-  return {
-    categories: (data?.categories ?? []).map(toCategory),
-    isLoading: loading,
-    isMutating: creating || updating || toggling,
-    create,
-    update,
-    toggle,
-    remove,
-  }
-}
+export const useAdminCategories: () => UseAdminCategoriesReturn = useAdminCategoriesResource

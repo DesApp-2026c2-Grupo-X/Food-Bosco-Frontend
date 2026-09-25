@@ -1,5 +1,5 @@
 export interface CartButtonProps {
-  count?: number
+  count: number
   onClick?: () => void
   className?: string
 }

@@ -1,7 +1,14 @@
 import { useCallback } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import type { Trip } from '@repo/domain'
-import { MARK_ORDER_DELIVERED, MARK_ORDER_PICKUP, MY_TRIPS, toTrip } from '../client/rider'
+import {
+  MARK_ORDER_DELIVERED,
+  MARK_ORDER_PICKUP,
+  MY_TRIPS,
+  RELEASE_ORDER,
+  toTrip,
+} from '../client/rider'
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseActiveTripReturn {
   trip: Trip | null
@@ -9,6 +16,7 @@ interface UseActiveTripReturn {
   isMutating: boolean
   pickup: (orderId: string) => Promise<void>
   deliver: (orderId: string) => Promise<void>
+  release: (orderId: string) => Promise<void>
 }
 
 interface MyTripsResult {
@@ -22,6 +30,7 @@ export const useActiveTrip = (): UseActiveTripReturn => {
 
   const [pickupMutation, { loading: pickingUp }] = useMutation(MARK_ORDER_PICKUP)
   const [deliverMutation, { loading: delivering }] = useMutation(MARK_ORDER_DELIVERED)
+  const [releaseMutation, { loading: releasing }] = useMutation(RELEASE_ORDER)
 
   const trips = (data?.myTrips ?? []).map(toTrip)
   const trip = trips.find((entry) => entry.status === 'ACTIVE') ?? null
@@ -32,6 +41,7 @@ export const useActiveTrip = (): UseActiveTripReturn => {
       await pickupMutation({
         variables: { tripId: trip.id, orderId },
         refetchQueries: [MY_TRIPS],
+        awaitRefetchQueries: true,
       })
     },
     [trip, pickupMutation],
@@ -43,16 +53,29 @@ export const useActiveTrip = (): UseActiveTripReturn => {
       await deliverMutation({
         variables: { tripId: trip.id, orderId },
         refetchQueries: [MY_TRIPS],
+        awaitRefetchQueries: true,
       })
     },
     [trip, deliverMutation],
   )
 
+  const release = useCallback(
+    async (orderId: string) => {
+      await releaseMutation({
+        variables: { orderId },
+        refetchQueries: [MY_TRIPS],
+        awaitRefetchQueries: true,
+      })
+    },
+    [releaseMutation],
+  )
+
   return {
     trip,
     isLoading: loading,
-    isMutating: pickingUp || delivering,
+    isMutating: combineLoading(pickingUp, delivering, releasing),
     pickup,
     deliver,
+    release,
   }
 }

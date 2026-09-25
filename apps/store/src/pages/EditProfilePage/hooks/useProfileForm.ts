@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
 import type { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
 import { useProfile } from '@repo/api'
@@ -23,15 +24,25 @@ export const useProfileForm = () => {
     reValidateMode: 'onChange',
   })
 
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const isDirty = form.formState.isDirty
 
   const onSave = form.handleSubmit(async (values) => {
-    await updateProfile(values)
-    form.reset(values)
-    navigate(routes.profile)
+    setSubmitting(true)
+    setError(null)
+    try {
+      await updateProfile(values)
+      form.reset(values)
+      navigate(routes.profile)
+    } catch {
+      setError('No pudimos guardar tus datos. Intentá de nuevo.')
+    } finally {
+      setSubmitting(false)
+    }
   })
 
   const onCancel = () => form.reset()
 
-  return { user, isLoading, form, isDirty, onSave, onCancel }
+  return { user, isLoading, form, isDirty, submitting, error, onSave, onCancel }
 }

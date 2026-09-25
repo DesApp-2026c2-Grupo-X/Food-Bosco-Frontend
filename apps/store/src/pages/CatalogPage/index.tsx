@@ -1,10 +1,16 @@
-import { Box, SimpleGrid, Skeleton, VStack } from '@chakra-ui/react'
+import { Box, SimpleGrid } from '@chakra-ui/react'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import Magnifier from '@gravity-ui/icons/Magnifier'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ChipCarousel, Muted, PageTitle, SearchInput, WidePageContainer } from '@repo/components'
-import { EmptyState } from '@repo/components'
+import {
+  ChipCarousel,
+  EmptyState,
+  LoadingState,
+  PageHeader,
+  SearchInput,
+  WidePageContainer,
+} from '@repo/components'
 import { ProductCard } from '../../components/ProductCard'
 import { useAddresses, useAvailableBranches, useCatalog } from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
@@ -46,10 +52,7 @@ export const CatalogPage = () => {
   if (noAvailableBranch) {
     return (
       <WidePageContainer>
-        <VStack align="start" gap="1">
-          <PageTitle>Catálogo</PageTitle>
-          <Muted>Encontrá lo que se te antoje hoy.</Muted>
-        </VStack>
+        <PageHeader title="Catálogo" description="Encontrá lo que se te antoje hoy." />
         <EmptyState
           icon={<GeoPin width={40} height={40} />}
           title="No hay sucursales disponibles"
@@ -61,10 +64,7 @@ export const CatalogPage = () => {
 
   return (
     <WidePageContainer>
-      <VStack align="start" gap="1">
-        <PageTitle>Catálogo</PageTitle>
-        <Muted>Encontrá lo que se te antoje hoy.</Muted>
-      </VStack>
+      <PageHeader title="Catálogo" description="Encontrá lo que se te antoje hoy." />
 
       <SearchInput
         placeholder="Buscar por nombre..."
@@ -90,11 +90,7 @@ export const CatalogPage = () => {
       />
 
       {isLoading ? (
-        <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gap={{ base: '3', md: '5' }}>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} height="220px" borderRadius="2xl" />
-          ))}
-        </SimpleGrid>
+        <LoadingState variant="skeleton" />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={<Magnifier width={40} height={40} />}

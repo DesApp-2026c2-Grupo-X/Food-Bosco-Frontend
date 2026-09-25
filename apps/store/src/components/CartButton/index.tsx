@@ -1,12 +1,8 @@
 import { Badge, Box, IconButton } from '@chakra-ui/react'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
-import { useCartCount } from './hooks/useCartCount'
 import type { CartButtonProps } from './types'
 
-export const CartButton = ({ count: countOverride, onClick, className }: CartButtonProps) => {
-  const { count: cartCount } = useCartCount()
-  const count = countOverride ?? cartCount
-
+export const CartButton = ({ count, onClick, className }: CartButtonProps) => {
   return (
     <Box position="relative" display="inline-flex" className={className}>
       <IconButton aria-label="Ver carrito" variant="ghost" size="lg" onClick={onClick}>

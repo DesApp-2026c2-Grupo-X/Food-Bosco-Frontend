@@ -1,43 +1,44 @@
-import { useRef } from 'react'
-import { Box, HStack, Image, Spinner, VStack, useMediaQuery } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
+import { Box, HStack, VStack } from '@chakra-ui/react'
 import CircleCheckFill from '@gravity-ui/icons/CircleCheckFill'
 import CircleXmarkFill from '@gravity-ui/icons/CircleXmarkFill'
+import House from '@gravity-ui/icons/House'
+import MapPin from '@gravity-ui/icons/MapPin'
+import Person from '@gravity-ui/icons/Person'
 import { Link, useParams } from 'react-router-dom'
 import {
-  BackButton,
+  Card,
+  EmptyState,
+  InteractiveMap,
+  LegendDotRow,
+  LoadingState,
   Muted,
+  OrderDetailShell,
   OrderItemsCard,
+  OrderTimeline,
   OrderTotalCard,
-  PageContainer,
-  PageTitle,
   PrimaryButton,
   Strong,
   Subtle,
+  type InteractiveMapMarker,
 } from '@repo/components'
-import { EmptyState } from '@repo/components'
-import { OrderStatusBadge } from '@repo/components'
-import { OrderTimeline } from '@repo/components'
 import { useOrder } from '@repo/api'
 import { routes } from '../../routes'
 import type { Order } from '@repo/domain'
-import { buildStaticMapUrl, type StaticMapMarker } from '../../utils/geoapify'
-import { formatOrderDate, isActiveOrder } from '@repo/domain'
+import { formatEta, formatOrderDate, isActiveOrder } from '@repo/domain'
+import { MAP_MARKER_COLORS } from '@repo/theme'
 
 export const OrderDetailPage = () => {
   const { orderId } = useParams()
-  const orderRef = useRef<Order | null>(null)
-  const pollActive = orderRef.current ? isActiveOrder(orderRef.current.status) : false
-  const { order, isLoading } = useOrder(orderId, {
-    pollIntervalMs: orderId && pollActive ? 4000 : undefined,
-  })
-  orderRef.current = order
+  const [pollIntervalMs, setPollIntervalMs] = useState(0)
+  const { order, isLoading } = useOrder(orderId, { pollIntervalMs })
+
+  useEffect(() => {
+    setPollIntervalMs(orderId && order && isActiveOrder(order.status) ? 4000 : 0)
+  }, [order, orderId])
 
   if (isLoading) {
-    return (
-      <Box paddingY="24" display="flex" justifyContent="center">
-        <Spinner size="lg" color="brand.600" />
-      </Box>
-    )
+    return <LoadingState />
   }
 
   if (!order) {
@@ -60,47 +61,29 @@ export const OrderDetailPage = () => {
   )?.changedAt
 
   return (
-    <PageContainer>
-      <BackButton />
-
-      <VStack align="start" gap="1">
-        <HStack gap="3" flexWrap="wrap">
-          <PageTitle>Pedido #{order.number}</PageTitle>
-          <OrderStatusBadge status={order.status} />
-        </HStack>
-        <Muted>Realizado el {formatOrderDate(order.createdAt)}</Muted>
-      </VStack>
-
+    <OrderDetailShell
+      orderNumber={order.number}
+      status={order.status}
+      description={`Realizado el ${formatOrderDate(order.createdAt)}`}
+    >
       {active ? (
         <>
-          <Box
-            bg="bg.subtle"
-            border="1px solid"
-            borderColor="border.subtle"
-            borderRadius="2xl"
-            padding="5"
-          >
+          <Card variant="subtle">
             <Strong marginBottom="4">Estado del pedido</Strong>
             <OrderTimeline status={order.status} />
             <Muted fontSize="sm" marginTop="4">
               {order.branch?.name ?? 'Sucursal'} ·{' '}
               {order.estimatedDeliveryAt
-                ? formatEtaLabel(order.estimatedDeliveryAt)
+                ? formatEta(order.estimatedDeliveryAt)
                 : 'Estimando tiempo'}
             </Muted>
-          </Box>
+          </Card>
           {order.branch ? <TrackingMap order={order} /> : null}
         </>
       ) : null}
 
       {order.status === 'CANCELLED' ? (
-        <Box
-          bg="bg.panel"
-          border="1px solid"
-          borderColor="border.subtle"
-          borderRadius="2xl"
-          padding="5"
-        >
+        <Card>
           <Box color="danger" display="flex" marginBottom="2">
             <CircleXmarkFill width={28} height={28} />
           </Box>
@@ -108,17 +91,11 @@ export const OrderDetailPage = () => {
           <Muted fontSize="sm" marginTop="1">
             Este pedido fue cancelado.
           </Muted>
-        </Box>
+        </Card>
       ) : null}
 
       {order.status === 'DELIVERED' ? (
-        <Box
-          bg="bg.panel"
-          border="1px solid"
-          borderColor="border.subtle"
-          borderRadius="2xl"
-          padding="5"
-        >
+        <Card>
           <Box color="success" display="flex" marginBottom="2">
             <CircleCheckFill width={28} height={28} />
           </Box>
@@ -126,58 +103,54 @@ export const OrderDetailPage = () => {
           <Muted fontSize="sm" marginTop="1">
             Recibido el {deliveredAt ? formatOrderDate(deliveredAt) : '—'}
           </Muted>
-        </Box>
+        </Card>
       ) : null}
 
       <OrderItemsCard items={order.items} />
 
       <OrderTotalCard total={order.total} subtitle={`Entrega a ${order.deliveryAddress.text}`} />
-    </PageContainer>
+    </OrderDetailShell>
   )
 }
 
-const formatEtaLabel = (iso: string) => {
-  const minutes = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 60000))
-  return minutes < 60 ? `~${minutes} min` : `~${Math.floor(minutes / 60)}h ${minutes % 60}m`
-}
-
 const TrackingMap = ({ order }: { order: Order }) => {
-  const [isDesktop] = useMediaQuery(['(min-width: 48em)'], { ssr: false })
   const branch = order.branch
   const riderLocation = order.riderLocation ?? null
 
   if (!branch) return null
 
-  const centerLat = (branch.latitude + order.deliveryAddress.latitude) / 2
-  const centerLon = (branch.longitude + order.deliveryAddress.longitude) / 2
+  const delivery = {
+    latitude: order.deliveryAddress.latitude,
+    longitude: order.deliveryAddress.longitude,
+  }
+  const center = riderLocation ?? {
+    latitude: (branch.latitude + delivery.latitude) / 2,
+    longitude: (branch.longitude + delivery.longitude) / 2,
+  }
 
-  const markers: StaticMapMarker[] = [
-    { lat: branch.latitude, lon: branch.longitude, color: '#1d4ed8', label: 'T' },
+  const markers: InteractiveMapMarker[] = [
     {
-      lat: order.deliveryAddress.latitude,
-      lon: order.deliveryAddress.longitude,
-      color: '#15803d',
-      label: 'C',
+      latitude: branch.latitude,
+      longitude: branch.longitude,
+      color: MAP_MARKER_COLORS.branch,
+      icon: <House width={14} height={14} />,
+    },
+    {
+      latitude: delivery.latitude,
+      longitude: delivery.longitude,
+      color: MAP_MARKER_COLORS.client,
+      icon: <MapPin width={14} height={14} />,
     },
   ]
 
   if (riderLocation) {
     markers.push({
-      lat: riderLocation.latitude,
-      lon: riderLocation.longitude,
-      color: '#ea580c',
-      icon: 'person-biking',
+      latitude: riderLocation.latitude,
+      longitude: riderLocation.longitude,
+      color: MAP_MARKER_COLORS.rider,
+      icon: <Person width={14} height={14} />,
     })
   }
-
-  const mapUrl = buildStaticMapUrl({
-    centerLat,
-    centerLon,
-    zoom: 13,
-    width: isDesktop ? 1200 : 600,
-    height: isDesktop ? 340 : 700,
-    markers,
-  })
 
   const legend = [
     { color: 'info', title: 'Tienda', subtitle: branch.addressText },
@@ -193,52 +166,40 @@ const TrackingMap = ({ order }: { order: Order }) => {
   }
 
   return (
-    <Box
-      bg="bg.panel"
-      border="1px solid"
-      borderColor="border.subtle"
-      borderRadius="2xl"
-      overflow="hidden"
-    >
-      <Box padding="4" paddingBottom="3">
-        <HStack justify="space-between">
-          <Strong>Seguimiento en vivo</Strong>
-          <HStack gap="1.5" color="success" alignItems="center">
-            <Box width="8px" height="8px" borderRadius="full" bg="currentColor" />
-            <Strong fontSize="xs">En vivo</Strong>
-          </HStack>
-        </HStack>
-      </Box>
-      <Image
-        src={mapUrl}
-        alt="Mapa de seguimiento del pedido"
-        width="100%"
-        height="auto"
-        bg="bg.muted"
-      />
-      <Box padding="4">
+    <InteractiveMap
+      center={center}
+      markers={markers}
+      zoom={13}
+      height="320px"
+      alt="Mapa de seguimiento del pedido"
+      legend={
         <VStack gap="2.5" align="stretch">
-          {legend.map((item) => (
-            <HStack key={item.title} gap="2.5" align="flex-start">
-              <Box
-                width="10px"
-                height="10px"
-                borderRadius="full"
-                bg={item.color}
-                flexShrink={0}
-                marginTop="1.5"
-              />
-              <Box>
-                <Strong fontSize="sm">{item.title}</Strong>
-                <Muted fontSize="sm">{item.subtitle}</Muted>
-              </Box>
+          <HStack justify="space-between">
+            <Strong>Seguimiento en vivo</Strong>
+            <HStack gap="1.5" color="success" alignItems="center">
+              <Box width="8px" height="8px" borderRadius="full" bg="currentColor" />
+              <Strong fontSize="xs">En vivo</Strong>
             </HStack>
+          </HStack>
+          {legend.map((item) => (
+            <LegendDotRow
+              key={item.title}
+              color={item.color}
+              label={
+                <Box>
+                  <Strong fontSize="sm">{item.title}</Strong>
+                  <Muted fontSize="sm">{item.subtitle}</Muted>
+                </Box>
+              }
+            />
           ))}
         </VStack>
+      }
+      note={
         <Subtle fontSize="2xs" marginTop="3">
-          © OpenStreetMap · Geoapify
+          Mapa interactivo
         </Subtle>
-      </Box>
-    </Box>
+      }
+    />
   )
 }

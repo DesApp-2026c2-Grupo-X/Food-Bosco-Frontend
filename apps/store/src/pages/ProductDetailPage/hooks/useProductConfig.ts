@@ -1,16 +1,18 @@
 import { useMemo, useState } from 'react'
 import { useCart, useProduct } from '@repo/api'
+import { notifyCart, notifyCartError } from '@repo/components'
 import type { ProductOptionType } from '@repo/domain'
 
 type SelectionMap = Record<string, string | string[]>
 
 export const useProductConfig = (productId: string | undefined) => {
   const { product, isLoading } = useProduct(productId)
-  const { addItem } = useCart()
+  const { addItem, isMutating } = useCart()
 
   const [selection, setSelection] = useState<SelectionMap>({})
   const [quantity, setQuantity] = useState(1)
   const [notes, setNotes] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const selectOption = (groupId: string, optionId: string, type: ProductOptionType) => {
     setSelection((prev) => {
@@ -58,19 +60,33 @@ export const useProductConfig = (productId: string | undefined) => {
 
   const canAdd = Boolean(product && product.available && !missingRequired)
 
-  const addToCart = async () => {
-    if (!product || !canAdd) return
-    await addItem({
-      productId: product.id,
-      quantity,
-      observations: notes.trim() || null,
-      optionIds: selectedOptionIds,
-    })
+  const addToCart = async (): Promise<boolean> => {
+    if (!product || !canAdd || isMutating) return false
+    setError(null)
+    try {
+      await addItem({
+        productId: product.id,
+        quantity,
+        observations: notes.trim().slice(0, 500) || null,
+        optionIds: selectedOptionIds,
+      })
+      notifyCart({
+        title: 'Producto agregado',
+        description: `${product.name} se sumó a tu carrito.`,
+      })
+      return true
+    } catch {
+      const message = 'No pudimos agregar el producto. Intentá de nuevo.'
+      setError(message)
+      notifyCartError({ title: 'No se pudo agregar', description: message })
+      return false
+    }
   }
 
   return {
     product,
     isLoading,
+    isAdding: isMutating,
     selection,
     selectOption,
     quantity,
@@ -81,6 +97,7 @@ export const useProductConfig = (productId: string | undefined) => {
     total,
     missingRequired,
     canAdd,
+    error,
     addToCart,
   }
 }

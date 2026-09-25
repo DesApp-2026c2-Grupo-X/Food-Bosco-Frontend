@@ -1,10 +1,10 @@
-import { HStack, VStack } from '@chakra-ui/react'
+import { Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
-import { FormField, GhostButton, PrimaryButton, TextField } from '@repo/components'
+import { FormActions, FormField, TextField } from '@repo/components'
 import { useProfileForm } from './hooks/useProfileForm'
 
 export const ProfileForm = () => {
-  const { user, isLoading, form, isDirty, onSave, onCancel } = useProfileForm()
+  const { user, isLoading, form, isDirty, submitting, error, onSave, onCancel } = useProfileForm()
 
   if (isLoading) return null
 
@@ -16,14 +16,18 @@ export const ProfileForm = () => {
           <FormField name="lastName" label="Apellido" required />
           <TextField label="Correo electrónico" value={user?.email} readOnly color="fg.subtle" />
           <FormField name="phone" label="Teléfono" required />
-          <HStack gap="2" marginTop="2">
-            <PrimaryButton type="submit" flex="1" disabled={!isDirty}>
-              Guardar cambios
-            </PrimaryButton>
-            <GhostButton onClick={onCancel} disabled={!isDirty}>
-              Cancelar
-            </GhostButton>
-          </HStack>
+          {error ? (
+            <Text color="danger" fontSize="sm">
+              {error}
+            </Text>
+          ) : null}
+          <FormActions
+            submitLabel="Guardar cambios"
+            onCancel={onCancel}
+            isSubmitting={submitting}
+            disabled={!isDirty}
+            cancelDisabled={!isDirty}
+          />
         </VStack>
       </form>
     </FormProvider>

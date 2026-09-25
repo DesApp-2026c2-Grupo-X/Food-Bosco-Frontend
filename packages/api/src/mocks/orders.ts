@@ -37,9 +37,9 @@ const customer = (name: string, phone: string, email: string): User => {
 const CENTRO: Branch = {
   id: 'b1',
   name: 'Centro',
-  addressText: 'Av. Vergara 1200, Hurlingham',
-  latitude: -34.589,
-  longitude: -58.636,
+  addressText: 'Av. Gobernador Valentín Vergara 2349, Hurlingham',
+  latitude: -34.595519,
+  longitude: -58.636055,
   phone: '11 5555 1111',
   active: true,
   hours: [],
@@ -48,9 +48,9 @@ const CENTRO: Branch = {
 const NORTE: Branch = {
   id: 'b2',
   name: 'Norte',
-  addressText: 'Calle 25 de Mayo 450, Villa Tesei',
-  latitude: -34.586,
-  longitude: -58.63,
+  addressText: 'Av. Gobernador Valentín Vergara 3000, Villa Tesei',
+  latitude: -34.614988,
+  longitude: -58.634316,
   phone: '11 5555 2222',
   active: true,
   hours: [],
@@ -95,7 +95,7 @@ export const MOCK_ORDERS: Order[] = [
     ago(50),
     [item('101', 'Hamburguesa Doble', 2, 5400), item('301', 'Papas Grandes', 1, 5600)],
     customer('Juan Pérez', '+54 11 2345 6789', 'juan.perez@email.com'),
-    addr('Av. Vergara 1234, Hurlingham', -34.592, -58.646),
+    addr('Av. Gobernador Valentín Vergara 1800, Hurlingham', -34.5904914, -58.6370933),
     history(
       ['PENDING', 'CONFIRMED', ago(45)],
       ['CONFIRMED', 'PREPARING', ago(35)],
@@ -112,7 +112,7 @@ export const MOCK_ORDERS: Order[] = [
     ago(60 * 24 * 3),
     [item('201', 'Pizza Muzzarella', 1, 8900), item('401', 'Gaseosa 1.5L', 1, 3200)],
     customer('Sofía Ledesma', '+54 11 3456 7890', 'sofia.ledesma@email.com'),
-    addr('Av. Vergara 1234, Hurlingham', -34.592, -58.646),
+    addr('Av. Gobernador Valentín Vergara 1800, Hurlingham', -34.5904914, -58.6370933),
     history(
       ['PENDING', 'CONFIRMED', ago(60 * 24 * 3)],
       ['CONFIRMED', 'PREPARING', ago(60 * 24 * 3 - 10)],
@@ -129,7 +129,7 @@ export const MOCK_ORDERS: Order[] = [
     ago(60 * 24 * 7),
     [item('102', 'Lomito Completo', 1, 8900)],
     customer('Rocío Fernández', '+54 11 4567 8901', 'rocio.fernandez@email.com'),
-    addr('Dr. Vergara 2200, Villa Tesei', -34.583, -58.624),
+    addr('Av. Gobernador Valentín Vergara 3200, Villa Tesei', -34.614988, -58.634316),
     history(['PENDING', 'CANCELLED', ago(60 * 24 * 7 - 15)]),
   ),
   buildOrder(
@@ -140,7 +140,7 @@ export const MOCK_ORDERS: Order[] = [
     ago(6),
     [item('101', 'Hamburguesa Clásica', 1, 6500)],
     customer('Mateo Álvarez', '+54 11 5678 9012', 'mateo.alvarez@email.com'),
-    addr('Av. San Martín 800, Hurlingham', -34.595, -58.648),
+    addr('Av. Arturo Jauretche 800, Hurlingham', -34.5908369, -58.6340378),
     [],
   ),
   buildOrder(
@@ -151,7 +151,7 @@ export const MOCK_ORDERS: Order[] = [
     ago(25),
     [item('102', 'Doble Cheddar', 1, 8900), item('301', 'Papas Fritas', 1, 4800)],
     customer('Valentina Ruiz', '+54 11 6789 0123', 'valentina.ruiz@email.com'),
-    addr('Calle Alem 450, Hurlingham', -34.588, -58.642),
+    addr('Av. Arturo Jauretche 1200, Hurlingham', -34.5900546, -58.6331721),
     history(['PENDING', 'CONFIRMED', ago(20)]),
   ),
   buildOrder(
@@ -162,7 +162,7 @@ export const MOCK_ORDERS: Order[] = [
     ago(40),
     [item('201', 'Pizza Mozzarella', 1, 7800), item('401', 'Gaseosa', 2, 3900)],
     customer('Tomás Giménez', '+54 11 7890 1234', 'tomas.gimenez@email.com'),
-    addr('Av. Jauretche 1100, Hurlingham', -34.587, -58.634),
+    addr('Av. Gobernador Valentín Vergara 1500, Hurlingham', -34.595519, -58.636055),
     history(['PENDING', 'CONFIRMED', ago(38)], ['CONFIRMED', 'PREPARING', ago(30)]),
   ),
   buildOrder(
@@ -173,7 +173,7 @@ export const MOCK_ORDERS: Order[] = [
     ago(55),
     [item('303', 'Ensalada Fresh', 1, 4800), item('502', 'Milkshake', 1, 5000)],
     customer('Camila Sosa', '+54 11 8901 2345', 'camila.sosa@email.com'),
-    addr('Av. Vergara 1500, Hurlingham', -34.59, -58.65),
+    addr('Av. Arturo Jauretche 1500, Hurlingham', -34.5908369, -58.6340378),
     history(
       ['PENDING', 'CONFIRMED', ago(52)],
       ['CONFIRMED', 'PREPARING', ago(45)],
@@ -188,7 +188,7 @@ export const MOCK_ORDERS: Order[] = [
     ago(60 * 24 * 2),
     [item('301', 'Papas Fritas', 2, 3600)],
     customer('Lautaro Díaz', '+54 11 9012 3456', 'lautaro.diaz@email.com'),
-    addr('Av. Roca 600, Hurlingham', -34.591, -58.644),
+    addr('Av. Gobernador Valentín Vergara 1000, Hurlingham', -34.595519, -58.636055),
     history(['PENDING', 'CANCELLED', ago(60 * 24 * 2 - 10)]),
   ),
 ]
@@ -235,7 +235,7 @@ export const createIncomingOrder = (): Order => {
     new Date().toISOString(),
     items,
     customer(data.name, data.phone, data.email),
-    addr('Av. Vergara 1234, Hurlingham', -34.592, -58.646),
+    addr('Av. Gobernador Valentín Vergara 1800, Hurlingham', -34.5904914, -58.6370933),
     [],
   )
 

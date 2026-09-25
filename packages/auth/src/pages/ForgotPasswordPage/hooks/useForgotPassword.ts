@@ -1,33 +1,29 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import type { z } from 'zod'
 import { forgotPasswordSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
+import { AuthSubmitError, useAuthForm } from '../../../hooks/useAuthForm'
+import { authErrorMessage, classifyAuthError } from '../../../utils/authErrors'
 
-type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>
+const GENERIC_ERROR = 'No pudimos enviar las instrucciones. Intentá de nuevo.'
 
 export const useForgotPassword = () => {
   const forgotPassword = useAuthStore((state) => state.forgotPassword)
-  const [submitting, setSubmitting] = useState(false)
   const [sent, setSent] = useState(false)
 
-  const form = useForm<ForgotPasswordValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+  const { form, submitting, error, onSubmit } = useAuthForm({
+    schema: forgotPasswordSchema,
     defaultValues: { email: '' },
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
-  })
+    errorMessage: GENERIC_ERROR,
+    submit: async (values) => {
+      try {
+        await forgotPassword(values.email.trim())
+      } catch (caught) {
+        throw new AuthSubmitError(authErrorMessage(classifyAuthError(caught), GENERIC_ERROR))
+      }
 
-  const onSubmit = form.handleSubmit(async (values) => {
-    setSubmitting(true)
-    try {
-      await forgotPassword(values.email.trim())
       setSent(true)
-    } finally {
-      setSubmitting(false)
-    }
+    },
   })
 
-  return { form, submitting, sent, onSubmit }
+  return { form, submitting, sent, error, onSubmit }
 }

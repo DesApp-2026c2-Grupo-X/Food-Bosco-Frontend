@@ -1,11 +1,13 @@
-import { Box, Grid, HStack, Spinner, VStack } from '@chakra-ui/react'
+import { Grid, HStack, VStack } from '@chakra-ui/react'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
 import { Link } from 'react-router-dom'
 import { CartLineCard } from '../../components/CartLineCard'
 import {
+  Card,
   EmptyState,
+  LoadingState,
   Muted,
-  PageTitle,
+  PageHeader,
   Price,
   PrimaryButton,
   Subtle,
@@ -16,18 +18,14 @@ import { useCart } from '@repo/api'
 import { cartItemCount, cartTotal, formatPrice } from '@repo/domain'
 
 export const CartPage = () => {
-  const { cart, isLoading, updateItem, removeItem } = useCart()
+  const { cart, isLoading, isMutating, updateItem, removeItem } = useCart()
   const lines = cart?.items ?? []
 
   const count = cartItemCount(lines)
   const total = cart?.total ?? cartTotal(lines)
 
   if (isLoading) {
-    return (
-      <Box paddingY="24" display="flex" justifyContent="center">
-        <Spinner size="lg" color="brand.600" />
-      </Box>
-    )
+    return <LoadingState />
   }
 
   if (lines.length === 0) {
@@ -47,12 +45,7 @@ export const CartPage = () => {
 
   return (
     <WidePageContainer>
-      <VStack align="start" gap="1">
-        <PageTitle>Mi carrito</PageTitle>
-        <Muted>
-          {count} {count === 1 ? 'ítem' : 'ítems'}
-        </Muted>
-      </VStack>
+      <PageHeader title="Mi carrito" description={`${count} ${count === 1 ? 'ítem' : 'ítems'}`} />
 
       <Grid templateColumns={{ base: '1fr', md: '2fr 1fr' }} gap="6" alignItems="start">
         <VStack gap="3" align="stretch">
@@ -60,21 +53,14 @@ export const CartPage = () => {
             <CartLineCard
               key={item.id}
               item={item}
+              disabled={isMutating}
               onQuantityChange={(id, quantity) => void updateItem(id, { quantity })}
               onRemove={removeItem}
             />
           ))}
         </VStack>
 
-        <Box
-          position={{ md: 'sticky' }}
-          top="24"
-          bg="bg.subtle"
-          border="1px solid"
-          borderColor="border.subtle"
-          borderRadius="2xl"
-          padding="5"
-        >
+        <Card variant="subtle" position={{ md: 'sticky' }} top="24">
           <VStack gap="4" align="stretch">
             <HStack justify="space-between">
               <Muted>Total</Muted>
@@ -89,7 +75,7 @@ export const CartPage = () => {
               <Link to={routes.checkout}>Continuar con el pedido</Link>
             </PrimaryButton>
           </VStack>
-        </Box>
+        </Card>
       </Grid>
     </WidePageContainer>
   )

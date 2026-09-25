@@ -5,20 +5,21 @@ import Plus from '@gravity-ui/icons/Plus'
 import TrashBin from '@gravity-ui/icons/TrashBin'
 import {
   BackButton,
+  Card,
+  EmptyState,
   GhostButton,
   Muted,
   OutlineButton,
   PageContainer,
-  PageTitle,
+  PageHeader,
   PrimaryButton,
   Strong,
   Subtle,
 } from '@repo/components'
-import { EmptyState } from '@repo/components'
 import { useAddresses } from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
 import type { Address } from '@repo/domain'
-import { AddressFormDialog } from './AddressFormDialog'
+import { AddressSheet } from '../../components/AddressForm/AddressSheet'
 import { useAddressForm } from './hooks/useAddressForm'
 
 export const AddressesPage = () => {
@@ -36,10 +37,10 @@ export const AddressesPage = () => {
   return (
     <PageContainer>
       <BackButton />
-      <VStack align="start" gap="1">
-        <PageTitle>Mis direcciones</PageTitle>
-        <Muted>Administrá las direcciones a las que te llevamos el pedido.</Muted>
-      </VStack>
+      <PageHeader
+        title="Mis direcciones"
+        description="Administrá las direcciones a las que te llevamos el pedido."
+      />
 
       <OutlineButton
         width="full"
@@ -74,14 +75,12 @@ export const AddressesPage = () => {
         </VStack>
       )}
 
-      <AddressFormDialog
+      <AddressSheet
         open={form.open}
         editing={form.editing}
-        submitting={form.submitting}
-        error={form.error}
-        form={form.form}
+        mode="manage"
         onClose={form.close}
-        onSubmit={form.onSubmit}
+        onSaved={form.close}
       />
     </PageContainer>
   )
@@ -97,13 +96,7 @@ interface AddressCardProps {
 
 const AddressCard = ({ address, selected, onSelect, onEdit, onDelete }: AddressCardProps) => {
   return (
-    <Box
-      bg="bg.panel"
-      border="1px solid"
-      borderColor="border.subtle"
-      borderRadius="2xl"
-      padding="5"
-    >
+    <Card>
       <HStack justify="space-between" marginBottom="1">
         <HStack gap="2">
           <Strong fontSize="lg">{address.label}</Strong>
@@ -144,6 +137,6 @@ const AddressCard = ({ address, selected, onSelect, onEdit, onDelete }: AddressC
           Eliminar
         </GhostButton>
       </HStack>
-    </Box>
+    </Card>
   )
 }

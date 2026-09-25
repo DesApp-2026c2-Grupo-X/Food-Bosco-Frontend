@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { useMutation } from '@apollo/client'
 import type { Order } from '@repo/domain'
 import { CREATE_ORDER, toOrder } from '../client/store'
+import { combineLoading } from '../utils/combineLoading'
 
 interface UseCreateOrderReturn {
   createOrder: (addressId: string) => Promise<Order | null>
@@ -29,5 +30,5 @@ export const useCreateOrder = (): UseCreateOrderReturn => {
     [mutate],
   )
 
-  return { createOrder, isLoading: loading || isLoading }
+  return { createOrder, isLoading: combineLoading(loading, isLoading) }
 }

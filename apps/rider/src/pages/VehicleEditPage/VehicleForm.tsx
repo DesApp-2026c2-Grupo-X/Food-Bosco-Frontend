@@ -1,12 +1,22 @@
-import { Box, Button, HStack, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
 import Car from '@gravity-ui/icons/Car'
 import { FormProvider } from 'react-hook-form'
-import { FormField, GhostButton, Muted, PrimaryButton, Strong } from '@repo/components'
+import { Card, FormActions, FormField, Muted, Strong } from '@repo/components'
 import { useVehicleForm } from './hooks/useVehicleForm'
 
 export const VehicleForm = () => {
-  const { isLoading, form, type, isDirty, selectMoto, selectBici, onSave, onCancel } =
-    useVehicleForm()
+  const {
+    isLoading,
+    form,
+    type,
+    isDirty,
+    submitting,
+    error,
+    selectMoto,
+    selectBici,
+    onSave,
+    onCancel,
+  } = useVehicleForm()
 
   if (isLoading) return null
 
@@ -46,23 +56,21 @@ export const VehicleForm = () => {
               <FormField name="brand" label="Marca" required />
               <FormField name="model" label="Modelo" required />
               <FormField name="plate" label="Patente" required />
-              <HStack gap="2" marginTop="2">
-                <PrimaryButton type="submit" flex="1" disabled={!isDirty}>
-                  Guardar cambios
-                </PrimaryButton>
-                <GhostButton onClick={onCancel} disabled={!isDirty}>
-                  Cancelar
-                </GhostButton>
-              </HStack>
+              {error ? (
+                <Text color="danger" fontSize="sm">
+                  {error}
+                </Text>
+              ) : null}
+              <FormActions
+                submitLabel="Guardar cambios"
+                onCancel={onCancel}
+                isSubmitting={submitting}
+                disabled={!isDirty}
+                cancelDisabled={!isDirty}
+              />
             </>
           ) : (
-            <Box
-              bg="bg.subtle"
-              border="1px solid"
-              borderColor="border.subtle"
-              borderRadius="2xl"
-              padding="5"
-            >
+            <Card variant="subtle">
               <Box color="brand.600" display="flex" marginBottom="2">
                 <Car width={28} height={28} />
               </Box>
@@ -70,7 +78,7 @@ export const VehicleForm = () => {
               <Muted fontSize="sm" marginTop="1">
                 No requiere marca, modelo ni patente. Tu elección se guarda automáticamente.
               </Muted>
-            </Box>
+            </Card>
           )}
         </VStack>
       </form>

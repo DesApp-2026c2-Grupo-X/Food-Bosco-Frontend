@@ -1,89 +1,59 @@
-import { Box, HStack, Link as ChakraLink, VStack } from '@chakra-ui/react'
+import { HStack, VStack } from '@chakra-ui/react'
 import ListUl from '@gravity-ui/icons/ListUl'
 import { Link } from 'react-router-dom'
 import {
   EmptyState,
   Muted,
+  OrderStatusBadge,
   PageContainer,
-  PageTitle,
+  PageHeader,
   Price,
   PrimaryButton,
-  Strong,
+  SummaryCard,
 } from '@repo/components'
-import { OrderStatusBadge } from '@repo/components'
-import { OrderTimeline } from '@repo/components'
 import { orderDetailPath, routes } from '../../routes'
+import { ActiveOrderCard } from '../../components/ActiveOrderCard'
 import { formatPrice } from '@repo/domain'
 import { formatOrderDate, isActiveOrder } from '@repo/domain'
 import { useOrders } from '@repo/api'
 
 export const OrdersPage = () => {
-  const { orders, isLoading } = useOrders()
-  const activeOrder = orders.find((order) => isActiveOrder(order.status))
+  const { orders, isLoading } = useOrders({ pollIntervalMs: 15000 })
+  const activeOrders = orders.filter((order) => isActiveOrder(order.status))
   const pastOrders = orders.filter((order) => !isActiveOrder(order.status))
 
   return (
     <PageContainer>
-      <VStack align="start" gap="1">
-        <PageTitle>Mis pedidos</PageTitle>
-        <Muted>Seguí los pedidos en curso y revisá el historial.</Muted>
-      </VStack>
+      <PageHeader
+        title="Mis pedidos"
+        description="Seguí los pedidos en curso y revisá el historial."
+      />
 
-      {activeOrder ? (
-        <Box
-          bg="bg.subtle"
-          border="1px solid"
-          borderColor="border.subtle"
-          borderRadius="2xl"
-          padding="5"
-        >
-          <HStack justify="space-between" marginBottom="2">
-            <Strong fontSize="lg">Pedido #{activeOrder.number}</Strong>
-            <OrderStatusBadge status={activeOrder.status} />
-          </HStack>
-          <Muted fontSize="sm" marginBottom="4">
-            {activeOrder.branch?.name ?? 'Sucursal'} ·{' '}
-            {activeOrder.estimatedDeliveryAt
-              ? formatEtaLabel(activeOrder.estimatedDeliveryAt)
-              : 'Estimando tiempo'}
-          </Muted>
-          <OrderTimeline status={activeOrder.status} />
-          <PrimaryButton asChild marginTop="5" width="full">
-            <Link to={orderDetailPath(activeOrder.id)}>Ver seguimiento</Link>
-          </PrimaryButton>
-        </Box>
+      {activeOrders.length > 0 ? (
+        <VStack align="stretch" gap="3">
+          {activeOrders.map((order) => (
+            <ActiveOrderCard key={order.id} order={order} />
+          ))}
+        </VStack>
       ) : null}
 
       <VStack gap="3" align="stretch">
         {pastOrders.map((order) => (
-          <ChakraLink
-            asChild
+          <SummaryCard
             key={order.id}
-            display="block"
-            bg="bg.panel"
-            border="1px solid"
-            borderColor="border.subtle"
-            borderRadius="2xl"
-            padding="5"
-            _hover={{ borderColor: 'border.emphasized' }}
+            href={orderDetailPath(order.id)}
+            title={`Pedido #${order.number}`}
+            meta={formatOrderDate(order.createdAt)}
+            trailing={<OrderStatusBadge status={order.status} />}
           >
-            <Link to={orderDetailPath(order.id)}>
-              <HStack justify="space-between">
-                <VStack align="start" gap="0.5">
-                  <Strong>Pedido #{order.number}</Strong>
-                  <Muted fontSize="sm">{formatOrderDate(order.createdAt)}</Muted>
-                </VStack>
-                <OrderStatusBadge status={order.status} />
-              </HStack>
-              <HStack justify="space-between" marginTop="3">
-                <Muted fontSize="sm">
-                  {order.items.reduce((sum, item) => sum + item.quantity, 0)} ítems ·{' '}
-                  {order.branch?.name ?? 'Sucursal'}
-                </Muted>
-                <Price>{formatPrice(order.total)}</Price>
-              </HStack>
-            </Link>
-          </ChakraLink>
+            <HStack justify="space-between" marginTop="3">
+              <Muted fontSize="sm">
+                {order.items.reduce((sum, item) => sum + item.quantity, 0)} ítems ·{' '}
+                {order.branch?.name ?? 'Sucursal'}
+              </Muted>
+              <Price>{formatPrice(order.total)}</Price>
+            </HStack>
+          </SummaryCard>
         ))}
       </VStack>
 
@@ -101,9 +71,4 @@ export const OrdersPage = () => {
       ) : null}
     </PageContainer>
   )
-}
-
-const formatEtaLabel = (iso: string) => {
-  const minutes = Math.max(0, Math.round((new Date(iso).getTime() - Date.now()) / 60000))
-  return minutes < 60 ? `~${minutes} min` : `~${Math.floor(minutes / 60)}h ${minutes % 60}m`
 }
