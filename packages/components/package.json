@@ -20,7 +20,8 @@
   "dependencies": {
     "@repo/api": "*",
     "@repo/domain": "*",
-    "@repo/theme": "*"
+    "@repo/theme": "*",
+    "recharts": "^3.10.1"
   },
   "peerDependencies": {
     "@chakra-ui/react": "^3.36.1",

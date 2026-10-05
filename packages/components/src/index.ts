@@ -250,6 +250,24 @@ export type { ProfileScreenProps } from './ProfileScreen/types'
 export { ProductReportsView } from './ProductReportsView'
 export type { ProductReportsViewProps } from './ProductReportsView/types'
 
+export { AdvancedReportsView } from './AdvancedReportsView'
+export type { AdvancedReportsScope, AdvancedReportsViewProps } from './AdvancedReportsView/types'
+
+export { KpiCard } from './KpiCard'
+export type { KpiCardProps } from './KpiCard/types'
+
+export { ReportFilters } from './ReportFilters'
+export type { ReportFiltersProps } from './ReportFilters/types'
+
+export { SalesTrendChart } from './SalesTrendChart'
+export type { SalesTrendChartProps } from './SalesTrendChart/types'
+
+export { BranchComparisonChart } from './BranchComparisonChart'
+export type { BranchComparisonChartProps } from './BranchComparisonChart/types'
+
+export { OrderStatusChart } from './OrderStatusChart'
+export type { OrderStatusChartProps } from './OrderStatusChart/types'
+
 export { OrdersListView } from './OrdersListView'
 export type { OrdersListViewProps } from './OrdersListView/types'
 

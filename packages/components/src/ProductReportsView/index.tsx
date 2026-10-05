@@ -51,65 +51,77 @@ const outOfStockColumns: DataTableColumn<OutOfStockRow>[] = [
   { key: 'quantity', header: 'Cantidad', render: (row) => <Strong>{row.quantity}</Strong> },
 ]
 
-export const ProductReportsView = ({ description }: ProductReportsViewProps) => {
-  const { bestSellers, leastSold, outOfStock, highestRevenue, isLoading } = useProductReports()
+export const ProductReportsView = ({ description, filter, embedded }: ProductReportsViewProps) => {
+  const { bestSellers, leastSold, outOfStock, highestRevenue, isLoading, error } =
+    useProductReports(filter)
+
+  const content = (
+    <Tabs.Root defaultValue="best-sellers">
+      <Tabs.List>
+        <Tabs.Trigger value="best-sellers">Más vendidos</Tabs.Trigger>
+        <Tabs.Trigger value="least-sold">Menos vendidos</Tabs.Trigger>
+        <Tabs.Trigger value="out-of-stock">Sin stock</Tabs.Trigger>
+        <Tabs.Trigger value="highest-revenue">Mayor facturación</Tabs.Trigger>
+      </Tabs.List>
+
+      <Tabs.Content value="best-sellers">
+        <DataTable
+          columns={quantityColumns}
+          rows={bestSellers}
+          getRowKey={(row) => row.product.id}
+          isLoading={isLoading}
+          error={error}
+          emptyTitle="Sin datos"
+          emptyDescription="No hay productos más vendidos para mostrar."
+        />
+      </Tabs.Content>
+
+      <Tabs.Content value="least-sold">
+        <DataTable
+          columns={quantityColumns}
+          rows={leastSold}
+          getRowKey={(row) => row.product.id}
+          isLoading={isLoading}
+          error={error}
+          emptyTitle="Sin datos"
+          emptyDescription="No hay productos menos vendidos para mostrar."
+        />
+      </Tabs.Content>
+
+      <Tabs.Content value="out-of-stock">
+        <DataTable
+          columns={outOfStockColumns}
+          rows={outOfStock}
+          getRowKey={(row) => row.product.id}
+          isLoading={isLoading}
+          error={error}
+          emptyTitle="Sin productos sin stock"
+          emptyDescription="No hay productos con stock en cero."
+        />
+      </Tabs.Content>
+
+      <Tabs.Content value="highest-revenue">
+        <DataTable
+          columns={revenueColumns}
+          rows={highestRevenue}
+          getRowKey={(row) => row.product.id}
+          isLoading={isLoading}
+          error={error}
+          emptyTitle="Sin datos"
+          emptyDescription="No hay productos con facturación para mostrar."
+        />
+      </Tabs.Content>
+    </Tabs.Root>
+  )
+
+  if (embedded) {
+    return content
+  }
 
   return (
     <WidePageContainer>
       <PageHeader title="Reportes de productos" description={description} />
-
-      <Tabs.Root defaultValue="best-sellers">
-        <Tabs.List>
-          <Tabs.Trigger value="best-sellers">Más vendidos</Tabs.Trigger>
-          <Tabs.Trigger value="least-sold">Menos vendidos</Tabs.Trigger>
-          <Tabs.Trigger value="out-of-stock">Sin stock</Tabs.Trigger>
-          <Tabs.Trigger value="highest-revenue">Mayor facturación</Tabs.Trigger>
-        </Tabs.List>
-
-        <Tabs.Content value="best-sellers">
-          <DataTable
-            columns={quantityColumns}
-            rows={bestSellers}
-            getRowKey={(row) => row.product.id}
-            isLoading={isLoading}
-            emptyTitle="Sin datos"
-            emptyDescription="No hay productos más vendidos para mostrar."
-          />
-        </Tabs.Content>
-
-        <Tabs.Content value="least-sold">
-          <DataTable
-            columns={quantityColumns}
-            rows={leastSold}
-            getRowKey={(row) => row.product.id}
-            isLoading={isLoading}
-            emptyTitle="Sin datos"
-            emptyDescription="No hay productos menos vendidos para mostrar."
-          />
-        </Tabs.Content>
-
-        <Tabs.Content value="out-of-stock">
-          <DataTable
-            columns={outOfStockColumns}
-            rows={outOfStock}
-            getRowKey={(row) => row.product.id}
-            isLoading={isLoading}
-            emptyTitle="Sin productos sin stock"
-            emptyDescription="No hay productos con stock en cero."
-          />
-        </Tabs.Content>
-
-        <Tabs.Content value="highest-revenue">
-          <DataTable
-            columns={revenueColumns}
-            rows={highestRevenue}
-            getRowKey={(row) => row.product.id}
-            isLoading={isLoading}
-            emptyTitle="Sin datos"
-            emptyDescription="No hay productos con facturación para mostrar."
-          />
-        </Tabs.Content>
-      </Tabs.Root>
+      {content}
     </WidePageContainer>
   )
 }

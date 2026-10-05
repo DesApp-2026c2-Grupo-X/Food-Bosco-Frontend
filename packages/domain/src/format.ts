@@ -13,6 +13,13 @@ export const formatPrice = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value)
 
+export const formatPercent = (value: number): string => {
+  const absolute = Math.abs(value)
+  const formatted = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1 }).format(absolute)
+  const sign = value > 0 ? '+' : value < 0 ? '-' : ''
+  return `${sign}${formatted}%`
+}
+
 export const formatOrderDate = (iso: string) =>
   new Date(iso).toLocaleDateString('es-AR', {
     day: '2-digit',
