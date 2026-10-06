@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client'
-import type { OutOfStockRow, ProductReportRow } from '@repo/domain'
+import type { OutOfStockRow, ProductReportRow, ReportFilter } from '@repo/domain'
 import {
   BEST_SELLING_PRODUCTS,
   HIGHEST_REVENUE_PRODUCTS,
@@ -19,6 +19,7 @@ interface ProductReports {
 
 interface UseProductReportsReturn extends ProductReports {
   isLoading: boolean
+  error: boolean
 }
 
 interface ReportRowsResult {
@@ -28,12 +29,29 @@ interface ReportRowsResult {
   highestRevenueProducts: Record<string, unknown>[]
 }
 
-export const useProductReports = (): UseProductReportsReturn => {
-  const { data: bestData, loading: bestLoading } = useQuery<ReportRowsResult>(BEST_SELLING_PRODUCTS)
-  const { data: leastData, loading: leastLoading } = useQuery<ReportRowsResult>(LEAST_SOLD_PRODUCTS)
-  const { data: outData, loading: outLoading } = useQuery<ReportRowsResult>(OUT_OF_STOCK_PRODUCTS)
-  const { data: revenueData, loading: revenueLoading } =
-    useQuery<ReportRowsResult>(HIGHEST_REVENUE_PRODUCTS)
+export const useProductReports = (filter: ReportFilter = {}): UseProductReportsReturn => {
+  const options = { variables: { filter }, fetchPolicy: 'network-only' as const }
+
+  const {
+    data: bestData,
+    loading: bestLoading,
+    error: bestError,
+  } = useQuery<ReportRowsResult>(BEST_SELLING_PRODUCTS, options)
+  const {
+    data: leastData,
+    loading: leastLoading,
+    error: leastError,
+  } = useQuery<ReportRowsResult>(LEAST_SOLD_PRODUCTS, options)
+  const {
+    data: outData,
+    loading: outLoading,
+    error: outError,
+  } = useQuery<ReportRowsResult>(OUT_OF_STOCK_PRODUCTS, options)
+  const {
+    data: revenueData,
+    loading: revenueLoading,
+    error: revenueError,
+  } = useQuery<ReportRowsResult>(HIGHEST_REVENUE_PRODUCTS, options)
 
   return {
     bestSellers: (bestData?.bestSellingProducts ?? []).map(toProductReportRow),
@@ -41,5 +59,6 @@ export const useProductReports = (): UseProductReportsReturn => {
     outOfStock: (outData?.outOfStockProducts ?? []).map(toOutOfStockRow),
     highestRevenue: (revenueData?.highestRevenueProducts ?? []).map(toProductReportRow),
     isLoading: combineLoading(bestLoading, leastLoading, outLoading, revenueLoading),
+    error: Boolean(bestError || leastError || outError || revenueError),
   }
 }

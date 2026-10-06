@@ -217,6 +217,59 @@ export const OUT_OF_STOCK_ROW_FIELDS = `
   quantity
 `
 
+export const PRODUCT_SALES_ROW_FIELDS = `
+  productId
+  name
+  quantity
+  revenue
+`
+
+export const BRANCH_PERFORMANCE_FIELDS = `
+  branchId
+  branchName
+  revenue
+  orders
+`
+
+export const REPORTS_OVERVIEW_FIELDS = `
+  period {
+    from
+    to
+  }
+  kpis {
+    totalRevenue
+    totalOrders
+    averageTicket
+    cancelledOrders
+    bestSellingProduct {
+      ${PRODUCT_SALES_ROW_FIELDS}
+    }
+    topBranch {
+      ${BRANCH_PERFORMANCE_FIELDS}
+    }
+  }
+  variation {
+    revenuePct
+    ordersPct
+    averageTicketPct
+  }
+  salesSeries {
+    bucket
+    revenue
+    orders
+  }
+  ordersByStatus {
+    status
+    count
+  }
+  topProducts {
+    ${PRODUCT_SALES_ROW_FIELDS}
+  }
+  branchPerformance {
+    ${BRANCH_PERFORMANCE_FIELDS}
+  }
+`
+
 export const BRANCH_RECIPE_ITEM_FIELDS = `
   id
   ingredientId

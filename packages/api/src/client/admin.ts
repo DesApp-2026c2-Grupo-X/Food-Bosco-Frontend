@@ -1,13 +1,16 @@
 import { gql } from '@apollo/client'
 import type {
+  BranchPerformanceRow,
   BranchStock,
   OutOfStockRow,
   Parameter,
   ProductReportRow,
+  ProductSalesRow,
+  ReportsOverview,
   StaffMember,
 } from '@repo/domain'
 import { toBranch, toCategory, toOrder, toProduct } from './store'
-import { ROLE_FROM_API, asBoolean, asNumber, asString, toIngredient } from './mappers'
+import { ROLE_FROM_API, asBoolean, asList, asNumber, asString, toIngredient } from './mappers'
 import type { Raw } from './mappers'
 import {
   BRANCH_FIELDS,
@@ -23,6 +26,7 @@ import {
   PRODUCT_DETAIL_FIELDS,
   PRODUCT_LIST_FIELDS,
   PRODUCT_REPORT_ROW_FIELDS,
+  REPORTS_OVERVIEW_FIELDS,
   USER_FIELDS,
 } from './fragments'
 
@@ -78,6 +82,57 @@ export const toOutOfStockRow = (raw: Raw): OutOfStockRow => ({
 
 export const toConfigGroupType = (type: 'single' | 'multiple'): 'SINGLE' | 'MULTIPLE' =>
   type === 'multiple' ? 'MULTIPLE' : 'SINGLE'
+
+export const toProductSalesRow = (raw: Raw): ProductSalesRow => ({
+  productId: asString(raw.productId),
+  name: asString(raw.name),
+  quantity: asNumber(raw.quantity),
+  revenue: asNumber(raw.revenue),
+})
+
+export const toBranchPerformanceRow = (raw: Raw): BranchPerformanceRow => ({
+  branchId: asString(raw.branchId),
+  branchName: asString(raw.branchName),
+  revenue: asNumber(raw.revenue),
+  orders: asNumber(raw.orders),
+})
+
+export const toReportsOverview = (raw: Raw): ReportsOverview => {
+  const period = (raw.period as Raw | undefined) ?? {}
+  const kpis = (raw.kpis as Raw | undefined) ?? {}
+  const variation = (raw.variation as Raw | undefined) ?? {}
+
+  return {
+    period: { from: asString(period.from), to: asString(period.to) },
+    kpis: {
+      totalRevenue: asNumber(kpis.totalRevenue),
+      totalOrders: asNumber(kpis.totalOrders),
+      averageTicket: asNumber(kpis.averageTicket),
+      cancelledOrders: asNumber(kpis.cancelledOrders),
+      bestSellingProduct: kpis.bestSellingProduct
+        ? toProductSalesRow(kpis.bestSellingProduct as Raw)
+        : null,
+      topBranch: kpis.topBranch ? toBranchPerformanceRow(kpis.topBranch as Raw) : null,
+    },
+    variation: {
+      revenuePct: variation.revenuePct == null ? null : asNumber(variation.revenuePct),
+      ordersPct: variation.ordersPct == null ? null : asNumber(variation.ordersPct),
+      averageTicketPct:
+        variation.averageTicketPct == null ? null : asNumber(variation.averageTicketPct),
+    },
+    salesSeries: asList(raw.salesSeries, (entry) => ({
+      bucket: asString(entry.bucket),
+      revenue: asNumber(entry.revenue),
+      orders: asNumber(entry.orders),
+    })),
+    ordersByStatus: asList(raw.ordersByStatus, (entry) => ({
+      status: asString(entry.status) as ReportsOverview['ordersByStatus'][number]['status'],
+      count: asNumber(entry.count),
+    })),
+    topProducts: asList(raw.topProducts, toProductSalesRow),
+    branchPerformance: asList(raw.branchPerformance, toBranchPerformanceRow),
+  }
+}
 
 // ===== Queries =====
 
@@ -164,33 +219,41 @@ export const ADMIN_BRANCH_STOCK = gql`
 `
 
 export const BEST_SELLING_PRODUCTS = gql`
-  query BestSellingProducts($branchId: ID) {
-    bestSellingProducts(branchId: $branchId) {
+  query BestSellingProducts($filter: ReportFilterInput) {
+    bestSellingProducts(filter: $filter) {
       ${PRODUCT_REPORT_ROW_FIELDS}
     }
   }
 `
 
 export const LEAST_SOLD_PRODUCTS = gql`
-  query LeastSoldProducts($branchId: ID) {
-    leastSoldProducts(branchId: $branchId) {
+  query LeastSoldProducts($filter: ReportFilterInput) {
+    leastSoldProducts(filter: $filter) {
       ${PRODUCT_REPORT_ROW_FIELDS}
     }
   }
 `
 
 export const OUT_OF_STOCK_PRODUCTS = gql`
-  query OutOfStockProducts($branchId: ID) {
-    outOfStockProducts(branchId: $branchId) {
+  query OutOfStockProducts($filter: ReportFilterInput) {
+    outOfStockProducts(filter: $filter) {
       ${OUT_OF_STOCK_ROW_FIELDS}
     }
   }
 `
 
 export const HIGHEST_REVENUE_PRODUCTS = gql`
-  query HighestRevenueProducts($branchId: ID) {
-    highestRevenueProducts(branchId: $branchId) {
+  query HighestRevenueProducts($filter: ReportFilterInput) {
+    highestRevenueProducts(filter: $filter) {
       ${PRODUCT_REPORT_ROW_FIELDS}
+    }
+  }
+`
+
+export const REPORTS_OVERVIEW = gql`
+  query ReportsOverview($filter: ReportFilterInput) {
+    reportsOverview(filter: $filter) {
+      ${REPORTS_OVERVIEW_FIELDS}
     }
   }
 `

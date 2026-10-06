@@ -1,3 +1,5 @@
-import { ProductReportsView } from '@repo/components'
+import { AdvancedReportsView } from '@repo/components'
 
-export const ReportsPage = () => <ProductReportsView description="Métricas base de tu sucursal." />
+export const ReportsPage = () => (
+  <AdvancedReportsView description="Métricas de tu sucursal." scope="branch" />
+)
