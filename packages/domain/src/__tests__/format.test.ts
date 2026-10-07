@@ -110,6 +110,14 @@ describe('formatOrderDate / formatOrderTime', () => {
     expect(formatOrderDate(iso).length).toBeGreaterThan(0)
     expect(formatOrderTime(iso).length).toBeGreaterThan(0)
   })
+
+  it('formatOrderDate shows only the date (no time)', () => {
+    expect(formatOrderDate('2025-03-15T14:30:00Z')).not.toMatch(/\d{1,2}:\d{2}/)
+  })
+
+  it('formatOrderTime shows the time', () => {
+    expect(formatOrderTime('2025-03-15T14:30:00Z')).toMatch(/\d{1,2}:\d{2}/)
+  })
 })
 
 const makeOrder = (overrides: Partial<Order> = {}): Order =>

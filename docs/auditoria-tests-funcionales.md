@@ -1,5 +1,11 @@
 # Auditoría funcional — Suite de tests y reporte de problemas
 
+> **Actualización 2026-10-06.** Cifras y estado al día: la suite tiene **47 archivos / 362 tests**
+> (Vitest). Bugs de esta auditoría ya corregidos en el código: `toUser.createdAt`, `formatOrderDate`,
+> `classifyAuthError`, `RequireAuth` (`forceAuth`), doble accept en `useRiderHome`, y la colección de
+> tests que fallaba por `recharts` sin instalar. Los ítems listados abajo que ya no apliquen deben
+> contrastarse siempre contra el código.
+
 Documento acumulativo de los problemas detectados durante el diseño y la ejecución de la
 suite de tests funcionales y de comportamiento del monorepo frontend.
 

@@ -18,7 +18,3 @@ export const notifySuccess = ({ title, description }: NotifyOptions) => {
 export const notifyError = ({ title, description }: NotifyOptions) => {
   toaster.create({ type: 'error', title, description })
 }
-
-export const notifyInfo = ({ title, description }: NotifyOptions) => {
-  toaster.create({ type: 'info', title, description })
-}

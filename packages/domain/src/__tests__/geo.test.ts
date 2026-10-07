@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { formatDistance, haversineDistanceMeters } from '../geo'
 import { tripDeliveryDistanceMeters, type TripOrder } from '../trip'
-import { buildVehicleDescription, formatVehicle } from '../rider'
+import { buildVehicleDescription } from '../rider'
 import { toAddressInput } from '../address'
 
 describe('haversineDistanceMeters', () => {
@@ -70,10 +70,6 @@ describe('vehicle description', () => {
 
   it('omits missing moto fields', () => {
     expect(buildVehicleDescription({ type: 'moto', brand: 'Honda' })).toBe('Moto · Honda')
-  })
-
-  it('formatVehicle mirrors buildVehicleDescription', () => {
-    expect(formatVehicle({ type: 'bici' })).toBe('Bici')
   })
 })
 

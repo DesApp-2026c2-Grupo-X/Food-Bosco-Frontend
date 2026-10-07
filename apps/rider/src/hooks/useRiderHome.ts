@@ -25,9 +25,9 @@ export const useRiderHome = () => {
   }, [offer])
 
   const handleAccept = useCallback(async () => {
-    if (!offer) return
+    if (!offer || isMutating) return
     await accept(offer.id)
-  }, [offer, accept])
+  }, [offer, accept, isMutating])
 
   const handleReject = useCallback(() => {
     if (!offer) return

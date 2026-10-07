@@ -81,6 +81,16 @@ describe('toUser', () => {
     expect(user.role).toBe('super_admin')
     expect(user.branchId).toBeUndefined()
   })
+
+  it('maps the provided createdAt instead of "now"', () => {
+    const user = toUser({ createdAt: '2025-01-01T08:00:00.000Z' })
+    expect(user.createdAt).toBe('2025-01-01T08:00:00.000Z')
+  })
+
+  it('falls back to a valid ISO string when createdAt is missing', () => {
+    const user = toUser({})
+    expect(Number.isNaN(new Date(user.createdAt).getTime())).toBe(false)
+  })
 })
 
 describe('toIngredient', () => {

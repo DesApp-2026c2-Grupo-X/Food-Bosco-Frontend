@@ -2,7 +2,7 @@
 
 **Objetivo:** implementar el frontend de la app del Repartidor (`rol rider`), replicando **exactamente** el patrón de la app Tienda (`apps/store`), que es la referencia visual y de navegación del proyecto.
 
-**Estado actual:** la carpeta `apps/rider` está vacía. Este documento es el plan; **no se implementa** en esta entrega.
+**Estado actual (actualizado 2026-10-06):** `apps/rider` **está implementada** (puerto 5176, rol `rider`): disponibilidad, ofertas con countdown, viaje (pickup/deliver), historial, ubicación y perfil/vehículo. La ruta `/trip` con entrada de dock **no** está implementada (el Home redirige al detalle). Este documento conserva el plan original.
 
 > **Fuentes de verdad:**
 >

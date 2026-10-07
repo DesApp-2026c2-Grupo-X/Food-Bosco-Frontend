@@ -1,5 +1,9 @@
 # Plan — Admin global (`apps/admin`, rol `super_admin`)
 
+> **Actualización 2026-10-06.** Documento de planificación. El código es la fuente de verdad.
+> Estado real en `apps/admin/STATUS.md`. **No implementado** (marcado como fuera de alcance):
+> UI de Promociones y de Estados de pedido, y "Pedidos que requieren atención" en el Home.
+
 > **Objetivo:** construir el frontend del Admin global en `apps/admin`, replicando los patrones ya implementados en `apps/branch` (admin de sucursal) y cumpliendo `docs/requerimientos-frontend.md` (§9 y §10, pantallas G-01…G-15), `docs/requerimientos-backend-rest.md` (endpoints, trazabilidad §15) y `docs/ui-manifesto.md` (identidad "Calor").
 >
 > **Fuentes de verdad:** `docs/requerimientos-frontend.md` (funcional), `docs/ui-manifesto.md` (visual/sistema), `CLAUDE.md` (monorepo/stack), skill `frontend-components` (reglas de código).

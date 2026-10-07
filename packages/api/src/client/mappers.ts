@@ -52,5 +52,5 @@ export const toUser = (raw: Raw): User => ({
   phone: asString(raw.phone),
   active: asBoolean(raw.active),
   branchId: raw.branchId == null ? undefined : String(raw.branchId),
-  createdAt: new Date().toISOString(),
+  createdAt: asString(raw.createdAt, new Date().toISOString()),
 })

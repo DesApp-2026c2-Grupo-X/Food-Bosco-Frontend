@@ -38,5 +38,3 @@ export const buildVehicleDescription = (vehicle: Vehicle): string => {
   const parts = ['Moto', vehicle.brand, vehicle.model, vehicle.plate].filter(Boolean) as string[]
   return parts.join(' · ')
 }
-
-export const formatVehicle = (vehicle: Vehicle): string => buildVehicleDescription(vehicle)

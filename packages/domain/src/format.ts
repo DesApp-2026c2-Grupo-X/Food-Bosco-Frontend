@@ -25,8 +25,6 @@ export const formatOrderDate = (iso: string) =>
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
   })
 
 export const formatOrderTime = (iso: string) =>

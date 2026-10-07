@@ -1,9 +1,15 @@
 # Food-Bosco App
 
-Monorepo Turborepo con dos aplicaciones frontend independientes:
+Monorepo Turborepo con cuatro aplicaciones frontend independientes:
 
 - `apps/store` — tienda para clientes (Vite + React + Chakra UI, puerto 5173).
-- `apps/branch` — sistema administrativo (Vite + React + Chakra UI, puerto 5174).
+- `apps/admin` — administración global (puerto 5174, rol `super_admin`).
+- `apps/branch` — administración de sucursal (puerto 5175, rol `branch_admin`).
+- `apps/rider` — aplicación del repartidor (puerto 5176, rol `rider`).
+
+> El comportamiento real y el estado de cada funcionalidad se documentan al inicio de [`docs/requerimientos-frontend.md`](docs/requerimientos-frontend.md) y en los `STATUS.md` de cada app.
+> Algunos documentos de `docs/` describen un diseño aspiracional (por ejemplo el paquete `apps/auth`,
+> que en la práctica es `packages/auth`) y no deben tomarse como fuente de verdad.
 
 ## Requisitos
 
@@ -14,10 +20,11 @@ Monorepo Turborepo con dos aplicaciones frontend independientes:
 
 ```bash
 npm install        # instala dependencias del workspace
-npm run dev        # levanta store y branch en paralelo (Turborepo)
-npm run build      # compila ambas aplicaciones
+npm run dev        # compila los paquetes @repo/* y levanta las 4 apps
+npm run build      # compila paquetes y aplicaciones
 npm run lint       # ESLint en todas las apps (config compartida)
-npm run typecheck  # TypeScript en todas las apps (config compartida)
+npm run check-types # TypeScript en todas las apps (config compartida)
+npm run test       # tests (Vitest)
 npm run format     # Prettier sobre todo el repo
 npm run format:check
 ```
