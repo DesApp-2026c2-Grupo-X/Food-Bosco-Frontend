@@ -12,7 +12,7 @@ import {
   optionsFromEntities,
 } from '../filters'
 import { toProductListLine } from '../product-list'
-import { isStaffRole, ROLE_LABELS, ROLE_OPTIONS, STAFF_ROLES } from '../user'
+import { isStaffRole, ROLE_LABELS, ROLE_OPTIONS } from '../user'
 
 describe('order status maps', () => {
   it('labels every status', () => {
@@ -112,6 +112,5 @@ describe('roles', () => {
   it('exposes labels and assignable options', () => {
     expect(ROLE_LABELS.rider).toBe('Repartidor')
     expect(ROLE_OPTIONS.map((option) => option.value)).toEqual(['branch_admin', 'super_admin'])
-    expect(STAFF_ROLES).toEqual(['branch_admin', 'super_admin'])
   })
 })

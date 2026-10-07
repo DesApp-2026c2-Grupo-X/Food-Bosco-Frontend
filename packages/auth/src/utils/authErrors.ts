@@ -11,8 +11,7 @@ interface ApolloErrorLike {
 }
 
 export const AUTH_ERROR_MESSAGES = {
-  throttled:
-    'Se realizaron demasiados intentos. Esperá unos minutos antes de volver a intentarlo.',
+  throttled: 'Se realizaron demasiados intentos. Esperá unos minutos antes de volver a intentarlo.',
   invalidToken:
     'El enlace de recuperación no es válido o ya expiró. Solicitá un nuevo enlace para continuar.',
   network: 'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
@@ -39,10 +38,22 @@ const isThrottled = (error: unknown) => {
   )
 }
 
+const INVALID_TOKEN_CODES = new Set([
+  'INVALID_OR_EXPIRED_TOKEN',
+  'INVALID_TOKEN',
+  'TOKEN_EXPIRED',
+  'PASSWORD_RECOVERY_EXPIRED',
+])
+
 const isInvalidToken = (error: unknown) =>
-  getGraphQLErrors(error).some((graphQLError) =>
-    /token|enlace|expir|inv[aá]lid|utilizad|used|recuperaci/i.test(graphQLError.message ?? ''),
-  )
+  getGraphQLErrors(error).some((graphQLError) => {
+    const code = graphQLError.extensions?.code
+    if (code != null && INVALID_TOKEN_CODES.has(code)) return true
+
+    return /\btoken\b.*(inv[aá]lid|expirad|utilizad)|enlace de recuperaci[oó]n/i.test(
+      graphQLError.message ?? '',
+    )
+  })
 
 export const classifyAuthError = (error: unknown): AuthErrorKind => {
   if (isThrottled(error)) return 'throttled'

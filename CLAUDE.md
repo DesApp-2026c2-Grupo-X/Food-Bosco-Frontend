@@ -5,13 +5,15 @@ Monorepo de las aplicaciones de frontend de la plataforma de pedidos (Turborepo)
 ## Aplicaciones
 
 - `apps/store` — Aplicación cliente (Vite + React + Chakra UI) — puerto 5173.
-- `apps/admin` — Aplicación administrativa (Vite + React + Chakra UI) — puerto 5174.
+- `apps/admin` — Aplicación administrativa global (rol `super_admin`) — puerto 5174.
+- `apps/branch` — Administración de sucursal (rol `branch_admin`) — puerto 5175.
+- `apps/rider` — Aplicación del repartidor (rol `rider`) — puerto 5176.
 
 ## Stack
 
 - Vite + React + TypeScript.
 - Chakra UI v3 para componentes.
-- SWR para fetching de datos.
+- Apollo Client (GraphQL) para fetching de datos; el contrato vive en `@repo/api`.
 - Zustand para estado global.
 - React Router para navegación.
 
@@ -35,7 +37,7 @@ src/
 | ------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `@repo/components`        | Componentes UI genéricos + UI de dominio (Logo, EmptyState, OrderStatusBadge, ...).                      |
 | `@repo/domain`            | Tipos y constantes de dominio (Order, Address, Product, ORDER_STATUS_LABELS, formatPrice, ...). TS puro. |
-| `@repo/api`               | Capa de datos: hooks SWR + adaptador REST (GraphQL a futuro) + mocks.                                    |
+| `@repo/api`               | Capa de datos: hooks de Apollo/GraphQL + adaptadores de mappers.                                         |
 | `@repo/theme`             | Tokens semánticos de Chakra (`defineConfig` → `config`).                                                 |
 | `@repo/eslint-config`     | Config ESLint compartida (`base`, `react-internal`).                                                     |
 | `@repo/typescript-config` | Config TypeScript compartida (`vite.json`, `react-library.json`, `base.json`).                           |

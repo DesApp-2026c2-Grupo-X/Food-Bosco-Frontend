@@ -5,13 +5,26 @@
 **Equipo:** Thomas (SSR), Mateo (Trainee), Bosco (Trainee)  
 **Documento:** requerimientos funcionales de los frontends  
 **Alcance:** funcionalidades base de la consigna  
-**Versión:** 1.3
+**Versión:** 1.4
+**Última revisión contra código:** 2026-10-06
 
-> Este documento define el **alcance funcional** de los cinco frontends: **Auth** (login/registro/recuperación), **Tienda** (clientes), **Admin de sucursal** (`apps/branch`), **Admin global** (`apps/admin`) y **Repartidor** (`apps/rider`). Incluye **stock de ingredientes por sucursal** (Extensión 1) y la **app del Repartidor** con viajes y ofertas (Extensión 2).
+> **Estado de implementación (actualizado).** Este documento describe el alcance **funcional**; el
+> código es la **fuente de verdad**. A fecha de la revisión:
+>
+> - La autenticación **no es una app** (`apps/auth`): vive en `packages/auth` y la montan las 4 apps.
+> - Hay **4 aplicaciones**: `apps/store` (5173, cliente), `apps/admin` (5174, `super_admin`),
+>   `apps/branch` (5175, `branch_admin`) y `apps/rider` (5176, `rider`).
+> - La capa de datos real es **Apollo Client / GraphQL** vía `@repo/api`. **No** se usa SWR ni la
+>   capa REST/mocks descrita en versiones anteriores.
+> - **Fuera del alcance actual (documentado, sin implementar):** UI de Promociones y de Estados de
+>   pedido en el Admin global; "Repetir pedido" en la Tienda; checkout en dos pasos y ruta
+>   `/orders/:orderId/confirmed`; catálogo público (hoy protegido con `RequireAuth`); ruta `/trip`
+>   del Repartidor.
+> - Estado real y detalle: `apps/store/STATUS.md`, `apps/admin/STATUS.md`, `FRONTEND_DEMO_GUIDE.md`.
 
 > **Fuentes de verdad:** este documento es la fuente de verdad **funcional**. La fuente de verdad **visual y de sistema** (dirección "Calor", paleta, tokens, layouts) es `docs/ui-manifesto.md`; ante cualquier conflicto visual gana el manifesto. La arquitectura implementada (monorepo, apps, paquetes) está en §16 y en `CLAUDE.md`.
 
-> **Nota de implementación:** la autenticación vive en su propia app (`apps/auth`), que tras el login redirige a Tienda, Admin de sucursal, Admin global o Repartidor según el `role` que devuelve el auth API. Las pantallas T-01 a T-04 corresponden a esa app.
+> **Nota de implementación:** la autenticación vive en `packages/auth`, que tras el login redirige a Tienda, Admin de sucursal, Admin global o Repartidor según el `role` que devuelve el auth API. Las pantallas T-01 a T-04 corresponden a ese paquete compartido.
 
 ---
 

@@ -18,13 +18,8 @@ export const RequireAuth = ({ loginPath, roles, mockAuth }: RequireAuthProps) =>
     if (param === 'false') setBypassAuth(false)
   }, [param, setBypassAuth])
 
-  const effectiveBypass = mockAuth
-    ? true
-    : param === 'false'
-      ? false
-      : param === 'true'
-        ? true
-        : bypassAuth
+  const effectiveBypass =
+    param === 'false' ? false : param === 'true' ? true : mockAuth || bypassAuth
 
   if (!user && !effectiveBypass) {
     if (isAbsoluteUrl(loginPath)) {
