@@ -50,7 +50,9 @@ describe('IngredientsPage', () => {
     await userEvent.type(screen.getByPlaceholderText('Ej: un, kg, l'), 'kg')
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }))
 
-    await waitFor(() => expect(create).toHaveBeenCalledWith({ name: 'Queso', unit: 'kg', active: true }))
+    await waitFor(() =>
+      expect(create).toHaveBeenCalledWith({ name: 'Queso', unit: 'kg', active: true }),
+    )
   })
 
   it('toggles an ingredient status', async () => {

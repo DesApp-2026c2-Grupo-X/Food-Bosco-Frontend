@@ -42,7 +42,9 @@ describe('CartLineCard', () => {
 
   it('notifies quantity changes through the stepper', async () => {
     const onQuantityChange = vi.fn()
-    renderWithProviders(<CartLineCard item={item} onQuantityChange={onQuantityChange} onRemove={vi.fn()} />)
+    renderWithProviders(
+      <CartLineCard item={item} onQuantityChange={onQuantityChange} onRemove={vi.fn()} />,
+    )
 
     await userEvent.click(screen.getByRole('button', { name: 'Agregar uno' }))
 

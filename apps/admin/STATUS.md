@@ -17,18 +17,18 @@ pedidos globales, stock global y reportes.
 
 ## 3. Flujos implementados
 
-| Flujo | Puntos clave |
-| --- | --- |
-| Catálogo: categorías | `useAdminCategories` + form modal |
-| Catálogo: productos | `useAdminProducts` / `useProductEditor` (grupos, opciones y receta) |
-| Ingredientes | `useIngredients` + form modal |
-| Sucursales y horarios | CRUD de sucursales |
-| Personal (staff/admins) | `useStaff` + form modal |
-| Parámetros del sistema | `useParameters` |
-| Pedidos globales | `useGlobalOrders` |
-| Stock global | `useGlobalStock` |
-| Reportes | `useReportsOverview`, `useProductReports` (`AdvancedReportsView`) |
-| Perfil | `src/pages/ProfilePage` (usa un fallback mock cuando falta el dato) |
+| Flujo                   | Puntos clave                                                        |
+| ----------------------- | ------------------------------------------------------------------- |
+| Catálogo: categorías    | `useAdminCategories` + form modal                                   |
+| Catálogo: productos     | `useAdminProducts` / `useProductEditor` (grupos, opciones y receta) |
+| Ingredientes            | `useIngredients` + form modal                                       |
+| Sucursales y horarios   | CRUD de sucursales                                                  |
+| Personal (staff/admins) | `useStaff` + form modal                                             |
+| Parámetros del sistema  | `useParameters`                                                     |
+| Pedidos globales        | `useGlobalOrders`                                                   |
+| Stock global            | `useGlobalStock`                                                    |
+| Reportes                | `useReportsOverview`, `useProductReports` (`AdvancedReportsView`)   |
+| Perfil                  | `src/pages/ProfilePage` (usa un fallback mock cuando falta el dato) |
 
 ## 4. Tests
 

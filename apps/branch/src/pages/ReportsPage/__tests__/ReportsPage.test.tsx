@@ -50,9 +50,7 @@ const mockOverview = (result: Partial<ReturnType<typeof useReportsOverview>> = {
   })
 }
 
-const mockProductReports = (
-  result: Partial<ReturnType<typeof useProductReports>> = {},
-) => {
+const mockProductReports = (result: Partial<ReturnType<typeof useProductReports>> = {}) => {
   vi.mocked(useProductReports).mockReturnValue({
     bestSellers: [],
     leastSold: [],
@@ -98,9 +96,7 @@ describe('ReportsPage', () => {
   it('renders the product ranking returned by the reports hook', () => {
     mockOverview({ overview: null })
     mockProductReports({
-      bestSellers: [
-        { position: 1, product: makeProduct({ name: 'Empanada' }), quantity: 20 },
-      ],
+      bestSellers: [{ position: 1, product: makeProduct({ name: 'Empanada' }), quantity: 20 }],
     })
     renderWithProviders(<ReportsPage />)
 

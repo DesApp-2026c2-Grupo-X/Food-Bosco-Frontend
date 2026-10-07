@@ -39,7 +39,10 @@ const makeTripOrder = (overrides: Partial<TripOrder> = {}): TripOrder => ({
   ...overrides,
 })
 
-const makeTrip = (status: OrderStatus = 'READY_FOR_DELIVERY', earnings: number | null = 900): Trip => ({
+const makeTrip = (
+  status: OrderStatus = 'READY_FOR_DELIVERY',
+  earnings: number | null = 900,
+): Trip => ({
   id: 't1',
   riderId: 'r1',
   status: 'ACTIVE',

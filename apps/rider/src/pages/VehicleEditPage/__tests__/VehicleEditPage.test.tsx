@@ -111,9 +111,7 @@ describe('VehicleEditPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Bici' }))
 
     await waitFor(() => expect(updateVehicle).toHaveBeenCalledWith({ type: 'bici' }))
-    expect(
-      await screen.findByText(/No requiere marca, modelo ni patente/),
-    ).toBeInTheDocument()
+    expect(await screen.findByText(/No requiere marca, modelo ni patente/)).toBeInTheDocument()
   })
 
   it('surfaces an error when saving fails', async () => {

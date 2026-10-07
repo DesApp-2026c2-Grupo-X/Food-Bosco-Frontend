@@ -190,7 +190,11 @@ describe('store pages smoke', () => {
         order: order({
           status: 'DELIVERED',
           statusHistory: [
-            { previousStatus: 'ON_THE_WAY', newStatus: 'DELIVERED', changedAt: '2025-01-01T11:00:00Z' },
+            {
+              previousStatus: 'ON_THE_WAY',
+              newStatus: 'DELIVERED',
+              changedAt: '2025-01-01T11:00:00Z',
+            },
           ],
         }),
         isLoading: false,

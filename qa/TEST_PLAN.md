@@ -6,13 +6,13 @@ Alcance: prueba funcional end-to-end de las 4 experiencias frontend + backend.
 
 ## Entorno
 
-| Servicio | URL | Rol |
-|---|---|---|
-| Tienda (store) | http://localhost:5173 | customer |
-| Admin | http://localhost:5174 | super_admin |
-| Sucursal (branch) | http://localhost:5175 | branch_admin |
-| Rider | http://localhost:5176 | rider |
-| Gateway GraphQL | http://localhost:4000/graphql | API |
+| Servicio          | URL                           | Rol          |
+| ----------------- | ----------------------------- | ------------ |
+| Tienda (store)    | http://localhost:5173         | customer     |
+| Admin             | http://localhost:5174         | super_admin  |
+| Sucursal (branch) | http://localhost:5175         | branch_admin |
+| Rider             | http://localhost:5176         | rider        |
+| Gateway GraphQL   | http://localhost:4000/graphql | API          |
 
 Usuarios de prueba: `admin@foodbosco.local` (super_admin), `cliente@foodbosco.local` (customer),
 `repartidor@foodbosco.local` (rider), `sucursal.centro@foodbosco.local` / `.norte` / `.oeste` (branch_admin).

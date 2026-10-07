@@ -20,17 +20,17 @@ confirmar pedidos, ver el historial/seguimiento y administrar el perfil y las di
 
 ## 3. Flujos implementados
 
-| Flujo | Puntos clave |
-| --- | --- |
-| Login / registro / recuperación | `packages/auth` |
-| Selección de dirección | `src/stores/addressStore.ts`, `src/hooks/useAddressFlow.ts`, `AddressPickerModal` (se abre desde `StoreLayout` si falta la dirección) |
-| Catálogo y filtros | `src/pages/CatalogPage` |
-| Detalle + configurador de producto | `src/pages/ProductDetailPage` + `hooks/useProductConfig` |
-| Carrito (server-side) | `useCart` de `@repo/api`; alta/edición/eliminación |
-| Checkout | `src/pages/CheckoutPage` → `useCreateOrder` crea el pedido real |
-| Pedidos / seguimiento | `src/pages/OrdersPage`, `src/pages/OrderDetailPage` (polling) |
-| Perfil / edición | `src/pages/ProfilePage`, `src/pages/EditProfilePage` |
-| Sucursales | `src/pages/SucursalesPage` |
+| Flujo                              | Puntos clave                                                                                                                          |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Login / registro / recuperación    | `packages/auth`                                                                                                                       |
+| Selección de dirección             | `src/stores/addressStore.ts`, `src/hooks/useAddressFlow.ts`, `AddressPickerModal` (se abre desde `StoreLayout` si falta la dirección) |
+| Catálogo y filtros                 | `src/pages/CatalogPage`                                                                                                               |
+| Detalle + configurador de producto | `src/pages/ProductDetailPage` + `hooks/useProductConfig`                                                                              |
+| Carrito (server-side)              | `useCart` de `@repo/api`; alta/edición/eliminación                                                                                    |
+| Checkout                           | `src/pages/CheckoutPage` → `useCreateOrder` crea el pedido real                                                                       |
+| Pedidos / seguimiento              | `src/pages/OrdersPage`, `src/pages/OrderDetailPage` (polling)                                                                         |
+| Perfil / edición                   | `src/pages/ProfilePage`, `src/pages/EditProfilePage`                                                                                  |
+| Sucursales                         | `src/pages/SucursalesPage`                                                                                                            |
 
 ## 4. Estado y datos
 

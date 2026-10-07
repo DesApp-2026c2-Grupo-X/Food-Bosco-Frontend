@@ -101,9 +101,7 @@ describe('ProfilePage', () => {
     const { setAvailability } = setup({ trip: { id: 't1', status: 'ACTIVE', orders: [] } })
     renderWithProviders(<ProfilePage />)
 
-    expect(
-      screen.getByText('No podés desconectarte con un viaje en curso.'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('No podés desconectarte con un viaje en curso.')).toBeInTheDocument()
     const toggle = screen.getByRole('checkbox')
     expect(toggle).toBeDisabled()
 

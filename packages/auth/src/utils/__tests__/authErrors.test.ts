@@ -18,9 +18,15 @@ describe('classifyAuthError', () => {
   })
 
   it.each([
-    { name: 'código INVALID_OR_EXPIRED_TOKEN', error: graphqlError('x', 'INVALID_OR_EXPIRED_TOKEN') },
+    {
+      name: 'código INVALID_OR_EXPIRED_TOKEN',
+      error: graphqlError('x', 'INVALID_OR_EXPIRED_TOKEN'),
+    },
     { name: 'mensaje de token inválido', error: graphqlError('Token inválido o expirado') },
-    { name: 'mensaje de enlace de recuperación', error: graphqlError('El enlace de recuperación venció') },
+    {
+      name: 'mensaje de enlace de recuperación',
+      error: graphqlError('El enlace de recuperación venció'),
+    },
     { name: 'token ya utilizado', error: graphqlError('El token ya fue utilizado') },
   ])('clasifica $name como invalidToken', ({ error }) => {
     expect(classifyAuthError(error)).toBe('invalidToken')
@@ -40,7 +46,9 @@ describe('classifyAuthError', () => {
   })
 
   it('no clasifica como invalidToken un mensaje que sólo contiene "usado" sin token', () => {
-    expect(classifyAuthError(graphqlError('El usuario ya usó la recuperación'))).not.toBe('invalidToken')
+    expect(classifyAuthError(graphqlError('El usuario ya usó la recuperación'))).not.toBe(
+      'invalidToken',
+    )
   })
 })
 

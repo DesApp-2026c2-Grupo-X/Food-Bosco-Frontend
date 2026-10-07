@@ -25,9 +25,7 @@ describe('ParametersPage', () => {
 
     renderWithProviders(<ParametersPage />)
 
-    expect(
-      screen.getByText('Distancia máxima para una sucursal disponible'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Distancia máxima para una sucursal disponible')).toBeInTheDocument()
     expect(screen.getByText(/5/)).toBeInTheDocument()
   })
 

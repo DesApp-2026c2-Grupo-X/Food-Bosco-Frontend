@@ -19,20 +19,24 @@ Usuarios de prueba (sin exponer secretos): `super_admin` (admin@foodbosco.local)
 ## Resultado por aplicación
 
 ### Tienda (store, customer) — OK con observaciones
+
 - Login (válido e inválido), home, selección de dirección existente, catálogo (12 productos), filtro por categoría (`?cat=`), detalle de producto con opciones obligatorias/opcionales (validación: botón deshabilitado hasta elegir "Tamaño"), alta al carrito, edición de cantidad, eliminación, checkout y creación real de pedido, listado y detalle con timeline y mapa, página de sucursales, perfil y logout: **funcionan**.
 - Hallazgos: dirección nueva no queda auto-seleccionada (BUG-003); badge de carrito desactualizado tras confirmar (BUG-004); error de checkout genérico con stock insuficiente (BUG-005).
 
 ### Sucursal (branch, branch_admin) — OK
+
 - Login, home con "Pedidos que requieren atención", modal de pedido entrante con sonido/detalle, listado de pedidos con filtros, detalle y cambio de estado con transiciones válidas (pending→confirmed→preparing→ready_for_delivery y cancelación), productos de la sucursal con pausa/reactivación, stock con ajuste, reportes (ingresos, ticket promedio, más vendido, ranking) y perfil: **funcionan**.
 - El stock se descuenta correctamente al pasar el pedido a "En preparación" (verificado: Pan de hamburguesa 50→48).
 - Nota: el toggle "Abierto/Cerrado" del header es sólo local (no persiste en backend).
 
 ### Admin (super_admin) — OK con observaciones
+
 - Login, home, categorías (listar/crear/desactivar), productos (listar/editar con 3 pestañas: Datos generales / Configuraciones / Receta), ingredientes, sucursales + edición de horarios, personal (staff de sucursal + admin global no editable), parámetros (velocidad, prep base, distancia máx.), pedidos globales con filtro por sucursal, detalle y cambio de estado, stock global, reportes con filtro y "sucursal con mayor facturación", perfil: **funcionan**.
 - Hallazgos: "Eliminar categoría" sólo desactiva (BUG-002); login con rol incorrecto sin feedback (BUG-006).
 - Guard de roles: usuario `customer` no accede a rutas admin (redirige a `/login`).
 
 ### Rider (rider) — OK con bug importante
+
 - Login, perfil y vehículo, historial con ganancias, recepción de oferta, aceptación, retiro (gate 50 m), entrega y finalización del viaje con ganancia liquidada: **funcionan**.
 - Bug: la disponibilidad inicial mostrada ("Conectado") no refleja el backend; el rider no recibe ofertas hasta reconectar manualmente (BUG-001).
 - El gate de proximidad (50 m) y el envío de ubicación funcionan; se validaron con geolocalización simulada.
@@ -55,14 +59,14 @@ Escenario completo ejecutado con éxito (Tienda → Backend → Sucursal/Admin �
 
 Resumen por severidad (detalle en `BUGS.md`):
 
-| ID | Severidad | App | Descripción |
-|---|---|---|---|
-| BUG-001 | High | Rider | "Conectado" no sincroniza con backend; no llegan ofertas hasta reconectar |
-| BUG-002 | Medium | Admin | "Eliminar categoría" sólo desactiva pese a copy "irreversible" |
-| BUG-003 | Medium | Tienda | Dirección nueva no se auto-selecciona; reabre selector |
-| BUG-004 | Low | Tienda | Badge de carrito desactualizado tras confirmar pedido |
-| BUG-005 | Low | Tienda | Error de checkout genérico ante stock insuficiente |
-| BUG-006 | Low | Admin/roles | Login con rol incorrecto sin mensaje de error |
+| ID      | Severidad | App         | Descripción                                                               |
+| ------- | --------- | ----------- | ------------------------------------------------------------------------- |
+| BUG-001 | High      | Rider       | "Conectado" no sincroniza con backend; no llegan ofertas hasta reconectar |
+| BUG-002 | Medium    | Admin       | "Eliminar categoría" sólo desactiva pese a copy "irreversible"            |
+| BUG-003 | Medium    | Tienda      | Dirección nueva no se auto-selecciona; reabre selector                    |
+| BUG-004 | Low       | Tienda      | Badge de carrito desactualizado tras confirmar pedido                     |
+| BUG-005 | Low       | Tienda      | Error de checkout genérico ante stock insuficiente                        |
+| BUG-006 | Low       | Admin/roles | Login con rol incorrecto sin mensaje de error                             |
 
 Total: 0 Critical · 1 High · 2 Medium · 3 Low.
 

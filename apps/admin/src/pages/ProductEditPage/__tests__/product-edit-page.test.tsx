@@ -33,7 +33,14 @@ const product: Product = {
       options: [{ id: 'o1', name: 'Doble', extraPrice: 150, available: true }],
     },
   ],
-  recipe: [{ id: 'r1', ingredientId: 'i1', quantity: 2, ingredient: { id: 'i1', name: 'Pan', unit: 'un', active: true } }],
+  recipe: [
+    {
+      id: 'r1',
+      ingredientId: 'i1',
+      quantity: 2,
+      ingredient: { id: 'i1', name: 'Pan', unit: 'un', active: true },
+    },
+  ],
 }
 
 const mockEditor = (overrides: Partial<ReturnType<typeof useProductEditor>> = {}) =>

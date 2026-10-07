@@ -81,10 +81,7 @@ describe('StockPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Ajustar' }))
     await userEvent.type(screen.getByPlaceholderText('Ej: 5 o -3'), '5')
     await userEvent.tab()
-    await userEvent.type(
-      screen.getByPlaceholderText('Conteo físico, reposición…'),
-      'reposicion',
-    )
+    await userEvent.type(screen.getByPlaceholderText('Conteo físico, reposición…'), 'reposicion')
     await userEvent.click(screen.getByRole('button', { name: 'Guardar ajuste' }))
 
     await waitFor(() => expect(adjust).toHaveBeenCalledWith('i1', 5, 'reposicion'))

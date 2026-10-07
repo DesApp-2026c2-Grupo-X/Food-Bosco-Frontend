@@ -52,7 +52,9 @@ describe('TripOfferCard', () => {
   })
 
   it('disables reject while the offer is being accepted', () => {
-    renderWithProviders(<TripOfferCard offer={offer} isLoading onAccept={vi.fn()} onReject={vi.fn()} />)
+    renderWithProviders(
+      <TripOfferCard offer={offer} isLoading onAccept={vi.fn()} onReject={vi.fn()} />,
+    )
 
     expect(screen.getByRole('button', { name: 'Rechazar' })).toBeDisabled()
   })
