@@ -131,12 +131,14 @@ const TrackingMap = ({ order }: { order: Order }) => {
       longitude: branch.longitude,
       color: MAP_MARKER_COLORS.branch,
       label: 'T',
+      kind: 'branch',
     },
     {
       latitude: delivery.latitude,
       longitude: delivery.longitude,
       color: MAP_MARKER_COLORS.client,
       label: 'C',
+      kind: 'client',
     },
   ]
 
@@ -146,6 +148,7 @@ const TrackingMap = ({ order }: { order: Order }) => {
       longitude: riderLocation.longitude,
       color: MAP_MARKER_COLORS.rider,
       label: 'R',
+      kind: 'rider',
     })
   }
 

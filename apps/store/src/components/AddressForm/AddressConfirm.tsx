@@ -34,6 +34,7 @@ export const AddressConfirm = ({
       longitude: input.longitude,
       color: MAP_MARKER_COLORS.client,
       label: 'A',
+      kind: 'client',
     },
   ]
 

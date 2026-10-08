@@ -5,9 +5,12 @@ export interface InteractiveMapPoint {
   longitude: number
 }
 
+export type MarkerKind = 'branch' | 'client' | 'rider'
+
 export interface InteractiveMapMarker extends InteractiveMapPoint {
   color: string
   label?: string
+  kind?: MarkerKind
 }
 
 export interface InteractiveMapProps {

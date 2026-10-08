@@ -84,6 +84,7 @@ export type {
   InteractiveMapMarker,
   InteractiveMapPoint,
   InteractiveMapProps,
+  MarkerKind,
 } from './InteractiveMap/types'
 
 export { SummaryCard } from './SummaryCard'
