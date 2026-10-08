@@ -325,9 +325,9 @@ Aparece al cargar la app si no hay una dirección seleccionada; se reabre desde 
 
 ### 7.7 Detalle de pedido (`OrderDetailPage`)
 
-- **Activo** (`PENDING`…`ON_THE_WAY`): timeline (`OrderTimeline`) + **mapa estático de seguimiento** (Geoapify `buildStaticMapUrl`) con 3 markers — tienda (`info`, texto "T"), dirección del cliente (`success`, texto "C") y rider (`brand`, ícono `person-biking`) — y una leyenda con punto de color + título + subtítulo.
+- **Activo** (`PENDING`…`ON_THE_WAY`): timeline (`OrderTimeline`) + **mapa interactivo de seguimiento** (`InteractiveMap`, Leaflet + tiles Geoapify) con 3 markers tipo pin — tienda (`branch`, azul/`info`, glifo de local), dirección del cliente (`client`, verde/`success`, glifo de casa) y rider (`rider`, naranja/`brand`, glifo de moto) — y una leyenda con punto de color + título + subtítulo. Cada tipo de ubicación se distingue por **forma (pin) + color + glifo** (`InteractiveMapMarker.kind`).
 - **Cancelado**: card con `CircleXmarkFill` `danger` + motivo (`cancelReason`). **Entregado**: card con `CircleCheckFill` `success` + fecha (`deliveredAt`).
-- Items (cantidad × nombre + subtotal) y total con `tabular-nums`. Atribución de mapa: "© OpenStreetMap · Geoapify". Mapa = `Image` responsive sobre card `bg.panel` `2xl` `overflow="hidden"`, solo en activos.
+- Items (cantidad × nombre + subtotal) y total con `tabular-nums`. Atribución de mapa: "© OpenStreetMap · Geoapify". Mapa = `InteractiveMap` (Leaflet) sobre card `bg.panel` `2xl` `overflow="hidden"`, solo en activos.
 
 ### 7.8 Autenticación (`apps/auth`)
 

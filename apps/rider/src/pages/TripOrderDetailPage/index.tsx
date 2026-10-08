@@ -91,12 +91,14 @@ export const TripOrderDetailPage = () => {
       longitude: tripOrder.pickupLocation.longitude,
       color: MAP_MARKER_COLORS.branch,
       label: 'R',
+      kind: 'branch',
     },
     {
       latitude: tripOrder.deliveryAddress.latitude,
       longitude: tripOrder.deliveryAddress.longitude,
       color: MAP_MARKER_COLORS.client,
       label: 'E',
+      kind: 'client',
     },
   ]
 
@@ -106,6 +108,7 @@ export const TripOrderDetailPage = () => {
       longitude: riderLocation.longitude,
       color: MAP_MARKER_COLORS.rider,
       label: 'T',
+      kind: 'rider',
     })
   }
 

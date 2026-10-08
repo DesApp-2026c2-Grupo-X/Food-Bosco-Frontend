@@ -8,6 +8,7 @@ import {
   type LeafletMap,
   type LeafletNamespace,
 } from './leafletLoader'
+import { buildMarkerIcon } from './markerIcons'
 import type { InteractiveMapProps } from './types'
 
 const TILE_ATTRIBUTION =
@@ -83,7 +84,10 @@ export const InteractiveMap = ({
   }, [interactive, attributionControl])
 
   const markerSignature = markers
-    .map((marker) => `${marker.latitude},${marker.longitude},${marker.color},${marker.label ?? ''}`)
+    .map(
+      (marker) =>
+        `${marker.latitude},${marker.longitude},${marker.color},${marker.label ?? ''},${marker.kind ?? ''}`,
+    )
     .join('|')
 
   useEffect(() => {
@@ -97,11 +101,12 @@ export const InteractiveMap = ({
 
     for (const marker of markers) {
       points.push([marker.latitude, marker.longitude])
+      const { html, iconSize, iconAnchor } = buildMarkerIcon(marker)
       const icon = leaflet.divIcon({
         className: 'fb-map-marker',
-        html: `<span style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:9999px;background:${marker.color};color:#fff;font-size:11px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)">${marker.label ?? ''}</span>`,
-        iconSize: [26, 26],
-        iconAnchor: [13, 13],
+        html,
+        iconSize,
+        iconAnchor,
       })
       leaflet.marker([marker.latitude, marker.longitude], { icon }).addTo(layer)
     }

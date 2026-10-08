@@ -126,6 +126,7 @@ const InfoForm = ({ branch, isSubmitting, onSubmit, onCancel }: InfoFormProps) =
           longitude: parsedLongitude,
           color: MAP_MARKER_COLORS.branch,
           label: 'S',
+          kind: 'branch',
         },
       ]
     : []

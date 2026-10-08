@@ -113,6 +113,7 @@ export const SucursalesPage = () => {
                       longitude: branch.longitude,
                       color: MAP_MARKER_COLORS.branch,
                       label: 'S',
+                      kind: 'branch',
                     },
                   ]}
                   zoom={12}
