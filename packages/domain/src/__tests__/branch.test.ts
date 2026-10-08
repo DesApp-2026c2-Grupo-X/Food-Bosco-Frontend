@@ -38,4 +38,18 @@ describe('isBranchOpenNow', () => {
     expect(isBranchOpenNow([hour(DAY, { opening: null })], NOW)).toBe(false)
     expect(isBranchOpenNow([hour(DAY, { closing: null })], NOW)).toBe(false)
   })
+
+  it('is true exactly at opening', () => {
+    expect(isBranchOpenNow([hour(DAY, { opening: '12:00', closing: '13:00' })], NOW)).toBe(true)
+  })
+
+  it('is false exactly at closing', () => {
+    expect(isBranchOpenNow([hour(DAY, { opening: '11:00', closing: '12:00' })], NOW)).toBe(false)
+  })
+
+  it('is false when the time strings are malformed', () => {
+    expect(isBranchOpenNow([hour(DAY, { opening: 'not-a-time' })], NOW)).toBe(false)
+    expect(isBranchOpenNow([hour(DAY, { closing: 'noon' })], NOW)).toBe(false)
+    expect(isBranchOpenNow([hour(DAY, { opening: '12' })], NOW)).toBe(false)
+  })
 })

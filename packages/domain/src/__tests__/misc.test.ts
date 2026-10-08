@@ -99,6 +99,25 @@ describe('toProductListLine', () => {
       }).available,
     ).toBe(false)
   })
+
+  it('lets an explicit availability enable a product flagged unavailable', () => {
+    expect(
+      toProductListLine({
+        product: { id: 'p3', name: 'X', price: 1, available: false },
+        categoryName: 'C',
+        available: true,
+      }).available,
+    ).toBe(true)
+  })
+
+  it('falls back to a false product flag when availability is unknown', () => {
+    expect(
+      toProductListLine({
+        product: { id: 'p4', name: 'X', price: 1, available: false },
+        categoryName: 'C',
+      }).available,
+    ).toBe(false)
+  })
 })
 
 describe('roles', () => {
@@ -112,5 +131,13 @@ describe('roles', () => {
   it('exposes labels and assignable options', () => {
     expect(ROLE_LABELS.rider).toBe('Repartidor')
     expect(ROLE_OPTIONS.map((option) => option.value)).toEqual(['branch_admin', 'super_admin'])
+  })
+
+  it('offers only assignable staff roles with a known label', () => {
+    ROLE_OPTIONS.forEach((option) => {
+      const role = option.value as keyof typeof ROLE_LABELS
+      expect(isStaffRole(role)).toBe(true)
+      expect(ROLE_LABELS[role]).toBeTruthy()
+    })
   })
 })

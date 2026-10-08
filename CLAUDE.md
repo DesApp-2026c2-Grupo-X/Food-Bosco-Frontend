@@ -65,8 +65,9 @@ npm run format       # prettier --write
 
 - Consumir la API desde `/api` (proxy de Vite apunta al backend).
 - No crear archivos en `agent-local/` (carpeta local del agente, no se pushea).
-- Seguir la especificación de `docs/requerimientos-backend.md`.
-- **Diseño:** leer `docs/ui-manifesto.md` antes de tocar UI. Define la dirección visual ("Calor"), paleta, tipografía, geometría y patrones de componentes. Es la fuente de verdad visual.
+- Seguir la especificación de `docs/especificaciones/requerimientos-backend-rest.md`.
+- **Documentación:** el índice con estado (oficial/vigente/histórico) está en `docs/README.md`.
+- **Diseño:** leer `docs/especificaciones/ui-manifesto.md` antes de tocar UI. Define la dirección visual ("Calor"), paleta, tipografía, geometría y patrones de componentes. Es la fuente de verdad visual.
 - Leer la skill `frontend-components` en `.claude/skills/` antes de crear o modificar componentes (estructura, named exports, SOC, Chakra siempre, Zustand, layouts).
 - Skills de diseño: `interface-design`, `better-ui` e `impeccable` en `.claude/skills/`.
 - **Tema:** los tokens semánticos viven en `@repo/theme` (`packages/theme/src/config.ts`); cada app los consume en `src/theme.ts` con `createSystem(defaultConfig, config)`. Nunca hex sueltos en el markup; usar `bg`, `fg`, `brand.*`, `border.*`.

@@ -49,6 +49,23 @@ describe('ConfirmDeleteModal', () => {
     )
     expect(screen.getByRole('button', { name: 'Quitar ahora' })).toBeInTheDocument()
   })
+
+  it('shows the loading state while submitting', () => {
+    renderWithProviders(
+      <ConfirmDeleteModal
+        open
+        title="Quitar"
+        description="desc"
+        isSubmitting
+        onClose={vi.fn()}
+        onConfirm={vi.fn()}
+      />,
+    )
+
+    const button = document.querySelector('button[data-loading]')
+    expect(button).not.toBeNull()
+    expect(button).toBeDisabled()
+  })
 })
 
 const stock: BranchStock = {
@@ -101,6 +118,25 @@ describe('AdjustStockModal', () => {
     expect(await screen.findByText('La cantidad no puede ser 0')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Guardar ajuste' })).toBeDisabled()
     expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('resets the form when the ingredient changes', async () => {
+    const { rerender } = renderWithProviders(
+      <AdjustStockModal ingredient={stock} onClose={vi.fn()} onSubmit={vi.fn()} />,
+    )
+
+    await userEvent.type(screen.getByPlaceholderText('Ej: 5 o -3'), '5')
+    expect(screen.getByPlaceholderText('Ej: 5 o -3')).toHaveValue('5')
+
+    rerender(
+      <AdjustStockModal
+        ingredient={{ ...stock, quantity: 20 }}
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    await waitFor(() => expect(screen.getByPlaceholderText('Ej: 5 o -3')).toHaveValue(''))
   })
 })
 
@@ -174,5 +210,18 @@ describe('IncomingOrderModal', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Ver pedido' }))
     expect(onClose).toHaveBeenCalled()
     expect(await screen.findByText('detalle del pedido')).toBeInTheDocument()
+  })
+
+  it('stays closed when there is no order', () => {
+    renderWithProviders(
+      <IncomingOrderModal
+        order={null}
+        onClose={vi.fn()}
+        orderDetailPath={(id) => `/orders/${id}`}
+      />,
+    )
+
+    expect(screen.queryByText(/Nuevo pedido/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Ver pedido' })).not.toBeInTheDocument()
   })
 })

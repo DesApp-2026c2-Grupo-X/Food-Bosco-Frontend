@@ -2,7 +2,14 @@ import { Box, Text } from '@chakra-ui/react'
 import Car from '@gravity-ui/icons/Car'
 import PencilToSquare from '@gravity-ui/icons/PencilToSquare'
 import Route from '@gravity-ui/icons/Route'
-import { Card, Muted, ProfileIdentity, ProfileScreen, ToggleSwitch } from '@repo/components'
+import {
+  Card,
+  Muted,
+  notifyError,
+  ProfileIdentity,
+  ProfileScreen,
+  ToggleSwitch,
+} from '@repo/components'
 import { useLogout } from '@repo/auth'
 import { useAuthStore, useRiderProfile, useActiveTrip } from '@repo/api'
 import { buildVehicleDescription } from '@repo/domain'
@@ -38,7 +45,12 @@ export const ProfilePage = () => {
   const toggleAvailability = async (checked: boolean) => {
     if (availabilityLocked) return
     setOnline(checked)
-    await setAvailability(checked)
+    try {
+      await setAvailability(checked)
+    } catch {
+      setOnline(!checked)
+      notifyError({ title: 'No pudimos actualizar tu disponibilidad' })
+    }
   }
 
   return (

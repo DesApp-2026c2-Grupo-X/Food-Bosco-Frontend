@@ -88,4 +88,21 @@ describe('useRideAvailability', () => {
     expect(setAvailability).not.toHaveBeenCalled()
     expect(useRiderStore.getState().isOnline).toBe(true)
   })
+
+  it('reconciles stale local state with the backend availability on load (BUG-001)', async () => {
+    setup({ isOnline: true })
+    profileMock.mockReturnValue({
+      profile: { available: false },
+      isLoading: false,
+      isMutating: false,
+      updateProfile: vi.fn(),
+      updateVehicle: vi.fn(),
+      setAvailability: vi.fn(),
+      updateLocation: vi.fn(),
+    })
+
+    renderHook(() => useRideAvailability())
+
+    await waitFor(() => expect(useRiderStore.getState().isOnline).toBe(false))
+  })
 })

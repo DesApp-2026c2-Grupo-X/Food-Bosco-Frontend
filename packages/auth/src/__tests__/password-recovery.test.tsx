@@ -118,6 +118,25 @@ describe('ForgotPasswordPage', () => {
       await screen.findByText('No pudimos enviar las instrucciones. Intentá de nuevo.'),
     ).toBeInTheDocument()
   })
+
+  it('maps network errors to a friendly message', async () => {
+    useAuthStore.setState({
+      forgotPassword: vi.fn().mockRejectedValue({ networkError: { statusCode: 500 } }),
+    })
+    renderForgot()
+
+    await userEvent.type(screen.getByPlaceholderText(EMAIL_PLACEHOLDER), 'ana@example.com')
+    const button = screen.getByRole('button', { name: 'Enviar instrucciones' })
+    await waitFor(() => expect(button).toBeEnabled())
+    await userEvent.click(button)
+
+    expect(
+      await screen.findByText(
+        'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(NEUTRAL_MESSAGE)).not.toBeInTheDocument()
+  })
 })
 
 describe('ResetPasswordPage', () => {
@@ -217,5 +236,36 @@ describe('ResetPasswordPage', () => {
       'href',
       '/forgot-password',
     )
+  })
+
+  it('maps network errors to a friendly message', async () => {
+    useAuthStore.setState({
+      resetPassword: vi.fn().mockRejectedValue({ networkError: { statusCode: 503 } }),
+    })
+    renderReset()
+
+    await fillValidResetForm()
+    const button = screen.getByRole('button', { name: 'Cambiar contraseña' })
+    await waitFor(() => expect(button).toBeEnabled())
+    await userEvent.click(button)
+
+    expect(
+      await screen.findByText(
+        'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('trims the token from the query string before resetting', async () => {
+    const resetPassword = vi.fn().mockResolvedValue(undefined)
+    useAuthStore.setState({ resetPassword })
+    renderReset('/reset-password?token=%20tok-trim%20')
+
+    await fillValidResetForm()
+    const button = screen.getByRole('button', { name: 'Cambiar contraseña' })
+    await waitFor(() => expect(button).toBeEnabled())
+    await userEvent.click(button)
+
+    expect(resetPassword).toHaveBeenCalledWith('tok-trim', '12345678')
   })
 })

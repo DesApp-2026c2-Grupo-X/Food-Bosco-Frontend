@@ -18,7 +18,13 @@ export interface AuthAppConfigUrls {
   MOCK_AUTH: boolean
 }
 
-const env = (import.meta as unknown as { env?: AuthAppEnv }).env
+declare global {
+  interface ImportMeta {
+    readonly env: AuthAppEnv
+  }
+}
+
+const env = import.meta.env
 
 export const createAppConfig = ({ self }: CreateAppConfigOptions): AuthAppConfigUrls => {
   void self

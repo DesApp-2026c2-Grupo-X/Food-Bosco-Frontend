@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { formatPercent } from '../format'
-import { buildReportRange } from '../report-range'
+import { buildReportRange, endOfDay, startOfDay, startOfWeek } from '../report-range'
 
 const NOW = new Date(2024, 0, 10, 15, 30, 0)
 
@@ -42,6 +42,39 @@ describe('buildReportRange', () => {
 
     expect(range.from).toEqual(new Date(2024, 0, 5, 0, 0, 0, 0))
     expect(range.to).toEqual(new Date(2024, 0, 5, 23, 59, 59, 999))
+  })
+
+  it('custom preset without dates defaults to today', () => {
+    const range = buildReportRange('custom', undefined, undefined, NOW)
+
+    expect(range.groupBy).toBe('DAY')
+    expect(range.from).toEqual(new Date(2024, 0, 10, 0, 0, 0, 0))
+    expect(range.to).toEqual(new Date(2024, 0, 10, 23, 59, 59, 999))
+  })
+
+  it('custom preset fills a missing bound with today', () => {
+    const range = buildReportRange('custom', '2024-01-05', undefined, NOW)
+
+    expect(range.from).toEqual(new Date(2024, 0, 5, 0, 0, 0, 0))
+    expect(range.to).toEqual(new Date(2024, 0, 10, 23, 59, 59, 999))
+  })
+})
+
+describe('report range helpers', () => {
+  it('startOfDay and endOfDay bound the day', () => {
+    expect(startOfDay(NOW)).toEqual(new Date(2024, 0, 10, 0, 0, 0, 0))
+    expect(endOfDay(NOW)).toEqual(new Date(2024, 0, 10, 23, 59, 59, 999))
+  })
+
+  it('startOfWeek uses the previous Monday when the date is a Sunday', () => {
+    const sunday = new Date(2024, 0, 14, 15, 30, 0)
+
+    expect(sunday.getDay()).toBe(0)
+    expect(startOfWeek(sunday)).toEqual(new Date(2024, 0, 8, 0, 0, 0, 0))
+  })
+
+  it('startOfWeek returns the same Monday for any mid-week date', () => {
+    expect(startOfWeek(NOW)).toEqual(new Date(2024, 0, 8, 0, 0, 0, 0))
   })
 })
 
