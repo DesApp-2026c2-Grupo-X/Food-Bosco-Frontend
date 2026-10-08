@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useActiveTrip, useRiderProfile } from '@repo/api'
 import { notifyError } from '@repo/components'
 import { useRiderStore } from '../stores/riderStore'
@@ -6,10 +6,18 @@ import { useRiderStore } from '../stores/riderStore'
 export const useRideAvailability = () => {
   const isOnline = useRiderStore((state) => state.isOnline)
   const setOnline = useRiderStore((state) => state.setOnline)
-  const { setAvailability, isMutating } = useRiderProfile()
+  const { profile, setAvailability, isMutating } = useRiderProfile()
   const { trip } = useActiveTrip()
   const locked = trip != null
   const [submitting, setSubmitting] = useState(false)
+
+  // BUG-001: el flag local (persistido en localStorage) puede quedar desincronizado
+  // con el backend. Al cargar el perfil reconciliamos con la disponibilidad real.
+  useEffect(() => {
+    if (profile) {
+      setOnline(profile.available)
+    }
+  }, [profile, setOnline])
 
   const toggle = async () => {
     if (locked || submitting) return

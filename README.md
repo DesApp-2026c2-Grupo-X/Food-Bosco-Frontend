@@ -7,8 +7,9 @@ Monorepo Turborepo con cuatro aplicaciones frontend independientes:
 - `apps/branch` — administración de sucursal (puerto 5175, rol `branch_admin`).
 - `apps/rider` — aplicación del repartidor (puerto 5176, rol `rider`).
 
-> El comportamiento real y el estado de cada funcionalidad se documentan al inicio de [`docs/requerimientos-frontend.md`](docs/requerimientos-frontend.md) y en los `STATUS.md` de cada app.
-> Algunos documentos de `docs/` describen un diseño aspiracional (por ejemplo el paquete `apps/auth`,
+> El comportamiento real y el estado de cada funcionalidad se documentan al inicio de [`docs/especificaciones/requerimientos-frontend.md`](docs/especificaciones/requerimientos-frontend.md) y en los `STATUS.md` de cada app.
+> Ver el índice de documentación en [`docs/README.md`](docs/README.md) para saber qué es oficial, vigente o histórico.
+> Algunos documentos de `docs/historico/` describen un diseño aspiracional (por ejemplo el paquete `apps/auth`,
 > que en la práctica es `packages/auth`) y no deben tomarse como fuente de verdad.
 
 ## Requisitos

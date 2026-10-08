@@ -76,6 +76,11 @@ describe('formatElapsed', () => {
     expect(formatElapsed(ago(65 * 60_000), NOW)).toBe('1h 5m')
     expect(formatElapsed(ago(24 * 60 * 60_000), NOW)).toBe('1d')
   })
+
+  it('renders an exact hour without minutes', () => {
+    expect(formatElapsed(ago(60 * 60_000), NOW)).toBe('1h')
+    expect(formatElapsed(ago(120 * 60_000), NOW)).toBe('2h')
+  })
 })
 
 describe('formatElapsedAgo', () => {

@@ -21,6 +21,7 @@ import {
   registerFormSchema,
   registerSchema,
   resetPasswordSchema,
+  riderProfileSchema,
   staffCreateSchema,
   staffUpdateSchema,
   vehicleSchema,
@@ -217,6 +218,17 @@ describe('profileSchema / vehicleSchema', () => {
   })
 })
 
+describe('riderProfileSchema', () => {
+  it('accepts a valid phone', () => {
+    expect(riderProfileSchema.safeParse({ phone: '+54 11 5555-1234' }).success).toBe(true)
+  })
+
+  it('rejects an empty or invalid phone', () => {
+    expect(riderProfileSchema.safeParse({ phone: '' }).success).toBe(false)
+    expect(riderProfileSchema.safeParse({ phone: 'abc' }).success).toBe(false)
+  })
+})
+
 describe('adjustStockSchema / parameterSchema / orderStateSchema', () => {
   it('rejects a zero stock adjustment', () => {
     expect(adjustStockSchema.safeParse({ delta: '0' }).success).toBe(false)
@@ -257,6 +269,13 @@ describe('catalog schemas', () => {
     expect(productSchema.safeParse({ ...base, description: '' }).success).toBe(false)
   })
 
+  it('product image is optional and capped at 500 characters', () => {
+    const base = { name: 'Burger', description: 'Rica', categoryId: 'c1', price: '1000' }
+    expect(productSchema.safeParse(base).success).toBe(true)
+    expect(productSchema.safeParse({ ...base, image: 'a'.repeat(500) }).success).toBe(true)
+    expect(productSchema.safeParse({ ...base, image: 'a'.repeat(501) }).success).toBe(false)
+  })
+
   it('branch validates latitude/longitude ranges', () => {
     const base = { name: 'Centro', addressText: 'Calle 1', latitude: '0', longitude: '0' }
     expect(branchSchema.safeParse(base).success).toBe(true)
@@ -265,6 +284,13 @@ describe('catalog schemas', () => {
     expect(branchSchema.safeParse({ ...base, latitude: '-90', longitude: '180' }).success).toBe(
       true,
     )
+  })
+
+  it('branch phone is optional and capped at 50 characters', () => {
+    const base = { name: 'Centro', addressText: 'Calle 1', latitude: '0', longitude: '0' }
+    expect(branchSchema.safeParse(base).success).toBe(true)
+    expect(branchSchema.safeParse({ ...base, phone: '5'.repeat(50) }).success).toBe(true)
+    expect(branchSchema.safeParse({ ...base, phone: '5'.repeat(51) }).success).toBe(false)
   })
 
   it('promotion requires end date on or after start date', () => {
@@ -323,5 +349,20 @@ describe('staff schemas', () => {
 
   it('staff create requires a valid password', () => {
     expect(staffCreateSchema.safeParse({ ...validStaff, password: '123' }).success).toBe(false)
+  })
+
+  it('staff update requires a branch for a collaborator', () => {
+    const result = staffUpdateSchema.safeParse({ ...validStaff, branchId: '' })
+    expect(result.success).toBe(false)
+    expect(issuePaths(result)).toContain('branchId')
+  })
+
+  it('staff update lets a global admin omit the branch', () => {
+    const result = staffUpdateSchema.safeParse({
+      ...validStaff,
+      role: 'super_admin',
+      branchId: '',
+    })
+    expect(result.success).toBe(true)
   })
 })

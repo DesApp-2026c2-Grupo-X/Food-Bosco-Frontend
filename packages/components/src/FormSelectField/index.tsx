@@ -22,6 +22,7 @@ export const FormSelectField = ({
         <FieldShell
           label={label}
           required={required}
+          disabled={disabled}
           invalid={fieldState.invalid}
           errorText={fieldState.error?.message}
         >

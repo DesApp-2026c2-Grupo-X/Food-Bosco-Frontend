@@ -5,12 +5,20 @@ interface FieldShellProps {
   label: string
   required?: boolean
   invalid?: boolean
+  disabled?: boolean
   errorText?: string
   children: ReactNode
 }
 
-export const FieldShell = ({ label, required, invalid, errorText, children }: FieldShellProps) => (
-  <Field.Root required={required} invalid={invalid}>
+export const FieldShell = ({
+  label,
+  required,
+  invalid,
+  disabled,
+  errorText,
+  children,
+}: FieldShellProps) => (
+  <Field.Root required={required} invalid={invalid} disabled={disabled}>
     <Field.Label>{label}</Field.Label>
     {children}
     {errorText ? <Field.ErrorText>{errorText}</Field.ErrorText> : null}
