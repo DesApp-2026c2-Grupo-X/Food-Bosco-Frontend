@@ -6,7 +6,10 @@ import { notifyError } from '@repo/components'
 import { renderWithProviders } from '@test/utils'
 import { BranchStatusButton } from '../BranchStatusButton'
 
-vi.mock('@repo/api', () => ({ useBranchStatus: vi.fn() }))
+vi.mock('@repo/api', () => ({
+  useBranchStatus: vi.fn(),
+  getApiErrorMessage: vi.fn(() => 'El servicio no está disponible.'),
+}))
 
 vi.mock('@repo/components', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@repo/components')>()

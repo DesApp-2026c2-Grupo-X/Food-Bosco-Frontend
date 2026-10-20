@@ -20,7 +20,7 @@ import {
   notifySuccess,
   type InteractiveMapMarker,
 } from '@repo/components'
-import { geocodeAddress, useBranches } from '@repo/api'
+import { geocodeAddress, getApiErrorMessage, useBranches } from '@repo/api'
 import { MAP_MARKER_COLORS } from '@repo/theme'
 import {
   branchSchema,
@@ -348,8 +348,11 @@ export const BranchEditPage = () => {
         await update(id, input)
         notifySuccess({ title: 'Sucursal actualizada' })
       }
-    } catch {
-      notifyError({ title: 'No pudimos guardar la sucursal' })
+    } catch (caught) {
+      notifyError({
+        title: 'No pudimos guardar la sucursal',
+        description: getApiErrorMessage(caught),
+      })
     }
   }
 
@@ -358,8 +361,11 @@ export const BranchEditPage = () => {
     try {
       await saveHours(branch.id, hours)
       notifySuccess({ title: 'Horarios actualizados' })
-    } catch {
-      notifyError({ title: 'No pudimos guardar los horarios' })
+    } catch (caught) {
+      notifyError({
+        title: 'No pudimos guardar los horarios',
+        description: getApiErrorMessage(caught),
+      })
     }
   }
 

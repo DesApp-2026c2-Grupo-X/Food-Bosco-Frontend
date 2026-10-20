@@ -146,7 +146,9 @@ describe('CheckoutPage flow', () => {
     await userEvent.click(button)
 
     expect(
-      await screen.findByText('No pudimos confirmar tu pedido. Intentá de nuevo.'),
+      await screen.findByText(
+        'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
+      ),
     ).toBeInTheDocument()
     expect(screen.queryByText('¡Pedido confirmado!')).not.toBeInTheDocument()
     expect(notifyError).toHaveBeenCalledWith(

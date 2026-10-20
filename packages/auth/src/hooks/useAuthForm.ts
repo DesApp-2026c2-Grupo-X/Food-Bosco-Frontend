@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm, type DefaultValues, type FieldValues } from 'react-hook-form'
+import { getApiErrorMessage } from '@repo/api'
 import type { z } from 'zod'
 
 export class AuthSubmitError extends Error {}
@@ -34,7 +35,9 @@ export const useAuthForm = <TValues extends FieldValues>({
     try {
       await submit(values)
     } catch (caught) {
-      setError(caught instanceof AuthSubmitError ? caught.message : errorMessage)
+      setError(
+        caught instanceof AuthSubmitError ? caught.message : getApiErrorMessage(caught, errorMessage),
+      )
     } finally {
       setSubmitting(false)
     }
