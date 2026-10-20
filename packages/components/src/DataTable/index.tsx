@@ -1,4 +1,4 @@
-import { Box, Skeleton, Table } from '@chakra-ui/react'
+import { Box, HStack, Skeleton, Spinner, Table, Text } from '@chakra-ui/react'
 import { EmptyState } from '../feedback'
 import { usePrefersReducedMotion } from '../usePrefersReducedMotion'
 import type { DataTableProps, ResponsiveBreakpoint } from './types'
@@ -37,71 +37,82 @@ export const DataTable = <T,>({
   }
 
   return (
-    <Box
-      width="full"
-      border="1px solid"
-      borderColor="border.subtle"
-      borderRadius="2xl"
-      overflow="hidden"
-      bg="bg.panel"
-      aria-busy={isLoading}
-    >
-      <Table.ScrollArea width="full">
-        <Table.Root variant="line" size="md" width="full">
-          <Table.Header>
-            <Table.Row bg="bg.muted">
-              {columns.map((column) => (
-                <Table.ColumnHeader
-                  key={column.key}
-                  display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
-                  color="brand.600"
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  textTransform="uppercase"
-                  letterSpacing="0.05em"
-                  paddingY="3"
-                >
-                  {column.header}
-                </Table.ColumnHeader>
-              ))}
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {isLoading
-              ? Array.from({ length: skeletonRows }).map((_, rowIndex) => (
-                  <Table.Row key={`skeleton-${rowIndex}`}>
-                    {columns.map((column) => (
-                      <Table.Cell key={column.key}>
-                        <Skeleton
-                          height="4"
-                          width="80%"
-                          animation={reducedMotion ? 'none' : undefined}
-                        />
-                      </Table.Cell>
-                    ))}
-                  </Table.Row>
-                ))
-              : rows.map((row) => (
-                  <Table.Row
-                    key={getRowKey(row)}
-                    cursor={onRowClick ? 'pointer' : undefined}
-                    _hover={onRowClick ? { bg: 'bg.subtle' } : undefined}
-                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+    <>
+      {isLoading ? (
+        <HStack role="status" aria-live="polite" gap="2" paddingY="2">
+          <Spinner size="sm" color="brand.600" />
+          <Text fontSize="sm" color="fg.muted">
+            Cargando datos…
+          </Text>
+        </HStack>
+      ) : null}
+
+      <Box
+        width="full"
+        border="1px solid"
+        borderColor="border.subtle"
+        borderRadius="2xl"
+        overflow="hidden"
+        bg="bg.panel"
+        aria-busy={isLoading}
+      >
+        <Table.ScrollArea width="full">
+          <Table.Root variant="line" size="md" width="full">
+            <Table.Header>
+              <Table.Row bg="bg.muted">
+                {columns.map((column) => (
+                  <Table.ColumnHeader
+                    key={column.key}
+                    display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
+                    color="brand.600"
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    textTransform="uppercase"
+                    letterSpacing="0.05em"
+                    paddingY="3"
                   >
-                    {columns.map((column) => (
-                      <Table.Cell
-                        key={column.key}
-                        display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
-                        paddingY="3.5"
-                      >
-                        {column.render(row)}
-                      </Table.Cell>
-                    ))}
-                  </Table.Row>
+                    {column.header}
+                  </Table.ColumnHeader>
                 ))}
-          </Table.Body>
-        </Table.Root>
-      </Table.ScrollArea>
-    </Box>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {isLoading
+                ? Array.from({ length: skeletonRows }).map((_, rowIndex) => (
+                    <Table.Row key={`skeleton-${rowIndex}`}>
+                      {columns.map((column) => (
+                        <Table.Cell key={column.key}>
+                          <Skeleton
+                            height="4"
+                            width="80%"
+                            animation={reducedMotion ? 'none' : undefined}
+                          />
+                        </Table.Cell>
+                      ))}
+                    </Table.Row>
+                  ))
+                : rows.map((row) => (
+                    <Table.Row
+                      key={getRowKey(row)}
+                      cursor={onRowClick ? 'pointer' : undefined}
+                      _hover={onRowClick ? { bg: 'bg.subtle' } : undefined}
+                      onClick={onRowClick ? () => onRowClick(row) : undefined}
+                    >
+                      {columns.map((column) => (
+                        <Table.Cell
+                          key={column.key}
+                          display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
+                          paddingY="3.5"
+                        >
+                          {column.render(row)}
+                        </Table.Cell>
+                      ))}
+                    </Table.Row>
+                  ))}
+            </Table.Body>
+          </Table.Root>
+        </Table.ScrollArea>
+      </Box>
+    </>
   )
 }

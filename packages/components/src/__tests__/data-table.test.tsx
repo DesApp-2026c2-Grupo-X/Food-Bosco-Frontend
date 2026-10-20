@@ -41,6 +41,8 @@ describe('DataTable', () => {
     )
 
     expect(container.querySelectorAll('tbody tr')).toHaveLength(3)
+    expect(screen.getByText('Cargando datos…')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite')
   })
 
   it('muestra el vacío por defecto y el personalizado', () => {

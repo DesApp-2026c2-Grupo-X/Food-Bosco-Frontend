@@ -1,26 +1,17 @@
-import { Box, HStack, IconButton, Image } from '@chakra-ui/react'
+import { Box, HStack, IconButton } from '@chakra-ui/react'
 import Plus from '@gravity-ui/icons/Plus'
 import { NavLink } from 'react-router-dom'
 import { productPath } from '../../routes'
 import { formatPrice } from '@repo/domain'
-import { Card, MenuLink, Muted, Price, Strong } from '@repo/components'
+import { Card, LoadingImage, MenuLink, Muted, Price, Strong } from '@repo/components'
 import type { ProductCardProps } from './types'
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <Card padding="0" overflow="hidden" interactive>
       <MenuLink to={productPath(product.id)} display="block" aria-label={product.name}>
-        <Box aspectRatio="4 / 3" bg="bg.muted" overflow="hidden">
-          {product.image ? (
-            <Image
-              src={product.image}
-              alt={product.name}
-              width="100%"
-              height="100%"
-              objectFit="cover"
-              loading="lazy"
-            />
-          ) : null}
+        <Box aspectRatio="4 / 3" overflow="hidden">
+          <LoadingImage src={product.image} alt={product.name} loading="lazy" />
         </Box>
       </MenuLink>
 
