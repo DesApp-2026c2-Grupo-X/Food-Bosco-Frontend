@@ -1,9 +1,10 @@
-import { Box, Image } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import ListUl from '@gravity-ui/icons/ListUl'
 import { formatPrice } from '@repo/domain'
 import { CrudListPage } from '../CrudListPage'
 import type { DataTableColumn } from '../DataTable/types'
 import { PrimaryButton } from '../Button'
+import { LoadingImage } from '../LoadingImage'
 import { useListFilters } from '../useListFilters'
 import { Muted, Price, Strong } from '../typography'
 import { ToggleSwitch } from '../ToggleSwitch'
@@ -31,18 +32,14 @@ export const ProductsListView = ({
     {
       key: 'image',
       header: '',
-      render: (row) =>
-        row.product.image ? (
-          <Image
-            src={row.product.image}
-            alt={row.product.name}
-            boxSize="40px"
-            borderRadius="lg"
-            objectFit="cover"
-          />
-        ) : (
-          <Box boxSize="40px" borderRadius="lg" bg="bg.muted" />
-        ),
+      render: (row) => (
+        <LoadingImage
+          src={row.product.image}
+          alt={row.product.name}
+          containerProps={{ width: '40px', height: '40px', borderRadius: 'lg' }}
+          fallback={<Box width="100%" height="100%" />}
+        />
+      ),
     },
     { key: 'name', header: 'Nombre', render: (row) => <Strong>{row.product.name}</Strong> },
     {
