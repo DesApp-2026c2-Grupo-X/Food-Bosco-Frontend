@@ -3,6 +3,7 @@ import ListUl from '@gravity-ui/icons/ListUl'
 import { Link } from 'react-router-dom'
 import {
   EmptyState,
+  LoadingState,
   Muted,
   OrderStatusBadge,
   PageContainer,
@@ -29,7 +30,9 @@ export const OrdersPage = () => {
         description="Seguí los pedidos en curso y revisá el historial."
       />
 
-      {activeOrders.length > 0 ? (
+      {isLoading ? <LoadingState variant="list" skeletonCount={3} skeletonHeight="100px" /> : null}
+
+      {!isLoading && activeOrders.length > 0 ? (
         <VStack align="stretch" gap="3">
           {activeOrders.map((order) => (
             <ActiveOrderCard key={order.id} order={order} />
@@ -38,23 +41,24 @@ export const OrdersPage = () => {
       ) : null}
 
       <VStack gap="3" align="stretch">
-        {pastOrders.map((order) => (
-          <SummaryCard
-            key={order.id}
-            href={orderDetailPath(order.id)}
-            title={`Pedido #${order.number}`}
-            meta={formatOrderDate(order.createdAt)}
-            trailing={<OrderStatusBadge status={order.status} />}
-          >
-            <HStack justify="space-between" marginTop="3">
-              <Muted fontSize="sm">
-                {order.items.reduce((sum, item) => sum + item.quantity, 0)} ítems ·{' '}
-                {order.branch?.name ?? 'Sucursal'}
-              </Muted>
-              <Price>{formatPrice(order.total)}</Price>
-            </HStack>
-          </SummaryCard>
-        ))}
+        {!isLoading &&
+          pastOrders.map((order) => (
+            <SummaryCard
+              key={order.id}
+              href={orderDetailPath(order.id)}
+              title={`Pedido #${order.number}`}
+              meta={formatOrderDate(order.createdAt)}
+              trailing={<OrderStatusBadge status={order.status} />}
+            >
+              <HStack justify="space-between" marginTop="3">
+                <Muted fontSize="sm">
+                  {order.items.reduce((sum, item) => sum + item.quantity, 0)} ítems ·{' '}
+                  {order.branch?.name ?? 'Sucursal'}
+                </Muted>
+                <Price>{formatPrice(order.total)}</Price>
+              </HStack>
+            </SummaryCard>
+          ))}
       </VStack>
 
       {!isLoading && orders.length === 0 ? (

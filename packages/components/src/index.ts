@@ -38,6 +38,14 @@ export type { NavItemMatcher } from './navigation/types'
 export { useIsDesktop } from './useIsDesktop'
 export type { UseIsDesktop } from './useIsDesktop/types'
 
+export { usePrefersReducedMotion } from './usePrefersReducedMotion'
+
+export { Reveal } from './Reveal'
+export type { RevealProps } from './Reveal/types'
+
+export { PageTransition } from './PageTransition'
+export type { PageTransitionProps } from './PageTransition/types'
+
 export { DesktopNav } from './DesktopNav'
 export type { DesktopNavItem, DesktopNavProps } from './DesktopNav/types'
 export { useDesktopNavigation } from './DesktopNav/hooks/useDesktopNavigation'

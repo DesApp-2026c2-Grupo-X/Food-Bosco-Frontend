@@ -134,11 +134,11 @@ describe('HomePage', () => {
     expect(screen.getByText('Buscando viajes cerca tuyo…')).toBeInTheDocument()
   })
 
-  it('hides the offer while the data is loading', () => {
+  it('hides the offer while the data is loading and keeps the page context', () => {
     setup({ offersLoading: true })
     renderWithProviders(<HomePage />)
 
-    expect(screen.queryByText('Inicio')).not.toBeInTheDocument()
+    expect(screen.getByText('Inicio')).toBeInTheDocument()
     expect(screen.queryByText('Nueva oferta de viaje')).not.toBeInTheDocument()
   })
 

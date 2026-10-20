@@ -19,7 +19,17 @@ export const HomePage = () => {
   } = useRiderHome()
 
   if (isLoading || tripLoading) {
-    return <LoadingState />
+    return (
+      <WidePageContainer>
+        <PageHeader title="Inicio" description="Recibí y ejecutá viajes de entrega." />
+        <LoadingState
+          variant="list"
+          skeletonCount={2}
+          skeletonHeight="150px"
+          label="Buscando viajes disponibles"
+        />
+      </WidePageContainer>
+    )
   }
 
   if (trip) {

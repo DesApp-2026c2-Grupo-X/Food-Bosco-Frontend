@@ -6,6 +6,7 @@ import {
   BackButton,
   Card,
   EmptyState,
+  LoadingState,
   Muted,
   OrderItemsCard,
   OrderTotalCard,
@@ -63,7 +64,17 @@ export const CheckoutPage = () => {
     )
   }
 
-  if (!isLoading && lines.length === 0) {
+  if (isLoading) {
+    return (
+      <PageContainer>
+        <BackButton />
+        <PageHeader title="Confirmar pedido" description="¿A dónde te lo llevamos?" />
+        <LoadingState variant="list" skeletonCount={3} skeletonHeight="96px" />
+      </PageContainer>
+    )
+  }
+
+  if (lines.length === 0) {
     return (
       <EmptyState
         title="Nada para confirmar"

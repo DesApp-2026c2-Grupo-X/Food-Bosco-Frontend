@@ -8,11 +8,13 @@ import { Link } from 'react-router-dom'
 import {
   Card,
   EmptyState,
+  LoadingState,
   Muted,
   OrderStatusBadge,
   PageHeader,
   PrimaryButton,
   QuickAccessGrid,
+  Reveal,
   Strong,
   WidePageContainer,
 } from '@repo/components'
@@ -67,59 +69,65 @@ export const HomePage = () => {
     <WidePageContainer>
       <PageHeader title="Inicio" description="Gestioná la operación de tu sucursal." />
 
-      <QuickAccessGrid items={QUICK_ACCESS} />
+      <Reveal>
+        <QuickAccessGrid items={QUICK_ACCESS} />
+      </Reveal>
 
-      <VStack align="start" gap="4" width="full">
-        <Strong fontSize="xl">Pedidos que requieren atención</Strong>
-        {!isLoading && groups.length === 0 ? (
-          <EmptyState
-            icon={<ListUl width={40} height={40} />}
-            title="Sin pedidos activos"
-            description="No hay pedidos pendientes de operar en este momento."
-          />
-        ) : (
-          <VStack align="stretch" gap="5" width="full">
-            {groups.map((group) => (
-              <VStack key={group.status} align="stretch" gap="2">
-                <HStack gap="2">
-                  <OrderStatusBadge status={group.status} />
-                  <Muted fontSize="sm">
-                    {group.orders.length} {group.orders.length === 1 ? 'pedido' : 'pedidos'}
-                  </Muted>
-                </HStack>
-                {group.orders.map((order) => {
-                  const minutes = getElapsedMinutes(getStatusSince(order))
-                  return (
-                    <Card
-                      key={order.id}
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      gap="4"
-                      padding="4"
-                    >
-                      <VStack align="start" gap="1">
-                        <Strong>
-                          #{order.number} ·{' '}
-                          {order.client
-                            ? `${order.client.firstName} ${order.client.lastName}`
-                            : 'Cliente'}
-                        </Strong>
-                        <Text fontSize="sm" fontWeight="medium" color={elapsedTone(minutes)}>
-                          {formatElapsedAgo(getStatusSince(order))}
-                        </Text>
-                      </VStack>
-                      <PrimaryButton asChild size="md">
-                        <Link to={orderDetailPath(order.id)}>Ver</Link>
-                      </PrimaryButton>
-                    </Card>
-                  )
-                })}
-              </VStack>
-            ))}
-          </VStack>
-        )}
-      </VStack>
+      <Reveal delayMs={60}>
+        <VStack align="start" gap="4" width="full">
+          <Strong fontSize="xl">Pedidos que requieren atención</Strong>
+          {isLoading ? (
+            <LoadingState variant="list" skeletonCount={2} skeletonHeight="88px" />
+          ) : groups.length === 0 ? (
+            <EmptyState
+              icon={<ListUl width={40} height={40} />}
+              title="Sin pedidos activos"
+              description="No hay pedidos pendientes de operar en este momento."
+            />
+          ) : (
+            <VStack align="stretch" gap="5" width="full">
+              {groups.map((group) => (
+                <VStack key={group.status} align="stretch" gap="2">
+                  <HStack gap="2">
+                    <OrderStatusBadge status={group.status} />
+                    <Muted fontSize="sm">
+                      {group.orders.length} {group.orders.length === 1 ? 'pedido' : 'pedidos'}
+                    </Muted>
+                  </HStack>
+                  {group.orders.map((order) => {
+                    const minutes = getElapsedMinutes(getStatusSince(order))
+                    return (
+                      <Card
+                        key={order.id}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        gap="4"
+                        padding="4"
+                      >
+                        <VStack align="start" gap="1">
+                          <Strong>
+                            #{order.number} ·{' '}
+                            {order.client
+                              ? `${order.client.firstName} ${order.client.lastName}`
+                              : 'Cliente'}
+                          </Strong>
+                          <Text fontSize="sm" fontWeight="medium" color={elapsedTone(minutes)}>
+                            {formatElapsedAgo(getStatusSince(order))}
+                          </Text>
+                        </VStack>
+                        <PrimaryButton asChild size="md">
+                          <Link to={orderDetailPath(order.id)}>Ver</Link>
+                        </PrimaryButton>
+                      </Card>
+                    )
+                  })}
+                </VStack>
+              ))}
+            </VStack>
+          )}
+        </VStack>
+      </Reveal>
     </WidePageContainer>
   )
 }

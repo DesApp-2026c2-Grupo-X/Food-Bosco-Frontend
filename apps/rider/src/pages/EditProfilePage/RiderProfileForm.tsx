@@ -1,13 +1,15 @@
 import { Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
-import { FormActions, FormField, TextField } from '@repo/components'
+import { FormActions, FormField, LoadingState, TextField } from '@repo/components'
 import { useRiderProfileForm } from './hooks/useRiderProfileForm'
 
 export const RiderProfileForm = () => {
   const { user, isLoading, form, isDirty, submitting, error, onSave, onCancel } =
     useRiderProfileForm()
 
-  if (isLoading) return null
+  if (isLoading) {
+    return <LoadingState variant="list" skeletonCount={2} skeletonHeight="64px" />
+  }
 
   const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
 

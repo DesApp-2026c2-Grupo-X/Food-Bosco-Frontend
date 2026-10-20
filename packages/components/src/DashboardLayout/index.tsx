@@ -23,6 +23,7 @@ import Bars from '@gravity-ui/icons/Bars'
 import { useLocation } from 'react-router-dom'
 import { ColorModeButton } from '../ColorModeProvider/ColorModeButton'
 import { NavItem } from '../NavItem'
+import { PageTransition } from '../PageTransition'
 import { isNavItemActive } from '../navigation'
 import type { DashboardLayoutProps, DashboardNavItem } from './types'
 
@@ -172,7 +173,7 @@ export const DashboardLayout = ({
         </Flex>
 
         <Container as="main" maxW="containerContent" paddingY={{ base: '6', md: '10' }}>
-          {children}
+          <PageTransition>{children}</PageTransition>
         </Container>
       </Flex>
 

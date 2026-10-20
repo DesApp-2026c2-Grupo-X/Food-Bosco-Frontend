@@ -7,6 +7,7 @@ import {
   Card,
   EmptyState,
   InteractiveMap,
+  LoadingState,
   PageContainer,
   PageHeader,
   Strong,
@@ -38,92 +39,95 @@ export const SucursalesPage = () => {
       <BackButton />
       <PageHeader title="Sucursales" description="Los locales de tu zona y su estado actual." />
 
+      {isLoading ? <LoadingState variant="list" skeletonCount={3} skeletonHeight="150px" /> : null}
+
       <VStack gap="3" align="stretch">
-        {branches.map((branch) => (
-          <Card key={branch.id}>
-            <Stack direction={{ base: 'column', md: 'row' }} gap="4" align="stretch">
-              <VStack flex="1" align="stretch" gap="3" minWidth="0">
-                <HStack justify="space-between" gap="2">
-                  <HStack gap="2" minWidth="0">
-                    <Strong fontSize="lg">{branch.name}</Strong>
-                    {branch.id === firstOpenId ? (
-                      <Badge
-                        colorPalette="blue"
-                        variant="subtle"
-                        borderRadius="full"
-                        paddingX="2.5"
-                        paddingY="1"
-                        flexShrink={0}
-                      >
-                        Tu sucursal
-                      </Badge>
-                    ) : null}
+        {!isLoading &&
+          branches.map((branch) => (
+            <Card key={branch.id}>
+              <Stack direction={{ base: 'column', md: 'row' }} gap="4" align="stretch">
+                <VStack flex="1" align="stretch" gap="3" minWidth="0">
+                  <HStack justify="space-between" gap="2">
+                    <HStack gap="2" minWidth="0">
+                      <Strong fontSize="lg">{branch.name}</Strong>
+                      {branch.id === firstOpenId ? (
+                        <Badge
+                          colorPalette="blue"
+                          variant="subtle"
+                          borderRadius="full"
+                          paddingX="2.5"
+                          paddingY="1"
+                          flexShrink={0}
+                        >
+                          Tu sucursal
+                        </Badge>
+                      ) : null}
+                    </HStack>
+                    <Badge
+                      colorPalette={isOpen(branch) ? 'green' : 'red'}
+                      variant="subtle"
+                      borderRadius="full"
+                      paddingX="2.5"
+                      paddingY="1"
+                      flexShrink={0}
+                    >
+                      {isOpen(branch) ? 'Abierta' : 'Cerrada'}
+                    </Badge>
                   </HStack>
-                  <Badge
-                    colorPalette={isOpen(branch) ? 'green' : 'red'}
-                    variant="subtle"
-                    borderRadius="full"
-                    paddingX="2.5"
-                    paddingY="1"
-                    flexShrink={0}
-                  >
-                    {isOpen(branch) ? 'Abierta' : 'Cerrada'}
-                  </Badge>
-                </HStack>
-                <VStack gap="2" align="stretch" color="fg.muted" fontSize="sm">
-                  <HStack gap="2">
-                    <Box color="brand.600" display="inline-flex">
-                      <GeoPin width={16} height={16} />
-                    </Box>
-                    <Text>{branch.addressText}</Text>
-                  </HStack>
-                  {branch.phone ? (
+                  <VStack gap="2" align="stretch" color="fg.muted" fontSize="sm">
                     <HStack gap="2">
                       <Box color="brand.600" display="inline-flex">
-                        <Handset width={16} height={16} />
+                        <GeoPin width={16} height={16} />
                       </Box>
-                      <Text>{branch.phone}</Text>
+                      <Text>{branch.addressText}</Text>
                     </HStack>
-                  ) : null}
-                  <HStack gap="2">
-                    <Box color="brand.600" display="inline-flex">
-                      <Clock width={16} height={16} />
-                    </Box>
-                    <Text>Hoy: {todayHours(branch)}</Text>
-                  </HStack>
+                    {branch.phone ? (
+                      <HStack gap="2">
+                        <Box color="brand.600" display="inline-flex">
+                          <Handset width={16} height={16} />
+                        </Box>
+                        <Text>{branch.phone}</Text>
+                      </HStack>
+                    ) : null}
+                    <HStack gap="2">
+                      <Box color="brand.600" display="inline-flex">
+                        <Clock width={16} height={16} />
+                      </Box>
+                      <Text>Hoy: {todayHours(branch)}</Text>
+                    </HStack>
+                  </VStack>
                 </VStack>
-              </VStack>
-              <Box
-                width={{ base: 'full', md: '200px' }}
-                height="150px"
-                flexShrink={0}
-                borderRadius="xl"
-                overflow="hidden"
-                border="1px solid"
-                borderColor="border.subtle"
-              >
-                <InteractiveMap
-                  plain
-                  interactive={false}
-                  attributionControl={false}
-                  center={{ latitude: branch.latitude, longitude: branch.longitude }}
-                  markers={[
-                    {
-                      latitude: branch.latitude,
-                      longitude: branch.longitude,
-                      color: MAP_MARKER_COLORS.branch,
-                      label: 'S',
-                      kind: 'branch',
-                    },
-                  ]}
-                  zoom={12}
+                <Box
+                  width={{ base: 'full', md: '200px' }}
                   height="150px"
-                  alt={`Ubicación de ${branch.name}`}
-                />
-              </Box>
-            </Stack>
-          </Card>
-        ))}
+                  flexShrink={0}
+                  borderRadius="xl"
+                  overflow="hidden"
+                  border="1px solid"
+                  borderColor="border.subtle"
+                >
+                  <InteractiveMap
+                    plain
+                    interactive={false}
+                    attributionControl={false}
+                    center={{ latitude: branch.latitude, longitude: branch.longitude }}
+                    markers={[
+                      {
+                        latitude: branch.latitude,
+                        longitude: branch.longitude,
+                        color: MAP_MARKER_COLORS.branch,
+                        label: 'S',
+                        kind: 'branch',
+                      },
+                    ]}
+                    zoom={12}
+                    height="150px"
+                    alt={`Ubicación de ${branch.name}`}
+                  />
+                </Box>
+              </Stack>
+            </Card>
+          ))}
       </VStack>
 
       {branches.length > 0 ? (

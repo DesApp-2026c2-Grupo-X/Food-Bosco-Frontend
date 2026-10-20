@@ -25,7 +25,7 @@ export const CartPage = () => {
   const total = cart?.total ?? cartTotal(lines)
 
   if (isLoading) {
-    return <LoadingState />
+    return <LoadingState variant="list" skeletonCount={3} skeletonHeight="88px" />
   }
 
   if (lines.length === 0) {

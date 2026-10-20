@@ -35,7 +35,7 @@ export const OrderDetailPage = () => {
   orderRef.current = order
 
   if (isLoading) {
-    return <LoadingState />
+    return <LoadingState variant="list" skeletonCount={4} skeletonHeight="88px" />
   }
 
   if (!order) {

@@ -12,8 +12,10 @@ import {
   Footer,
   InverseButton,
   Lead,
+  LoadingState,
   Muted,
   PrimaryButton,
+  Reveal,
   SecondaryButton,
   SectionTitle,
   Strong,
@@ -44,53 +46,70 @@ export const HomePage = () => {
     selected?.latitude,
     selected?.longitude,
   )
-  const { orders } = useOrders({ pollIntervalMs: 15000 })
+  const { orders, isLoading: ordersLoading } = useOrders({ pollIntervalMs: 15000 })
   const activeOrders = orders.filter((order) => isActiveOrder(order.status))
 
   const hasAvailableBranch = !branchesLoading && branches.length > 0
 
   return (
     <WidePageContainer>
-      <Hero userFirstName={user?.firstName} />
+      <Reveal>
+        <Hero userFirstName={user?.firstName} />
+      </Reveal>
 
-      {activeOrders.length > 0 ? (
-        <VStack align="stretch" gap="4">
-          <SectionTitle>Pedidos en curso</SectionTitle>
-          {activeOrders.map((order) => (
-            <ActiveOrderCard key={order.id} order={order} />
-          ))}
-        </VStack>
+      {ordersLoading ? (
+        <Reveal>
+          <VStack align="stretch" gap="4">
+            <SectionTitle>Pedidos en curso</SectionTitle>
+            <LoadingState variant="list" skeletonCount={1} skeletonHeight="120px" />
+          </VStack>
+        </Reveal>
+      ) : activeOrders.length > 0 ? (
+        <Reveal>
+          <VStack align="stretch" gap="4">
+            <SectionTitle>Pedidos en curso</SectionTitle>
+            {activeOrders.map((order) => (
+              <ActiveOrderCard key={order.id} order={order} />
+            ))}
+          </VStack>
+        </Reveal>
       ) : null}
 
       {hasAvailableBranch ? (
-        <HomeCatalog lat={selected?.latitude} lng={selected?.longitude} />
+        <Reveal delayMs={60}>
+          <HomeCatalog lat={selected?.latitude} lng={selected?.longitude} />
+        </Reveal>
       ) : null}
 
-      <DeliveryBanner />
+      <Reveal delayMs={80}>
+        <DeliveryBanner />
+      </Reveal>
 
-      <Box>
-        <SectionHeader label="Cómo funciona" title="Pedir es así de fácil" />
-        <SimpleGrid columns={{ base: 1, sm: 3 }} gap={{ base: '4', md: '6' }} marginTop="6">
-          {STEPS.map((step) => (
-            <Card key={step.title} padding="6">
-              <Box
-                color="brand.600"
-                bg="bg.muted"
-                borderRadius="full"
-                padding="2.5"
-                width="fit-content"
-                marginBottom="4"
-              >
-                <step.icon width={22} height={22} />
-              </Box>
-              <Strong fontSize="lg">{step.title}</Strong>
-              <Muted fontSize="sm" marginTop="1">
-                {step.text}
-              </Muted>
-            </Card>
-          ))}
-        </SimpleGrid>
-      </Box>
+      <Reveal delayMs={100}>
+        <Box>
+          <SectionHeader label="Cómo funciona" title="Pedir es así de fácil" />
+          <SimpleGrid columns={{ base: 1, sm: 3 }} gap={{ base: '4', md: '6' }} marginTop="6">
+            {STEPS.map((step) => (
+              <Card key={step.title} padding="6" interactive>
+                <Box
+                  color="brand.600"
+                  bg="bg.muted"
+                  borderRadius="full"
+                  padding="2.5"
+                  width="fit-content"
+                  marginBottom="4"
+                >
+                  <step.icon width={22} height={22} />
+                </Box>
+                <Strong fontSize="lg">{step.title}</Strong>
+                <Muted fontSize="sm" marginTop="1">
+                  {step.text}
+                </Muted>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </Box>
+      </Reveal>
 
       <Footer
         links={[
@@ -104,7 +123,7 @@ export const HomePage = () => {
 }
 
 const HomeCatalog = ({ lat, lng }: { lat?: number; lng?: number }) => {
-  const { categories, products } = useCatalog(lat, lng)
+  const { categories, products, isLoading } = useCatalog(lat, lng)
   const navigate = useNavigate()
   const featured = products.slice(0, 8)
 
@@ -120,15 +139,19 @@ const HomeCatalog = ({ lat, lng }: { lat?: number; lng?: number }) => {
             </TextLink>
           }
         />
-        <ChipCarousel
-          marginTop="4"
-          items={categories.map((category) => ({
-            id: category.id,
-            label: category.name,
-            active: false,
-            onClick: () => navigate(`${routes.catalog}?cat=${category.id}`),
-          }))}
-        />
+        {isLoading ? (
+          <LoadingState variant="list" skeletonCount={1} skeletonHeight="36px" />
+        ) : (
+          <ChipCarousel
+            marginTop="4"
+            items={categories.map((category) => ({
+              id: category.id,
+              label: category.name,
+              active: false,
+              onClick: () => navigate(`${routes.catalog}?cat=${category.id}`),
+            }))}
+          />
+        )}
       </Box>
 
       <Box>
@@ -141,11 +164,19 @@ const HomeCatalog = ({ lat, lng }: { lat?: number; lng?: number }) => {
             </TextLink>
           }
         />
-        <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gap={{ base: '3', md: '5' }} marginTop="6">
-          {featured.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </SimpleGrid>
+        {isLoading ? (
+          <LoadingState variant="skeleton" skeletonCount={4} skeletonHeight="220px" />
+        ) : (
+          <SimpleGrid
+            columns={{ base: 2, md: 3, lg: 4 }}
+            gap={{ base: '3', md: '5' }}
+            marginTop="6"
+          >
+            {featured.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </SimpleGrid>
+        )}
       </Box>
     </>
   )
