@@ -5,7 +5,7 @@ import MapPin from '@gravity-ui/icons/MapPin'
 import Receipt from '@gravity-ui/icons/Receipt'
 import Persons from '@gravity-ui/icons/Persons'
 import Sliders from '@gravity-ui/icons/Sliders'
-import { PageHeader, QuickAccessGrid, WidePageContainer } from '@repo/components'
+import { PageHeader, QuickAccessGrid, Reveal, WidePageContainer } from '@repo/components'
 import { routes } from '../../routes'
 
 const QUICK_ACCESS = [
@@ -64,6 +64,8 @@ export const HomePage = () => (
   <WidePageContainer>
     <PageHeader title="Inicio" description="Administración central de la plataforma." />
 
-    <QuickAccessGrid items={QUICK_ACCESS} />
+    <Reveal>
+      <QuickAccessGrid items={QUICK_ACCESS} />
+    </Reveal>
   </WidePageContainer>
 )

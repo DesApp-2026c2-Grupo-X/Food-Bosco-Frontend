@@ -14,7 +14,7 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
   const isEmpty = !isLoading && lines.length === 0
 
   const body = isLoading ? (
-    <LoadingState paddingY="16" />
+    <LoadingState variant="list" skeletonCount={2} skeletonHeight="72px" />
   ) : isEmpty ? (
     <EmptyState
       icon={<ShoppingCart width={40} height={40} />}

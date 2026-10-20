@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
 import Car from '@gravity-ui/icons/Car'
 import { FormProvider } from 'react-hook-form'
-import { Card, FormActions, FormField, Muted, Strong } from '@repo/components'
+import { Card, FormActions, FormField, LoadingState, Muted, Strong } from '@repo/components'
 import { useVehicleForm } from './hooks/useVehicleForm'
 
 export const VehicleForm = () => {
@@ -18,7 +18,9 @@ export const VehicleForm = () => {
     onCancel,
   } = useVehicleForm()
 
-  if (isLoading) return null
+  if (isLoading) {
+    return <LoadingState variant="list" skeletonCount={3} skeletonHeight="72px" />
+  }
 
   return (
     <FormProvider {...form}>

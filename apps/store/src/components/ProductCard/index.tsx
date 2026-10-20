@@ -8,12 +8,7 @@ import type { ProductCardProps } from './types'
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   return (
-    <Card
-      padding="0"
-      overflow="hidden"
-      transition="transform 150ms cubic-bezier(0.2, 0, 0, 1), box-shadow 150ms"
-      _hover={{ transform: 'translateY(-2px)', boxShadow: 'md' }}
-    >
+    <Card padding="0" overflow="hidden" interactive>
       <MenuLink to={productPath(product.id)} display="block" aria-label={product.name}>
         <Box aspectRatio="4 / 3" bg="bg.muted" overflow="hidden">
           {product.image ? (

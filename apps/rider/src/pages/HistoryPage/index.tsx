@@ -13,7 +13,7 @@ export const HistoryPage = () => {
       <PageHeader title="Historial de viajes" description="Tus viajes completados." />
 
       {isLoading ? (
-        <LoadingState />
+        <LoadingState variant="list" skeletonCount={3} skeletonHeight="120px" />
       ) : completed.length === 0 ? (
         <EmptyState
           icon={<Receipt width={40} height={40} />}

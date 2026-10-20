@@ -1,5 +1,6 @@
 import { Box, Skeleton, Table } from '@chakra-ui/react'
 import { EmptyState } from '../feedback'
+import { usePrefersReducedMotion } from '../usePrefersReducedMotion'
 import type { DataTableProps, ResponsiveBreakpoint } from './types'
 
 const HIDE_MAP: Record<ResponsiveBreakpoint, Record<string, string>> = {
@@ -20,6 +21,8 @@ export const DataTable = <T,>({
   onRowClick,
   skeletonRows = 5,
 }: DataTableProps<T>) => {
+  const reducedMotion = usePrefersReducedMotion()
+
   if (error) {
     return (
       <EmptyState
@@ -41,6 +44,7 @@ export const DataTable = <T,>({
       borderRadius="2xl"
       overflow="hidden"
       bg="bg.panel"
+      aria-busy={isLoading}
     >
       <Table.ScrollArea width="full">
         <Table.Root variant="line" size="md" width="full">
@@ -68,7 +72,11 @@ export const DataTable = <T,>({
                   <Table.Row key={`skeleton-${rowIndex}`}>
                     {columns.map((column) => (
                       <Table.Cell key={column.key}>
-                        <Skeleton height="4" width="80%" />
+                        <Skeleton
+                          height="4"
+                          width="80%"
+                          animation={reducedMotion ? 'none' : undefined}
+                        />
                       </Table.Cell>
                     ))}
                   </Table.Row>

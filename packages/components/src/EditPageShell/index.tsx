@@ -1,5 +1,5 @@
 import { BackButton } from '../BackButton'
-import { EmptyState } from '../feedback'
+import { EmptyState, LoadingState } from '../feedback'
 import { PageHeader } from '../PageHeader'
 import { PageTitle } from '../typography'
 import { WidePageContainer } from '../WidePageContainer'
@@ -20,6 +20,7 @@ export const EditPageShell = ({
       <WidePageContainer>
         <BackButton />
         <PageTitle>{loadingTitle}</PageTitle>
+        <LoadingState variant="list" skeletonCount={3} skeletonHeight="72px" />
       </WidePageContainer>
     )
   }

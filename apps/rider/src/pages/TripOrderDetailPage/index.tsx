@@ -38,7 +38,7 @@ export const TripOrderDetailPage = () => {
   const riderLocation = useRiderStore((state) => state.location)
 
   if (tripLoading || orderLoading) {
-    return <LoadingState />
+    return <LoadingState variant="list" skeletonCount={4} skeletonHeight="88px" />
   }
 
   if (!trip) {

@@ -1,4 +1,5 @@
 import { Box, Container } from '@chakra-ui/react'
+import { PageTransition } from '../PageTransition'
 import type { AppShellProps } from './types'
 
 export const AppShell = ({ header, showHeader, mobileNav, overlays, children }: AppShellProps) => (
@@ -10,7 +11,7 @@ export const AppShell = ({ header, showHeader, mobileNav, overlays, children }: 
       paddingTop={{ base: showHeader ? '6' : '3', md: '10' }}
       paddingBottom={{ base: '6', md: '10' }}
     >
-      {children}
+      <PageTransition>{children}</PageTransition>
     </Container>
     {mobileNav}
     {overlays}
