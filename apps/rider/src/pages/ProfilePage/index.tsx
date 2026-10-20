@@ -11,7 +11,7 @@ import {
   ToggleSwitch,
 } from '@repo/components'
 import { useLogout } from '@repo/auth'
-import { useAuthStore, useRiderProfile, useActiveTrip } from '@repo/api'
+import { getApiErrorMessage, useAuthStore, useRiderProfile, useActiveTrip } from '@repo/api'
 import { buildVehicleDescription } from '@repo/domain'
 import { routes } from '../../routes'
 import { useRiderStore } from '../../stores/riderStore'
@@ -47,9 +47,12 @@ export const ProfilePage = () => {
     setOnline(checked)
     try {
       await setAvailability(checked)
-    } catch {
+    } catch (caught) {
       setOnline(!checked)
-      notifyError({ title: 'No pudimos actualizar tu disponibilidad' })
+      notifyError({
+        title: 'No pudimos actualizar tu disponibilidad',
+        description: getApiErrorMessage(caught),
+      })
     }
   }
 

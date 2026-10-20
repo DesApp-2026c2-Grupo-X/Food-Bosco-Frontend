@@ -19,7 +19,7 @@ import {
 } from '@repo/components'
 import { routes } from '../../routes'
 import { useAddressStore } from '../../stores/addressStore'
-import { useAddresses, useCart, useCreateOrder } from '@repo/api'
+import { getApiErrorMessage, useAddresses, useCart, useCreateOrder } from '@repo/api'
 import { cartLineTotal, cartTotal, formatEta, type Order } from '@repo/domain'
 
 export const CheckoutPage = () => {
@@ -126,8 +126,11 @@ export const CheckoutPage = () => {
           try {
             const order = await createOrder(selectedAddressId)
             if (order) setConfirmedOrder(order)
-          } catch {
-            const message = 'No pudimos confirmar tu pedido. Intentá de nuevo.'
+          } catch (caught) {
+            const message = getApiErrorMessage(
+              caught,
+              'No pudimos confirmar tu pedido. Intentá de nuevo.',
+            )
             setError(message)
             notifyError({ title: 'Error al confirmar', description: message })
           }
