@@ -9,9 +9,9 @@ import {
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
 import { useAuthStore } from '../stores/authStore'
+import { API_URL } from './apiUrl'
 import { REFRESH_TOKEN, type RefreshTokenResult } from './operations'
 
-const API_URL = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL
 const httpLink = new HttpLink({ uri: API_URL ? `${API_URL}/graphql` : '/graphql' })
 
 const authLink = setContext((_, { headers }) => {

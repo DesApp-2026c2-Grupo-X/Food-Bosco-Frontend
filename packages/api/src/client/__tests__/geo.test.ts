@@ -62,8 +62,33 @@ describe('geocodeAddress', () => {
 
     await geocodeAddress('Calle 1 & 2', 'secret')
 
-    const url = String(fetchMock.mock.calls[0]?.[0])
-    expect(url).toContain('text=Calle%201%20%26%202')
-    expect(url).toContain('apiKey=secret')
+    const url = new URL(String(fetchMock.mock.calls[0]?.[0]))
+    expect(url.searchParams.get('text')).toBe('Calle 1 & 2')
+    expect(url.searchParams.get('apiKey')).toBe('secret')
+  })
+
+  it('restricts the search to Argentina by default', async () => {
+    const fetchMock = stubFetch(() =>
+      Promise.resolve({ ok: true, json: async () => ({ results: [{ lat: 1, lon: 2 }] }) }),
+    )
+
+    await geocodeAddress('Av. Rivadavia 1234, CABA', 'secret')
+
+    const url = new URL(String(fetchMock.mock.calls[0]?.[0]))
+    expect(url.searchParams.get('filter')).toBe('countrycode:ar')
+  })
+
+  it('accepts another country and omits the filter when empty', async () => {
+    const fetchMock = stubFetch(() =>
+      Promise.resolve({ ok: true, json: async () => ({ results: [{ lat: 1, lon: 2 }] }) }),
+    )
+
+    await geocodeAddress('Calle 1', 'secret', 'uy')
+    await geocodeAddress('Calle 1', 'secret', '')
+
+    const withCountry = new URL(String(fetchMock.mock.calls[0]?.[0]))
+    const withoutCountry = new URL(String(fetchMock.mock.calls[1]?.[0]))
+    expect(withCountry.searchParams.get('filter')).toBe('countrycode:uy')
+    expect(withoutCountry.searchParams.has('filter')).toBe(false)
   })
 })

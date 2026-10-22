@@ -10,10 +10,19 @@ interface GeoapifyGeocodeResponse {
 export const geocodeAddress = async (
   query: string,
   apiKey: string,
+  countryCode = 'ar',
 ): Promise<GeocodedCoordinates | null> => {
   if (!apiKey) return null
 
-  const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&format=json&limit=1&apiKey=${apiKey}`
+  const params = new URLSearchParams({
+    text: query,
+    format: 'json',
+    limit: '1',
+    apiKey,
+  })
+  if (countryCode) params.set('filter', `countrycode:${countryCode}`)
+
+  const url = `https://api.geoapify.com/v1/geocode/search?${params.toString()}`
 
   const res = await fetch(url).catch(() => null)
   if (!res || !res.ok) return null
