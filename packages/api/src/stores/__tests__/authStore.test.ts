@@ -47,11 +47,11 @@ describe('useAuthStore', () => {
       mockClient.mutate.mockResolvedValueOnce({ data: { login: session } })
       mockClient.query.mockResolvedValueOnce({ data: { me } })
 
-      await useAuthStore.getState().login({ email: 'a@b.com', password: 'secret' })
+      await useAuthStore.getState().login({ email: 'a@b.com', password: 'secret', app: 'store' })
 
       expect(mockClient.mutate).toHaveBeenCalledWith({
         mutation: LOGIN,
-        variables: { input: { email: 'a@b.com', password: 'secret' } },
+        variables: { input: { email: 'a@b.com', password: 'secret', app: 'STORE' } },
       })
       expect(mockClient.query).toHaveBeenCalledWith(
         expect.objectContaining({ query: ME, fetchPolicy: 'network-only' }),
@@ -67,7 +67,7 @@ describe('useAuthStore', () => {
       mockClient.mutate.mockResolvedValueOnce({ data: { login: null } })
 
       await expect(
-        useAuthStore.getState().login({ email: 'a@b.com', password: 'secret' }),
+        useAuthStore.getState().login({ email: 'a@b.com', password: 'secret', app: 'store' }),
       ).rejects.toThrow('Respuesta de login inválida')
 
       expect(useAuthStore.getState().accessToken).toBeNull()
@@ -86,6 +86,7 @@ describe('useAuthStore', () => {
         email: 'a@b.com',
         phone: '123',
         password: '12345678',
+        app: 'store',
       })
 
       expect(mockClient.mutate).toHaveBeenCalledWith({
@@ -97,6 +98,7 @@ describe('useAuthStore', () => {
             email: 'a@b.com',
             phone: '123',
             password: '12345678',
+            app: 'STORE',
           },
         },
       })

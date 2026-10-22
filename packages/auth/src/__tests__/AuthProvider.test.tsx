@@ -9,6 +9,7 @@ const ConfigProbe = () => {
 
   return (
     <dl>
+      <dd data-testid="app">{config.app ?? 'undefined'}</dd>
       <dd data-testid="defaultPath">{config.defaultPath}</dd>
       <dd data-testid="registerDefaultRole">{config.registerDefaultRole}</dd>
       <dd data-testid="registerRoles">{config.registerRoles?.join(',')}</dd>
@@ -29,6 +30,7 @@ describe('AuthProvider', () => {
   it('exposes the default config', () => {
     renderProvider()
 
+    expect(screen.getByTestId('app')).toHaveTextContent('undefined')
     expect(screen.getByTestId('defaultPath')).toHaveTextContent('/')
     expect(screen.getByTestId('registerDefaultRole')).toHaveTextContent('customer')
     expect(screen.getByTestId('registerRoles')).toHaveTextContent('customer,rider')
@@ -38,6 +40,7 @@ describe('AuthProvider', () => {
 
   it('exposes the overridden config', () => {
     renderProvider({
+      app: 'rider',
       defaultPath: '/home',
       branchUrl: '/branch',
       registerDefaultRole: 'rider',
@@ -45,6 +48,7 @@ describe('AuthProvider', () => {
       showRegister: false,
     })
 
+    expect(screen.getByTestId('app')).toHaveTextContent('rider')
     expect(screen.getByTestId('defaultPath')).toHaveTextContent('/home')
     expect(screen.getByTestId('branchUrl')).toHaveTextContent('/branch')
     expect(screen.getByTestId('registerDefaultRole')).toHaveTextContent('rider')

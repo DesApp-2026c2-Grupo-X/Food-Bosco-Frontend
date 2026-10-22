@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type {
+  AppName,
   LoginInput,
   RegisterInput,
   RegisterRiderInput,
@@ -28,6 +29,13 @@ import {
   type ResetPasswordResult,
   type UpdateProfileResult,
 } from '../client/operations'
+
+const APP_TO_GRAPHQL: Record<AppName, string> = {
+  store: 'STORE',
+  admin: 'ADMIN',
+  branch: 'BRANCH',
+  rider: 'RIDER',
+}
 
 interface AuthState {
   user: User | null
@@ -73,7 +81,7 @@ export const useAuthStore = create<AuthState>()(
         login: async (input) => {
           const { data } = await apolloClient.mutate<LoginResult>({
             mutation: LOGIN,
-            variables: { input },
+            variables: { input: { ...input, app: APP_TO_GRAPHQL[input.app] } },
           })
 
           await completeSession(data?.login, 'Respuesta de login inválida')
@@ -82,7 +90,7 @@ export const useAuthStore = create<AuthState>()(
         register: async (input) => {
           const { data } = await apolloClient.mutate<RegisterResult>({
             mutation: REGISTER,
-            variables: { input },
+            variables: { input: { ...input, app: APP_TO_GRAPHQL[input.app] } },
           })
 
           await completeSession(data?.register, 'Respuesta de registro inválida')

@@ -285,13 +285,14 @@ Lógica:
 ```text
 Usuario → LoginPage (email + password)
 → useLogin (React Hook Form + zodResolver(loginSchema))
-→ useAuthStore.login({ email, password })
+→ useAuthStore.login({ email, password, app })  # app = STORE/ADMIN/BRANCH/RIDER
 → apolloClient.mutate(LOGIN)          # POST /graphql
 → gateway valida → { accessToken, refreshToken }
+→ auth service valida que el rol pertenezca a `app` (403 APP_ROLE_MISMATCH si no)
 → set({ accessToken, refreshToken })  # persiste en localStorage
 → apolloClient.query(ME)              # fetchPolicy 'network-only'
 → set({ user: toUser(me) })
-→ useAuthRedirect(user.role)          # redirige por rol
+→ useAuthRedirect(user.role)          # navega dentro de la misma app
 ```
 
 Evidencia: `packages/auth/src/pages/LoginPage/hooks/useLogin.ts`, `packages/api/src/stores/authStore.ts`, `packages/api/src/client/operations.ts` (mutación `LOGIN`).
@@ -348,6 +349,8 @@ query falla con GraphQLError extensions.code === 'UNAUTHENTICATED'
 
 `useRegister` (`packages/auth/src/pages/RegisterPage/hooks/useRegister.ts`): el formulario permite elegir rol `customer` o `rider` (según `registerRoles` configurado por la app). Si es rider, se pide vehículo (moto: marca/modelo/patente obligatorios; bici: nada). Llama a `register` o `registerRider` del `authStore`.
 
+`register` ahora exige `app: STORE` (solo crea customers). `registerRider` sigue restringido a `super_admin` en el backend, por lo que el auto-registro público de riders no está habilitado.
+
 ## 4.8 Modo mock (`VITE_MOCK_AUTH`)
 
 - Variable `VITE_MOCK_AUTH` → `MOCK_AUTH` en `config.ts` (`import.meta.env.VITE_MOCK_AUTH === 'true'`).
@@ -355,18 +358,24 @@ query falla con GraphQLError extensions.code === 'UNAUTHENTICATED'
 - **Importante:** `VITE_MOCK_AUTH` **solo saltea el login**. No provee datos mock. Los hooks de datos siguen pegando a GraphQL; sin backend, las listas quedan vacías. Los `mocks/*` que aún se usan son solo los usuarios de display (`MOCK_SUPER_ADMIN`, `MOCK_BRANCH_ADMIN`) como fallback `??` en layouts/pages.
 - Hoy `.env.native` (Android) tiene `VITE_MOCK_AUTH=false`, así que la app nativa **sí pide login real**.
 
-## 4.9 Redirección por rol (`useAuthRedirect`)
+## 4.9 Redirección posterior al login (`useAuthRedirect`)
 
-`packages/auth/src/hooks/useAuthRedirect.ts`:
+`packages/auth/src/hooks/useAuthRedirect.ts` ya **no** redirige a otras apps. Después de un login exitoso navega dentro de la misma aplicación:
 
 ```text
-customer      → navigate(from ?? defaultPath)        (se queda en store)
-branch_admin  → window.location.assign(branchUrl)
-super_admin   → window.location.assign(adminUrl)
-rider         → window.location.assign(riderUrl)
+navigate(from ?? defaultPath)
 ```
 
-Cada app configura `branchUrl`/`adminUrl`/`riderUrl` desde `VITE_BRANCH_URL`/`VITE_ADMIN_URL`/`VITE_RIDER_URL`. Así, el login de una app puede redirigir a la app correcta según el rol.
+El control de "esta cuenta puede entrar a esta app" ocurre antes, en el backend:
+
+- Cada app envía su identificador (`STORE`, `ADMIN`, `BRANCH`, `RIDER`) en `LoginInput.app`.
+- El auth service compara el rol del usuario con `APP_ROLES[app]`.
+- Si no coincide, responde `403 APP_ROLE_MISMATCH` y no emite tokens.
+- El frontend muestra el mensaje de error y no navega.
+
+Esto evita el problema anterior: cada app vive en un origen distinto y `localStorage` no se comparte, por lo que redirigir a otra app dejaba la sesión en la app de origen y obligaba a loguearse de nuevo en la destino.
+
+Los roles permitidos se definen una sola vez en `createAppConfig({ self })` (`APP_ROLES`) y se reutilizan tanto en `authRouteObjects` como en `RequireAuth`.
 
 ---
 
@@ -385,7 +394,8 @@ Definidos en `packages/domain/src/user.ts` (`UserRole`) y mapeados en `client/op
 
 ## 5.2 Dónde se aplica la restricción
 
-- **Guard de ruta** (`RequireAuth roles=[...]`): la única restricción de acceso a nivel app. El admin exige `super_admin`, el branch `branch_admin`, el rider `rider`. El store **no** pasa `roles`, así que acepta cualquier usuario autenticado (pero en la práctica un admin que entre al store simplemente ve la tienda; la redirección por rol lo manda a su app).
+- **Guard de ruta** (`RequireAuth roles=[...]`): restringe el acceso a nivel app. El admin exige `super_admin`, el branch `branch_admin`, el rider `rider` y el store `customer`. Si detecta una sesión con un rol ajeno, la cierra y redirige al login con el mensaje `APP_ROLE_MISMATCH`.
+- **Login/registro por app**: el backend valida `app` contra el rol del usuario antes de emitir tokens. Un rider no puede iniciar sesión desde Store ni un customer desde Admin.
 - **En la capa de datos**: algunos hooks filtran por `branchId` del usuario. Ej. `useBranchOrders`/`useBranchStock`/`useBranchProducts`/`useIncomingOrder` usan `useAuthStore(s => s.user?.branchId)` como `filter`/variable y `skip: !branchId`. Es decir, un `branch_admin` solo ve datos de **su** sucursal (aunque el filtro real lo aplica el backend; el frontend solo le pasa el `branchId`).
 - **Componentes condicionales**: el admin global no monta `BranchStatusButton` ni `IncomingOrderModal` (eso es de branch); el rider monta `RideStatusButton`.
 

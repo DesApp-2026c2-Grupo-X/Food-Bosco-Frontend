@@ -1,3 +1,5 @@
+import { APP_ROLE_MISMATCH_MESSAGE } from '@repo/domain'
+
 export interface FieldValidationError {
   field: string
   message: string
@@ -33,6 +35,7 @@ const CODE_MESSAGES: Record<string, string> = {
   SERVICE_UNAVAILABLE: 'El servicio no está disponible en este momento. Intentá de nuevo en breve.',
   INTERNAL_SERVER_ERROR: DEFAULT_API_ERROR_MESSAGE,
   INVALID_CREDENTIALS: 'El correo electrónico o la contraseña son incorrectos.',
+  APP_ROLE_MISMATCH: APP_ROLE_MISMATCH_MESSAGE,
   EMAIL_TAKEN: 'Ese correo ya está registrado. Probá iniciar sesión o usá otro correo.',
   USER_INACTIVE: 'Tu cuenta está deshabilitada. Contactá al administrador.',
   INVALID_OR_EXPIRED_TOKEN:
@@ -43,7 +46,8 @@ const CODE_MESSAGES: Record<string, string> = {
   PRODUCT_NOT_FOUND: 'El producto ya no existe en el catálogo.',
   PRODUCT_UNAVAILABLE: 'Ese producto ya no está disponible. Elegí otro para continuar.',
   ORDER_NOT_FOUND: 'No encontramos el pedido solicitado.',
-  INVALID_TRANSITION: 'El pedido cambió de estado. Actualizá la pantalla antes de intentar de nuevo.',
+  INVALID_TRANSITION:
+    'El pedido cambió de estado. Actualizá la pantalla antes de intentar de nuevo.',
   NO_BRANCH_AVAILABLE: 'No hay una sucursal disponible para esa dirección.',
   CONFLICT: 'La información cambió mientras realizabas la operación. Actualizá e intentá de nuevo.',
   VALIDATION_ERROR: 'Revisá los datos ingresados e intentá de nuevo.',

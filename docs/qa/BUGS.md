@@ -186,6 +186,7 @@ Respuesta GraphQL `INSUFFICIENT_STOCK` obtenida con `createOrder(addressId)`; to
 **Severidad:** Low
 **Aplicación:** Admin / Sucursal / Rider (guard de rol)
 **Rol:** Customer (probando Admin)
+**Estado:** Corregido — el backend valida `app` + rol y responde `403 APP_ROLE_MISMATCH` sin emitir tokens; el frontend muestra el mensaje y `RequireAuth` limpia sesiones inválidas.
 
 ### Pasos
 
