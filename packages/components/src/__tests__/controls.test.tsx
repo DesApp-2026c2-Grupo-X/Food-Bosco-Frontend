@@ -45,13 +45,30 @@ describe('StatusToggleButton', () => {
         onToggle={onToggle}
         activeLabel="Abierto"
         inactiveLabel="Cerrado"
-        colorPalette="success"
+        statusColor="success"
       />,
     )
 
     const button = screen.getByRole('button', { name: 'Abierto' })
     await userEvent.click(button)
     expect(onToggle).toHaveBeenCalledTimes(1)
+  })
+
+  it('paints the active state with the status color token', () => {
+    renderWithProviders(
+      <StatusToggleButton
+        active
+        onToggle={vi.fn()}
+        activeLabel="Conectado"
+        inactiveLabel="Desconectado"
+        statusColor="brand.600"
+      />,
+    )
+
+    // `brand` sin escala es una paleta, no un color: debe resolver a un token real.
+    expect(getComputedStyle(screen.getByRole('button', { name: 'Conectado' })).color).toBe(
+      'var(--chakra-colors-brand-600)',
+    )
   })
 
   it('shows the inactive label when closed', () => {

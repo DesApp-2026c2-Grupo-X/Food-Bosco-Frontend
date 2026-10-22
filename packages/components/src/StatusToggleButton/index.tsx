@@ -6,7 +6,7 @@ export const StatusToggleButton = ({
   onToggle,
   activeLabel,
   inactiveLabel,
-  colorPalette = 'brand',
+  statusColor = 'brand.600',
   disabled = false,
   disabledHint,
 }: StatusToggleButtonProps) => {
@@ -17,8 +17,8 @@ export const StatusToggleButton = ({
       variant="outline"
       size="sm"
       borderRadius="full"
-      color={active ? colorPalette : 'fg.muted'}
-      borderColor={active ? colorPalette : 'border.emphasized'}
+      color={active ? statusColor : 'fg.muted'}
+      borderColor={active ? statusColor : 'border.emphasized'}
       _hover={{ bg: 'bg.subtle' }}
       onClick={onToggle}
       disabled={disabled}
@@ -26,7 +26,7 @@ export const StatusToggleButton = ({
       aria-label={label}
     >
       <HStack gap="2">
-        <Box width="2" height="2" borderRadius="full" bg={active ? colorPalette : 'fg.subtle'} />
+        <Box width="2" height="2" borderRadius="full" bg={active ? 'currentColor' : 'fg.subtle'} />
         <Text>{label}</Text>
       </HStack>
     </Button>
