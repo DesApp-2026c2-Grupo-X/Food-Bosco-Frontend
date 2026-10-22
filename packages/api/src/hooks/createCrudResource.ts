@@ -78,6 +78,7 @@ export type CrudResourceResult<
   TExtra extends Record<string, CrudOperation<never, unknown>>,
 > = { [K in TItemsKey]: TItem[] } & {
   isLoading: boolean
+  isReady: boolean
   isMutating: boolean
   create: (input: TInput) => Promise<TCreateResult>
   update: (id: string, input: TInput) => Promise<void>
@@ -173,6 +174,7 @@ export const createCrudResource = <
     const result: AnyRecord = {
       [itemsKey]: items,
       isLoading: loading,
+      isReady: data !== undefined,
       isMutating,
     }
 

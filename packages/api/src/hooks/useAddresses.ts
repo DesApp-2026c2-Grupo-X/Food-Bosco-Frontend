@@ -12,6 +12,7 @@ import { createCrudResource } from './createCrudResource'
 interface UseAddressesReturn {
   addresses: Address[]
   isLoading: boolean
+  isReady: boolean
   create: (input: AddressInput) => Promise<Address | null>
   update: (id: string, input: AddressInput) => Promise<void>
   remove: (id: string) => Promise<void>
@@ -41,6 +42,6 @@ const useAddressesResource = createCrudResource({
 })
 
 export const useAddresses = (): UseAddressesReturn => {
-  const { addresses, isLoading, create, update, remove } = useAddressesResource()
-  return { addresses, isLoading, create, update, remove }
+  const { addresses, isLoading, isReady, create, update, remove } = useAddressesResource()
+  return { addresses, isLoading, isReady, create, update, remove }
 }

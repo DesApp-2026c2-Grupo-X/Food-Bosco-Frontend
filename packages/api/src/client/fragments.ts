@@ -23,10 +23,20 @@ export const CONFIG_GROUP_FIELDS = `
   }
 `
 
+export const INGREDIENT_FIELDS = `
+  id
+  name
+  unit
+  active
+`
+
 export const RECIPE_ITEM_FIELDS = `
   id
   ingredientId
   quantity
+  ingredient {
+    ${INGREDIENT_FIELDS}
+  }
 `
 
 export const PRODUCT_DETAIL_FIELDS = `
@@ -56,13 +66,6 @@ export const PRODUCT_LIST_FIELDS = `
   category {
     ${CATEGORY_FIELDS}
   }
-`
-
-export const INGREDIENT_FIELDS = `
-  id
-  name
-  unit
-  active
 `
 
 export const BRANCH_HOURS_FIELDS = `
