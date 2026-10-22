@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
+import { notifyError } from '@repo/components'
 import { useActiveTrip, useOrder, useRiderProfile } from '@repo/api'
 import type { GeoPoint, Order, OrderStatus, Trip, TripOrder } from '@repo/domain'
 import { renderWithProviders } from '@test/utils'
@@ -11,6 +12,7 @@ import { useRiderStore } from '../../../stores/riderStore'
 vi.mock('@repo/components', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@repo/components')>()),
   InteractiveMap: () => null,
+  notifyError: vi.fn(),
 }))
 
 vi.mock('@repo/api', async (importOriginal) => ({
@@ -116,6 +118,7 @@ const setup = (options: SetupOptions = {}) => {
 
   const pickupOrder = vi.fn().mockResolvedValue(undefined)
   const deliver = vi.fn().mockResolvedValue(undefined)
+  const refetchTrip = vi.fn().mockResolvedValue(undefined)
 
   tripMock.mockReturnValue({
     trip: 'trip' in options ? options.trip : makeTrip(),
@@ -123,6 +126,7 @@ const setup = (options: SetupOptions = {}) => {
     isMutating: options.isMutating ?? false,
     pickup: pickupOrder,
     deliver,
+    refetch: refetchTrip,
   })
   orderMock.mockReturnValue({
     order: 'order' in options ? options.order : makeOrder(),
@@ -138,12 +142,13 @@ const setup = (options: SetupOptions = {}) => {
     updateLocation: vi.fn(),
   })
 
-  return { pickupOrder, deliver }
+  return { pickupOrder, deliver, refetchTrip }
 }
 
 const renderPage = () =>
   renderWithProviders(
     <Routes>
+      <Route path="/trip/o2" element={<div>Próximo pedido</div>} />
       <Route path="/trip/:orderId" element={<TripOrderDetailPage />} />
       <Route path="/" element={<div>Inicio del rider</div>} />
     </Routes>,
@@ -209,6 +214,74 @@ describe('TripOrderDetailPage', () => {
     expect(screen.getAllByText('Entregado').length).toBeGreaterThan(0)
     expect(screen.queryByRole('button', { name: 'Retirar' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Entregar' })).not.toBeInTheDocument()
+  })
+
+  it('shows the cancellation state after the pickup and returns home', async () => {
+    const { refetchTrip } = setup({
+      trip: makeTrip('ON_THE_WAY'),
+      order: makeOrder({ status: 'CANCELLED' }),
+    })
+    renderPage()
+
+    expect(await screen.findByText('Pedido cancelado')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Retirar' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Entregar' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Volver a la sucursal' })).toBeInTheDocument()
+    await waitFor(() => expect(refetchTrip).toHaveBeenCalled())
+
+    await userEvent.click(screen.getByRole('button', { name: 'Volver al inicio' }))
+
+    expect(await screen.findByText('Inicio del rider')).toBeInTheDocument()
+  })
+
+  it('does not offer navigation when the order was cancelled before pickup', () => {
+    setup({
+      trip: makeTrip('READY_FOR_DELIVERY'),
+      order: makeOrder({ status: 'CANCELLED' }),
+    })
+    renderPage()
+
+    expect(screen.getByText('Pedido cancelado')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Navegar a la sucursal' })).not.toBeInTheDocument()
+  })
+
+  it('continues with the next active order in a multi-order trip', async () => {
+    setup({
+      trip: {
+        ...makeTrip('READY_FOR_DELIVERY'),
+        orders: [
+          makeTripOrder({ status: 'CANCELLED' }),
+          makeTripOrder({ orderId: 'o2', status: 'READY_FOR_DELIVERY' }),
+        ],
+      },
+      order: makeOrder({ status: 'CANCELLED' }),
+    })
+    renderPage()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Continuar con el próximo pedido' }))
+
+    expect(await screen.findByText('Próximo pedido')).toBeInTheDocument()
+  })
+
+  it('returns home when the cancelled order no longer has an active trip', async () => {
+    setup({ trip: null, order: makeOrder({ status: 'CANCELLED' }) })
+    renderPage()
+
+    expect(await screen.findByText('Inicio del rider')).toBeInTheDocument()
+  })
+
+  it('shows an error when the delivery fails', async () => {
+    const { deliver } = setup({
+      trip: makeTrip('ON_THE_WAY'),
+      order: makeOrder({ status: 'ON_THE_WAY' }),
+      riderLocation: delivery,
+    })
+    deliver.mockRejectedValueOnce(new Error('La orden fue cancelada'))
+    renderPage()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Entregar' }))
+
+    await waitFor(() => expect(notifyError).toHaveBeenCalled())
   })
 
   it('shows an empty state when there is no active trip', () => {

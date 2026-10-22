@@ -132,7 +132,7 @@ describe('OrderDetailPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows a spinner while loading', () => {
+  it('shows a skeleton while loading', () => {
     const client = createTestClient((operation) => {
       if (operation.operationName === 'Order') {
         return new Promise<never>(() => {})
@@ -142,7 +142,7 @@ describe('OrderDetailPage', () => {
 
     const { container } = renderDetail(client)
 
-    expect(container.querySelector('.chakra-spinner')).toBeInTheDocument()
+    expect(container.querySelector('.chakra-skeleton')).toBeInTheDocument()
     expect(screen.queryByText('Pedido no encontrado')).not.toBeInTheDocument()
   })
 

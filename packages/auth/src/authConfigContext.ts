@@ -1,9 +1,10 @@
 import { createContext, useContext } from 'react'
-import type { UserRole } from '@repo/domain'
+import type { AppName, UserRole } from '@repo/domain'
 
 export type RegisterRole = 'customer' | 'rider'
 
 export interface AuthAppConfig {
+  app?: AppName
   defaultPath?: string
   branchUrl?: string
   adminUrl?: string

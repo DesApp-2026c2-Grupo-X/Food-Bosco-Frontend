@@ -59,7 +59,7 @@ export const toProduct = (raw: Raw): Product => ({
   image: raw.image == null ? null : String(raw.image),
   available: asBoolean(raw.available),
   configGroups: asList(raw.configGroups, toConfigGroup),
-  recipe: asList(raw.recipe, toRecipeItem),
+  recipe: asList(raw.recipe, (entry) => toRecipeItem(entry, true)),
 })
 
 export const toBranchHours = (raw: Raw): BranchHours => ({

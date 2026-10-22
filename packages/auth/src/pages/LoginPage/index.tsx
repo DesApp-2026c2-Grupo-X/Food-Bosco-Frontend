@@ -1,5 +1,7 @@
 import { HStack, Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
+import { useLocation } from 'react-router-dom'
+import { APP_ROLE_MISMATCH_MESSAGE } from '@repo/domain'
 import { FormField, FormPasswordField, PageHeader, PrimaryButton, TextLink } from '@repo/components'
 import { useAuthConfig } from '../../authConfigContext'
 import { authRoutes } from '../../routes'
@@ -8,10 +10,21 @@ import { useLogin } from './hooks/useLogin'
 export const LoginPage = () => {
   const { form, submitting, error, onSubmit } = useLogin()
   const { showRegister } = useAuthConfig()
+  const location = useLocation()
+  const stateError = (location.state as { authError?: string } | null)?.authError
+  const queryError = new URLSearchParams(location.search).get('authError')
+  const authError = stateError ?? queryError
+  const roleError = authError === 'APP_ROLE_MISMATCH' ? APP_ROLE_MISMATCH_MESSAGE : null
 
   return (
     <VStack gap="8" align="stretch">
       <PageHeader title="Ingresá a tu cuenta" description="Pedí desde tu campus favorito." />
+
+      {roleError ? (
+        <Text color="danger" fontSize="sm">
+          {roleError}
+        </Text>
+      ) : null}
 
       <form onSubmit={onSubmit}>
         <FormProvider {...form}>

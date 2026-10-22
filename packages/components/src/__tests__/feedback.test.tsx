@@ -35,6 +35,26 @@ describe('LoadingState', () => {
     expect(container.querySelectorAll('.chakra-skeleton')).toHaveLength(3)
     expect(container.querySelector('.chakra-spinner')).not.toBeInTheDocument()
   })
+
+  it.each([
+    { name: 'spinner', variant: 'spinner' as const },
+    { name: 'skeleton', variant: 'skeleton' as const },
+    { name: 'list', variant: 'list' as const },
+  ])('anuncia el estado de carga como región accesible ($name)', ({ variant }) => {
+    renderWithProviders(
+      <LoadingState variant={variant} skeletonCount={2} label="Cargando pedidos" />,
+    )
+
+    const status = screen.getByRole('status')
+    expect(status).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByText('Cargando pedidos')).toBeInTheDocument()
+  })
+
+  it('renderiza skeletons apilados en la variante list', () => {
+    const { container } = renderWithProviders(<LoadingState variant="list" skeletonCount={4} />)
+
+    expect(container.querySelectorAll('.chakra-skeleton')).toHaveLength(4)
+  })
 })
 
 describe('ActiveStatusText', () => {

@@ -79,6 +79,29 @@ describe('toProduct', () => {
   it('stringifies a present image', () => {
     expect(toProduct({ image: 'https://img' }).image).toBe('https://img')
   })
+
+  it('maps the recipe with its ingredient data', () => {
+    const product = toProduct({
+      id: 'p1',
+      recipe: [
+        {
+          id: 'r1',
+          ingredientId: 'i1',
+          quantity: '2',
+          ingredient: { id: 'i1', name: 'Pan', unit: 'un', active: true },
+        },
+      ],
+    })
+
+    expect(product.recipe).toEqual([
+      {
+        id: 'r1',
+        ingredientId: 'i1',
+        quantity: 2,
+        ingredient: { id: 'i1', name: 'Pan', unit: 'un', active: true },
+      },
+    ])
+  })
 })
 
 describe('toBranch', () => {

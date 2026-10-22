@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useCart, useProduct } from '@repo/api'
+import { getApiErrorMessage, useCart, useProduct } from '@repo/api'
 import { notifyError, notifySuccess } from '@repo/components'
 import type { ProductOptionType } from '@repo/domain'
 
@@ -75,8 +75,11 @@ export const useProductConfig = (productId: string | undefined) => {
         description: `${product.name} se sumó a tu carrito.`,
       })
       return true
-    } catch {
-      const message = 'No pudimos agregar el producto. Intentá de nuevo.'
+    } catch (caught) {
+      const message = getApiErrorMessage(
+        caught,
+        'No pudimos agregar el producto. Intentá de nuevo.',
+      )
       setError(message)
       notifyError({ title: 'No se pudo agregar', description: message })
       return false

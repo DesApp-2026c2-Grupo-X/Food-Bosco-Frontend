@@ -1,3 +1,4 @@
 import { config } from '@repo/eslint-config/react-internal'
 
-export default config
+/** @type {import("eslint").Linter.Config[]} */
+export default [{ ignores: ['android/**'] }, ...config]

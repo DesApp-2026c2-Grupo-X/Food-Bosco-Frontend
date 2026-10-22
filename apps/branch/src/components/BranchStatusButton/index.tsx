@@ -1,12 +1,15 @@
 import { notifyError, StatusToggleButton } from '@repo/components'
-import { useBranchStatus } from '@repo/api'
+import { getApiErrorMessage, useBranchStatus } from '@repo/api'
 
 export const BranchStatusButton = () => {
   const { isOpen, isUpdating, toggle } = useBranchStatus()
 
   const handleToggle = () => {
-    void toggle().catch(() => {
-      notifyError({ title: 'No pudimos cambiar el estado de la sucursal' })
+    void toggle().catch((caught) => {
+      notifyError({
+        title: 'No pudimos cambiar el estado de la sucursal',
+        description: getApiErrorMessage(caught),
+      })
     })
   }
 
@@ -16,7 +19,7 @@ export const BranchStatusButton = () => {
       onToggle={handleToggle}
       activeLabel="Abierto"
       inactiveLabel="Cerrado"
-      colorPalette="success"
+      statusColor="success"
       disabled={isUpdating}
       disabledHint="Actualizando estado…"
     />

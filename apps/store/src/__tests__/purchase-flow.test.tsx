@@ -461,7 +461,9 @@ describe('purchase flow', () => {
     await user.click(screen.getByRole('button', { name: 'Agregar al carrito' }))
 
     expect(
-      await screen.findByText('No pudimos agregar el producto. Intentá de nuevo.'),
+      await screen.findByText(
+        'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
+      ),
     ).toBeInTheDocument()
     expect(screen.queryByText('Mi carrito')).not.toBeInTheDocument()
     expect(screen.getByText('Hamburguesa')).toBeInTheDocument()

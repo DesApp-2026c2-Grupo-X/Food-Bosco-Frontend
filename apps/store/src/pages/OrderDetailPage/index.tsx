@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect } from 'react'
 import { Box, HStack, VStack } from '@chakra-ui/react'
 import CircleCheckFill from '@gravity-ui/icons/CircleCheckFill'
 import CircleXmarkFill from '@gravity-ui/icons/CircleXmarkFill'
@@ -25,17 +25,28 @@ import type { Order } from '@repo/domain'
 import { formatEta, formatOrderDate, isActiveOrder } from '@repo/domain'
 import { MAP_MARKER_COLORS } from '@repo/theme'
 
+const ACTIVE_POLL_INTERVAL_MS = 4000
+
 export const OrderDetailPage = () => {
   const { orderId } = useParams()
-  const orderRef = useRef<Order | null>(null)
-  const pollActive = orderRef.current ? isActiveOrder(orderRef.current.status) : false
-  const { order, isLoading } = useOrder(orderId, {
-    pollIntervalMs: orderId && pollActive ? 4000 : undefined,
-  })
-  orderRef.current = order
+  const { order, isLoading, startPolling, stopPolling } = useOrder(orderId)
+
+  // El estado del pedido cambia del lado del servidor: mientras el pedido esté
+  // activo, volvemos a consultarlo para reflejar el progreso (y el rider) en vivo.
+  useEffect(() => {
+    if (!orderId) return
+    startPolling(ACTIVE_POLL_INTERVAL_MS)
+    return () => stopPolling()
+  }, [orderId, startPolling, stopPolling])
+
+  const orderStatus = order?.status
+
+  useEffect(() => {
+    if (orderStatus && !isActiveOrder(orderStatus)) stopPolling()
+  }, [orderStatus, stopPolling])
 
   if (isLoading) {
-    return <LoadingState />
+    return <LoadingState variant="list" skeletonCount={4} skeletonHeight="88px" />
   }
 
   if (!order) {

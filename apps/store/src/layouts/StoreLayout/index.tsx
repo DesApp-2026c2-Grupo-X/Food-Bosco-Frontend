@@ -14,7 +14,7 @@ export const StoreLayout = () => {
   const { open, onOpen, onClose } = useDisclosure()
   const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
   const clearAddress = useAddressStore((state) => state.clearAddress)
-  const { addresses, isLoading } = useAddresses()
+  const { addresses, isLoading, isReady } = useAddresses()
   const { count } = useCartCount()
   const hasBackHeader = useHasBackHeader([
     routes.profileEdit,
@@ -29,12 +29,12 @@ export const StoreLayout = () => {
     selectedAddressId != null && addresses.some((address) => address.id === selectedAddressId)
 
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading || !isReady) return
     if (!hasValidAddress) {
       if (selectedAddressId != null) clearAddress()
       onOpen()
     }
-  }, [selectedAddressId, hasValidAddress, isLoading, onOpen, clearAddress])
+  }, [selectedAddressId, hasValidAddress, isLoading, isReady, onOpen, clearAddress])
 
   return (
     <AppShell

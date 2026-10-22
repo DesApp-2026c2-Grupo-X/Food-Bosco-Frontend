@@ -2,6 +2,7 @@ import { Box, HStack } from '@chakra-ui/react'
 import Route from '@gravity-ui/icons/Route'
 import { Navigate } from 'react-router-dom'
 import { EmptyState, LoadingState, Muted, PageHeader, WidePageContainer } from '@repo/components'
+import { isActiveOrder } from '@repo/domain'
 import { TripOfferCard } from '../../components/TripOfferCard'
 import { useRiderHome } from '../../hooks/useRiderHome'
 import { tripOrderDetailPath } from '../../routes'
@@ -19,11 +20,21 @@ export const HomePage = () => {
   } = useRiderHome()
 
   if (isLoading || tripLoading) {
-    return <LoadingState />
+    return (
+      <WidePageContainer>
+        <PageHeader title="Inicio" description="Recibí y ejecutá viajes de entrega." />
+        <LoadingState
+          variant="list"
+          skeletonCount={2}
+          skeletonHeight="150px"
+          label="Buscando viajes disponibles"
+        />
+      </WidePageContainer>
+    )
   }
 
   if (trip) {
-    const nextOrder = trip.orders.find((order) => order.status !== 'DELIVERED')
+    const nextOrder = trip.orders.find((order) => isActiveOrder(order.status))
     if (nextOrder) {
       return <Navigate to={tripOrderDetailPath(nextOrder.orderId)} replace />
     }

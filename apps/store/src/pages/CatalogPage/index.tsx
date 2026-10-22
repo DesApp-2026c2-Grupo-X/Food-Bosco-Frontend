@@ -8,6 +8,7 @@ import {
   EmptyState,
   LoadingState,
   PageHeader,
+  Reveal,
   SearchInput,
   WidePageContainer,
 } from '@repo/components'
@@ -98,11 +99,13 @@ export const CatalogPage = () => {
           description="Probá con otra búsqueda u otra categoría."
         />
       ) : (
-        <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gap={{ base: '3', md: '5' }}>
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </SimpleGrid>
+        <Reveal>
+          <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gap={{ base: '3', md: '5' }}>
+            {filtered.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </SimpleGrid>
+        </Reveal>
       )}
 
       <Box height="8" />

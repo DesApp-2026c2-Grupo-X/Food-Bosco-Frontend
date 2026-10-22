@@ -3,7 +3,7 @@ import { StoreLayout } from './layouts/StoreLayout'
 import { RequireAuth } from '@repo/components'
 import { RequireAddress } from './components/RequireAddress'
 import { authRouteObjects, authRoutes } from '@repo/auth'
-import { ADMIN_URL, BRANCH_URL, MOCK_AUTH, RIDER_URL } from './config'
+import { ADMIN_URL, APP_NAME, BRANCH_URL, MOCK_AUTH, RIDER_URL, ROLES } from './config'
 import { useNativeSystemBars } from './hooks/useNativeSystemBars'
 import { routes } from './routes'
 import { HomePage } from './pages/HomePage'
@@ -25,6 +25,7 @@ export const App = () => {
 
   return useRoutes([
     ...authRouteObjects({
+      app: APP_NAME,
       branchUrl: BRANCH_URL,
       adminUrl: ADMIN_URL,
       riderUrl: RIDER_URL,
@@ -34,7 +35,7 @@ export const App = () => {
       registerRoles: ['customer'],
     }),
     {
-      element: <RequireAuth loginPath={authRoutes.login} mockAuth={MOCK_AUTH} />,
+      element: <RequireAuth loginPath={authRoutes.login} roles={ROLES} mockAuth={MOCK_AUTH} />,
       children: [
         {
           element: <StoreLayout />,

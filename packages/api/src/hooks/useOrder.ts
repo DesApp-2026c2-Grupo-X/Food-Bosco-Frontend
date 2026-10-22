@@ -5,6 +5,8 @@ import { ORDER, toOrder } from '../client/store'
 interface UseOrderReturn {
   order: Order | null
   isLoading: boolean
+  startPolling: (pollInterval: number) => void
+  stopPolling: () => void
 }
 
 interface OrderResult {
@@ -15,7 +17,7 @@ export const useOrder = (
   orderId: string | undefined,
   options?: { pollIntervalMs?: number },
 ): UseOrderReturn => {
-  const { data, loading } = useQuery<OrderResult>(ORDER, {
+  const { data, loading, startPolling, stopPolling } = useQuery<OrderResult>(ORDER, {
     variables: { id: orderId },
     skip: !orderId,
     pollInterval: options?.pollIntervalMs,
@@ -24,5 +26,7 @@ export const useOrder = (
   return {
     order: data?.order ? toOrder(data.order) : null,
     isLoading: loading,
+    startPolling,
+    stopPolling,
   }
 }

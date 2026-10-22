@@ -12,6 +12,7 @@ vi.mock('@repo/api', () => ({
   useBranches: vi.fn(),
   geocodeAddress: vi.fn(),
   buildLeafletTileUrl: vi.fn(() => ''),
+  getApiErrorMessage: vi.fn(() => 'No pudimos guardar la sucursal.'),
 }))
 
 const branch: AdminBranch = {

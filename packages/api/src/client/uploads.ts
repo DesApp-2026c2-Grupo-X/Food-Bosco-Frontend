@@ -1,6 +1,5 @@
 import { useAuthStore } from '../stores/authStore'
-
-const API_URL = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL ?? ''
+import { API_URL } from './apiUrl'
 
 const UPLOAD_ERROR_MESSAGES: Record<number, string> = {
   400: 'Seleccioná una imagen para subir.',

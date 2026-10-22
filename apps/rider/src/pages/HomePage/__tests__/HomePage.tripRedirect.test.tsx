@@ -42,6 +42,7 @@ const setup = (orders: { orderId: string; status: string }[]) => {
     isMutating: false,
     pickup: vi.fn(),
     deliver: vi.fn(),
+    refetch: vi.fn(),
   })
   profileMock.mockReturnValue({
     profile: null,
@@ -89,5 +90,25 @@ describe('HomePage trip redirect', () => {
     renderHome()
 
     expect(await screen.findByText('Detalle o2')).toBeInTheDocument()
+  })
+
+  it('does not redirect when the only order was cancelled', () => {
+    setup([{ orderId: 'o1', status: 'CANCELLED' }])
+    renderHome()
+
+    expect(screen.getByText('Recibí y ejecutá viajes de entrega.')).toBeInTheDocument()
+    expect(screen.queryByText(/Detalle/)).not.toBeInTheDocument()
+  })
+
+  it('skips cancelled orders and redirects to the next active order', async () => {
+    setup([
+      { orderId: 'o1', status: 'DELIVERED' },
+      { orderId: 'o2', status: 'CANCELLED' },
+      { orderId: 'o3', status: 'ON_THE_WAY' },
+    ])
+    renderHome()
+
+    expect(await screen.findByText('Detalle o3')).toBeInTheDocument()
+    expect(screen.queryByText('Detalle o2')).not.toBeInTheDocument()
   })
 })

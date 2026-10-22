@@ -105,6 +105,7 @@ describe('store pages smoke', () => {
     api.useAddresses.mockReturnValue({
       addresses: [address],
       isLoading: false,
+      isReady: true,
       create: vi.fn(),
       update: vi.fn(),
       remove: vi.fn(),
@@ -113,7 +114,12 @@ describe('store pages smoke', () => {
     api.useNearbyBranches.mockReturnValue({ branches: [], isLoading: false })
     api.useCatalog.mockReturnValue({ categories: [], products: [], isLoading: false })
     api.useOrders.mockReturnValue({ orders: [], isLoading: false })
-    api.useOrder.mockReturnValue({ order: null, isLoading: false })
+    api.useOrder.mockReturnValue({
+      order: null,
+      isLoading: false,
+      startPolling: vi.fn(),
+      stopPolling: vi.fn(),
+    })
     api.useCart.mockReturnValue({
       cart: null,
       isLoading: false,
@@ -198,6 +204,8 @@ describe('store pages smoke', () => {
           ],
         }),
         isLoading: false,
+        startPolling: vi.fn(),
+        stopPolling: vi.fn(),
       })
 
       renderDetail()

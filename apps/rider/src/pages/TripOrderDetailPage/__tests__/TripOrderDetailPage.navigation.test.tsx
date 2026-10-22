@@ -74,6 +74,7 @@ const setup = (options: SetupOptions = {}) => {
   useRiderStore.setState({ isOnline: true, location: options.riderLocation ?? null })
   const pickupOrder = vi.fn().mockResolvedValue(undefined)
   const deliver = vi.fn().mockResolvedValue(undefined)
+  const refetchTrip = vi.fn().mockResolvedValue(undefined)
 
   tripMock.mockReturnValue({
     trip: makeTrip(options.status ?? 'READY_FOR_DELIVERY'),
@@ -81,6 +82,7 @@ const setup = (options: SetupOptions = {}) => {
     isMutating: false,
     pickup: pickupOrder,
     deliver,
+    refetch: refetchTrip,
   })
   orderMock.mockReturnValue({ order: null, isLoading: false })
   profileMock.mockReturnValue({
@@ -93,7 +95,7 @@ const setup = (options: SetupOptions = {}) => {
     updateLocation: vi.fn(),
   })
 
-  return { pickupOrder, deliver }
+  return { pickupOrder, deliver, refetchTrip }
 }
 
 const renderPage = () =>
@@ -120,6 +122,13 @@ describe('TripOrderDetailPage navigation', () => {
     renderPage()
 
     expect(orderMock).toHaveBeenCalledWith('o1', { pollIntervalMs: 15000 })
+  })
+
+  it('polls the active trip every 15 seconds', () => {
+    setup()
+    renderPage()
+
+    expect(tripMock).toHaveBeenCalledWith({ pollIntervalMs: 15000 })
   })
 
   it('shows the branch destination before the pickup', () => {

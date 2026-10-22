@@ -38,6 +38,14 @@ export type { NavItemMatcher } from './navigation/types'
 export { useIsDesktop } from './useIsDesktop'
 export type { UseIsDesktop } from './useIsDesktop/types'
 
+export { usePrefersReducedMotion } from './usePrefersReducedMotion'
+
+export { Reveal } from './Reveal'
+export type { RevealProps } from './Reveal/types'
+
+export { PageTransition } from './PageTransition'
+export type { PageTransitionProps } from './PageTransition/types'
+
 export { DesktopNav } from './DesktopNav'
 export type { DesktopNavItem, DesktopNavProps } from './DesktopNav/types'
 export { useDesktopNavigation } from './DesktopNav/hooks/useDesktopNavigation'
@@ -158,6 +166,9 @@ export type { FormImageFieldProps } from './FormImageField/types'
 
 export { ImageUploadField } from './ImageUploadField'
 export type { ImageUploadFieldProps } from './ImageUploadField/types'
+
+export { LoadingImage } from './LoadingImage'
+export type { LoadingImageProps } from './LoadingImage/types'
 
 export { TextAreaField } from './TextAreaField'
 export type { TextAreaFieldProps } from './TextAreaField/types'

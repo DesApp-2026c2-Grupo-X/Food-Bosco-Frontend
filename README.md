@@ -35,11 +35,15 @@ npm run format:check
 ```bash
 npm run store:android             # prepara, corre y deja elegir dispositivo (AVD o adb)
 npm run store:android:build       # solo prepara/build para Android
+npm run rider:android             # app del repartidor (Capacitor)
+npm run rider:android:build       # solo prepara/build del repartidor
 ```
 
-- `store:android` muestra un menú con los AVDs disponibles y los dispositivos conectados (`adb`).
+- `store:android` / `rider:android` muestran un menú con los AVDs disponibles y los dispositivos conectados (`adb`).
 - Para elegir directo: `bash apps/store/android.sh --run --emulator <AVD>` o `--device <serial>`.
 - Ver dispositivos sin buildear: `bash apps/store/android.sh --list`.
+- La app del rider agrega los permisos de ubicación (`ACCESS_COARSE_LOCATION`/`ACCESS_FINE_LOCATION`) porque comparte su posición mientras está en línea.
+- El build nativo usa el modo `native` de Vite: creá `apps/<app>/.env.native` con `VITE_API_URL` apuntando a un backend HTTPS accesible desde el dispositivo y `VITE_MOCK_AUTH=false` (el archivo está en `.gitignore`).
 
 ## iOS
 

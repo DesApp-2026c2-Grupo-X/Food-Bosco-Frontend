@@ -1,5 +1,6 @@
-import { Box, SimpleGrid, Skeleton, Spinner, Text, VStack } from '@chakra-ui/react'
+import { Box, SimpleGrid, Skeleton, Spinner, Text, VisuallyHidden, VStack } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import { usePrefersReducedMotion } from '../usePrefersReducedMotion'
 
 export interface EmptyStateProps {
   icon?: ReactNode
@@ -22,10 +23,11 @@ export const EmptyState = ({ icon, title, description, action }: EmptyStateProps
 )
 
 export interface LoadingStateProps {
-  variant?: 'spinner' | 'skeleton'
+  variant?: 'spinner' | 'skeleton' | 'list'
   paddingY?: string
   skeletonCount?: number
   skeletonHeight?: string
+  label?: string
 }
 
 export const LoadingState = ({
@@ -33,21 +35,50 @@ export const LoadingState = ({
   paddingY = '24',
   skeletonCount = 8,
   skeletonHeight = '220px',
+  label = 'Cargando contenido',
 }: LoadingStateProps) => {
+  const reducedMotion = usePrefersReducedMotion()
+  const skeletonAnimation = reducedMotion ? 'none' : undefined
+
   if (variant === 'skeleton') {
     return (
-      <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gap={{ base: '3', md: '5' }}>
+      <Box role="status" aria-live="polite" aria-busy="true">
+        <VisuallyHidden>{label}</VisuallyHidden>
+        <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} gap={{ base: '3', md: '5' }}>
+          {Array.from({ length: skeletonCount }).map((_, index) => (
+            <Skeleton
+              key={index}
+              height={skeletonHeight}
+              borderRadius="2xl"
+              animation={skeletonAnimation}
+            />
+          ))}
+        </SimpleGrid>
+      </Box>
+    )
+  }
+
+  if (variant === 'list') {
+    return (
+      <VStack role="status" aria-live="polite" aria-busy="true" gap="3" align="stretch">
+        <VisuallyHidden>{label}</VisuallyHidden>
         {Array.from({ length: skeletonCount }).map((_, index) => (
-          <Skeleton key={index} height={skeletonHeight} borderRadius="2xl" />
+          <Skeleton
+            key={index}
+            height={skeletonHeight === '220px' ? '96px' : skeletonHeight}
+            borderRadius="2xl"
+            animation={skeletonAnimation}
+          />
         ))}
-      </SimpleGrid>
+      </VStack>
     )
   }
 
   return (
-    <Box paddingY={paddingY} display="flex" justifyContent="center">
+    <VStack role="status" aria-live="polite" aria-busy="true" gap="3" paddingY={paddingY}>
       <Spinner size="lg" color="brand.600" />
-    </Box>
+      <VisuallyHidden>{label}</VisuallyHidden>
+    </VStack>
   )
 }
 

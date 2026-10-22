@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Badge, Box, HStack, Text, VStack } from '@chakra-ui/react'
 import Check from '@gravity-ui/icons/Check'
 import RouteIcon from '@gravity-ui/icons/Route'
@@ -9,6 +10,7 @@ import {
   LegendDotRow,
   LoadingState,
   Muted,
+  notifyError,
   OrderDetailShell,
   OrderItemsCard,
   OrderTotalCard,
@@ -18,10 +20,10 @@ import {
   Strong,
   type InteractiveMapMarker,
 } from '@repo/components'
-import { useActiveTrip, useOrder, useRiderProfile } from '@repo/api'
-import { formatDistance, formatPrice, haversineDistanceMeters } from '@repo/domain'
+import { getApiErrorMessage, useActiveTrip, useOrder, useRiderProfile } from '@repo/api'
+import { formatDistance, formatPrice, haversineDistanceMeters, isActiveOrder } from '@repo/domain'
 import { MAP_MARKER_COLORS } from '@repo/theme'
-import { routes } from '../../routes'
+import { routes, tripOrderDetailPath } from '../../routes'
 import { useRiderStore } from '../../stores/riderStore'
 import { useRiderLocation } from '../../hooks/useRiderLocation'
 
@@ -30,15 +32,36 @@ const PROXIMITY_LIMIT_M = 50
 export const TripOrderDetailPage = () => {
   const { orderId } = useParams()
   const navigate = useNavigate()
-  const { trip, isLoading: tripLoading, isMutating, pickup, deliver } = useActiveTrip()
+  const {
+    trip,
+    isLoading: tripLoading,
+    isMutating,
+    pickup,
+    deliver,
+    refetch: refetchTrip,
+  } = useActiveTrip({ pollIntervalMs: 15000 })
   const { order, isLoading: orderLoading } = useOrder(orderId, { pollIntervalMs: 15000 })
   const { updateLocation } = useRiderProfile()
   const isOnline = useRiderStore((state) => state.isOnline)
   useRiderLocation(isOnline, updateLocation)
   const riderLocation = useRiderStore((state) => state.location)
 
+  const orderStatus = order?.status
+
+  useEffect(() => {
+    if (orderStatus === 'CANCELLED') {
+      void refetchTrip().catch(() => undefined)
+    }
+  }, [orderStatus, refetchTrip])
+
+  useEffect(() => {
+    if (orderStatus === 'CANCELLED' && !tripLoading && !trip) {
+      navigate(routes.home, { replace: true })
+    }
+  }, [orderStatus, tripLoading, trip, navigate])
+
   if (tripLoading || orderLoading) {
-    return <LoadingState />
+    return <LoadingState variant="list" skeletonCount={4} skeletonHeight="88px" />
   }
 
   if (!trip) {
@@ -61,8 +84,22 @@ export const TripOrderDetailPage = () => {
     )
   }
 
-  const delivered = tripOrder.status === 'DELIVERED'
-  const pickedUp = delivered || tripOrder.status === 'ON_THE_WAY'
+  const cancelled = order?.status === 'CANCELLED' || tripOrder.status === 'CANCELLED'
+  const delivered = order?.status === 'DELIVERED' || tripOrder.status === 'DELIVERED'
+  const effectiveStatus = cancelled
+    ? 'CANCELLED'
+    : delivered
+      ? 'DELIVERED'
+      : (order?.status ?? tripOrder.status)
+  const wasPickedUp =
+    tripOrder.pickedUpAt != null ||
+    tripOrder.status === 'ON_THE_WAY' ||
+    tripOrder.status === 'DELIVERED'
+  const pickedUp = !cancelled && (tripOrder.status === 'ON_THE_WAY' || wasPickedUp)
+
+  const nextOrder = trip.orders.find(
+    (entry) => entry.orderId !== tripOrder.orderId && isActiveOrder(entry.status),
+  )
 
   const pickupMeters =
     riderLocation != null
@@ -112,9 +149,29 @@ export const TripOrderDetailPage = () => {
     })
   }
 
+  const handlePickup = async () => {
+    try {
+      await pickup(tripOrder.orderId)
+    } catch (error) {
+      notifyError({
+        title: 'No pudimos retirar el pedido',
+        description: getApiErrorMessage(error),
+      })
+      void refetchTrip().catch(() => undefined)
+    }
+  }
+
   const handleDeliver = async () => {
-    await deliver(tripOrder.orderId)
-    navigate(routes.home)
+    try {
+      await deliver(tripOrder.orderId)
+      navigate(routes.home)
+    } catch (error) {
+      notifyError({
+        title: 'No pudimos entregar el pedido',
+        description: getApiErrorMessage(error),
+      })
+      void refetchTrip().catch(() => undefined)
+    }
   }
 
   const target = pickedUp
@@ -122,6 +179,12 @@ export const TripOrderDetailPage = () => {
     : { lat: tripOrder.pickupLocation.latitude, lng: tripOrder.pickupLocation.longitude }
   const origin = riderLocation ? `&origin=${riderLocation.latitude},${riderLocation.longitude}` : ''
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${target.lat},${target.lng}&travelmode=driving${origin}`
+  const navigationLabel = cancelled
+    ? 'Volver a la sucursal'
+    : pickedUp
+      ? 'Navegar a la entrega'
+      : 'Navegar a la sucursal'
+  const showNavigation = !cancelled || wasPickedUp
 
   const earnings = trip.earnings ?? trip.estimatedEarnings
   const earningsSettled = trip.earnings != null
@@ -129,7 +192,7 @@ export const TripOrderDetailPage = () => {
   return (
     <OrderDetailShell
       orderNumber={order?.number || tripOrder.orderId}
-      status={order?.status ?? tripOrder.status}
+      status={effectiveStatus}
       description={order?.branch?.name}
       showBack={false}
     >
@@ -166,15 +229,17 @@ export const TripOrderDetailPage = () => {
         }
       />
 
-      <SecondaryButton
-        width="full"
-        onClick={() => window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
-      >
-        <HStack gap="2">
-          <RouteIcon width={18} height={18} />
-          <Text>{pickedUp ? 'Navegar a la entrega' : 'Navegar a la sucursal'}</Text>
-        </HStack>
-      </SecondaryButton>
+      {showNavigation ? (
+        <SecondaryButton
+          width="full"
+          onClick={() => window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
+        >
+          <HStack gap="2">
+            <RouteIcon width={18} height={18} />
+            <Text>{navigationLabel}</Text>
+          </HStack>
+        </SecondaryButton>
+      ) : null}
 
       <Card>
         <HStack justify="space-between" align="center">
@@ -218,11 +283,40 @@ export const TripOrderDetailPage = () => {
           <Check width={20} height={20} />
           <Strong>Entregado</Strong>
         </HStack>
+      ) : cancelled ? (
+        <VStack align="stretch" gap="3">
+          <Card>
+            <VStack align="start" gap="2">
+              <Strong>Pedido cancelado</Strong>
+              <Muted fontSize="sm">
+                La sucursal canceló este pedido. No tenés que retirarlo ni entregarlo.
+              </Muted>
+              {wasPickedUp ? (
+                <Muted fontSize="sm">
+                  Como ya lo habías retirado, volvé a la sucursal para devolverlo.
+                </Muted>
+              ) : null}
+            </VStack>
+          </Card>
+
+          {nextOrder ? (
+            <PrimaryButton
+              width="full"
+              onClick={() => navigate(tripOrderDetailPath(nextOrder.orderId))}
+            >
+              Continuar con el próximo pedido
+            </PrimaryButton>
+          ) : null}
+
+          <SecondaryButton width="full" onClick={() => navigate(routes.home)}>
+            Volver al inicio
+          </SecondaryButton>
+        </VStack>
       ) : (
         <>
           <PrimaryButton
             width="full"
-            onClick={pickedUp ? handleDeliver : () => void pickup(tripOrder.orderId)}
+            onClick={pickedUp ? handleDeliver : handlePickup}
             loading={isMutating}
             disabled={!inRange || isMutating}
           >

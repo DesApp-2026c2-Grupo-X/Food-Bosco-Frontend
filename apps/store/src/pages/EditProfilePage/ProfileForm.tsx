@@ -1,12 +1,14 @@
 import { Text, VStack } from '@chakra-ui/react'
 import { FormProvider } from 'react-hook-form'
-import { FormActions, FormField, TextField } from '@repo/components'
+import { FormActions, FormField, LoadingState, TextField } from '@repo/components'
 import { useProfileForm } from './hooks/useProfileForm'
 
 export const ProfileForm = () => {
   const { user, isLoading, form, isDirty, submitting, error, onSave, onCancel } = useProfileForm()
 
-  if (isLoading) return null
+  if (isLoading) {
+    return <LoadingState variant="list" skeletonCount={3} skeletonHeight="64px" />
+  }
 
   return (
     <FormProvider {...form}>

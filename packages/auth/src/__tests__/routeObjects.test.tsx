@@ -32,6 +32,7 @@ describe('authRouteObjects', () => {
   it('forwards the app config to the AuthProvider element', () => {
     const redirectByRole = () => {}
     const [route] = authRouteObjects({
+      app: 'store',
       defaultPath: '/home',
       branchUrl: '/branch',
       adminUrl: '/admin',
@@ -45,6 +46,7 @@ describe('authRouteObjects', () => {
     const provider = route.element as ReactElement<Record<string, unknown>>
 
     expect(provider.props).toMatchObject({
+      app: 'store',
       defaultPath: '/home',
       branchUrl: '/branch',
       adminUrl: '/admin',
