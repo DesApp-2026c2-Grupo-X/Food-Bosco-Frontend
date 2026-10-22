@@ -83,4 +83,16 @@ describe('useActiveTrip', () => {
     expect(testClient.requestsByName('MarkOrderPickup')).toHaveLength(0)
     expect(testClient.requestsByName('MarkOrderDelivered')).toHaveLength(0)
   })
+
+  it('refetches trips on demand', async () => {
+    const { testClient, result } = setup([trip('t-active', 'ACTIVE')])
+    await waitFor(() => expect(result.current.trip).not.toBeNull())
+    const requestsBefore = testClient.requestsByName('MyTrips').length
+
+    await act(async () => {
+      await result.current.refetch()
+    })
+
+    expect(testClient.requestsByName('MyTrips').length).toBeGreaterThan(requestsBefore)
+  })
 })

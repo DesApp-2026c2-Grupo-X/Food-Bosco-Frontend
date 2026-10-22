@@ -4,21 +4,27 @@ import type { Trip } from '@repo/domain'
 import { MARK_ORDER_DELIVERED, MARK_ORDER_PICKUP, MY_TRIPS, toTrip } from '../client/rider'
 import { combineLoading } from '../utils/combineLoading'
 
+interface UseActiveTripOptions {
+  pollIntervalMs?: number
+}
+
 interface UseActiveTripReturn {
   trip: Trip | null
   isLoading: boolean
   isMutating: boolean
   pickup: (orderId: string) => Promise<void>
   deliver: (orderId: string) => Promise<void>
+  refetch: () => Promise<void>
 }
 
 interface MyTripsResult {
   myTrips: Record<string, unknown>[]
 }
 
-export const useActiveTrip = (): UseActiveTripReturn => {
-  const { data, loading } = useQuery<MyTripsResult>(MY_TRIPS, {
+export const useActiveTrip = (options: UseActiveTripOptions = {}): UseActiveTripReturn => {
+  const { data, loading, refetch } = useQuery<MyTripsResult>(MY_TRIPS, {
     fetchPolicy: 'network-only',
+    pollInterval: options.pollIntervalMs,
   })
 
   const [pickupMutation, { loading: pickingUp }] = useMutation(MARK_ORDER_PICKUP)
@@ -49,11 +55,16 @@ export const useActiveTrip = (): UseActiveTripReturn => {
     [trip, deliverMutation],
   )
 
+  const refetchTrips = useCallback(async () => {
+    await refetch()
+  }, [refetch])
+
   return {
     trip,
     isLoading: loading,
     isMutating: combineLoading(pickingUp, delivering),
     pickup,
     deliver,
+    refetch: refetchTrips,
   }
 }
