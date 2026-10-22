@@ -10,7 +10,7 @@ export const RideStatusButton = () => {
       onToggle={onToggle}
       activeLabel="Conectado"
       inactiveLabel="Desconectado"
-      colorPalette="brand"
+      statusColor="brand.600"
       disabled={locked}
       disabledHint="No podés desconectarte con un viaje en curso"
     />

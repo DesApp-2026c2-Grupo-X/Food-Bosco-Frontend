@@ -19,7 +19,7 @@ export const BranchStatusButton = () => {
       onToggle={handleToggle}
       activeLabel="Abierto"
       inactiveLabel="Cerrado"
-      colorPalette="success"
+      statusColor="success"
       disabled={isUpdating}
       disabledHint="Actualizando estado…"
     />
