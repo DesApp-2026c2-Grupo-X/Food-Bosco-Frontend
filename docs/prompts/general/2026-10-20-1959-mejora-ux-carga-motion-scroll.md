@@ -6,7 +6,7 @@
 
 ## Prompt
 
-````markdown
+```markdown
 crea una rama nueva para esta feature , y aplicame el siguiente prompt : # Tarea: Mejora integral de UX mediante estados de carga, transiciones visuales, scroll y efectos en cards — Food-Bosco
 
 ## 1. Objetivo general
@@ -338,7 +338,7 @@ Las cuatro aplicaciones de Food-Bosco deben ofrecer una experiencia más fluida 
 El usuario nunca debería interpretar que la aplicación quedó colgada cuando está esperando una respuesta del backend. Debe poder comprender qué está sucediendo, continuar utilizando la interfaz cuando sea posible y recibir información clara si la operación falla.
 
 La solución debe priorizar la experiencia de usuario, la accesibilidad, el rendimiento y la mantenibilidad, respetando las skills disponibles y la arquitectura actual del proyecto.
-````
+```
 
 ## Informe
 

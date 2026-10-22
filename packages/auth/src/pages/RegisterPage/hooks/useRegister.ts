@@ -1,7 +1,7 @@
 import { registerFormSchema } from '@repo/domain'
 import { useAuthStore } from '@repo/api'
 import { useAuthConfig, type RegisterRole } from '../../../authConfigContext'
-import { useAuthForm } from '../../../hooks/useAuthForm'
+import { AuthSubmitError, useAuthForm } from '../../../hooks/useAuthForm'
 import { useAuthRedirect } from '../../../hooks/useAuthRedirect'
 
 export const useRegister = () => {
@@ -29,6 +29,16 @@ export const useRegister = () => {
     },
     errorMessage: 'No pudimos crear tu cuenta. Revisá los datos e intentá de nuevo.',
     submit: async (values) => {
+      if (!config.app) {
+        throw new AuthSubmitError(
+          'No pudimos identificar la aplicación. Recargá la página e intentá de nuevo.',
+        )
+      }
+
+      if (!registerRoles.includes(values.role)) {
+        throw new AuthSubmitError('Esta aplicación no permite crear ese tipo de cuenta.')
+      }
+
       const base = {
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
@@ -46,7 +56,7 @@ export const useRegister = () => {
                 .join(' · ')
         await registerRider({ ...base, vehicle })
       } else {
-        await register(base)
+        await register({ ...base, app: config.app })
       }
 
       redirect(values.role as RegisterRole)

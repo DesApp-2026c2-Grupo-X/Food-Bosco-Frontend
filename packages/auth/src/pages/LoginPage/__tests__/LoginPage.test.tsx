@@ -16,7 +16,7 @@ const renderLogin = (config: AuthAppConfig = {}, login = vi.fn()) => {
   useAuthStore.setState({ login, user: { role: 'customer' } as never })
 
   return renderWithProviders(
-    <AuthProvider {...config}>
+    <AuthProvider app="store" {...config}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<HomeProbe />} />
@@ -82,5 +82,22 @@ describe('LoginPage', () => {
     await userEvent.click(button)
 
     expect(await screen.findByTestId('home')).toBeInTheDocument()
+  })
+
+  it('shows the role mismatch message when the guard rejected the session', () => {
+    renderWithProviders(
+      <AuthProvider app="store">
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      </AuthProvider>,
+      { route: '/login?authError=APP_ROLE_MISMATCH' },
+    )
+
+    expect(
+      screen.getByText(
+        'Tu cuenta no pertenece a esta aplicación. Ingresá desde la app que corresponde a tu rol.',
+      ),
+    ).toBeInTheDocument()
   })
 })

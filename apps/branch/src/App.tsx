@@ -1,7 +1,7 @@
 import { useRoutes } from 'react-router-dom'
 import { OrderDetailView as OrderDetailPage, RequireAuth } from '@repo/components'
 import { authRouteObjects, authRoutes } from '@repo/auth'
-import { ADMIN_URL, BRANCH_URL, MOCK_AUTH, RIDER_URL } from './config'
+import { ADMIN_URL, APP_NAME, BRANCH_URL, MOCK_AUTH, RIDER_URL, ROLES } from './config'
 import { routes } from './routes'
 import { BranchLayout } from './layouts/BranchLayout'
 import { HomePage } from './pages/HomePage'
@@ -16,6 +16,7 @@ import logoDark from './assets/logo-dark.svg'
 export const App = () =>
   useRoutes([
     ...authRouteObjects({
+      app: APP_NAME,
       branchUrl: BRANCH_URL,
       adminUrl: ADMIN_URL,
       riderUrl: RIDER_URL,
@@ -24,9 +25,7 @@ export const App = () =>
       showRegister: false,
     }),
     {
-      element: (
-        <RequireAuth loginPath={authRoutes.login} roles={['branch_admin']} mockAuth={MOCK_AUTH} />
-      ),
+      element: <RequireAuth loginPath={authRoutes.login} roles={ROLES} mockAuth={MOCK_AUTH} />,
       children: [
         {
           element: <BranchLayout />,

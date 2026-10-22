@@ -179,7 +179,9 @@ describe('ProductDetailPage', () => {
     await userEvent.click(addButton())
 
     expect(
-      await screen.findByText('No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.'),
+      await screen.findByText(
+        'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
+      ),
     ).toBeInTheDocument()
     expect(screen.queryByText('Cart probe')).not.toBeInTheDocument()
     expect(screen.getByText('Burger')).toBeInTheDocument()

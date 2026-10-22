@@ -11,7 +11,7 @@ import { useLogout } from '../hooks/useLogout'
 import { useLogin } from '../pages/LoginPage/hooks/useLogin'
 import { useRegister } from '../pages/RegisterPage/hooks/useRegister'
 import { useAuthStore } from '@repo/api'
-import { loginSchema } from '@repo/domain'
+import { APP_ROLE_MISMATCH_MESSAGE, loginSchema } from '@repo/domain'
 
 const mockAuthState = {
   login: vi.fn(),
@@ -33,7 +33,9 @@ const wrapper =
   (config: AuthAppConfig = {}, initialPath = '/login') =>
   ({ children }: { children: ReactNode }) => (
     <MemoryRouter initialEntries={[initialPath]}>
-      <AuthProvider {...config}>{children}</AuthProvider>
+      <AuthProvider app="store" {...config}>
+        {children}
+      </AuthProvider>
     </MemoryRouter>
   )
 
@@ -125,7 +127,28 @@ describe('useLogin', () => {
       await result.current.onSubmit()
     })
 
-    expect(login).toHaveBeenCalledWith({ email: 'a@b.com', password: 'secret' })
+    expect(login).toHaveBeenCalledWith({ email: 'a@b.com', password: 'secret', app: 'store' })
+  })
+
+  it('rejects the login when the app is not configured', async () => {
+    const login = vi.fn()
+    useAuthStore.setState({ login })
+
+    const { result } = renderHook(() => useLogin(), { wrapper: wrapper({ app: undefined }) })
+
+    act(() => {
+      result.current.form.setValue('email', 'a@b.com')
+      result.current.form.setValue('password', 'secret')
+    })
+
+    await act(async () => {
+      await result.current.onSubmit()
+    })
+
+    expect(login).not.toHaveBeenCalled()
+    expect(result.current.error).toBe(
+      'No pudimos identificar la aplicación. Recargá la página e intentá de nuevo.',
+    )
   })
 
   it('maps a store failure to the friendly message', async () => {
@@ -144,6 +167,31 @@ describe('useLogin', () => {
     })
 
     expect(result.current.error).toBe('No pudimos iniciar sesión. Revisá tus datos.')
+  })
+
+  it('shows the backend message when the role does not belong to the app', async () => {
+    const login = vi.fn().mockRejectedValue({
+      graphQLErrors: [
+        {
+          message: APP_ROLE_MISMATCH_MESSAGE,
+          extensions: { code: 'APP_ROLE_MISMATCH' },
+        },
+      ],
+    })
+    useAuthStore.setState({ login })
+
+    const { result } = renderHook(() => useLogin(), { wrapper: wrapper() })
+
+    act(() => {
+      result.current.form.setValue('email', 'a@b.com')
+      result.current.form.setValue('password', 'secret')
+    })
+
+    await act(async () => {
+      await result.current.onSubmit()
+    })
+
+    expect(result.current.error).toBe(APP_ROLE_MISMATCH_MESSAGE)
   })
 })
 
@@ -178,6 +226,7 @@ describe('useRegister', () => {
       email: 'a@b.com',
       phone: '+54 11 5555-1234',
       password: '12345678',
+      app: 'store',
     })
     expect(useAuthStore.getState().registerRider).not.toHaveBeenCalled()
   })

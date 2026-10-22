@@ -36,7 +36,9 @@ export const useAuthForm = <TValues extends FieldValues>({
       await submit(values)
     } catch (caught) {
       setError(
-        caught instanceof AuthSubmitError ? caught.message : getApiErrorMessage(caught, errorMessage),
+        caught instanceof AuthSubmitError
+          ? caught.message
+          : getApiErrorMessage(caught, errorMessage),
       )
     } finally {
       setSubmitting(false)

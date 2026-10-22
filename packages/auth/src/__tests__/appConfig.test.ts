@@ -19,6 +19,8 @@ describe('createAppConfig', () => {
     const { createAppConfig } = await importConfig()
 
     expect(createAppConfig({ self: 'store' })).toEqual({
+      APP_NAME: 'store',
+      ROLES: ['customer'],
       BRANCH_URL: 'http://localhost:5175',
       ADMIN_URL: 'http://localhost:5174',
       RIDER_URL: 'http://localhost:5176',
@@ -34,10 +36,23 @@ describe('createAppConfig', () => {
     const { createAppConfig } = await importConfig()
 
     expect(createAppConfig({ self: 'admin' })).toMatchObject({
+      APP_NAME: 'admin',
+      ROLES: ['super_admin'],
       BRANCH_URL: 'https://branch.example',
       ADMIN_URL: 'https://admin.example',
       RIDER_URL: 'https://rider.example',
     })
+  })
+
+  it.each([
+    ['store', ['customer']],
+    ['admin', ['super_admin']],
+    ['branch', ['branch_admin']],
+    ['rider', ['rider']],
+  ] as const)('asigna los roles permitidos a %s', async (self, roles) => {
+    const { createAppConfig } = await importConfig()
+
+    expect(createAppConfig({ self }).ROLES).toEqual(roles)
   })
 
   it('enables MOCK_AUTH only for the literal "true"', async () => {

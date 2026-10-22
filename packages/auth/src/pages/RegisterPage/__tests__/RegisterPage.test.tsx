@@ -10,7 +10,7 @@ const renderRegister = (config: AuthAppConfig = {}) => {
   useAuthStore.setState({ register: vi.fn(), registerRider: vi.fn() })
 
   return renderWithProviders(
-    <AuthProvider {...config}>
+    <AuthProvider app="store" {...config}>
       <RegisterPage />
     </AuthProvider>,
     { route: '/register' },

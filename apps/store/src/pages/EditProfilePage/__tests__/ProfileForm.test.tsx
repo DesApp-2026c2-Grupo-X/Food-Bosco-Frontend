@@ -28,12 +28,12 @@ describe('ProfileForm', () => {
     vi.clearAllMocks()
   })
 
-  it('renders nothing while the profile is loading', () => {
+  it('renders the loading state while the profile is loading', () => {
     api.useProfile.mockReturnValue({ user: null, isLoading: true, updateProfile: vi.fn() })
 
-    const { container } = renderWithProviders(<ProfileForm />, { route: '/profile/edit' })
+    renderWithProviders(<ProfileForm />, { route: '/profile/edit' })
 
-    expect(container).toBeEmptyDOMElement()
+    expect(screen.getByRole('status')).toHaveTextContent('Cargando contenido')
   })
 
   it('keeps the actions disabled until the form is dirty', async () => {

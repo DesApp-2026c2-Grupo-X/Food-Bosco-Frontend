@@ -1,22 +1,11 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { UserRole } from '@repo/domain'
 import { renderWithProviders } from '@test/utils'
 import { AuthProvider, type AuthAppConfig } from '../../index'
 import { useAuthRedirect } from '../useAuthRedirect'
-
-const assign = vi.fn()
-
-beforeEach(() => {
-  assign.mockReset()
-  Object.defineProperty(window, 'location', {
-    configurable: true,
-    writable: true,
-    value: { assign },
-  })
-})
 
 interface HarnessProps {
   role?: UserRole
@@ -57,25 +46,31 @@ const renderRedirect = (config: AuthAppConfig = {}, props: HarnessProps = {}) =>
   )
 
 describe('useAuthRedirect', () => {
-  it.each<[UserRole, keyof AuthAppConfig, string]>([
-    ['branch_admin', 'branchUrl', 'http://branch.example'],
-    ['super_admin', 'adminUrl', 'http://admin.example'],
-    ['rider', 'riderUrl', 'http://rider.example'],
-  ])('redirects %s to the external %s URL', async (role, key, url) => {
-    renderRedirect({ [key]: url }, { role })
-    await userEvent.click(screen.getByRole('button', { name: 'go' }))
+  it.each<UserRole>(['customer', 'branch_admin', 'super_admin', 'rider'])(
+    'navigates internally for %s instead of jumping to another app',
+    async (role) => {
+      renderRedirect(
+        {
+          defaultPath: '/home',
+          branchUrl: 'http://branch.example',
+          adminUrl: 'http://admin.example',
+          riderUrl: 'http://rider.example',
+        },
+        { role },
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'go' }))
 
-    expect(assign).toHaveBeenCalledWith(url)
-    expect(screen.getByTestId('path')).toHaveTextContent('/login')
-  })
+      expect(screen.getByTestId('path')).toHaveTextContent('/home')
+    },
+  )
 
-  it('gives redirectByRole precedence over the role URL mapping', async () => {
+  it('gives redirectByRole precedence over the internal navigation', async () => {
     const redirectByRole = vi.fn()
-    renderRedirect({ redirectByRole, branchUrl: 'http://branch.example' }, { role: 'branch_admin' })
+    renderRedirect({ redirectByRole, defaultPath: '/home' }, { role: 'branch_admin' })
     await userEvent.click(screen.getByRole('button', { name: 'go' }))
 
     expect(redirectByRole).toHaveBeenCalledWith('branch_admin')
-    expect(assign).not.toHaveBeenCalled()
+    expect(screen.getByTestId('path')).toHaveTextContent('/login')
   })
 
   it('honours location.state.from.pathname', async () => {
@@ -84,7 +79,6 @@ describe('useAuthRedirect', () => {
     await userEvent.click(screen.getByRole('button', { name: 'go' }))
 
     expect(screen.getByTestId('path')).toHaveTextContent('/cart')
-    expect(assign).not.toHaveBeenCalled()
   })
 
   it('ignores a from path of /login and falls back to defaultPath', async () => {

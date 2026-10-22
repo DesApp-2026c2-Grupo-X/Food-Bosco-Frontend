@@ -18,6 +18,7 @@ export const authRouteObjects = (config: AuthRoutesConfig = {}): RouteObject[] =
   {
     element: (
       <AuthProvider
+        app={config.app}
         defaultPath={config.defaultPath}
         branchUrl={config.branchUrl}
         adminUrl={config.adminUrl}

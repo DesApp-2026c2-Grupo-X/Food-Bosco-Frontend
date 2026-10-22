@@ -169,7 +169,9 @@ describe('useProductConfig', () => {
     })
 
     expect(added).toBe(false)
-    expect(result.current.error).toBe('No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.')
+    expect(result.current.error).toBe(
+      'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
+    )
     expect(notifyError).toHaveBeenCalled()
   })
 })

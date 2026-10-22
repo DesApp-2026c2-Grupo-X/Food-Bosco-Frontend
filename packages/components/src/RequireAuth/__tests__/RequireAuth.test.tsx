@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Route, Routes } from 'react-router-dom'
 import { screen } from '@testing-library/react'
 import type { User } from '@repo/domain'
@@ -65,11 +65,13 @@ describe('RequireAuth', () => {
     expect(screen.getByText('página de login')).toBeInTheDocument()
   })
 
-  it('redirige cuando el usuario no tiene el rol requerido', () => {
-    useAuthStore.setState({ user: { ...user, role: 'customer' } })
+  it('redirige cuando el usuario no tiene el rol requerido y cierra la sesión', async () => {
+    const logout = vi.fn(() => useAuthStore.setState({ user: null }))
+    useAuthStore.setState({ user: { ...user, role: 'customer' }, logout })
 
     renderGuarded({ loginPath: '/login', roles: ['super_admin'] })
 
-    expect(screen.getByText('página de login')).toBeInTheDocument()
+    expect(await screen.findByText('página de login')).toBeInTheDocument()
+    expect(logout).toHaveBeenCalled()
   })
 })
