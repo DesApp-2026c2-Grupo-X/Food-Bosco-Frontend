@@ -20,15 +20,29 @@ describe('SelectField', () => {
     expect(onChange).toHaveBeenCalledWith('b')
   })
 
-  it('renders the placeholder as a disabled empty option', () => {
+  it('renders the placeholder as a selectable empty option', () => {
     renderWithProviders(
       <SelectField value="" onChange={vi.fn()} options={options} placeholder="Elegí" />,
     )
 
     const placeholder = screen.getByRole('option', { name: 'Elegí' })
-    expect(placeholder).toBeDisabled()
+    expect(placeholder).not.toBeDisabled()
     expect(placeholder).toHaveValue('')
     expect(screen.getByRole('option', { name: 'Opción A' })).toBeInTheDocument()
+  })
+
+  it('allows selecting another value and then going back to the placeholder', async () => {
+    const onChange = vi.fn()
+    const { rerender } = renderWithProviders(
+      <SelectField value="" onChange={onChange} options={options} placeholder="Todas" />,
+    )
+
+    await userEvent.selectOptions(screen.getByRole('combobox'), 'b')
+    expect(onChange).toHaveBeenLastCalledWith('b')
+
+    rerender(<SelectField value="b" onChange={onChange} options={options} placeholder="Todas" />)
+    await userEvent.selectOptions(screen.getByRole('combobox'), '')
+    expect(onChange).toHaveBeenLastCalledWith('')
   })
 
   it('disables the select when requested', () => {

@@ -204,7 +204,7 @@ describe('FormSelectField', () => {
     { value: 'b', label: 'Opción B' },
   ]
 
-  it('renders the placeholder as a disabled empty option and the available options', () => {
+  it('renders the placeholder as a selectable empty option and the available options', () => {
     renderWithProviders(
       <FormHarness schema={providerSchema} defaultValues={{ provider: '' }} onSubmit={vi.fn()}>
         <FormSelectField name="provider" label="Proveedor" placeholder="Elegí" options={options} />
@@ -212,7 +212,7 @@ describe('FormSelectField', () => {
     )
 
     const placeholder = screen.getByRole('option', { name: 'Elegí' })
-    expect(placeholder).toBeDisabled()
+    expect(placeholder).not.toBeDisabled()
     expect(placeholder).toHaveValue('')
     expect(screen.getByRole('option', { name: 'Opción A' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Opción B' })).toBeInTheDocument()

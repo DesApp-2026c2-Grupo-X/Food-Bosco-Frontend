@@ -33,6 +33,8 @@ const setup = () => {
         return { data: { users: { data: [rawStaff, rawCustomer] } } }
       case 'AdminBranches':
         return { data: { branches: [{ id: 'b1', name: 'Centro' }] } }
+      case 'DeleteUser':
+        return { data: { deleteUser: true } }
       default:
         return { data: {} }
     }
@@ -43,12 +45,16 @@ const setup = () => {
 
 describe('useStaff', () => {
   it('keeps only staff members and resolves branch names', async () => {
-    const { result } = setup()
+    const { testClient, result } = setup()
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect(result.current.staff.map((m) => m.id)).toEqual(['u1'])
     expect(result.current.staff[0]?.role).toBe('branch_admin')
     expect(result.current.staff[0]?.branchName).toBe('Centro')
+    expect(operationVariables(testClient.lastRequest('AdminUsers'))).toEqual({
+      filter: { roles: ['BRANCH_ADMIN', 'SUPER_ADMIN'] },
+      page: { limit: 100, offset: 0 },
+    })
   })
 
   it('creates a branch admin through createStaff including the branch', async () => {
@@ -137,5 +143,17 @@ describe('useStaff', () => {
       id: 'u1',
       active: false,
     })
+  })
+
+  it('removes a collaborator and refreshes the list', async () => {
+    const { testClient, result } = setup()
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    await act(async () => {
+      await result.current.remove('u1')
+    })
+
+    expect(operationVariables(testClient.lastRequest('DeleteUser'))).toEqual({ id: 'u1' })
+    expect(testClient.requestsByName('AdminUsers').length).toBeGreaterThan(1)
   })
 })
