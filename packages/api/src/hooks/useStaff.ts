@@ -7,6 +7,7 @@ import {
   ADMIN_USERS,
   CREATE_ADMIN,
   CREATE_STAFF,
+  DELETE_USER,
   SET_USER_ACTIVE,
   UPDATE_USER,
   toBranch,
@@ -21,6 +22,7 @@ interface UseStaffReturn {
   create: (input: StaffInput) => Promise<void>
   update: (id: string, input: StaffUpdateInput) => Promise<void>
   toggle: (id: string, active: boolean) => Promise<void>
+  remove: (id: string) => Promise<void>
 }
 
 interface UsersResult {
@@ -31,8 +33,15 @@ interface BranchesResult {
   branches: Record<string, unknown>[]
 }
 
+const STAFF_ROLE_FILTER = ['BRANCH_ADMIN', 'SUPER_ADMIN']
+const STAFF_PAGE_LIMIT = 100
+
 export const useStaff = (): UseStaffReturn => {
   const { data, loading, refetch } = useQuery<UsersResult>(ADMIN_USERS, {
+    variables: {
+      filter: { roles: STAFF_ROLE_FILTER },
+      page: { limit: STAFF_PAGE_LIMIT, offset: 0 },
+    },
     fetchPolicy: 'network-only',
   })
   const { data: branchesData } = useQuery<BranchesResult>(ADMIN_BRANCHES, {
@@ -43,6 +52,7 @@ export const useStaff = (): UseStaffReturn => {
   const [createAdminMutation, { loading: creatingAdmin }] = useMutation(CREATE_ADMIN)
   const [updateMutation, { loading: updating }] = useMutation(UPDATE_USER)
   const [setActiveMutation, { loading: toggling }] = useMutation(SET_USER_ACTIVE)
+  const [deleteMutation, { loading: deleting }] = useMutation(DELETE_USER)
 
   const branchNames = useMemo(() => {
     const map = new Map<string, string>()
@@ -112,6 +122,14 @@ export const useStaff = (): UseStaffReturn => {
     [setActiveMutation, refetch],
   )
 
+  const remove = useCallback(
+    async (id: string) => {
+      await deleteMutation({ variables: { id } })
+      await refetch()
+    },
+    [deleteMutation, refetch],
+  )
+
   const staff = useMemo(
     () =>
       (data?.users.data ?? [])
@@ -127,9 +145,10 @@ export const useStaff = (): UseStaffReturn => {
   return {
     staff,
     isLoading: loading,
-    isMutating: combineLoading(creatingStaff, creatingAdmin, updating, toggling),
+    isMutating: combineLoading(creatingStaff, creatingAdmin, updating, toggling, deleting),
     create,
     update,
     toggle,
+    remove,
   }
 }

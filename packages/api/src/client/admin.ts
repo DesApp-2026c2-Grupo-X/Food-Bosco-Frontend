@@ -177,8 +177,8 @@ export const ADMIN_BRANCHES = gql`
 `
 
 export const ADMIN_USERS = gql`
-  query AdminUsers {
-    users {
+  query AdminUsers($filter: UserFilterInput, $page: PageInput) {
+    users(filter: $filter, page: $page) {
       data {
         ${USER_FIELDS}
       }
@@ -461,6 +461,12 @@ export const SET_USER_ACTIVE = gql`
     setUserActive(id: $id, active: $active) {
       ${USER_FIELDS}
     }
+  }
+`
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id)
   }
 `
 

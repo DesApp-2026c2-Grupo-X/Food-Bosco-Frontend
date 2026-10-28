@@ -39,7 +39,7 @@ const numberField = (message = 'Ingresá un número') =>
     .string()
     .trim()
     .min(1, 'Este campo es requerido')
-    .regex(/^-?\d+(\.\d+)?$/, message)
+    .regex(/^[+-]?\d+(\.\d+)?$/, message)
 
 export const loginSchema = z.object({
   email: emailSchema,

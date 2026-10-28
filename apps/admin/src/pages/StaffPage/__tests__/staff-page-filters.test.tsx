@@ -53,6 +53,7 @@ const mockStaff = (overrides: Partial<ReturnType<typeof useStaff>> = {}) =>
     create: vi.fn(),
     update: vi.fn(),
     toggle: vi.fn(),
+    remove: vi.fn(),
     ...overrides,
   } as ReturnType<typeof useStaff>)
 

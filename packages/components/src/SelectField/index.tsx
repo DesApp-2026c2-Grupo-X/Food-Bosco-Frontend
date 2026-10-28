@@ -12,11 +12,7 @@ export const SelectField = ({
 }: SelectFieldProps) => (
   <NativeSelect.Root size={size} width={width} disabled={disabled}>
     <NativeSelect.Field value={value} onChange={(event) => onChange(event.currentTarget.value)}>
-      {placeholder ? (
-        <option value="" disabled>
-          {placeholder}
-        </option>
-      ) : null}
+      {placeholder ? <option value="">{placeholder}</option> : null}
       {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}

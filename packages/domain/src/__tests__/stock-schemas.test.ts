@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { adjustStockSchema } from '../schemas'
 
 describe('adjustStockSchema (stock FE)', () => {
-  const valid = ['5', '-3', '0.5', '-0.25', '10.0', ' 7 ', '-100']
-  const invalid = ['0', '-0', '0.0', '', '   ', 'abc', '5.', '.5', '+5', '1e3']
+  const valid = ['5', '-3', '0.5', '-0.25', '10.0', ' 7 ', '-100', '+5', '+0.25', ' +7 ']
+  const invalid = ['0', '-0', '+0', '0.0', '', '   ', 'abc', '5.', '.5', '++5', '1e3']
 
   it.each(valid)('F-9: acepta el delta %s', (delta) => {
     expect(adjustStockSchema.safeParse({ delta }).success).toBe(true)

@@ -2306,12 +2306,14 @@ Bosco ...          Colaborador      Norte           Activo
 - Editar datos permitidos.
 - Cambiar sucursal asignada.
 - Activar/desactivar.
+- Eliminar colaborador de sucursal con confirmación (baja lógica: deja de aparecer en la lista y no puede volver a ingresar). Los admins globales no se eliminan.
 - No permitir registro público desde el login admin.
 
 ### Operaciones backend
 
-- Listar personal.
+- Listar personal (filtrado por roles de staff, no por clientes/repartidores).
 - Activar/desactivar.
+- Eliminar colaborador (baja lógica).
 
 ---
 
