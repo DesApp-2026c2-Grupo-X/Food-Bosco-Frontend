@@ -14,6 +14,10 @@ import type {
   Product,
   ProductConfigGroup,
   ProductOption,
+  RepeatOrderResult,
+  RepeatPriceChange,
+  RepeatSkipReason,
+  RepeatSkippedItem,
 } from '@repo/domain'
 import { asBoolean, asList, asNumber, asString, toRecipeItem, toUser } from './mappers'
 import {
@@ -194,6 +198,26 @@ export const toCart = (raw: Raw): Cart => ({
   total: asNumber(raw.total),
 })
 
+export const toRepeatSkippedItem = (raw: Raw): RepeatSkippedItem => ({
+  productId: asString(raw.productId),
+  name: asString(raw.name),
+  reason: asString(raw.reason) as RepeatSkipReason,
+})
+
+export const toRepeatPriceChange = (raw: Raw): RepeatPriceChange => ({
+  productId: asString(raw.productId),
+  name: asString(raw.name),
+  quantity: asNumber(raw.quantity),
+  previousUnitPrice: asNumber(raw.previousUnitPrice),
+  currentUnitPrice: asNumber(raw.currentUnitPrice),
+})
+
+export const toRepeatOrderResult = (raw: Raw): RepeatOrderResult => ({
+  cart: toCart(raw.cart as Raw),
+  skippedItems: asList(raw.skippedItems, toRepeatSkippedItem),
+  priceChanges: asList(raw.priceChanges, toRepeatPriceChange),
+})
+
 export const CATEGORIES = gql`
   query Categories {
     categories {
@@ -283,6 +307,28 @@ export const REMOVE_CART_ITEM = gql`
   mutation RemoveCartItem($itemId: ID!) {
     removeCartItem(itemId: $itemId) {
       ${CART_FIELDS}
+    }
+  }
+`
+
+export const REPEAT_ORDER = gql`
+  mutation RepeatOrder($orderId: ID!) {
+    repeatOrder(orderId: $orderId) {
+      cart {
+        ${CART_FIELDS}
+      }
+      skippedItems {
+        productId
+        name
+        reason
+      }
+      priceChanges {
+        productId
+        name
+        quantity
+        previousUnitPrice
+        currentUnitPrice
+      }
     }
   }
 `
