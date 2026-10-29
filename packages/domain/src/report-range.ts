@@ -54,6 +54,54 @@ const parseDateInput = (value: string): Date => {
   return new Date(value)
 }
 
+export type CustomerReportPreset = 'month' | 'quarter' | 'year'
+
+export interface CustomerReportPeriodOption {
+  value: CustomerReportPreset
+  label: string
+}
+
+export const CUSTOMER_REPORT_PERIOD_OPTIONS: CustomerReportPeriodOption[] = [
+  { value: 'month', label: 'Este mes' },
+  { value: 'quarter', label: 'Últimos 3 meses' },
+  { value: 'year', label: 'Último año' },
+]
+
+const CUSTOMER_GROUP_BY: Record<CustomerReportPreset, ReportGroupBy> = {
+  month: 'DAY',
+  quarter: 'WEEK',
+  year: 'MONTH',
+}
+
+export const buildCustomerReportRange = (
+  preset: CustomerReportPreset,
+  now: Date = new Date(),
+): ReportRange => {
+  const to = endOfDay(now)
+
+  if (preset === 'month') {
+    return {
+      from: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)),
+      to,
+      groupBy: CUSTOMER_GROUP_BY.month,
+    }
+  }
+
+  if (preset === 'quarter') {
+    return {
+      from: startOfDay(new Date(now.getFullYear(), now.getMonth() - 2, 1)),
+      to,
+      groupBy: CUSTOMER_GROUP_BY.quarter,
+    }
+  }
+
+  return {
+    from: startOfDay(new Date(now.getFullYear(), now.getMonth() - 11, 1)),
+    to,
+    groupBy: CUSTOMER_GROUP_BY.year,
+  }
+}
+
 export const buildReportRange = (
   preset: ReportPeriodPreset,
   customFrom?: string,

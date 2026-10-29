@@ -5,6 +5,7 @@ import type {
   Cart,
   CartItem,
   Category,
+  CustomerReportsOverview,
   Order,
   OrderItem,
   OrderItemOption,
@@ -19,6 +20,7 @@ import {
   BRANCH_FIELDS,
   CART_FIELDS,
   CATEGORY_FIELDS,
+  CUSTOMER_REPORTS_OVERVIEW_FIELDS,
   PRODUCT_DETAIL_FIELDS,
   STORE_ORDER_FIELDS,
 } from './fragments'
@@ -141,6 +143,49 @@ export const toCartItem = (raw: Raw): CartItem => ({
   options: asList(raw.options, toConfigOption),
 })
 
+export const toCustomerReportsOverview = (raw: Raw): CustomerReportsOverview => {
+  const period = (raw.period as Raw | undefined) ?? {}
+  const summary = (raw.summary as Raw | undefined) ?? {}
+  const favoriteBranch = summary.favoriteBranch as Raw | undefined
+
+  return {
+    period: { from: asString(period.from), to: asString(period.to) },
+    summary: {
+      totalOrders: asNumber(summary.totalOrders),
+      completedOrders: asNumber(summary.completedOrders),
+      cancelledOrders: asNumber(summary.cancelledOrders),
+      activeOrders: asNumber(summary.activeOrders),
+      totalSpent: asNumber(summary.totalSpent),
+      averageTicket: asNumber(summary.averageTicket),
+      favoriteBranch: favoriteBranch
+        ? {
+            branchId: asString(favoriteBranch.branchId),
+            branchName: asString(favoriteBranch.branchName),
+            orders: asNumber(favoriteBranch.orders),
+            totalSpent: asNumber(favoriteBranch.totalSpent),
+          }
+        : null,
+    },
+    activitySeries: asList(raw.activitySeries, (entry) => ({
+      bucket: asString(entry.bucket),
+      orders: asNumber(entry.orders),
+      completedOrders: asNumber(entry.completedOrders),
+      totalSpent: asNumber(entry.totalSpent),
+    })),
+    frequentProducts: asList(raw.frequentProducts, (entry) => ({
+      productId: asString(entry.productId),
+      name: asString(entry.name),
+      quantity: asNumber(entry.quantity),
+      orders: asNumber(entry.orders),
+      totalSpent: asNumber(entry.totalSpent),
+    })),
+    ordersByStatus: asList(raw.ordersByStatus, (entry) => ({
+      status: asString(entry.status) as OrderStatus,
+      count: asNumber(entry.count),
+    })),
+  }
+}
+
 export const toCart = (raw: Raw): Cart => ({
   id: asString(raw.id),
   clientId: asString(raw.clientId),
@@ -177,6 +222,14 @@ export const MY_ORDERS = gql`
   query MyOrders {
     myOrders {
       ${STORE_ORDER_FIELDS}
+    }
+  }
+`
+
+export const MY_REPORTS_OVERVIEW = gql`
+  query MyReportsOverview($filter: ReportFilterInput) {
+    myReportsOverview(filter: $filter) {
+      ${CUSTOMER_REPORTS_OVERVIEW_FIELDS}
     }
   }
 `

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { formatPercent } from '../format'
-import { buildReportRange, endOfDay, startOfDay, startOfWeek } from '../report-range'
+import {
+  buildCustomerReportRange,
+  buildReportRange,
+  endOfDay,
+  startOfDay,
+  startOfWeek,
+} from '../report-range'
 
 const NOW = new Date(2024, 0, 10, 15, 30, 0)
 
@@ -85,5 +91,36 @@ describe('formatPercent', () => {
     { value: 0, expected: '0%' },
   ])('formats $value as $expected', ({ value, expected }) => {
     expect(formatPercent(value)).toBe(expected)
+  })
+})
+
+describe('buildCustomerReportRange', () => {
+  const cases = [
+    {
+      name: 'este mes',
+      preset: 'month' as const,
+      groupBy: 'DAY',
+      from: new Date(2024, 0, 1, 0, 0, 0, 0),
+    },
+    {
+      name: '�ltimos 3 meses',
+      preset: 'quarter' as const,
+      groupBy: 'WEEK',
+      from: new Date(2023, 10, 1, 0, 0, 0, 0),
+    },
+    {
+      name: '�ltimo a�o',
+      preset: 'year' as const,
+      groupBy: 'MONTH',
+      from: new Date(2023, 1, 1, 0, 0, 0, 0),
+    },
+  ]
+
+  it.each(cases)('$name comienza en $from y agrupa por $groupBy', ({ preset, groupBy, from }) => {
+    const range = buildCustomerReportRange(preset, NOW)
+
+    expect(range.groupBy).toBe(groupBy)
+    expect(range.from).toEqual(from)
+    expect(range.to).toEqual(new Date(2024, 0, 10, 23, 59, 59, 999))
   })
 })

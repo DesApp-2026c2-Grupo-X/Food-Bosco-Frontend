@@ -280,6 +280,9 @@ export type { BranchComparisonChartProps } from './BranchComparisonChart/types'
 export { OrderStatusChart } from './OrderStatusChart'
 export type { OrderStatusChartProps } from './OrderStatusChart/types'
 
+export { CustomerActivityChart } from './CustomerActivityChart'
+export type { CustomerActivityChartProps } from './CustomerActivityChart/types'
+
 export { OrdersListView } from './OrdersListView'
 export type { OrdersListViewProps } from './OrdersListView/types'
 

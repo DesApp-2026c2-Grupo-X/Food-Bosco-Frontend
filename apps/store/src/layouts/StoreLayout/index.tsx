@@ -19,6 +19,7 @@ export const StoreLayout = () => {
   const hasBackHeader = useHasBackHeader([
     routes.profileEdit,
     routes.profileAddresses,
+    routes.activity,
     routes.branches,
     routes.checkout,
     routes.product,

@@ -1,3 +1,4 @@
+import ChartColumn from '@gravity-ui/icons/ChartColumn'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import House from '@gravity-ui/icons/House'
 import PencilToSquare from '@gravity-ui/icons/PencilToSquare'
@@ -7,6 +8,12 @@ import { useProfile } from '@repo/api'
 import { routes } from '../../routes'
 
 const accountItems = [
+  {
+    id: 'activity',
+    label: 'Mi actividad',
+    path: routes.activity,
+    icon: <ChartColumn width={18} height={18} />,
+  },
   {
     id: 'edit',
     label: 'Editar perfil',

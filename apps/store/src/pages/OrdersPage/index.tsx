@@ -11,6 +11,7 @@ import {
   Price,
   PrimaryButton,
   SummaryCard,
+  TextLink,
 } from '@repo/components'
 import { orderDetailPath, routes } from '../../routes'
 import { ActiveOrderCard } from '../../components/ActiveOrderCard'
@@ -28,6 +29,11 @@ export const OrdersPage = () => {
       <PageHeader
         title="Mis pedidos"
         description="Seguí los pedidos en curso y revisá el historial."
+        action={
+          <TextLink to={routes.activity} fontSize="sm">
+            Mi actividad
+          </TextLink>
+        }
       />
 
       {isLoading ? <LoadingState variant="list" skeletonCount={3} skeletonHeight="100px" /> : null}

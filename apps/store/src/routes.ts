@@ -10,6 +10,7 @@ export const routes = {
   profile: '/profile',
   profileEdit: '/profile/edit',
   profileAddresses: '/profile/addresses',
+  activity: '/profile/activity',
 } as const
 
 export const productPath = (id: number | string) => `/products/${id}`
