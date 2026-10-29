@@ -1,5 +1,6 @@
 import type { Category, Product } from './catalog'
 import type { OrderStatus } from './order'
+import type { User } from './user'
 
 export interface ProductReportRow {
   position: number
@@ -125,4 +126,73 @@ export interface CustomerReportsOverview {
   activitySeries: CustomerActivityPoint[]
   frequentProducts: CustomerProductRow[]
   ordersByStatus: OrderStatusCount[]
+}
+
+export type CustomerInsightsSort = 'LAST_PURCHASE' | 'ORDERS' | 'SPENT'
+
+export interface CustomerInsightsFilter {
+  from?: string
+  to?: string
+  branchId?: string
+  groupBy?: ReportGroupBy
+  sortBy?: CustomerInsightsSort
+  limit?: number
+}
+
+export interface CustomerInsightsKpis {
+  totalBuyers: number
+  newBuyers: number
+  returningBuyers: number
+  recurringBuyers: number
+  totalOrders: number
+  totalSpent: number
+  averageTicket: number
+  averageOrdersPerBuyer: number
+}
+
+export interface CustomerBuyerSeriesPoint {
+  bucket: string
+  buyers: number
+}
+
+export interface CustomerDistributionRow {
+  bucket: string
+  label: string
+  buyers: number
+}
+
+export interface CustomerBranchActivityRow {
+  branchId: string
+  branchName: string
+  buyers: number
+  orders: number
+  totalSpent: number
+}
+
+export interface CustomerInsightRow {
+  clientId: string
+  client?: User | null
+  orders: number
+  totalSpent: number
+  firstPurchaseAt: string
+  lastPurchaseAt: string
+  daysSinceLastPurchase: number
+  isNew: boolean
+  isNewOnPlatform: boolean
+  isRecurring: boolean
+}
+
+export interface CustomerInsightsOverview {
+  period: ReportPeriod
+  kpis: CustomerInsightsKpis
+  buyerSeries: CustomerBuyerSeriesPoint[]
+  frequency: CustomerDistributionRow[]
+  recency: CustomerDistributionRow[]
+  branchActivity: CustomerBranchActivityRow[]
+  customers: CustomerInsightRow[]
+}
+
+export interface CustomerRegistrationStats {
+  total: number
+  newInPeriod: number
 }
