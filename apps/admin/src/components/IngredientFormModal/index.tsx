@@ -13,7 +13,11 @@ export const IngredientFormModal = ({
 }: IngredientFormModalProps) => {
   const form = useForm<IngredientForm>({
     resolver: zodResolver(ingredientSchema),
-    defaultValues: { name: ingredient?.name ?? '', unit: ingredient?.unit ?? '' },
+    defaultValues: {
+      name: ingredient?.name ?? '',
+      unit: ingredient?.unit ?? '',
+      minQuantity: ingredient ? String(ingredient.minQuantity ?? 0) : '',
+    },
     mode: 'onTouched',
     reValidateMode: 'onChange',
   })
@@ -30,6 +34,7 @@ export const IngredientFormModal = ({
         const input: IngredientInput = {
           name: values.name.trim(),
           unit: values.unit.trim(),
+          minQuantity: Number(values.minQuantity),
           active,
         }
         await onSubmit(input)
@@ -37,6 +42,13 @@ export const IngredientFormModal = ({
     >
       <FormField name="name" label="Nombre" required placeholder="Ej: Pan de hamburguesa" />
       <FormField name="unit" label="Unidad" required placeholder="Ej: un, kg, l" />
+      <FormField
+        name="minQuantity"
+        label="Cantidad mínima"
+        required
+        inputMode="numeric"
+        placeholder="Ej: 10"
+      />
       <SwitchRow
         label="Activo"
         checked={active}

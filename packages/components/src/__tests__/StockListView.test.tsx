@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { BranchStock } from '@repo/domain'
 import { renderWithProviders } from '@test/utils'
+import { LowStockAlertsSection } from '../LowStockAlertsSection'
 import { StockListView } from '../StockListView'
 
 const pan: BranchStock = {
@@ -76,5 +77,88 @@ describe('StockListView', () => {
     await userEvent.click(screen.getAllByRole('button', { name: 'Ajustar' })[1] as HTMLElement)
 
     expect(onAdjust).toHaveBeenCalledWith(queso)
+  })
+
+  it('F-17: muestra badges de alerta, stock mínimo y permite filtrar por estado', async () => {
+    const lowPan: BranchStock = {
+      ingredientId: 'i1',
+      branchId: 'b1',
+      quantity: 5,
+      ingredient: { id: 'i1', name: 'Pan', unit: 'un', minQuantity: 20, active: true },
+    }
+    const outQueso: BranchStock = {
+      ingredientId: 'i2',
+      branchId: 'b1',
+      quantity: 0,
+      ingredient: { id: 'i2', name: 'Queso', unit: 'kg', minQuantity: 10, active: true },
+    }
+    const okAgua: BranchStock = {
+      ingredientId: 'i3',
+      branchId: 'b1',
+      quantity: 50,
+      ingredient: { id: 'i3', name: 'Agua', unit: 'botella', minQuantity: 15, active: true },
+    }
+
+    render({ rows: [lowPan, outQueso, okAgua] })
+
+    expect(screen.getByText('Stock bajo')).toBeInTheDocument()
+    expect(screen.getByText('Sin stock')).toBeInTheDocument()
+    expect(screen.getByText('20 un')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Con stock bajo' }))
+    await waitFor(() => expect(screen.queryByText('Agua')).not.toBeInTheDocument())
+    expect(screen.queryByText('Queso')).not.toBeInTheDocument()
+    expect(screen.getByText('Pan')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Con stock bajo' }))
+    await waitFor(() => expect(screen.getByText('Agua')).toBeInTheDocument())
+  })
+})
+
+describe('LowStockAlertsSection', () => {
+  it('returns nothing when there are no alerts', () => {
+    renderWithProviders(<LowStockAlertsSection alerts={[]} />)
+    expect(screen.queryByText('Alertas de stock')).not.toBeInTheDocument()
+  })
+
+  it('renders low stock and out of stock alerts with branch and adjust action', async () => {
+    const onAdjust = vi.fn()
+    const alerts: BranchStock[] = [
+      {
+        ingredientId: 'i1',
+        branchId: 'b1',
+        quantity: 0,
+        ingredient: { id: 'i1', name: 'Tomate', unit: 'un', minQuantity: 15, active: true },
+      },
+      {
+        ingredientId: 'i2',
+        branchId: 'b2',
+        quantity: 4,
+        ingredient: { id: 'i2', name: 'Pan', unit: 'un', minQuantity: 20, active: true },
+      },
+    ]
+
+    renderWithProviders(
+      <LowStockAlertsSection
+        alerts={alerts}
+        showBranch
+        branchName={(id) => (id === 'b1' ? 'Centro' : 'Norte')}
+        stockPath="/stock"
+        onAdjust={onAdjust}
+      />,
+    )
+
+    expect(screen.getByText('Alertas de stock')).toBeInTheDocument()
+    expect(screen.getByText('2 ingredientes')).toBeInTheDocument()
+    expect(screen.getByText('Tomate · Centro')).toBeInTheDocument()
+    expect(screen.getByText('Sin stock')).toBeInTheDocument()
+    expect(screen.getByText('Disponible: 0 un · Mínimo: 15 un')).toBeInTheDocument()
+    expect(screen.getByText('Pan · Norte')).toBeInTheDocument()
+    expect(screen.getByText('Stock bajo')).toBeInTheDocument()
+    expect(screen.getByText('Disponible: 4 un · Mínimo: 20 un')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Ver todo el stock' })).toHaveAttribute('href', '/stock')
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Ajustar' })[0] as HTMLElement)
+    expect(onAdjust).toHaveBeenCalledWith(alerts[0])
   })
 })

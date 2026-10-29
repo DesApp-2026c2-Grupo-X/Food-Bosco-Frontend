@@ -155,7 +155,7 @@ describe('ConfigOptionFormModal', () => {
 })
 
 describe('IngredientFormModal', () => {
-  it('submits name, unit and active flag', async () => {
+  it('starts minQuantity empty and submits name, unit, minQuantity and active flag', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     renderWithProviders(
       <IngredientFormModal
@@ -166,13 +166,21 @@ describe('IngredientFormModal', () => {
       />,
     )
 
+    expect(screen.getByLabelText('Cantidad mínima')).toHaveValue('')
+
     await userEvent.type(screen.getByPlaceholderText('Ej: Pan de hamburguesa'), ' Pan ')
     await userEvent.type(screen.getByPlaceholderText('Ej: un, kg, l'), ' un ')
+    await userEvent.type(screen.getByPlaceholderText('Ej: 10'), '20')
     await userEvent.tab()
     await userEvent.click(submitButton())
 
     await waitFor(() =>
-      expect(onSubmit).toHaveBeenCalledWith({ name: 'Pan', unit: 'un', active: true }),
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'Pan',
+        unit: 'un',
+        minQuantity: 20,
+        active: true,
+      }),
     )
   })
 })

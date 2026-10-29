@@ -94,11 +94,20 @@ describe('toUser', () => {
 })
 
 describe('toIngredient', () => {
-  it('maps an ingredient', () => {
+  it('maps an ingredient with and without minQuantity', () => {
     expect(toIngredient({ id: 'i1', name: 'Pan', unit: 'un', active: true })).toEqual({
       id: 'i1',
       name: 'Pan',
       unit: 'un',
+      active: true,
+    })
+    expect(
+      toIngredient({ id: 'i1', name: 'Pan', unit: 'un', minQuantity: '25', active: true }),
+    ).toEqual({
+      id: 'i1',
+      name: 'Pan',
+      unit: 'un',
+      minQuantity: 25,
       active: true,
     })
   })

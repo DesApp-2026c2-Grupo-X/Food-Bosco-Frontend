@@ -27,6 +27,7 @@ export const INGREDIENT_FIELDS = `
   id
   name
   unit
+  minQuantity
   active
 `
 

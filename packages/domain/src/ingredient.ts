@@ -2,6 +2,7 @@ export interface Ingredient {
   id: string
   name: string
   unit: string
+  minQuantity?: number
   active: boolean
 }
 
@@ -15,6 +16,7 @@ export interface RecipeItem {
 export interface IngredientInput {
   name: string
   unit: string
+  minQuantity?: number
   active: boolean
 }
 

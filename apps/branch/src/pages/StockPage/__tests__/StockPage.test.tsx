@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { BranchStock } from '@repo/domain'
 import { useBranchStock } from '@repo/api'
+import { toaster } from '@repo/components'
 import { renderWithProviders } from '@test/utils'
 import { StockPage } from '../index'
 
@@ -87,6 +88,36 @@ describe('StockPage', () => {
     await waitFor(() => expect(adjust).toHaveBeenCalledWith('i1', 5, 'reposicion'))
     await waitFor(() =>
       expect(screen.queryByRole('heading', { name: 'Ajustar stock' })).not.toBeInTheDocument(),
+    )
+  })
+
+  it('warns when an adjustment leaves the ingredient at or below minQuantity', async () => {
+    const adjust = vi.fn().mockResolvedValue(undefined)
+    const createSpy = vi.spyOn(toaster, 'create')
+    mockStock(
+      [
+        {
+          ingredientId: 'i1',
+          branchId: 'b1',
+          quantity: 12,
+          ingredient: { id: 'i1', name: 'Pan', unit: 'un', minQuantity: 10, active: true },
+        },
+      ],
+      { adjust },
+    )
+    renderWithProviders(<StockPage />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ajustar' }))
+    await userEvent.type(screen.getByPlaceholderText('Ej: 5 o -3'), '-5')
+    await userEvent.tab()
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar ajuste' }))
+
+    await waitFor(() => expect(adjust).toHaveBeenCalledWith('i1', -5, ''))
+    expect(createSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'warning',
+        title: 'Stock en alerta',
+      }),
     )
   })
 })

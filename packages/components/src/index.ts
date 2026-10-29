@@ -2,7 +2,7 @@ export { AppProviders } from './AppProviders'
 export type { AppProvidersProps } from './AppProviders/types'
 
 export { Toaster } from './Toaster'
-export { notifyError, notifySuccess, toaster } from './Toaster/toaster'
+export { notifyError, notifySuccess, notifyWarning, toaster } from './Toaster/toaster'
 export type { NotifyOptions } from './Toaster/types'
 
 export { ColorModeProvider } from './ColorModeProvider'
@@ -58,6 +58,9 @@ export type { FormSelectFieldProps } from './FormSelectField/types'
 
 export { AdjustStockModal } from './AdjustStockModal'
 export type { AdjustStockModalProps } from './AdjustStockModal/types'
+
+export { LowStockAlertsSection } from './LowStockAlertsSection'
+export type { LowStockAlertsSectionProps } from './LowStockAlertsSection/types'
 
 export { OrderDetailView } from './OrderDetailView'
 export type { OrderDetailCardProps } from './OrderDetailView/types'

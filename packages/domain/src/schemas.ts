@@ -41,6 +41,12 @@ const numberField = (message = 'Ingresá un número') =>
     .min(1, 'Este campo es requerido')
     .regex(/^[+-]?\d+(\.\d+)?$/, message)
 
+const nonNegativeIntField = (message: string) =>
+  numberField(message).refine(
+    (value) => Number.isInteger(Number(value)) && Number(value) >= 0,
+    'Ingresá un entero mayor o igual a 0',
+  )
+
 export const loginSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
@@ -184,6 +190,7 @@ const isoDateSchema = z
 export const ingredientSchema = z.object({
   name: nameSchema,
   unit: z.string().trim().min(1, 'Este campo es requerido').max(50, 'Máximo 50 caracteres'),
+  minQuantity: nonNegativeIntField('Ingresá una cantidad mínima válida'),
 })
 
 export const productSchema = z.object({
@@ -263,12 +270,6 @@ export const parameterSchema = z.object({
     'El valor debe ser mayor a 0',
   ),
 })
-
-const nonNegativeIntField = (message: string) =>
-  numberField(message).refine(
-    (value) => Number.isInteger(Number(value)) && Number(value) >= 0,
-    'Ingresá un entero mayor o igual a 0',
-  )
 
 export const orderStateSchema = z.object({
   name: nameSchema,

@@ -1,12 +1,13 @@
 import { screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Order } from '@repo/domain'
-import { useBranchOrders } from '@repo/api'
+import { useBranchOrders, useBranchStock } from '@repo/api'
 import { renderWithProviders } from '@test/utils'
 import { HomePage } from '../index'
 
 vi.mock('@repo/api', () => ({
   useBranchOrders: vi.fn(),
+  useBranchStock: vi.fn(),
 }))
 
 const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60000).toISOString()
@@ -33,6 +34,15 @@ const mockOrders = (orders: Order[], isLoading = false) => {
 }
 
 describe('HomePage states', () => {
+  beforeEach(() => {
+    vi.mocked(useBranchStock).mockReturnValue({
+      stock: [],
+      isLoading: false,
+      isAdjusting: false,
+      adjust: vi.fn(),
+    })
+  })
+
   it('renders neither the empty state nor order rows while loading', () => {
     mockOrders([], true)
     renderWithProviders(<HomePage />)
