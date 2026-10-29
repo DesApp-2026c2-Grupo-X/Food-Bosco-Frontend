@@ -17,6 +17,7 @@ import { OrderDetailPage } from './pages/OrderDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { EditProfilePage } from './pages/EditProfilePage'
 import { AddressesPage } from './pages/AddressesPage'
+import { ActivityPage } from './pages/ActivityPage'
 import logoLight from './assets/logo-light.svg'
 import logoDark from './assets/logo-dark.svg'
 
@@ -54,6 +55,7 @@ export const App = () => {
                 { path: routes.profile, element: <ProfilePage /> },
                 { path: routes.profileEdit, element: <EditProfilePage /> },
                 { path: routes.profileAddresses, element: <AddressesPage /> },
+                { path: routes.activity, element: <ActivityPage /> },
               ],
             },
           ],

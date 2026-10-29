@@ -273,6 +273,44 @@ export const REPORTS_OVERVIEW_FIELDS = `
   }
 `
 
+export const CUSTOMER_REPORTS_OVERVIEW_FIELDS = `
+  period {
+    from
+    to
+  }
+  summary {
+    totalOrders
+    completedOrders
+    cancelledOrders
+    activeOrders
+    totalSpent
+    averageTicket
+    favoriteBranch {
+      branchId
+      branchName
+      orders
+      totalSpent
+    }
+  }
+  activitySeries {
+    bucket
+    orders
+    completedOrders
+    totalSpent
+  }
+  frequentProducts {
+    productId
+    name
+    quantity
+    orders
+    totalSpent
+  }
+  ordersByStatus {
+    status
+    count
+  }
+`
+
 export const BRANCH_RECIPE_ITEM_FIELDS = `
   id
   ingredientId
