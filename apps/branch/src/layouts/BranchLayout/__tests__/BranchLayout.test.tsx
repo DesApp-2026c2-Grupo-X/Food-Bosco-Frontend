@@ -194,4 +194,33 @@ describe('BranchLayout', () => {
 
     expect(logout).toHaveBeenCalledTimes(1)
   })
+
+  it('renders navigation items including the Reportes section with Productos and Clientes', () => {
+    renderLayout()
+
+    expect(screen.getByText('Reportes')).toBeInTheDocument()
+
+    const productLinks = screen
+      .getAllByRole('link', { name: 'Productos', hidden: true })
+      .map((item) => item.getAttribute('href'))
+    expect(productLinks).toEqual(expect.arrayContaining(['/products', '/reports/products']))
+
+    expect(screen.getByRole('link', { name: 'Clientes', hidden: true })).toHaveAttribute(
+      'href',
+      '/reports/customers',
+    )
+    expect(screen.getByRole('link', { name: 'Inicio', hidden: true })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: 'Pedidos', hidden: true })).toHaveAttribute(
+      'href',
+      '/orders',
+    )
+    expect(screen.getByRole('link', { name: 'Stock', hidden: true })).toHaveAttribute(
+      'href',
+      '/stock',
+    )
+    expect(screen.getByRole('link', { name: 'Perfil', hidden: true })).toHaveAttribute(
+      'href',
+      '/profile',
+    )
+  })
 })

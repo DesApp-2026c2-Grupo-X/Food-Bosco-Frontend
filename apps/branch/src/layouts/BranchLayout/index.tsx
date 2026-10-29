@@ -5,7 +5,7 @@ import { useLogout } from '@repo/auth'
 import { Logo } from '../../components/logo'
 import { BranchStatusButton } from '../../components/BranchStatusButton'
 import { orderDetailPath } from '../../routes'
-import { navItems } from './utils/navigation'
+import { navSections } from './utils/navigation'
 
 export const BranchLayout = () => {
   const handleLogout = useLogout()
@@ -19,9 +19,10 @@ export const BranchLayout = () => {
   return (
     <DashboardLayout
       logo={Logo}
-      navSections={[{ id: 'main', items: navItems }]}
+      navSections={navSections}
       brandSubtitle={branchName}
       headerTitle={`Sucursal ${branchName}`}
+      sidebarScrollable
       onLogout={handleLogout}
       headerActions={<BranchStatusButton />}
       extras={
