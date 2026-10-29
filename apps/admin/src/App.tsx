@@ -18,6 +18,7 @@ import { ParametersPage } from './pages/ParametersPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { StockPage } from './pages/StockPage'
 import { ReportsPage } from './pages/ReportsPage'
+import { CustomerReportsPage } from './pages/CustomerReportsPage'
 import logoLight from './assets/logo-light.svg'
 import logoDark from './assets/logo-dark.svg'
 
@@ -57,6 +58,7 @@ export const App = () =>
             { path: routes.orderDetail, element: <OrderDetailPage /> },
             { path: routes.stock, element: <StockPage /> },
             { path: routes.reports, element: <ReportsPage /> },
+            { path: routes.reportsCustomers, element: <CustomerReportsPage /> },
             { path: routes.profile, element: <ProfilePage /> },
           ],
         },

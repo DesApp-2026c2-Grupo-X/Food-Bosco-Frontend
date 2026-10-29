@@ -9,6 +9,7 @@ import { ProductsPage } from './pages/ProductsPage'
 import { StockPage } from './pages/StockPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { ReportsPage } from './pages/ReportsPage'
+import { CustomerReportsPage } from './pages/CustomerReportsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import logoLight from './assets/logo-light.svg'
 import logoDark from './assets/logo-dark.svg'
@@ -36,6 +37,7 @@ export const App = () =>
             { path: routes.orders, element: <OrdersPage /> },
             { path: routes.orderDetail, element: <OrderDetailPage /> },
             { path: routes.reports, element: <ReportsPage /> },
+            { path: routes.reportsCustomers, element: <CustomerReportsPage /> },
             { path: routes.profile, element: <ProfilePage /> },
           ],
         },

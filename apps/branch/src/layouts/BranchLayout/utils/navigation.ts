@@ -3,6 +3,7 @@ import Tag from '@gravity-ui/icons/Tag'
 import Receipt from '@gravity-ui/icons/Receipt'
 import Box from '@gravity-ui/icons/Box'
 import ChartColumn from '@gravity-ui/icons/ChartColumn'
+import Persons from '@gravity-ui/icons/Persons'
 import Person from '@gravity-ui/icons/Person'
 import type { DashboardNavItem } from '@repo/components'
 import { routes } from '../../../routes'
@@ -13,5 +14,6 @@ export const navItems: DashboardNavItem[] = [
   { id: 'orders', label: 'Pedidos', path: routes.orders, icon: Receipt },
   { id: 'stock', label: 'Stock', path: routes.stock, icon: Box },
   { id: 'reports', label: 'Reportes', path: routes.reports, icon: ChartColumn },
+  { id: 'customerReports', label: 'Clientes', path: routes.reportsCustomers, icon: Persons },
   { id: 'profile', label: 'Perfil', path: routes.profile, icon: Person },
 ]

@@ -286,6 +286,15 @@ export type { OrderStatusChartProps } from './OrderStatusChart/types'
 export { CustomerActivityChart } from './CustomerActivityChart'
 export type { CustomerActivityChartProps } from './CustomerActivityChart/types'
 
+export { CustomerInsightsView } from './CustomerInsightsView'
+export type { CustomerInsightsScope, CustomerInsightsViewProps } from './CustomerInsightsView/types'
+export { CustomerBuyerTrendChart } from './CustomerBuyerTrendChart'
+export type { CustomerBuyerTrendChartProps } from './CustomerBuyerTrendChart/types'
+export { CustomerDistributionChart } from './CustomerDistributionChart'
+export type { CustomerDistributionChartProps } from './CustomerDistributionChart/types'
+export { CustomerBranchChart } from './CustomerBranchChart'
+export type { CustomerBranchChartProps } from './CustomerBranchChart/types'
+
 export { OrdersListView } from './OrdersListView'
 export type { OrdersListViewProps } from './OrdersListView/types'
 

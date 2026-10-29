@@ -18,6 +18,7 @@ export const routes = {
   orderDetail: '/orders/:orderId',
   stock: '/stock',
   reports: '/reports/products',
+  reportsCustomers: '/reports/customers',
   profile: '/profile',
 } as const
 
