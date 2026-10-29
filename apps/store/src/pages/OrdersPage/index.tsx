@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { HStack, VStack } from '@chakra-ui/react'
 import ListUl from '@gravity-ui/icons/ListUl'
 import { Link } from 'react-router-dom'
 import {
+  Card,
   EmptyState,
   LoadingState,
   Muted,
@@ -10,17 +12,19 @@ import {
   PageHeader,
   Price,
   PrimaryButton,
-  SummaryCard,
+  SecondaryButton,
   TextLink,
 } from '@repo/components'
 import { orderDetailPath, routes } from '../../routes'
 import { ActiveOrderCard } from '../../components/ActiveOrderCard'
+import { RepeatOrderModal } from '../../components/RepeatOrderModal'
 import { formatPrice } from '@repo/domain'
-import { formatOrderDate, isActiveOrder } from '@repo/domain'
+import { formatOrderDate, isActiveOrder, type Order } from '@repo/domain'
 import { useOrders } from '@repo/api'
 
 export const OrdersPage = () => {
   const { orders, isLoading } = useOrders({ pollIntervalMs: 15000 })
+  const [orderToRepeat, setOrderToRepeat] = useState<Order | null>(null)
   const activeOrders = orders.filter((order) => isActiveOrder(order.status))
   const pastOrders = orders.filter((order) => !isActiveOrder(order.status))
 
@@ -49,13 +53,16 @@ export const OrdersPage = () => {
       <VStack gap="3" align="stretch">
         {!isLoading &&
           pastOrders.map((order) => (
-            <SummaryCard
-              key={order.id}
-              href={orderDetailPath(order.id)}
-              title={`Pedido #${order.number}`}
-              meta={formatOrderDate(order.createdAt)}
-              trailing={<OrderStatusBadge status={order.status} />}
-            >
+            <Card key={order.id}>
+              <HStack justify="space-between" align="start" gap="4">
+                <VStack align="start" gap="1">
+                  <TextLink to={orderDetailPath(order.id)} fontSize="lg">
+                    Pedido #{order.number}
+                  </TextLink>
+                  <Muted fontSize="sm">{formatOrderDate(order.createdAt)}</Muted>
+                </VStack>
+                <OrderStatusBadge status={order.status} />
+              </HStack>
               <HStack justify="space-between" marginTop="3">
                 <Muted fontSize="sm">
                   {order.items.reduce((sum, item) => sum + item.quantity, 0)} ítems ·{' '}
@@ -63,7 +70,15 @@ export const OrdersPage = () => {
                 </Muted>
                 <Price>{formatPrice(order.total)}</Price>
               </HStack>
-            </SummaryCard>
+              <HStack justify="flex-end" gap="2" marginTop="4" wrap="wrap">
+                <SecondaryButton size="sm" asChild>
+                  <Link to={orderDetailPath(order.id)}>Ver detalle</Link>
+                </SecondaryButton>
+                <SecondaryButton size="sm" onClick={() => setOrderToRepeat(order)}>
+                  Repetir
+                </SecondaryButton>
+              </HStack>
+            </Card>
           ))}
       </VStack>
 
@@ -78,6 +93,10 @@ export const OrdersPage = () => {
             </PrimaryButton>
           }
         />
+      ) : null}
+
+      {orderToRepeat ? (
+        <RepeatOrderModal order={orderToRepeat} onClose={() => setOrderToRepeat(null)} />
       ) : null}
     </PageContainer>
   )

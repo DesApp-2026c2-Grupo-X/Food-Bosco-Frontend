@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Box, HStack, VStack } from '@chakra-ui/react'
 import CircleCheckFill from '@gravity-ui/icons/CircleCheckFill'
 import CircleXmarkFill from '@gravity-ui/icons/CircleXmarkFill'
@@ -20,6 +20,7 @@ import {
   type InteractiveMapMarker,
 } from '@repo/components'
 import { useOrder } from '@repo/api'
+import { RepeatOrderModal } from '../../components/RepeatOrderModal'
 import { routes } from '../../routes'
 import type { Order } from '@repo/domain'
 import { formatEta, formatOrderDate, isActiveOrder } from '@repo/domain'
@@ -30,6 +31,7 @@ const ACTIVE_POLL_INTERVAL_MS = 4000
 export const OrderDetailPage = () => {
   const { orderId } = useParams()
   const { order, isLoading, startPolling, stopPolling } = useOrder(orderId)
+  const [repeatOpen, setRepeatOpen] = useState(false)
 
   // El estado del pedido cambia del lado del servidor: mientras el pedido esté
   // activo, volvemos a consultarlo para reflejar el progreso (y el rider) en vivo.
@@ -114,9 +116,25 @@ export const OrderDetailPage = () => {
         </Card>
       ) : null}
 
+      {!active ? (
+        <Card variant="subtle">
+          <VStack align="start" gap="3">
+            <Strong fontSize="lg">¿Querés pedirlo de nuevo?</Strong>
+            <Muted fontSize="sm">
+              Armamos un carrito nuevo con los productos disponibles y los precios actuales.
+            </Muted>
+            <PrimaryButton type="button" onClick={() => setRepeatOpen(true)}>
+              Repetir pedido
+            </PrimaryButton>
+          </VStack>
+        </Card>
+      ) : null}
+
       <OrderItemsCard items={order.items} />
 
       <OrderTotalCard total={order.total} subtitle={`Entrega a ${order.deliveryAddress.text}`} />
+
+      {repeatOpen ? <RepeatOrderModal order={order} onClose={() => setRepeatOpen(false)} /> : null}
     </OrderDetailShell>
   )
 }
