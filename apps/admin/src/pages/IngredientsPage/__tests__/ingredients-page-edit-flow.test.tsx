@@ -8,7 +8,7 @@ import { IngredientsPage } from '../index'
 
 vi.mock('@repo/api', () => ({ useIngredients: vi.fn() }))
 
-const ingredient: Ingredient = { id: 'i1', name: 'Pan', unit: 'un', active: true }
+const ingredient: Ingredient = { id: 'i1', name: 'Pan', unit: 'un', minQuantity: 20, active: true }
 
 const mockIngredients = (overrides: Partial<ReturnType<typeof useIngredients>> = {}) =>
   vi.mocked(useIngredients).mockReturnValue({
@@ -22,7 +22,7 @@ const mockIngredients = (overrides: Partial<ReturnType<typeof useIngredients>> =
   } as ReturnType<typeof useIngredients>)
 
 describe('IngredientsPage edit flow', () => {
-  it('prefills the local modal and calls update', async () => {
+  it('prefills the local modal and calls update including minQuantity', async () => {
     const update = vi.fn().mockResolvedValue(undefined)
     mockIngredients({ update })
 
@@ -32,15 +32,24 @@ describe('IngredientsPage edit flow', () => {
 
     expect(await screen.findByText('Editar ingrediente')).toBeInTheDocument()
     const name = screen.getByLabelText('Nombre')
+    const minQuantity = screen.getByLabelText('Cantidad mínima')
     expect(name).toHaveValue('Pan')
     expect(screen.getByLabelText('Unidad')).toHaveValue('un')
+    expect(minQuantity).toHaveValue('20')
 
     await userEvent.clear(name)
     await userEvent.type(name, 'Queso')
+    await userEvent.clear(minQuantity)
+    await userEvent.type(minQuantity, '30')
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }))
 
     await waitFor(() =>
-      expect(update).toHaveBeenCalledWith('i1', { name: 'Queso', unit: 'un', active: true }),
+      expect(update).toHaveBeenCalledWith('i1', {
+        name: 'Queso',
+        unit: 'un',
+        minQuantity: 30,
+        active: true,
+      }),
     )
   })
 })

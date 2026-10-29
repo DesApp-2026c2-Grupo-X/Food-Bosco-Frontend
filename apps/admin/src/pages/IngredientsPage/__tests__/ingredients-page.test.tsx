@@ -8,7 +8,7 @@ import { IngredientsPage } from '../index'
 
 vi.mock('@repo/api', () => ({ useIngredients: vi.fn() }))
 
-const ingredient: Ingredient = { id: 'i1', name: 'Pan', unit: 'un', active: true }
+const ingredient: Ingredient = { id: 'i1', name: 'Pan', unit: 'un', minQuantity: 25, active: true }
 
 const mockIngredients = (overrides: Partial<ReturnType<typeof useIngredients>> = {}) =>
   vi.mocked(useIngredients).mockReturnValue({
@@ -22,13 +22,14 @@ const mockIngredients = (overrides: Partial<ReturnType<typeof useIngredients>> =
   } as ReturnType<typeof useIngredients>)
 
 describe('IngredientsPage', () => {
-  it('renders the ingredients list', () => {
+  it('renders the ingredients list including minimum stock', () => {
     mockIngredients()
 
     renderWithProviders(<IngredientsPage />)
 
     expect(screen.getByText('Pan')).toBeInTheDocument()
     expect(screen.getByText('un')).toBeInTheDocument()
+    expect(screen.getByText('25 un')).toBeInTheDocument()
   })
 
   it('shows the empty state', () => {
@@ -39,7 +40,7 @@ describe('IngredientsPage', () => {
     expect(screen.getByText('Sin ingredientes')).toBeInTheDocument()
   })
 
-  it('creates an ingredient from the modal', async () => {
+  it('creates an ingredient from the modal with minQuantity', async () => {
     const create = vi.fn().mockResolvedValue(undefined)
     mockIngredients({ create })
 
@@ -48,10 +49,16 @@ describe('IngredientsPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Nuevo ingrediente' }))
     await userEvent.type(await screen.findByPlaceholderText('Ej: Pan de hamburguesa'), 'Queso')
     await userEvent.type(screen.getByPlaceholderText('Ej: un, kg, l'), 'kg')
+    await userEvent.type(screen.getByPlaceholderText('Ej: 10'), '15')
     await userEvent.click(screen.getByRole('button', { name: 'Guardar' }))
 
     await waitFor(() =>
-      expect(create).toHaveBeenCalledWith({ name: 'Queso', unit: 'kg', active: true }),
+      expect(create).toHaveBeenCalledWith({
+        name: 'Queso',
+        unit: 'kg',
+        minQuantity: 15,
+        active: true,
+      }),
     )
   })
 

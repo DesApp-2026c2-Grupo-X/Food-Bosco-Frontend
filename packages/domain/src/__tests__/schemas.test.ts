@@ -256,9 +256,25 @@ describe('catalog schemas', () => {
     expect(categorySchema.safeParse({ name: '' }).success).toBe(false)
   })
 
-  it('ingredient requires name and unit', () => {
-    expect(ingredientSchema.safeParse({ name: 'Pan', unit: 'un' }).success).toBe(true)
-    expect(ingredientSchema.safeParse({ name: 'Pan', unit: '' }).success).toBe(false)
+  it('ingredient requires name, unit, and non-negative integer minQuantity', () => {
+    expect(ingredientSchema.safeParse({ name: 'Pan', unit: 'un', minQuantity: '10' }).success).toBe(
+      true,
+    )
+    expect(ingredientSchema.safeParse({ name: 'Pan', unit: 'un', minQuantity: '0' }).success).toBe(
+      true,
+    )
+    expect(ingredientSchema.safeParse({ name: 'Pan', unit: '', minQuantity: '10' }).success).toBe(
+      false,
+    )
+    expect(ingredientSchema.safeParse({ name: 'Pan', unit: 'un', minQuantity: '' }).success).toBe(
+      false,
+    )
+    expect(ingredientSchema.safeParse({ name: 'Pan', unit: 'un', minQuantity: '-1' }).success).toBe(
+      false,
+    )
+    expect(
+      ingredientSchema.safeParse({ name: 'Pan', unit: 'un', minQuantity: '2.5' }).success,
+    ).toBe(false)
   })
 
   it('product rejects negative prices and missing category', () => {

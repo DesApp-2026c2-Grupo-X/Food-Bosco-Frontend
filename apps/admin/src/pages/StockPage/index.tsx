@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AdjustStockModal, SelectField, StockListView } from '@repo/components'
+import { AdjustStockModal, SelectField, StockListView, notifyWarning } from '@repo/components'
 import { useBranches, useGlobalStock } from '@repo/api'
 import { optionsFromEntities, type BranchStock } from '@repo/domain'
 
@@ -19,6 +19,14 @@ export const StockPage = () => {
   const handleSubmit = async (delta: number, reason: string) => {
     if (!selected) return
     await adjust(selected.branchId, selected.ingredientId, delta, reason)
+    const minQuantity = selected.ingredient?.minQuantity ?? 0
+    const newQuantity = selected.quantity + delta
+    if (minQuantity > 0 && newQuantity <= minQuantity) {
+      notifyWarning({
+        title: 'Stock en alerta',
+        description: `${selected.ingredient?.name ?? 'El ingrediente'} quedó con ${newQuantity} ${selected.ingredient?.unit ?? ''} (mínimo: ${minQuantity}).`,
+      })
+    }
     setSelected(null)
   }
 

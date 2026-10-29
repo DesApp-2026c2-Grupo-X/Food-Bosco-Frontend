@@ -23,6 +23,7 @@ export const toIngredient = (raw: Raw): Ingredient => ({
   id: asString(raw.id),
   name: asString(raw.name),
   unit: asString(raw.unit),
+  ...(raw.minQuantity != null ? { minQuantity: asNumber(raw.minQuantity) } : {}),
   active: asBoolean(raw.active),
 })
 

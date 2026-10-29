@@ -69,10 +69,10 @@ describe('form modals edit mode', () => {
     expect(available.control).not.toBeChecked()
   })
 
-  it('prefills the ingredient and uses the edit title', () => {
+  it('prefills the ingredient including minQuantity and uses the edit title', () => {
     renderWithProviders(
       <IngredientFormModal
-        ingredient={{ id: 'i1', name: 'Pan', unit: 'un', active: false }}
+        ingredient={{ id: 'i1', name: 'Pan', unit: 'un', minQuantity: 25, active: false }}
         isSubmitting={false}
         onClose={vi.fn()}
         onSubmit={vi.fn()}
@@ -82,6 +82,7 @@ describe('form modals edit mode', () => {
     expect(screen.getByText('Editar ingrediente')).toBeInTheDocument()
     expect(screen.getByLabelText('Nombre')).toHaveValue('Pan')
     expect(screen.getByLabelText('Unidad')).toHaveValue('un')
+    expect(screen.getByLabelText('Cantidad mínima')).toHaveValue('25')
     const active = screen.getByLabelText('Ingrediente activo') as HTMLLabelElement
     expect(active.control).not.toBeChecked()
   })

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { notifyError, notifySuccess, toaster } from '../Toaster/toaster'
+import { notifyError, notifySuccess, notifyWarning, toaster } from '../Toaster/toaster'
 
 describe('toaster helpers', () => {
   it('notifySuccess creates a success toast', () => {
@@ -11,6 +11,18 @@ describe('toaster helpers', () => {
       type: 'success',
       title: 'Listo',
       description: 'Todo salió bien',
+    })
+  })
+
+  it('notifyWarning creates a warning toast', () => {
+    const create = vi.spyOn(toaster, 'create')
+
+    notifyWarning({ title: 'Atención', description: 'Stock bajo' })
+
+    expect(create).toHaveBeenCalledWith({
+      type: 'warning',
+      title: 'Atención',
+      description: 'Stock bajo',
     })
   })
 
