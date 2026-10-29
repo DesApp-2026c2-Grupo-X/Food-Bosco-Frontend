@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { HStack, Text, VStack } from '@chakra-ui/react'
 import Tag from '@gravity-ui/icons/Tag'
 import Receipt from '@gravity-ui/icons/Receipt'
@@ -6,9 +7,11 @@ import ChartColumn from '@gravity-ui/icons/ChartColumn'
 import ListUl from '@gravity-ui/icons/ListUl'
 import { Link } from 'react-router-dom'
 import {
+  AdjustStockModal,
   Card,
   EmptyState,
   LoadingState,
+  LowStockAlertsSection,
   Muted,
   OrderStatusBadge,
   PageHeader,
@@ -17,13 +20,16 @@ import {
   Reveal,
   Strong,
   WidePageContainer,
+  notifyWarning,
 } from '@repo/components'
-import { useBranchOrders } from '@repo/api'
+import { useBranchOrders, useBranchStock } from '@repo/api'
 import {
+  filterLowStockAlerts,
   formatElapsedAgo,
   getElapsedMinutes,
   getStatusSince,
   groupAttentionOrders,
+  type BranchStock,
 } from '@repo/domain'
 import { orderDetailPath, routes } from '../../routes'
 
@@ -63,7 +69,25 @@ const elapsedTone = (minutes: number) =>
 
 export const HomePage = () => {
   const { orders, isLoading } = useBranchOrders()
+  const { stock = [], isAdjusting = false, adjust } = useBranchStock?.() ?? {}
+  const [selectedStock, setSelectedStock] = useState<BranchStock | null>(null)
+
   const groups = groupAttentionOrders(orders)
+  const alerts = filterLowStockAlerts(stock)
+
+  const handleAdjust = async (delta: number, reason: string) => {
+    if (!selectedStock) return
+    await adjust(selectedStock.ingredientId, delta, reason)
+    const minQuantity = selectedStock.ingredient?.minQuantity ?? 0
+    const newQuantity = selectedStock.quantity + delta
+    if (minQuantity > 0 && newQuantity <= minQuantity) {
+      notifyWarning({
+        title: 'Stock en alerta',
+        description: `${selectedStock.ingredient?.name ?? 'El ingrediente'} quedó con ${newQuantity} ${selectedStock.ingredient?.unit ?? ''} (mínimo: ${minQuantity}).`,
+      })
+    }
+    setSelectedStock(null)
+  }
 
   return (
     <WidePageContainer>
@@ -72,6 +96,17 @@ export const HomePage = () => {
       <Reveal>
         <QuickAccessGrid items={QUICK_ACCESS} />
       </Reveal>
+
+      {alerts.length > 0 ? (
+        <Reveal delayMs={40}>
+          <LowStockAlertsSection
+            alerts={alerts}
+            isAdjusting={isAdjusting}
+            stockPath={routes.stock}
+            onAdjust={setSelectedStock}
+          />
+        </Reveal>
+      ) : null}
 
       <Reveal delayMs={60}>
         <VStack align="start" gap="4" width="full">
@@ -128,6 +163,13 @@ export const HomePage = () => {
           )}
         </VStack>
       </Reveal>
+
+      <AdjustStockModal
+        ingredient={selectedStock}
+        isSubmitting={isAdjusting}
+        onClose={() => setSelectedStock(null)}
+        onSubmit={handleAdjust}
+      />
     </WidePageContainer>
   )
 }

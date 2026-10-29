@@ -27,6 +27,7 @@ export const INGREDIENT_FIELDS = `
   id
   name
   unit
+  minQuantity
   active
 `
 
@@ -271,6 +272,112 @@ export const REPORTS_OVERVIEW_FIELDS = `
   branchPerformance {
     ${BRANCH_PERFORMANCE_FIELDS}
   }
+`
+
+export const CUSTOMER_REPORTS_OVERVIEW_FIELDS = `
+  period {
+    from
+    to
+  }
+  summary {
+    totalOrders
+    completedOrders
+    cancelledOrders
+    activeOrders
+    totalSpent
+    averageTicket
+    favoriteBranch {
+      branchId
+      branchName
+      orders
+      totalSpent
+    }
+  }
+  activitySeries {
+    bucket
+    orders
+    completedOrders
+    totalSpent
+  }
+  frequentProducts {
+    productId
+    name
+    quantity
+    orders
+    totalSpent
+  }
+  ordersByStatus {
+    status
+    count
+  }
+`
+
+export const CUSTOMER_INSIGHT_FIELDS = `
+  clientId
+  client {
+    id
+    email
+    firstName
+    lastName
+    phone
+    role
+    active
+    branchId
+  }
+  orders
+  totalSpent
+  firstPurchaseAt
+  lastPurchaseAt
+  daysSinceLastPurchase
+  isNew
+  isNewOnPlatform
+  isRecurring
+`
+
+export const CUSTOMER_INSIGHTS_OVERVIEW_FIELDS = `
+  period {
+    from
+    to
+  }
+  kpis {
+    totalBuyers
+    newBuyers
+    returningBuyers
+    recurringBuyers
+    totalOrders
+    totalSpent
+    averageTicket
+    averageOrdersPerBuyer
+  }
+  buyerSeries {
+    bucket
+    buyers
+  }
+  frequency {
+    bucket
+    label
+    buyers
+  }
+  recency {
+    bucket
+    label
+    buyers
+  }
+  branchActivity {
+    branchId
+    branchName
+    buyers
+    orders
+    totalSpent
+  }
+  customers {
+    ${CUSTOMER_INSIGHT_FIELDS}
+  }
+`
+
+export const CUSTOMER_REGISTRATION_STATS_FIELDS = `
+  total
+  newInPeriod
 `
 
 export const BRANCH_RECIPE_ITEM_FIELDS = `

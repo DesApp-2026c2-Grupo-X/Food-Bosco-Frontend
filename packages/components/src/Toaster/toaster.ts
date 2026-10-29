@@ -15,6 +15,10 @@ export const notifySuccess = ({ title, description }: NotifyOptions) => {
   toaster.create({ type: 'success', title, description })
 }
 
+export const notifyWarning = ({ title, description }: NotifyOptions) => {
+  toaster.create({ type: 'warning', title, description })
+}
+
 export const notifyError = ({ title, description }: NotifyOptions) => {
   toaster.create({ type: 'error', title, description })
 }

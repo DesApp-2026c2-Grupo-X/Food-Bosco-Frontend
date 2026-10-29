@@ -46,6 +46,9 @@ export const navSections: DashboardNavSection[] = [
   {
     id: 'reports',
     label: 'Reportes',
-    items: [{ id: 'reports', label: 'Productos', path: routes.reports, icon: ChartColumn }],
+    items: [
+      { id: 'reports', label: 'Productos', path: routes.reports, icon: ChartColumn },
+      { id: 'customerReports', label: 'Clientes', path: routes.reportsCustomers, icon: Persons },
+    ],
   },
 ]

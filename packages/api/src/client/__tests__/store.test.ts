@@ -9,6 +9,7 @@ import {
   toOrder,
   toOrderItem,
   toProduct,
+  toRepeatOrderResult,
 } from '../store'
 
 describe('toCategory', () => {
@@ -235,5 +236,57 @@ describe('toCartItem', () => {
     expect(item.product).toBeNull()
     expect(item.options).toEqual([])
     expect(item.optionIds).toEqual([])
+  })
+})
+
+describe('toRepeatOrderResult', () => {
+  it('maps the cart, skipped items and price changes', () => {
+    const result = toRepeatOrderResult({
+      cart: {
+        id: 'cart2',
+        clientId: 'c1',
+        status: 'OPEN',
+        total: '340',
+        items: [],
+      },
+      skippedItems: [
+        { productId: 'p2', name: 'Papas', reason: 'PRODUCT_UNAVAILABLE' },
+        { productId: 'p3', name: 'Postre', reason: 'OPTION_UNAVAILABLE' },
+      ],
+      priceChanges: [
+        {
+          productId: 'p1',
+          name: 'Burger',
+          quantity: '2',
+          previousUnitPrice: '100',
+          currentUnitPrice: '170',
+        },
+      ],
+    })
+
+    expect(result.cart.id).toBe('cart2')
+    expect(result.cart.total).toBe(340)
+    expect(result.skippedItems).toEqual([
+      { productId: 'p2', name: 'Papas', reason: 'PRODUCT_UNAVAILABLE' },
+      { productId: 'p3', name: 'Postre', reason: 'OPTION_UNAVAILABLE' },
+    ])
+    expect(result.priceChanges).toEqual([
+      {
+        productId: 'p1',
+        name: 'Burger',
+        quantity: 2,
+        previousUnitPrice: 100,
+        currentUnitPrice: 170,
+      },
+    ])
+  })
+
+  it('defaults collections to empty arrays', () => {
+    const result = toRepeatOrderResult({
+      cart: { id: 'cart2', clientId: 'c1', status: 'OPEN', total: 0, items: [] },
+    })
+
+    expect(result.skippedItems).toEqual([])
+    expect(result.priceChanges).toEqual([])
   })
 })

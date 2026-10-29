@@ -1,4 +1,5 @@
 export * from './order'
+export * from './repeat-order'
 export * from './order-status'
 export * from './address'
 export * from './user'

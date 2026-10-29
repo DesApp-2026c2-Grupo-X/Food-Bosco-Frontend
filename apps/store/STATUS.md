@@ -1,6 +1,6 @@
 # STATUS — Store app (`apps/store`)
 
-> **Actualizado:** 2026-10-06 (revisión contra código).
+> **Actualizado:** 2026-10-29 (revisión contra código).
 > **Rol:** `customer`. **Puerto:** 5173.
 > **Datos:** Apollo Client / GraphQL contra el gateway, a través de `@repo/api`.
 
@@ -29,6 +29,7 @@ confirmar pedidos, ver el historial/seguimiento y administrar el perfil y las di
 | Carrito (server-side)              | `useCart` de `@repo/api`; alta/edición/eliminación                                                                                    |
 | Checkout                           | `src/pages/CheckoutPage` → `useCreateOrder` crea el pedido real                                                                       |
 | Pedidos / seguimiento              | `src/pages/OrdersPage`, `src/pages/OrderDetailPage` (polling)                                                                         |
+| Repetir pedido                     | `src/components/RepeatOrderModal` + `useRepeatOrder` (valida disponibilidad y precios actuales)                                       |
 | Perfil / edición                   | `src/pages/ProfilePage`, `src/pages/EditProfilePage`                                                                                  |
 | Sucursales                         | `src/pages/SucursalesPage`                                                                                                            |
 
@@ -43,11 +44,12 @@ confirmar pedidos, ver el historial/seguimiento y administrar el perfil y las di
 - `src/pages/CatalogPage/__tests__/CatalogPage.test.tsx`
 - `src/pages/ProductDetailPage/hooks/__tests__/useProductConfig.test.tsx`
 - `src/pages/CheckoutPage/__tests__/CheckoutPage.test.tsx`
+- `src/components/RepeatOrderModal/__tests__/RepeatOrderModal.test.tsx`
+- `src/pages/OrdersPage/__tests__/OrdersPage.test.tsx`
 - `src/stores/__tests__/addressStore.test.ts`
 - `src/hooks/__tests__/useAddressFlow.test.tsx`
 
 ## 6. Pendiente / fuera de alcance
 
-- **Repetir pedido** (backend listo, sin UI).
 - Catálogo público y checkout en dos pasos.
 - Edición de observaciones/opciones del carrito desde la UI.

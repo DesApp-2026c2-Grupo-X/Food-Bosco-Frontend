@@ -17,7 +17,7 @@
 > - La capa de datos real es **Apollo Client / GraphQL** vía `@repo/api`. **No** se usa SWR ni la
 >   capa REST/mocks descrita en versiones anteriores.
 > - **Fuera del alcance actual (documentado, sin implementar):** UI de Promociones y de Estados de
->   pedido en el Admin global; "Repetir pedido" en la Tienda; checkout en dos pasos y ruta
+>   pedido en el Admin global; checkout en dos pasos y ruta
 >   `/orders/:orderId/confirmed`; catálogo público (hoy protegido con `RequireAuth`); ruta `/trip`
 >   del Repartidor.
 > - Estado real y detalle: `apps/store/STATUS.md`, `apps/admin/STATUS.md`, `../FRONTEND_DEMO_GUIDE.md`.
@@ -2306,12 +2306,14 @@ Bosco ...          Colaborador      Norte           Activo
 - Editar datos permitidos.
 - Cambiar sucursal asignada.
 - Activar/desactivar.
+- Eliminar colaborador de sucursal con confirmación (baja lógica: deja de aparecer en la lista y no puede volver a ingresar). Los admins globales no se eliminan.
 - No permitir registro público desde el login admin.
 
 ### Operaciones backend
 
-- Listar personal.
+- Listar personal (filtrado por roles de staff, no por clientes/repartidores).
 - Activar/desactivar.
+- Eliminar colaborador (baja lógica).
 
 ---
 

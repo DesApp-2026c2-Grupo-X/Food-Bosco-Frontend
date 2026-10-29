@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { formatPrice } from '@repo/domain'
 import { OrdersPage } from '../index'
@@ -79,6 +80,23 @@ describe('OrdersPage', () => {
       'href',
       '/orders/o2',
     )
+  })
+
+  it('shows the repeat action for past orders and opens the confirmation modal', async () => {
+    renderOrders([rawOrder()])
+
+    const repeatButton = await screen.findByRole('button', { name: 'Repetir' })
+    await userEvent.click(repeatButton)
+
+    expect(await screen.findByText('¿Querés repetir este pedido?')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Repetir pedido' })).toBeInTheDocument()
+  })
+
+  it('does not show the repeat action for active orders', async () => {
+    renderOrders([rawOrder({ id: 'o2', number: '202', status: 'ON_THE_WAY' })])
+
+    expect(await screen.findByText('Pedido #202')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Repetir' })).not.toBeInTheDocument()
   })
 
   it('does not show the empty state while loading', () => {

@@ -29,6 +29,7 @@ const mockStaff = (overrides: Partial<ReturnType<typeof useStaff>> = {}) =>
     create: vi.fn(),
     update: vi.fn(),
     toggle: vi.fn(),
+    remove: vi.fn(),
     ...overrides,
   } as ReturnType<typeof useStaff>)
 
@@ -84,5 +85,25 @@ describe('StaffPage', () => {
     renderWithProviders(<StaffPage />)
 
     expect(screen.getByText('No editable')).toBeInTheDocument()
+  })
+
+  it('deletes a collaborator after confirming the modal', async () => {
+    const remove = vi.fn().mockResolvedValue(undefined)
+    mockStaff({ remove })
+
+    renderWithProviders(<StaffPage />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Eliminar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Eliminar colaborador' }))
+
+    expect(remove).toHaveBeenCalledWith('u1')
+  })
+
+  it('does not offer deletion for global admins', () => {
+    mockStaff({ staff: [{ ...member, id: 'u2', role: 'super_admin', branchName: undefined }] })
+
+    renderWithProviders(<StaffPage />)
+
+    expect(screen.queryByRole('button', { name: 'Eliminar' })).not.toBeInTheDocument()
   })
 })

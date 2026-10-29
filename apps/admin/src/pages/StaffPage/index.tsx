@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import Persons from '@gravity-ui/icons/Persons'
 import { useNavigate } from 'react-router-dom'
 import {
   ActiveStatusText,
+  ConfirmDeleteModal,
   CrudListPage,
   type DataTableColumn,
+  GhostButton,
   Muted,
   PrimaryButton,
   RowEditToggleActions,
@@ -24,11 +27,12 @@ const searchKeys = [
 const matchesRole = (member: StaffMember, role: string) => member.role === role
 
 export const StaffPage = () => {
-  const { staff, isLoading, isMutating, toggle } = useStaff()
+  const { staff, isLoading, isMutating, toggle, remove } = useStaff()
   const { rows, search, setSearch, status, setStatus } = useListFilters(staff, {
     searchKeys,
     matchesStatus: matchesRole,
   })
+  const [confirmDelete, setConfirmDelete] = useState<StaffMember | null>(null)
   const navigate = useNavigate()
 
   const columns: DataTableColumn<StaffMember>[] = [
@@ -68,6 +72,13 @@ export const StaffPage = () => {
           disabled={isMutating}
           ariaLabel={`Estado de ${member.firstName} ${member.lastName}`}
           readOnlyText={member.role === 'super_admin' ? 'No editable' : undefined}
+          extra={
+            member.role === 'branch_admin' ? (
+              <GhostButton size="sm" color="danger" onClick={() => setConfirmDelete(member)}>
+                Eliminar
+              </GhostButton>
+            ) : undefined
+          }
         />
       ),
     },
@@ -105,6 +116,20 @@ export const StaffPage = () => {
       emptyIcon={<Persons width={40} height={40} />}
       emptyTitle="Sin personal"
       emptyDescription="No hay usuarios que coincidan con los filtros."
+      modals={
+        <ConfirmDeleteModal
+          open={confirmDelete !== null}
+          title="Eliminar colaborador"
+          confirmLabel="Eliminar colaborador"
+          description={`¿Eliminar a ${confirmDelete?.firstName} ${confirmDelete?.lastName}? No va a poder volver a ingresar al sistema.`}
+          isSubmitting={isMutating}
+          onClose={() => setConfirmDelete(null)}
+          onConfirm={async () => {
+            if (confirmDelete) await remove(confirmDelete.id)
+            setConfirmDelete(null)
+          }}
+        />
+      }
     />
   )
 }

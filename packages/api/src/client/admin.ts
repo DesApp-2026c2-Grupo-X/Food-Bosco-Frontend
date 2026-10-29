@@ -2,6 +2,8 @@ import { gql } from '@apollo/client'
 import type {
   BranchPerformanceRow,
   BranchStock,
+  CustomerInsightsOverview,
+  CustomerRegistrationStats,
   OutOfStockRow,
   Parameter,
   ProductReportRow,
@@ -10,7 +12,15 @@ import type {
   StaffMember,
 } from '@repo/domain'
 import { toBranch, toCategory, toOrder, toProduct } from './store'
-import { ROLE_FROM_API, asBoolean, asList, asNumber, asString, toIngredient } from './mappers'
+import {
+  ROLE_FROM_API,
+  asBoolean,
+  asList,
+  asNumber,
+  asString,
+  toIngredient,
+  toUser,
+} from './mappers'
 import type { Raw } from './mappers'
 import {
   BRANCH_FIELDS,
@@ -21,6 +31,8 @@ import {
   CONFIG_OPTION_FIELDS,
   INGREDIENT_FIELDS,
   ORDER_FIELDS,
+  CUSTOMER_INSIGHTS_OVERVIEW_FIELDS,
+  CUSTOMER_REGISTRATION_STATS_FIELDS,
   OUT_OF_STOCK_ROW_FIELDS,
   PARAMETER_FIELDS,
   PRODUCT_DETAIL_FIELDS,
@@ -134,6 +146,63 @@ export const toReportsOverview = (raw: Raw): ReportsOverview => {
   }
 }
 
+export const toCustomerInsightsOverview = (raw: Raw): CustomerInsightsOverview => {
+  const period = (raw.period as Raw | undefined) ?? {}
+  const kpis = (raw.kpis as Raw | undefined) ?? {}
+
+  return {
+    period: { from: asString(period.from), to: asString(period.to) },
+    kpis: {
+      totalBuyers: asNumber(kpis.totalBuyers),
+      newBuyers: asNumber(kpis.newBuyers),
+      returningBuyers: asNumber(kpis.returningBuyers),
+      recurringBuyers: asNumber(kpis.recurringBuyers),
+      totalOrders: asNumber(kpis.totalOrders),
+      totalSpent: asNumber(kpis.totalSpent),
+      averageTicket: asNumber(kpis.averageTicket),
+      averageOrdersPerBuyer: asNumber(kpis.averageOrdersPerBuyer),
+    },
+    buyerSeries: asList(raw.buyerSeries, (entry) => ({
+      bucket: asString(entry.bucket),
+      buyers: asNumber(entry.buyers),
+    })),
+    frequency: asList(raw.frequency, (entry) => ({
+      bucket: asString(entry.bucket),
+      label: asString(entry.label),
+      buyers: asNumber(entry.buyers),
+    })),
+    recency: asList(raw.recency, (entry) => ({
+      bucket: asString(entry.bucket),
+      label: asString(entry.label),
+      buyers: asNumber(entry.buyers),
+    })),
+    branchActivity: asList(raw.branchActivity, (entry) => ({
+      branchId: asString(entry.branchId),
+      branchName: asString(entry.branchName),
+      buyers: asNumber(entry.buyers),
+      orders: asNumber(entry.orders),
+      totalSpent: asNumber(entry.totalSpent),
+    })),
+    customers: asList(raw.customers, (entry) => ({
+      clientId: asString(entry.clientId),
+      client: entry.client ? toUser(entry.client as Raw) : null,
+      orders: asNumber(entry.orders),
+      totalSpent: asNumber(entry.totalSpent),
+      firstPurchaseAt: asString(entry.firstPurchaseAt),
+      lastPurchaseAt: asString(entry.lastPurchaseAt),
+      daysSinceLastPurchase: asNumber(entry.daysSinceLastPurchase),
+      isNew: asBoolean(entry.isNew),
+      isNewOnPlatform: asBoolean(entry.isNewOnPlatform),
+      isRecurring: asBoolean(entry.isRecurring),
+    })),
+  }
+}
+
+export const toCustomerRegistrationStats = (raw: Raw): CustomerRegistrationStats => ({
+  total: asNumber(raw.total),
+  newInPeriod: asNumber(raw.newInPeriod),
+})
+
 // ===== Queries =====
 
 export const ADMIN_CATEGORIES = gql`
@@ -177,8 +246,8 @@ export const ADMIN_BRANCHES = gql`
 `
 
 export const ADMIN_USERS = gql`
-  query AdminUsers {
-    users {
+  query AdminUsers($filter: UserFilterInput, $page: PageInput) {
+    users(filter: $filter, page: $page) {
       data {
         ${USER_FIELDS}
       }
@@ -254,6 +323,22 @@ export const REPORTS_OVERVIEW = gql`
   query ReportsOverview($filter: ReportFilterInput) {
     reportsOverview(filter: $filter) {
       ${REPORTS_OVERVIEW_FIELDS}
+    }
+  }
+`
+
+export const CUSTOMER_INSIGHTS = gql`
+  query CustomerInsights($filter: CustomerInsightsFilterInput) {
+    customerInsights(filter: $filter) {
+      ${CUSTOMER_INSIGHTS_OVERVIEW_FIELDS}
+    }
+  }
+`
+
+export const CUSTOMER_REGISTRATION_STATS = gql`
+  query CustomerRegistrationStats($filter: ReportFilterInput) {
+    customerRegistrationStats(filter: $filter) {
+      ${CUSTOMER_REGISTRATION_STATS_FIELDS}
     }
   }
 `
@@ -461,6 +546,12 @@ export const SET_USER_ACTIVE = gql`
     setUserActive(id: $id, active: $active) {
       ${USER_FIELDS}
     }
+  }
+`
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id)
   }
 `
 

@@ -50,6 +50,15 @@ export const IngredientsPage = () => {
       render: (ingredient) => <Muted fontSize="sm">{ingredient.unit}</Muted>,
     },
     {
+      key: 'minQuantity',
+      header: 'Stock mín.',
+      render: (ingredient) => (
+        <Muted fontSize="sm">
+          {ingredient.minQuantity ?? 0} {ingredient.unit}
+        </Muted>
+      ),
+    },
+    {
       key: 'status',
       header: 'Estado',
       render: (ingredient) => <ActiveStatusText active={ingredient.active} />,

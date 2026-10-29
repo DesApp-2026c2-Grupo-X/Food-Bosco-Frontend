@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { formatOrderDate } from '@repo/domain'
@@ -130,6 +131,22 @@ describe('OrderDetailPage', () => {
     expect(
       screen.getByText(new RegExp(formatOrderDate('2025-01-02T11:00:00Z'))),
     ).toBeInTheDocument()
+  })
+
+  it('offers to repeat a finished order', async () => {
+    renderDetail(buildClient(rawOrder({ status: 'DELIVERED' })))
+
+    const repeatButton = await screen.findByRole('button', { name: 'Repetir pedido' })
+    await userEvent.click(repeatButton)
+
+    expect(await screen.findByText('¿Querés repetir este pedido?')).toBeInTheDocument()
+  })
+
+  it('does not offer to repeat an active order', async () => {
+    renderDetail(buildClient(rawOrder()))
+
+    expect(await screen.findByText('Estado del pedido')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Repetir pedido' })).not.toBeInTheDocument()
   })
 
   it('shows a skeleton while loading', () => {

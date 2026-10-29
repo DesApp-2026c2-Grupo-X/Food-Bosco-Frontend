@@ -1,12 +1,14 @@
-import { screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import type { Order, OrderStatus } from '@repo/domain'
-import { useBranchOrders } from '@repo/api'
+import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { BranchStock, Order, OrderStatus } from '@repo/domain'
+import { useBranchOrders, useBranchStock } from '@repo/api'
 import { renderWithProviders } from '@test/utils'
 import { HomePage } from '../index'
 
 vi.mock('@repo/api', () => ({
   useBranchOrders: vi.fn(),
+  useBranchStock: vi.fn(),
 }))
 
 const makeOrder = (overrides: Partial<Order> = {}): Order => ({
@@ -39,7 +41,24 @@ const mockOrders = (orders: Order[], isLoading = false) => {
   vi.mocked(useBranchOrders).mockReturnValue({ orders, isLoading })
 }
 
+const mockStock = (
+  stock: BranchStock[] = [],
+  extra: Partial<ReturnType<typeof useBranchStock>> = {},
+) => {
+  vi.mocked(useBranchStock).mockReturnValue({
+    stock,
+    isLoading: false,
+    isAdjusting: false,
+    adjust: vi.fn().mockResolvedValue(undefined),
+    ...extra,
+  })
+}
+
 describe('HomePage', () => {
+  beforeEach(() => {
+    mockStock([])
+  })
+
   it('renders the quick access shortcuts', () => {
     mockOrders([])
     renderWithProviders(<HomePage />)
@@ -87,5 +106,35 @@ describe('HomePage', () => {
 
     expect(screen.queryByText(/202/)).not.toBeInTheDocument()
     expect(screen.getByText('Pendiente')).toBeInTheDocument()
+  })
+
+  it('renders low stock alerts for the branch and adjusts stock in place', async () => {
+    const adjust = vi.fn().mockResolvedValue(undefined)
+    mockOrders([])
+    mockStock(
+      [
+        {
+          branchId: 'b1',
+          ingredientId: 'i1',
+          quantity: 0,
+          ingredient: { id: 'i1', name: 'Tomate', unit: 'un', minQuantity: 15, active: true },
+        },
+      ],
+      { adjust },
+    )
+
+    renderWithProviders(<HomePage />)
+
+    expect(screen.getByText('Alertas de stock')).toBeInTheDocument()
+    expect(screen.getByText('Tomate')).toBeInTheDocument()
+    expect(screen.getByText('Sin stock')).toBeInTheDocument()
+    expect(screen.getByText('Disponible: 0 un · Mínimo: 15 un')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ajustar' }))
+    await userEvent.type(await screen.findByPlaceholderText('Ej: 5 o -3'), '20')
+    await userEvent.tab()
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar ajuste' }))
+
+    await waitFor(() => expect(adjust).toHaveBeenCalledWith('i1', 20, ''))
   })
 })

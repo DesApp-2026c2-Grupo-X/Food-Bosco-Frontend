@@ -5,6 +5,7 @@ import type {
   Cart,
   CartItem,
   Category,
+  CustomerReportsOverview,
   Order,
   OrderItem,
   OrderItemOption,
@@ -13,12 +14,17 @@ import type {
   Product,
   ProductConfigGroup,
   ProductOption,
+  RepeatOrderResult,
+  RepeatPriceChange,
+  RepeatSkipReason,
+  RepeatSkippedItem,
 } from '@repo/domain'
 import { asBoolean, asList, asNumber, asString, toRecipeItem, toUser } from './mappers'
 import {
   BRANCH_FIELDS,
   CART_FIELDS,
   CATEGORY_FIELDS,
+  CUSTOMER_REPORTS_OVERVIEW_FIELDS,
   PRODUCT_DETAIL_FIELDS,
   STORE_ORDER_FIELDS,
 } from './fragments'
@@ -141,12 +147,75 @@ export const toCartItem = (raw: Raw): CartItem => ({
   options: asList(raw.options, toConfigOption),
 })
 
+export const toCustomerReportsOverview = (raw: Raw): CustomerReportsOverview => {
+  const period = (raw.period as Raw | undefined) ?? {}
+  const summary = (raw.summary as Raw | undefined) ?? {}
+  const favoriteBranch = summary.favoriteBranch as Raw | undefined
+
+  return {
+    period: { from: asString(period.from), to: asString(period.to) },
+    summary: {
+      totalOrders: asNumber(summary.totalOrders),
+      completedOrders: asNumber(summary.completedOrders),
+      cancelledOrders: asNumber(summary.cancelledOrders),
+      activeOrders: asNumber(summary.activeOrders),
+      totalSpent: asNumber(summary.totalSpent),
+      averageTicket: asNumber(summary.averageTicket),
+      favoriteBranch: favoriteBranch
+        ? {
+            branchId: asString(favoriteBranch.branchId),
+            branchName: asString(favoriteBranch.branchName),
+            orders: asNumber(favoriteBranch.orders),
+            totalSpent: asNumber(favoriteBranch.totalSpent),
+          }
+        : null,
+    },
+    activitySeries: asList(raw.activitySeries, (entry) => ({
+      bucket: asString(entry.bucket),
+      orders: asNumber(entry.orders),
+      completedOrders: asNumber(entry.completedOrders),
+      totalSpent: asNumber(entry.totalSpent),
+    })),
+    frequentProducts: asList(raw.frequentProducts, (entry) => ({
+      productId: asString(entry.productId),
+      name: asString(entry.name),
+      quantity: asNumber(entry.quantity),
+      orders: asNumber(entry.orders),
+      totalSpent: asNumber(entry.totalSpent),
+    })),
+    ordersByStatus: asList(raw.ordersByStatus, (entry) => ({
+      status: asString(entry.status) as OrderStatus,
+      count: asNumber(entry.count),
+    })),
+  }
+}
+
 export const toCart = (raw: Raw): Cart => ({
   id: asString(raw.id),
   clientId: asString(raw.clientId),
   status: asString(raw.status),
   items: asList(raw.items, toCartItem),
   total: asNumber(raw.total),
+})
+
+export const toRepeatSkippedItem = (raw: Raw): RepeatSkippedItem => ({
+  productId: asString(raw.productId),
+  name: asString(raw.name),
+  reason: asString(raw.reason) as RepeatSkipReason,
+})
+
+export const toRepeatPriceChange = (raw: Raw): RepeatPriceChange => ({
+  productId: asString(raw.productId),
+  name: asString(raw.name),
+  quantity: asNumber(raw.quantity),
+  previousUnitPrice: asNumber(raw.previousUnitPrice),
+  currentUnitPrice: asNumber(raw.currentUnitPrice),
+})
+
+export const toRepeatOrderResult = (raw: Raw): RepeatOrderResult => ({
+  cart: toCart(raw.cart as Raw),
+  skippedItems: asList(raw.skippedItems, toRepeatSkippedItem),
+  priceChanges: asList(raw.priceChanges, toRepeatPriceChange),
 })
 
 export const CATEGORIES = gql`
@@ -177,6 +246,14 @@ export const MY_ORDERS = gql`
   query MyOrders {
     myOrders {
       ${STORE_ORDER_FIELDS}
+    }
+  }
+`
+
+export const MY_REPORTS_OVERVIEW = gql`
+  query MyReportsOverview($filter: ReportFilterInput) {
+    myReportsOverview(filter: $filter) {
+      ${CUSTOMER_REPORTS_OVERVIEW_FIELDS}
     }
   }
 `
@@ -230,6 +307,28 @@ export const REMOVE_CART_ITEM = gql`
   mutation RemoveCartItem($itemId: ID!) {
     removeCartItem(itemId: $itemId) {
       ${CART_FIELDS}
+    }
+  }
+`
+
+export const REPEAT_ORDER = gql`
+  mutation RepeatOrder($orderId: ID!) {
+    repeatOrder(orderId: $orderId) {
+      cart {
+        ${CART_FIELDS}
+      }
+      skippedItems {
+        productId
+        name
+        reason
+      }
+      priceChanges {
+        productId
+        name
+        quantity
+        previousUnitPrice
+        currentUnitPrice
+      }
     }
   }
 `
