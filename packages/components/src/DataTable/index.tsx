@@ -64,6 +64,9 @@ export const DataTable = <T,>({
                   <Table.ColumnHeader
                     key={column.key}
                     display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
+                    width={column.width}
+                    minWidth={column.minWidth}
+                    maxWidth={column.maxWidth}
                     color="brand.600"
                     fontSize="xs"
                     fontWeight="semibold"
@@ -102,6 +105,9 @@ export const DataTable = <T,>({
                         <Table.Cell
                           key={column.key}
                           display={column.hideBelow ? HIDE_MAP[column.hideBelow] : undefined}
+                          width={column.width}
+                          minWidth={column.minWidth}
+                          maxWidth={column.maxWidth}
                           paddingY="3.5"
                         >
                           {column.render(row)}

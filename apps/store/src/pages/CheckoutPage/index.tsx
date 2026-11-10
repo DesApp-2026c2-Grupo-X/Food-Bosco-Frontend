@@ -118,7 +118,10 @@ export const CheckoutPage = () => {
       />
 
       <OrderTotalCard
-        total={total}
+        subtotal={cart?.subtotal ?? total}
+        discountTotal={cart?.discountTotal ?? 0}
+        appliedPromotions={cart?.appliedPromotions ?? []}
+        total={cart?.total ?? total}
         subtitle="La sucursal se asigna automáticamente al confirmar. No se paga en línea."
       />
 

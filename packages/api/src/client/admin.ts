@@ -19,6 +19,7 @@ import {
   asNumber,
   asString,
   toIngredient,
+  toPromotion,
   toUser,
 } from './mappers'
 import type { Raw } from './mappers'
@@ -38,6 +39,7 @@ import {
   PRODUCT_DETAIL_FIELDS,
   PRODUCT_LIST_FIELDS,
   PRODUCT_REPORT_ROW_FIELDS,
+  PROMOTION_FIELDS,
   REPORTS_OVERVIEW_FIELDS,
   USER_FIELDS,
 } from './fragments'
@@ -579,7 +581,53 @@ export const ADJUST_STOCK = gql`
   }
 `
 
+export const PROMOTIONS = gql`
+  query Promotions($activeOnly: Boolean, $page: PageInput) {
+    promotions(activeOnly: $activeOnly, page: $page) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const PROMOTION = gql`
+  query Promotion($id: ID!) {
+    promotion(id: $id) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const CREATE_PROMOTION = gql`
+  mutation CreatePromotion($input: PromotionInput!) {
+    createPromotion(input: $input) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const UPDATE_PROMOTION = gql`
+  mutation UpdatePromotion($id: ID!, $input: PromotionInput!) {
+    updatePromotion(id: $id, input: $input) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const SET_PROMOTION_ACTIVE = gql`
+  mutation SetPromotionActive($id: ID!, $active: Boolean!) {
+    setPromotionActive(id: $id, active: $active) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const DELETE_PROMOTION = gql`
+  mutation DeletePromotion($id: ID!) {
+    deletePromotion(id: $id)
+  }
+`
+
 export type { Raw }
 
 // Re-export mappers from the shared store layer for admin consumers.
-export { toBranch, toCategory, toIngredient, toOrder, toProduct }
+export { toBranch, toCategory, toIngredient, toOrder, toProduct, toPromotion }

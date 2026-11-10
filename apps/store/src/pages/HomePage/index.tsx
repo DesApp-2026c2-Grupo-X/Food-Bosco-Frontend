@@ -1,9 +1,20 @@
-import { Box, Grid, Heading, HStack, Image, SimpleGrid, Text, VStack } from '@chakra-ui/react'
+import {
+  Badge,
+  Box,
+  Grid,
+  Heading,
+  HStack,
+  Image,
+  SimpleGrid,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
 import Clock from '@gravity-ui/icons/Clock'
 import Flame from '@gravity-ui/icons/Flame'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import LayoutCells from '@gravity-ui/icons/LayoutCells'
 import Sliders from '@gravity-ui/icons/Sliders'
+import Ticket from '@gravity-ui/icons/Ticket'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Card,
@@ -26,10 +37,16 @@ import { ProductCard } from '../../components/ProductCard'
 import { ActiveOrderCard } from '../../components/ActiveOrderCard'
 import { SectionHeader } from '@repo/components'
 import { routes } from '../../routes'
-import { useAvailableBranches, useCatalog, useOrders, useProfile } from '@repo/api'
-import { useAddresses } from '@repo/api'
+import {
+  useAddresses,
+  useAvailableBranches,
+  useCatalog,
+  useOrders,
+  useProfile,
+  usePublicPromotions,
+} from '@repo/api'
 import { useAddressStore } from '../../stores/addressStore'
-import { isActiveOrder } from '@repo/domain'
+import { describePromotion, isActiveOrder } from '@repo/domain'
 
 const STEPS = [
   { icon: LayoutCells, title: 'Elegí', text: 'Explorá el catálogo y encontrá tu antojo.' },
@@ -80,6 +97,10 @@ export const HomePage = () => {
           <HomeCatalog lat={selected?.latitude} lng={selected?.longitude} />
         </Reveal>
       ) : null}
+
+      <Reveal delayMs={70}>
+        <PromotionsSection />
+      </Reveal>
 
       <Reveal delayMs={80}>
         <DeliveryBanner />
@@ -291,6 +312,44 @@ const Hero = ({ userFirstName }: { userFirstName?: string }) => {
         </Box>
       </Grid>
     </Card>
+  )
+}
+
+const PromotionsSection = () => {
+  const { promotions = [], isLoading } = usePublicPromotions()
+
+  if (isLoading || promotions.length === 0) return null
+
+  return (
+    <Box>
+      <SectionHeader label="Beneficios" title="Promociones destacadas" />
+      <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap="4" marginTop="6">
+        {promotions.map((promo) => (
+          <Card key={promo.id} padding="5" interactive variant="subtle">
+            <HStack justify="space-between" alignItems="center">
+              <HStack gap="1.5" color="brand.600">
+                <Ticket width={18} height={18} />
+                <Strong fontSize="sm">{describePromotion(promo)}</Strong>
+              </HStack>
+              {promo.code ? (
+                <Badge colorPalette="brand" size="sm">
+                  {promo.code}
+                </Badge>
+              ) : null}
+            </HStack>
+            <Strong fontSize="md" marginTop="3" display="block">
+              {promo.name}
+            </Strong>
+            <Muted fontSize="xs" marginTop="1" minHeight="36px">
+              {promo.description || describePromotion(promo)}
+            </Muted>
+            <PrimaryButton size="sm" asChild width="full" marginTop="4">
+              <Link to={routes.catalog}>Ver en el menú</Link>
+            </PrimaryButton>
+          </Card>
+        ))}
+      </SimpleGrid>
+    </Box>
   )
 }
 

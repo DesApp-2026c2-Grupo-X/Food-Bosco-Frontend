@@ -19,13 +19,22 @@ import type {
   RepeatSkipReason,
   RepeatSkippedItem,
 } from '@repo/domain'
-import { asBoolean, asList, asNumber, asString, toRecipeItem, toUser } from './mappers'
+import {
+  asBoolean,
+  asList,
+  asNumber,
+  asString,
+  toAppliedPromotion,
+  toRecipeItem,
+  toUser,
+} from './mappers'
 import {
   BRANCH_FIELDS,
   CART_FIELDS,
   CATEGORY_FIELDS,
   CUSTOMER_REPORTS_OVERVIEW_FIELDS,
   PRODUCT_DETAIL_FIELDS,
+  PROMOTION_FIELDS,
   STORE_ORDER_FIELDS,
 } from './fragments'
 
@@ -129,7 +138,11 @@ export const toOrder = (raw: Raw): Order => ({
     longitude: asNumber((raw.deliveryAddress as Raw | undefined)?.longitude),
   },
   status: asString(raw.status) as OrderStatus,
+  subtotal: raw.subtotal != null ? asNumber(raw.subtotal) : asNumber(raw.total),
+  discountTotal: asNumber(raw.discountTotal),
   total: asNumber(raw.total),
+  promotionCode: raw.promotionCode == null ? null : String(raw.promotionCode),
+  appliedPromotions: asList(raw.appliedPromotions, toAppliedPromotion),
   estimatedDeliveryAt: raw.estimatedDeliveryAt == null ? null : String(raw.estimatedDeliveryAt),
   createdAt: asString(raw.createdAt),
   items: asList(raw.items, toOrderItem),
@@ -190,13 +203,20 @@ export const toCustomerReportsOverview = (raw: Raw): CustomerReportsOverview => 
   }
 }
 
-export const toCart = (raw: Raw): Cart => ({
-  id: asString(raw.id),
-  clientId: asString(raw.clientId),
-  status: asString(raw.status),
-  items: asList(raw.items, toCartItem),
-  total: asNumber(raw.total),
-})
+export const toCart = (raw: Raw): Cart => {
+  const total = asNumber(raw.total)
+  return {
+    id: asString(raw.id),
+    clientId: asString(raw.clientId),
+    status: asString(raw.status),
+    items: asList(raw.items, toCartItem),
+    subtotal: raw.subtotal != null ? asNumber(raw.subtotal) : total,
+    discountTotal: asNumber(raw.discountTotal),
+    total,
+    promotionCode: raw.promotionCode == null ? null : String(raw.promotionCode),
+    appliedPromotions: asList(raw.appliedPromotions, toAppliedPromotion),
+  }
+}
 
 export const toRepeatSkippedItem = (raw: Raw): RepeatSkippedItem => ({
   productId: asString(raw.productId),
@@ -280,9 +300,25 @@ export const CREATE_ORDER = gql`
 `
 
 export const MY_CART = gql`
-  query MyCart {
-    myCart {
+  query MyCart($addressId: ID) {
+    myCart(addressId: $addressId) {
       ${CART_FIELDS}
+    }
+  }
+`
+
+export const SET_CART_PROMOTION_CODE = gql`
+  mutation SetCartPromotionCode($code: String) {
+    setCartPromotionCode(code: $code) {
+      ${CART_FIELDS}
+    }
+  }
+`
+
+export const PUBLIC_PROMOTIONS = gql`
+  query PublicPromotions {
+    publicPromotions {
+      ${PROMOTION_FIELDS}
     }
   }
 `

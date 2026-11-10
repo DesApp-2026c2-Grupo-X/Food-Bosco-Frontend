@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Tag from '@gravity-ui/icons/Tag'
 import ListUl from '@gravity-ui/icons/ListUl'
 import Layers from '@gravity-ui/icons/Layers'
+import Ticket from '@gravity-ui/icons/Ticket'
 import BoxIcon from '@gravity-ui/icons/Box'
 import MapPin from '@gravity-ui/icons/MapPin'
 import Receipt from '@gravity-ui/icons/Receipt'
@@ -34,6 +35,13 @@ const QUICK_ACCESS = [
     description: 'Catálogo global',
     path: routes.products,
     icon: ListUl,
+  },
+  {
+    id: 'promotions',
+    label: 'Promociones',
+    description: 'Descuentos y cupones',
+    path: routes.promotions,
+    icon: Ticket,
   },
   {
     id: 'ingredients',

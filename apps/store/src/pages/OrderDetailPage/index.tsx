@@ -132,7 +132,13 @@ export const OrderDetailPage = () => {
 
       <OrderItemsCard items={order.items} />
 
-      <OrderTotalCard total={order.total} subtitle={`Entrega a ${order.deliveryAddress.text}`} />
+      <OrderTotalCard
+        subtotal={order.subtotal ?? order.total}
+        discountTotal={order.discountTotal ?? 0}
+        appliedPromotions={order.appliedPromotions ?? []}
+        total={order.total}
+        subtitle={`Entrega a ${order.deliveryAddress.text}`}
+      />
 
       {repeatOpen ? <RepeatOrderModal order={order} onClose={() => setRepeatOpen(false)} /> : null}
     </OrderDetailShell>

@@ -30,12 +30,7 @@ export const CustomerActivityChart = ({ data, isLoading }: CustomerActivityChart
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
             <CartesianGrid stroke={CHART_COLORS.grid} strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="bucket" stroke={CHART_COLORS.axis} fontSize={12} />
-            <YAxis
-              yAxisId="spent"
-              stroke={CHART_COLORS.axis}
-              fontSize={12}
-              width={48}
-            />
+            <YAxis yAxisId="spent" stroke={CHART_COLORS.axis} fontSize={12} width={48} />
             <YAxis
               yAxisId="orders"
               orientation="right"
