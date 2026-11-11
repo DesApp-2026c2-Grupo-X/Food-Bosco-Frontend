@@ -39,6 +39,7 @@ describe('AdminLayout', () => {
     expect(screen.getByText('Reportes')).toBeInTheDocument()
 
     expect(link('Categorías')).toHaveAttribute('href', '/categories')
+    expect(link('Promociones')).toHaveAttribute('href', '/promotions')
     expect(link('Ingredientes')).toHaveAttribute('href', '/ingredients')
     expect(link('Pedidos')).toHaveAttribute('href', '/orders')
     expect(link('Sucursales')).toHaveAttribute('href', '/branches')

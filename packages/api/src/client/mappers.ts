@@ -1,4 +1,13 @@
-import type { Ingredient, RecipeItem, User, UserRole } from '@repo/domain'
+import type {
+  AppliedPromotion,
+  Ingredient,
+  Promotion,
+  PromotionScope,
+  PromotionType,
+  RecipeItem,
+  User,
+  UserRole,
+} from '@repo/domain'
 
 export type Raw = Record<string, unknown>
 
@@ -54,4 +63,40 @@ export const toUser = (raw: Raw): User => ({
   active: asBoolean(raw.active),
   branchId: raw.branchId == null ? undefined : String(raw.branchId),
   createdAt: asString(raw.createdAt, new Date().toISOString()),
+})
+
+export const toAppliedPromotion = (raw: Raw): AppliedPromotion => ({
+  promotionId: asString(raw.promotionId),
+  name: asString(raw.name),
+  code: raw.code != null ? asString(raw.code) : null,
+  amount: asNumber(raw.amount),
+})
+
+export const toPromotion = (raw: Raw): Promotion => ({
+  id: asString(raw.id),
+  name: asString(raw.name),
+  description: raw.description != null ? asString(raw.description) : null,
+  startDate: asString(raw.startDate),
+  endDate: asString(raw.endDate),
+  active: asBoolean(raw.active),
+  type: (raw.type as PromotionType) ?? null,
+  discountValue: raw.discountValue != null ? asNumber(raw.discountValue) : null,
+  maxDiscount: raw.maxDiscount != null ? asNumber(raw.maxDiscount) : null,
+  buyQuantity: raw.buyQuantity != null ? asNumber(raw.buyQuantity) : null,
+  payQuantity: raw.payQuantity != null ? asNumber(raw.payQuantity) : null,
+  scope: (raw.scope as PromotionScope) ?? null,
+  categoryIds: Array.isArray(raw.categoryIds) ? raw.categoryIds.map((c) => asString(c)) : [],
+  productIds: Array.isArray(raw.productIds) ? raw.productIds.map((p) => asString(p)) : [],
+  branchIds: Array.isArray(raw.branchIds) ? raw.branchIds.map((b) => asString(b)) : [],
+  minSubtotal: asNumber(raw.minSubtotal),
+  minQuantity: asNumber(raw.minQuantity),
+  daysOfWeek: Array.isArray(raw.daysOfWeek) ? raw.daysOfWeek.map((d) => asNumber(d)) : [],
+  startTime: raw.startTime != null ? asString(raw.startTime) : null,
+  endTime: raw.endTime != null ? asString(raw.endTime) : null,
+  code: raw.code != null ? asString(raw.code) : null,
+  stackable: asBoolean(raw.stackable),
+  priority: asNumber(raw.priority),
+  maxUsesTotal: raw.maxUsesTotal != null ? asNumber(raw.maxUsesTotal) : null,
+  maxUsesPerCustomer: raw.maxUsesPerCustomer != null ? asNumber(raw.maxUsesPerCustomer) : null,
+  usedCount: asNumber(raw.usedCount),
 })

@@ -38,6 +38,8 @@ const makeClient = () =>
         return { data: { product: rawProduct } }
       case 'AdminProducts':
         return { data: { products: [] } }
+      case 'Promotions':
+        return { data: { promotions: [] } }
       case 'AdminCategories':
         return { data: { categories: [] } }
       case 'AdminIngredients':
@@ -121,6 +123,7 @@ describe('App', () => {
     ['/', 'Administración central de la plataforma.'],
     ['/categories', 'Definí las categorías del catálogo.'],
     ['/products', 'Administrá el catálogo global de productos.'],
+    ['/promotions', 'Administrá descuentos automáticos, promociones NxM y cupones de descuento.'],
     ['/branches', 'Administrá los locales físicos y sus horarios.'],
     ['/staff', 'Creá colaboradores de sucursal y admins globales.'],
     ['/parameters', 'Modificá los valores usados por las decisiones del sistema.'],
@@ -140,6 +143,13 @@ describe('App', () => {
     renderApp('/products/new')
 
     expect(await screen.findByText('Nuevo producto')).toBeInTheDocument()
+  })
+
+  it('renders the new promotion route', async () => {
+    useAuthStore.setState({ user: superAdmin })
+    renderApp('/promotions/new')
+
+    expect(await screen.findByRole('heading', { name: 'Nueva promoción' })).toBeInTheDocument()
   })
 
   it('passes the productId param to the edit product route', async () => {

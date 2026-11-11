@@ -100,6 +100,42 @@ export const USER_FIELDS = `
   branchId
 `
 
+export const APPLIED_PROMOTION_FIELDS = `
+  promotionId
+  name
+  code
+  amount
+`
+
+export const PROMOTION_FIELDS = `
+  id
+  name
+  description
+  startDate
+  endDate
+  active
+  type
+  discountValue
+  maxDiscount
+  buyQuantity
+  payQuantity
+  scope
+  categoryIds
+  productIds
+  branchIds
+  minSubtotal
+  minQuantity
+  daysOfWeek
+  startTime
+  endTime
+  code
+  stackable
+  priority
+  maxUsesTotal
+  maxUsesPerCustomer
+  usedCount
+`
+
 export const ORDER_ITEM_FIELDS = `
   productId
   name
@@ -131,7 +167,13 @@ export const ORDER_FIELDS = `
     longitude
   }
   status
+  subtotal
+  discountTotal
   total
+  promotionCode
+  appliedPromotions {
+    ${APPLIED_PROMOTION_FIELDS}
+  }
   estimatedDeliveryAt
   createdAt
   items {
@@ -168,7 +210,13 @@ export const STORE_ORDER_FIELDS = `
     longitude
   }
   status
+  subtotal
+  discountTotal
   total
+  promotionCode
+  appliedPromotions {
+    ${APPLIED_PROMOTION_FIELDS}
+  }
   estimatedDeliveryAt
   createdAt
   items {
@@ -244,6 +292,7 @@ export const REPORTS_OVERVIEW_FIELDS = `
     totalRevenue
     totalOrders
     averageTicket
+    totalDiscounts
     cancelledOrders
     bestSellingProduct {
       ${PRODUCT_SALES_ROW_FIELDS}
@@ -423,7 +472,13 @@ export const CART_FIELDS = `
   id
   clientId
   status
+  subtotal
+  discountTotal
   total
+  promotionCode
+  appliedPromotions {
+    ${APPLIED_PROMOTION_FIELDS}
+  }
   items {
     ${CART_ITEM_FIELDS}
   }

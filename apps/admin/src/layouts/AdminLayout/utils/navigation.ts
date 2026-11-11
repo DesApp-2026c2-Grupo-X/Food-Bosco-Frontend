@@ -2,6 +2,7 @@ import House from '@gravity-ui/icons/House'
 import Tag from '@gravity-ui/icons/Tag'
 import ListUl from '@gravity-ui/icons/ListUl'
 import Layers from '@gravity-ui/icons/Layers'
+import Ticket from '@gravity-ui/icons/Ticket'
 import Receipt from '@gravity-ui/icons/Receipt'
 import MapPin from '@gravity-ui/icons/MapPin'
 import Box from '@gravity-ui/icons/Box'
@@ -23,6 +24,7 @@ export const navSections: DashboardNavSection[] = [
     items: [
       { id: 'categories', label: 'Categorías', path: routes.categories, icon: Tag },
       { id: 'products', label: 'Productos', path: routes.products, icon: ListUl },
+      { id: 'promotions', label: 'Promociones', path: routes.promotions, icon: Ticket },
       { id: 'ingredients', label: 'Ingredientes', path: routes.ingredients, icon: Layers },
     ],
   },

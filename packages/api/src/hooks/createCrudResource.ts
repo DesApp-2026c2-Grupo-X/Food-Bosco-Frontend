@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { ApolloClient, DocumentNode, WatchQueryFetchPolicy } from '@apollo/client'
 import { gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 import { combineLoading } from '../utils/combineLoading'
@@ -159,9 +159,11 @@ export const createCrudResource = <
       operation: useCrudOperation(descriptor, refetch, client),
     }))
 
-    const rawItems = ((data as AnyRecord | undefined)?.[config.query.resultKey] ?? []) as TRaw[]
-    const mapped = rawItems.map((raw) => config.query.map(raw))
-    const items = config.query.select ? config.query.select(mapped, data) : mapped
+    const items = useMemo(() => {
+      const rawItems = ((data as AnyRecord | undefined)?.[config.query.resultKey] ?? []) as TRaw[]
+      const mapped = rawItems.map((raw) => config.query.map(raw))
+      return config.query.select ? config.query.select(mapped, data) : mapped
+    }, [data])
 
     const isMutating = combineLoading(
       create.loading,

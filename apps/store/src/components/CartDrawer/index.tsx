@@ -12,6 +12,8 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
   const { cart, isLoading, isMutating, updateItem, removeItem } = useCart()
   const lines = cart?.items ?? []
   const isEmpty = !isLoading && lines.length === 0
+  const hasDiscount = Boolean(cart?.discountTotal && cart.discountTotal > 0)
+  const payableTotal = cart?.total ?? cartTotal(lines)
 
   const body = isLoading ? (
     <LoadingState variant="list" skeletonCount={2} skeletonHeight="72px" />
@@ -43,10 +45,30 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
       footer={
         <VStack gap="3" width="full" align="stretch">
           {!isEmpty && !isLoading ? (
-            <HStack justify="space-between">
-              <Muted>Total</Muted>
-              <Price fontSize="lg">{formatPrice(cartTotal(lines))}</Price>
-            </HStack>
+            <VStack gap="1" width="full" align="stretch">
+              {hasDiscount ? (
+                <>
+                  <HStack justify="space-between">
+                    <Muted fontSize="sm">Subtotal</Muted>
+                    <Price fontSize="sm">{formatPrice(cart?.subtotal ?? payableTotal)}</Price>
+                  </HStack>
+                  <HStack justify="space-between">
+                    <Muted fontSize="sm" color="success.fg">
+                      Descuentos
+                    </Muted>
+                    <Price fontSize="sm" color="success.fg">
+                      -{formatPrice(cart?.discountTotal ?? 0)}
+                    </Price>
+                  </HStack>
+                </>
+              ) : null}
+              <HStack justify="space-between">
+                <Muted fontWeight={hasDiscount ? 'bold' : 'normal'}>Total</Muted>
+                <Price fontSize="lg" fontWeight="bold">
+                  {formatPrice(payableTotal)}
+                </Price>
+              </HStack>
+            </VStack>
           ) : null}
           <PrimaryButton asChild width="full" onClick={onClose}>
             <Link to={isEmpty ? routes.catalog : routes.cart}>

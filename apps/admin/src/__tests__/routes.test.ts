@@ -4,6 +4,7 @@ import {
   categoryEditPath,
   orderDetailPath,
   productEditPath,
+  promotionEditPath,
   routes,
   staffEditPath,
 } from '../routes'
@@ -18,6 +19,9 @@ describe('admin routes', () => {
       products: '/products',
       productNew: '/products/new',
       productEdit: '/products/:productId/edit',
+      promotions: '/promotions',
+      promotionNew: '/promotions/new',
+      promotionEdit: '/promotions/:promotionId/edit',
       ingredients: '/ingredients',
       branches: '/branches',
       branchNew: '/branches/new',
@@ -37,6 +41,7 @@ describe('admin routes', () => {
   it('builds edit paths from string ids', () => {
     expect(categoryEditPath('c1')).toBe('/categories/c1/edit')
     expect(productEditPath('p1')).toBe('/products/p1/edit')
+    expect(promotionEditPath('pr1')).toBe('/promotions/pr1/edit')
     expect(branchEditPath('b1')).toBe('/branches/b1/edit')
     expect(staffEditPath('u1')).toBe('/staff/u1/edit')
     expect(orderDetailPath('o1')).toBe('/orders/o1')
@@ -45,6 +50,7 @@ describe('admin routes', () => {
   it('builds edit paths from numeric ids', () => {
     expect(categoryEditPath(3)).toBe('/categories/3/edit')
     expect(productEditPath(4)).toBe('/products/4/edit')
+    expect(promotionEditPath(42)).toBe('/promotions/42/edit')
     expect(branchEditPath(5)).toBe('/branches/5/edit')
     expect(staffEditPath(6)).toBe('/staff/6/edit')
     expect(orderDetailPath(7)).toBe('/orders/7')

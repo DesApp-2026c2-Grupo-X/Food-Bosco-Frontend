@@ -9,6 +9,8 @@ import { ProfilePage } from './pages/ProfilePage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { ProductsPage } from './pages/ProductsPage'
 import { ProductEditPage } from './pages/ProductEditPage'
+import { PromotionsPage } from './pages/PromotionsPage'
+import { PromotionEditPage } from './pages/PromotionEditPage'
 import { IngredientsPage } from './pages/IngredientsPage'
 import { BranchesPage } from './pages/BranchesPage'
 import { BranchEditPage } from './pages/BranchEditPage'
@@ -46,6 +48,9 @@ export const App = () =>
             { path: routes.products, element: <ProductsPage /> },
             { path: routes.productNew, element: <ProductEditPage /> },
             { path: routes.productEdit, element: <ProductEditPage /> },
+            { path: routes.promotions, element: <PromotionsPage /> },
+            { path: routes.promotionNew, element: <PromotionEditPage /> },
+            { path: routes.promotionEdit, element: <PromotionEditPage /> },
             { path: routes.ingredients, element: <IngredientsPage /> },
             { path: routes.branches, element: <BranchesPage /> },
             { path: routes.branchNew, element: <BranchEditPage /> },
