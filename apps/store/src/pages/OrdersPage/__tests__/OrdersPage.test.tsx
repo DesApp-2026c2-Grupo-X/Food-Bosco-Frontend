@@ -43,6 +43,15 @@ const renderOrders = (myOrders: unknown[]) => {
   return renderWithProviders(<OrdersPage />, { client: client.client })
 }
 
+const renderOrdersWithReviews = (myOrders: unknown[], myOrderReviews: unknown[]) => {
+  const client = createTestClient((operation) => {
+    if (operation.operationName === 'MyOrders') return { data: { myOrders } }
+    if (operation.operationName === 'MyOrderReviews') return { data: { myOrderReviews } }
+    return { data: {} }
+  })
+  return renderWithProviders(<OrdersPage />, { client: client.client })
+}
+
 const renderLoading = () => {
   const client = createTestClient((operation) => {
     if (operation.operationName === 'MyOrders') {
@@ -111,5 +120,42 @@ describe('OrdersPage', () => {
 
     expect(await screen.findByText('Todavía no tenés pedidos')).toBeInTheDocument()
     await waitFor(() => expect(screen.queryByText('Mis pedidos')).toBeInTheDocument())
+  })
+
+  it('offers to rate a delivered order without a review', async () => {
+    renderOrdersWithReviews([rawOrder()], [])
+
+    expect(await screen.findByRole('button', { name: 'Calificar pedido' })).toBeInTheDocument()
+  })
+
+  it('marks an already rated order as calificado', async () => {
+    renderOrdersWithReviews(
+      [rawOrder()],
+      [
+        {
+          id: 'rv1',
+          orderId: 'o1',
+          customerId: 'c1',
+          branchId: 'b1',
+          branchRating: 4,
+          branchComment: null,
+          courierId: null,
+          courierRating: null,
+          courierComment: null,
+          createdAt: '2025-01-02T11:00:00Z',
+          updatedAt: '2025-01-02T11:00:00Z',
+        },
+      ],
+    )
+
+    expect(await screen.findByText('Pedido calificado')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Calificar pedido' })).not.toBeInTheDocument()
+  })
+
+  it('does not offer to rate an active order', async () => {
+    renderOrdersWithReviews([rawOrder({ id: 'o2', number: '202', status: 'ON_THE_WAY' })], [])
+
+    expect(await screen.findByText('Pedido #202')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Calificar pedido' })).not.toBeInTheDocument()
   })
 })

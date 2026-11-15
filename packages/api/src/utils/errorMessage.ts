@@ -46,6 +46,12 @@ const CODE_MESSAGES: Record<string, string> = {
   PRODUCT_NOT_FOUND: 'El producto ya no existe en el catálogo.',
   PRODUCT_UNAVAILABLE: 'Ese producto ya no está disponible. Elegí otro para continuar.',
   ORDER_NOT_FOUND: 'No encontramos el pedido solicitado.',
+  ORDER_NOT_OWNED: 'No podés calificar un pedido que no te pertenece.',
+  ORDER_NOT_DELIVERED: 'Solo podés calificar un pedido que ya fue entregado.',
+  REVIEW_ALREADY_EXISTS: 'Este pedido ya tiene una reseña.',
+  COURIER_RATING_REQUIRED: 'Tenés que calificar al repartidor de este pedido.',
+  COURIER_NOT_ASSIGNED: 'Este pedido no tiene un repartidor asignado.',
+  INVALID_REVIEW_RATING: 'La calificación debe tener entre 1 y 5 estrellas.',
   INVALID_TRANSITION:
     'El pedido cambió de estado. Actualizá la pantalla antes de intentar de nuevo.',
   NO_BRANCH_AVAILABLE: 'No hay una sucursal disponible para esa dirección.',

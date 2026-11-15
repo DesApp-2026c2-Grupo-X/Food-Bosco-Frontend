@@ -20,6 +20,9 @@ const api = vi.hoisted(() => ({
   useCatalog: vi.fn(),
   useOrders: vi.fn(),
   useOrder: vi.fn(),
+  useMyOrderReviews: vi.fn(),
+  useOrderReviewStatus: vi.fn(),
+  useCreateOrderReview: vi.fn(),
   useCart: vi.fn(),
   useProduct: vi.fn(),
   usePublicPromotions: vi.fn().mockReturnValue({ promotions: [], isLoading: false }),
@@ -120,6 +123,19 @@ describe('store pages smoke', () => {
       isLoading: false,
       startPolling: vi.fn(),
       stopPolling: vi.fn(),
+    })
+    api.useMyOrderReviews.mockReturnValue({
+      reviews: [],
+      reviewByOrderId: new Map(),
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    })
+    api.useOrderReviewStatus.mockReturnValue({
+      status: null,
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
     })
     api.useCart.mockReturnValue({
       cart: null,

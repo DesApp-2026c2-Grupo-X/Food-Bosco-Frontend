@@ -6,6 +6,7 @@ export const routes = {
   orderDetail: '/orders/:orderId',
   reports: '/reports/products',
   reportsCustomers: '/reports/customers',
+  ratings: '/reports/ratings',
   profile: '/profile',
 } as const
 

@@ -9,6 +9,7 @@ import Box from '@gravity-ui/icons/Box'
 import Persons from '@gravity-ui/icons/Persons'
 import Sliders from '@gravity-ui/icons/Sliders'
 import ChartColumn from '@gravity-ui/icons/ChartColumn'
+import Star from '@gravity-ui/icons/Star'
 import type { DashboardNavSection } from '@repo/components'
 import { routes } from '../../../routes'
 
@@ -51,6 +52,7 @@ export const navSections: DashboardNavSection[] = [
     items: [
       { id: 'reports', label: 'Productos', path: routes.reports, icon: ChartColumn },
       { id: 'customerReports', label: 'Clientes', path: routes.reportsCustomers, icon: Persons },
+      { id: 'ratings', label: 'Calificaciones', path: routes.ratings, icon: Star },
     ],
   },
 ]

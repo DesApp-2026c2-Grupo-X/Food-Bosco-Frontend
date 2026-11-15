@@ -122,6 +122,14 @@ export const toOrder = (raw: Raw): Order => ({
   number: asString(raw.number),
   clientId: asString(raw.clientId),
   riderId: raw.riderId == null ? null : String(raw.riderId),
+  rider: raw.rider
+    ? {
+        id: asString((raw.rider as Raw).id),
+        firstName:
+          (raw.rider as Raw).firstName == null ? null : String((raw.rider as Raw).firstName),
+        lastName: (raw.rider as Raw).lastName == null ? null : String((raw.rider as Raw).lastName),
+      }
+    : null,
   riderLocation:
     raw.riderLocation == null
       ? null
@@ -283,6 +291,11 @@ export const ORDER = gql`
     order(id: $id) {
       ${STORE_ORDER_FIELDS}
       riderId
+      rider {
+        id
+        firstName
+        lastName
+      }
       riderLocation {
         latitude
         longitude

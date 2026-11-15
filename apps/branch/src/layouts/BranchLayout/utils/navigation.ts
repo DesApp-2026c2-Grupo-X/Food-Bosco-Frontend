@@ -4,6 +4,7 @@ import Receipt from '@gravity-ui/icons/Receipt'
 import Box from '@gravity-ui/icons/Box'
 import ChartColumn from '@gravity-ui/icons/ChartColumn'
 import Persons from '@gravity-ui/icons/Persons'
+import Star from '@gravity-ui/icons/Star'
 import Person from '@gravity-ui/icons/Person'
 import type { DashboardNavItem, DashboardNavSection } from '@repo/components'
 import { routes } from '../../../routes'
@@ -24,6 +25,7 @@ export const navSections: DashboardNavSection[] = [
     items: [
       { id: 'reports', label: 'Productos', path: routes.reports, icon: ChartColumn },
       { id: 'customerReports', label: 'Clientes', path: routes.reportsCustomers, icon: Persons },
+      { id: 'ratings', label: 'Calificaciones', path: routes.ratings, icon: Star },
     ],
   },
   {

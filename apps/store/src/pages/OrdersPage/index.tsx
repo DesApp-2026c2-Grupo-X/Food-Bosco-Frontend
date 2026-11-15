@@ -13,18 +13,22 @@ import {
   Price,
   PrimaryButton,
   SecondaryButton,
+  StarRating,
   TextLink,
 } from '@repo/components'
 import { orderDetailPath, routes } from '../../routes'
 import { ActiveOrderCard } from '../../components/ActiveOrderCard'
 import { RepeatOrderModal } from '../../components/RepeatOrderModal'
+import { ReviewOrderModal } from '../../components/ReviewOrderModal'
 import { formatPrice } from '@repo/domain'
 import { formatOrderDate, isActiveOrder, type Order } from '@repo/domain'
-import { useOrders } from '@repo/api'
+import { useMyOrderReviews, useOrders } from '@repo/api'
 
 export const OrdersPage = () => {
   const { orders, isLoading } = useOrders({ pollIntervalMs: 15000 })
+  const { reviewByOrderId } = useMyOrderReviews()
   const [orderToRepeat, setOrderToRepeat] = useState<Order | null>(null)
+  const [orderToReview, setOrderToReview] = useState<Order | null>(null)
   const activeOrders = orders.filter((order) => isActiveOrder(order.status))
   const pastOrders = orders.filter((order) => !isActiveOrder(order.status))
 
@@ -71,6 +75,23 @@ export const OrdersPage = () => {
                 <Price>{formatPrice(order.total)}</Price>
               </HStack>
               <HStack justify="flex-end" gap="2" marginTop="4" wrap="wrap">
+                {order.status === 'DELIVERED' ? (
+                  reviewByOrderId.has(order.id) ? (
+                    <HStack gap="2" marginRight="auto">
+                      <StarRating
+                        value={reviewByOrderId.get(order.id)?.branchRating ?? 0}
+                        readOnly
+                        size="sm"
+                        label={`Calificación del pedido ${order.number}`}
+                      />
+                      <Muted fontSize="sm">Pedido calificado</Muted>
+                    </HStack>
+                  ) : (
+                    <SecondaryButton size="sm" onClick={() => setOrderToReview(order)}>
+                      Calificar pedido
+                    </SecondaryButton>
+                  )
+                ) : null}
                 <SecondaryButton size="sm" asChild>
                   <Link to={orderDetailPath(order.id)}>Ver detalle</Link>
                 </SecondaryButton>
@@ -97,6 +118,13 @@ export const OrdersPage = () => {
 
       {orderToRepeat ? (
         <RepeatOrderModal order={orderToRepeat} onClose={() => setOrderToRepeat(null)} />
+      ) : null}
+      {orderToReview ? (
+        <ReviewOrderModal
+          open={Boolean(orderToReview)}
+          order={orderToReview}
+          onClose={() => setOrderToReview(null)}
+        />
       ) : null}
     </PageContainer>
   )
