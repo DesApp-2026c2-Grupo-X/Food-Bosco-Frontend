@@ -40,11 +40,18 @@ export interface OrderAddress {
   longitude: number
 }
 
+export interface OrderCourierRef {
+  id: string
+  firstName: string | null
+  lastName: string | null
+}
+
 export interface Order {
   id: string
   number: string
   clientId: string
   riderId?: string | null
+  rider?: OrderCourierRef | null
   riderLocation?: GeoPoint | null
   branchId: string
   branch?: Branch | null

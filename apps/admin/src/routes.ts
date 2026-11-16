@@ -22,6 +22,7 @@ export const routes = {
   stock: '/stock',
   reports: '/reports/products',
   reportsCustomers: '/reports/customers',
+  ratings: '/reports/ratings',
   profile: '/profile',
 } as const
 

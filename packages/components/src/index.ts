@@ -182,6 +182,12 @@ export type { SearchInputProps } from './SearchInput/types'
 export { QuantityStepper } from './QuantityStepper'
 export type { QuantityStepperProps } from './QuantityStepper/types'
 
+export { StarRating } from './StarRating'
+export type { StarRatingProps } from './StarRating/types'
+
+export { ReviewStatsPanel } from './ReviewStatsPanel'
+export type { ReviewStatsData, ReviewStatsPanelProps } from './ReviewStatsPanel/types'
+
 export { Chip } from './Chip'
 export type { ChipProps } from './Chip/types'
 
