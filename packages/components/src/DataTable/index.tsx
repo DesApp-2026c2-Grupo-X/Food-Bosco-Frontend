@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { Box, HStack, Skeleton, Spinner, Table, Text } from '@chakra-ui/react'
+import { SecondaryButton } from '../Button'
 import { EmptyState } from '../feedback'
 import { usePrefersReducedMotion } from '../usePrefersReducedMotion'
 import type { DataTableProps, ResponsiveBreakpoint } from './types'
@@ -20,8 +22,20 @@ export const DataTable = <T,>({
   emptyIcon,
   onRowClick,
   skeletonRows = 5,
+  pageSize,
 }: DataTableProps<T>) => {
   const reducedMotion = usePrefersReducedMotion()
+  const [page, setPage] = useState(1)
+
+  const hasPagination = typeof pageSize === 'number' && pageSize > 0
+  const totalPages = hasPagination ? Math.max(1, Math.ceil(rows.length / pageSize)) : 1
+  const currentPage = Math.min(page, totalPages)
+  const visibleRows = hasPagination
+    ? rows.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : rows
+  const showPaginationFooter = !isLoading && hasPagination && rows.length > pageSize
+  const rangeStart = showPaginationFooter ? (currentPage - 1) * pageSize + 1 : 0
+  const rangeEnd = showPaginationFooter ? Math.min(currentPage * pageSize, rows.length) : 0
 
   if (error) {
     return (
@@ -94,7 +108,7 @@ export const DataTable = <T,>({
                       ))}
                     </Table.Row>
                   ))
-                : rows.map((row) => (
+                : visibleRows.map((row) => (
                     <Table.Row
                       key={getRowKey(row)}
                       cursor={onRowClick ? 'pointer' : undefined}
@@ -119,6 +133,33 @@ export const DataTable = <T,>({
           </Table.Root>
         </Table.ScrollArea>
       </Box>
+
+      {showPaginationFooter ? (
+        <HStack justify="space-between" align="center" width="full" wrap="wrap" gap="3" paddingTop="3">
+          <Text fontSize="sm" color="fg.muted">
+            Mostrando {rangeStart}–{rangeEnd} de {rows.length}
+          </Text>
+          <HStack gap="2" align="center">
+            <SecondaryButton
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => setPage(currentPage - 1)}
+            >
+              Anterior
+            </SecondaryButton>
+            <Text fontSize="sm" color="fg.muted">
+              Página {currentPage} de {totalPages}
+            </Text>
+            <SecondaryButton
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage(currentPage + 1)}
+            >
+              Siguiente
+            </SecondaryButton>
+          </HStack>
+        </HStack>
+      ) : null}
     </>
   )
 }

@@ -23,4 +23,5 @@ export interface DataTableProps<T> {
   emptyIcon?: ReactNode
   onRowClick?: (row: T) => void
   skeletonRows?: number
+  pageSize?: number
 }

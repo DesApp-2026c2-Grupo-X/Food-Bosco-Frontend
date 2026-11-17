@@ -20,5 +20,6 @@ export interface CrudListPageProps<T> {
   emptyIcon?: ReactNode
   emptyTitle?: string
   emptyDescription?: string
+  pageSize?: number
   modals?: ReactNode
 }
