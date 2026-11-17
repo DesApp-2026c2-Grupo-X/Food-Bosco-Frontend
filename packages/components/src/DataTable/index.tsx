@@ -135,7 +135,14 @@ export const DataTable = <T,>({
       </Box>
 
       {showPaginationFooter ? (
-        <HStack justify="space-between" align="center" width="full" wrap="wrap" gap="3" paddingTop="3">
+        <HStack
+          justify="space-between"
+          align="center"
+          width="full"
+          wrap="wrap"
+          gap="3"
+          paddingTop="3"
+        >
           <Text fontSize="sm" color="fg.muted">
             Mostrando {rangeStart}–{rangeEnd} de {rows.length}
           </Text>
