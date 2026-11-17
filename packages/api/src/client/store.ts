@@ -290,12 +290,6 @@ export const ORDER = gql`
   query Order($id: ID!) {
     order(id: $id) {
       ${STORE_ORDER_FIELDS}
-      riderId
-      rider {
-        id
-        firstName
-        lastName
-      }
       riderLocation {
         latitude
         longitude

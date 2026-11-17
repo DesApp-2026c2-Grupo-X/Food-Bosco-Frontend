@@ -192,6 +192,12 @@ export const STORE_ORDER_FIELDS = `
   number
   clientId
   branchId
+  riderId
+  rider {
+    id
+    firstName
+    lastName
+  }
   branch {
     ${BRANCH_FIELDS}
   }

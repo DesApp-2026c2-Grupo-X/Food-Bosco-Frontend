@@ -1,11 +1,6 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Alert, HStack } from '@chakra-ui/react'
-import {
-  PageContainer,
-  PageHeader,
-  ReviewStatsPanel,
-  SelectField,
-} from '@repo/components'
+import { PageContainer, PageHeader, ReviewStatsPanel, SelectField } from '@repo/components'
 import { getApiErrorMessage, useBranchReviewStats } from '@repo/api'
 import type { ReviewFilter } from '@repo/api'
 
@@ -19,13 +14,16 @@ const RANGE_OPTIONS = [
 const filterForRange = (range: string): ReviewFilter | undefined => {
   if (range === 'all') return undefined
   const days = Number(range)
-  const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+  const now = new Date()
+  now.setSeconds(0, 0)
+  const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
   return { from: from.toISOString() }
 }
 
 export const RatingsPage = () => {
   const [range, setRange] = useState('30')
-  const { stats, isLoading, error } = useBranchReviewStats(undefined, filterForRange(range))
+  const filter = useMemo(() => filterForRange(range), [range])
+  const { stats, isLoading, error } = useBranchReviewStats(undefined, filter)
 
   return (
     <PageContainer>

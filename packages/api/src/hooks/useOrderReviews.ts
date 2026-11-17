@@ -78,7 +78,7 @@ export const useCreateOrderReview = () => {
     { createOrderReview: Raw },
     { orderId: string; input: CreateOrderReviewInput }
   >(CREATE_ORDER_REVIEW, {
-    refetchQueries: [MY_ORDER_REVIEWS, PENDING_ORDER_REVIEWS, 'OrderReviewStatus'],
+    refetchQueries: ['MyOrderReviews', 'OrderReviewStatus'],
     awaitRefetchQueries: true,
   })
 
@@ -152,9 +152,7 @@ export const useBranchRatingRanking = (filter?: ReviewFilter) => {
   )
 
   return {
-    rows: (data?.branchRatingRanking ?? []).map(
-      (row) => toBranchRatingRow(row) as BranchRatingRow,
-    ),
+    rows: (data?.branchRatingRanking ?? []).map((row) => toBranchRatingRow(row) as BranchRatingRow),
     isLoading: loading,
     error,
     refetch,
@@ -187,7 +185,9 @@ export const useReviewsSummary = (filter?: ReviewFilter) => {
   })
 
   return {
-    summary: data?.reviewsSummary ? (toReviewsSummary(data.reviewsSummary) as ReviewsSummary) : null,
+    summary: data?.reviewsSummary
+      ? (toReviewsSummary(data.reviewsSummary) as ReviewsSummary)
+      : null,
     isLoading: loading,
     error,
     refetch,

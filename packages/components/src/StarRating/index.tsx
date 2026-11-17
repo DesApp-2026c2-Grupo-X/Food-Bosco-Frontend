@@ -90,7 +90,9 @@ export const StarRating = ({
             onBlur={() => setHovered(null)}
             onClick={() => onChange?.(rating)}
           >
-            <Icon width={iconSize} height={iconSize} />
+            <Box as="span" pointerEvents="none" display="inline-flex" aria-hidden="true">
+              <Icon width={iconSize} height={iconSize} />
+            </Box>
           </Button>
         )
       })}

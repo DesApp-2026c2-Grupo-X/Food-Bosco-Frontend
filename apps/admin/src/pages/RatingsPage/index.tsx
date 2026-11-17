@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Alert, HStack, SimpleGrid, VStack } from '@chakra-ui/react'
 import {
   Card,
@@ -30,20 +30,26 @@ const RANGE_OPTIONS = [
 const filterForRange = (range: string): ReviewFilter | undefined => {
   if (range === 'all') return undefined
   const days = Number(range)
-  const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+  const now = new Date()
+  now.setSeconds(0, 0)
+  const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
   return { from: from.toISOString() }
 }
 
 const formatAverage = (value: number): string => value.toFixed(1)
 
-const courierName = (firstName: string | null, lastName: string | null, fallback: string): string => {
+const courierName = (
+  firstName: string | null,
+  lastName: string | null,
+  fallback: string,
+): string => {
   const name = [firstName, lastName].filter(Boolean).join(' ')
   return name || fallback
 }
 
 export const RatingsPage = () => {
   const [range, setRange] = useState('30')
-  const filter = filterForRange(range)
+  const filter = useMemo(() => filterForRange(range), [range])
   const { summary, isLoading: summaryLoading, error: summaryError } = useReviewsSummary(filter)
   const { rows: branchRows, isLoading: branchLoading } = useBranchRatingRanking(filter)
   const { rows: courierRows, isLoading: courierLoading } = useCourierRatingRanking(filter)
