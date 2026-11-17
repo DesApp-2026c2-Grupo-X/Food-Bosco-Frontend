@@ -52,8 +52,12 @@ export const OrderDetailPage = () => {
   const orderStatus = order?.status
 
   useEffect(() => {
-    if (orderStatus && !isActiveOrder(orderStatus)) stopPolling()
-  }, [orderStatus, stopPolling])
+    if (!orderStatus || isActiveOrder(orderStatus)) return
+    stopPolling()
+    if (orderStatus === 'DELIVERED') {
+      void refetchReviewStatus()
+    }
+  }, [orderStatus, stopPolling, refetchReviewStatus])
 
   if (isLoading) {
     return <LoadingState variant="list" skeletonCount={4} skeletonHeight="88px" />
@@ -125,29 +129,39 @@ export const OrderDetailPage = () => {
           {reviewStatus?.review ? (
             <VStack align="start" gap="3" marginTop="4">
               <Strong>Pedido calificado</Strong>
-              <HStack gap="3">
-                <Muted fontSize="sm" minWidth="70px">
-                  Sucursal
-                </Muted>
-                <StarRating
-                  value={reviewStatus.review.branchRating}
-                  readOnly
-                  size="sm"
-                  label="Calificación de la sucursal"
-                />
-              </HStack>
-              {reviewStatus.review.courierRating != null ? (
+              <VStack align="start" gap="1">
                 <HStack gap="3">
                   <Muted fontSize="sm" minWidth="70px">
-                    Repartidor
+                    Sucursal
                   </Muted>
                   <StarRating
-                    value={reviewStatus.review.courierRating}
+                    value={reviewStatus.review.branchRating}
                     readOnly
                     size="sm"
-                    label="Calificación del repartidor"
+                    label="Calificación de la sucursal"
                   />
                 </HStack>
+                {reviewStatus.review.branchComment ? (
+                  <Muted fontSize="sm">{reviewStatus.review.branchComment}</Muted>
+                ) : null}
+              </VStack>
+              {reviewStatus.review.courierRating != null ? (
+                <VStack align="start" gap="1">
+                  <HStack gap="3">
+                    <Muted fontSize="sm" minWidth="70px">
+                      Repartidor
+                    </Muted>
+                    <StarRating
+                      value={reviewStatus.review.courierRating}
+                      readOnly
+                      size="sm"
+                      label="Calificación del repartidor"
+                    />
+                  </HStack>
+                  {reviewStatus.review.courierComment ? (
+                    <Muted fontSize="sm">{reviewStatus.review.courierComment}</Muted>
+                  ) : null}
+                </VStack>
               ) : null}
             </VStack>
           ) : reviewStatus?.canReview && !reviewStatusLoading ? (

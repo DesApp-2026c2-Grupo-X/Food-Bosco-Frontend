@@ -26,7 +26,7 @@ import { useMyOrderReviews, useOrders } from '@repo/api'
 
 export const OrdersPage = () => {
   const { orders, isLoading } = useOrders({ pollIntervalMs: 15000 })
-  const { reviewByOrderId } = useMyOrderReviews()
+  const { reviewByOrderId, isLoading: reviewsLoading } = useMyOrderReviews()
   const [orderToRepeat, setOrderToRepeat] = useState<Order | null>(null)
   const [orderToReview, setOrderToReview] = useState<Order | null>(null)
   const activeOrders = orders.filter((order) => isActiveOrder(order.status))
@@ -86,11 +86,11 @@ export const OrdersPage = () => {
                       />
                       <Muted fontSize="sm">Pedido calificado</Muted>
                     </HStack>
-                  ) : (
+                  ) : !reviewsLoading ? (
                     <SecondaryButton size="sm" onClick={() => setOrderToReview(order)}>
                       Calificar pedido
                     </SecondaryButton>
-                  )
+                  ) : null
                 ) : null}
                 <SecondaryButton size="sm" asChild>
                   <Link to={orderDetailPath(order.id)}>Ver detalle</Link>
