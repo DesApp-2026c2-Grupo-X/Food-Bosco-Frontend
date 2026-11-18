@@ -6,7 +6,7 @@ import { formatPrice } from '@repo/domain'
 import { Card, LoadingImage, MenuLink, Muted, Price, Strong } from '@repo/components'
 import type { ProductCardProps } from './types'
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({ product, hint }: ProductCardProps) => {
   return (
     <Card padding="0" overflow="hidden" interactive>
       <MenuLink to={productPath(product.id)} display="block" aria-label={product.name}>
@@ -21,6 +21,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           <Muted fontSize="sm" lineClamp={1} marginTop="0.5">
             {product.description}
           </Muted>
+          {hint ? (
+            <Muted color="brand.600" fontSize="xs" fontWeight="medium" lineClamp={1} marginTop="1">
+              {hint}
+            </Muted>
+          ) : null}
         </MenuLink>
       </Box>
 

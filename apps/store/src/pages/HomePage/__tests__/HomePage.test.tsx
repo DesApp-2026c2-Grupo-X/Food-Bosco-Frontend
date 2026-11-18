@@ -1,11 +1,12 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '@repo/api'
 import type { User } from '@repo/domain'
 import { HomePage } from '../index'
 import { useAddressStore } from '../../../stores/addressStore'
+import { useRecentViewsStore } from '../../../stores/recentViewsStore'
 import { createTestClient, type TestApolloClient } from '@test/apollo'
 import { renderWithProviders } from '@test/utils'
 
@@ -42,9 +43,9 @@ const rawBranch = {
   hours: [],
 }
 
-const rawProduct = (index: number) => ({
+const rawProduct = (index: number, categoryId = 'c1') => ({
   id: `p${index}`,
-  categoryId: 'c1',
+  categoryId,
   name: `Producto ${index}`,
   description: 'Rico',
   price: 1000 + index,
@@ -65,6 +66,9 @@ const activeOrder = {
   clientId: 'c1',
   branchId: 'b1',
   branch: null,
+  riderId: null,
+  rider: null,
+  client: null,
   deliveryAddress: { text: 'Calle 1', latitude: -34.6, longitude: -58.4 },
   status: 'PREPARING',
   total: 2300,
@@ -75,14 +79,84 @@ const activeOrder = {
   availableTransitions: [],
 }
 
+const deliveredOrder = {
+  id: 'o2',
+  number: '102',
+  clientId: 'u1',
+  branchId: 'b1',
+  branch: rawBranch,
+  riderId: null,
+  rider: null,
+  client: null,
+  deliveryAddress: { text: 'Calle 1', latitude: -34.6, longitude: -58.4 },
+  status: 'DELIVERED',
+  total: 2100,
+  subtotal: 2100,
+  discountTotal: 0,
+  promotionCode: null,
+  appliedPromotions: [],
+  estimatedDeliveryAt: null,
+  createdAt: '2026-11-10T10:00:00Z',
+  items: [
+    {
+      productId: 'p1',
+      name: 'Producto 1',
+      unitPrice: 1000,
+      quantity: 1,
+      observations: null,
+      subtotal: 1000,
+      options: [],
+    },
+    {
+      productId: 'p2',
+      name: 'Producto 2',
+      unitPrice: 1100,
+      quantity: 1,
+      observations: null,
+      subtotal: 1100,
+      options: [],
+    },
+  ],
+  statusHistory: [],
+  availableTransitions: [],
+}
+
+const remoteFeed = {
+  generatedAt: '2026-11-18T03:00:00.000Z',
+  hasHistory: true,
+  topCategory: categories[0],
+  favoriteBranch: rawBranch,
+  nearestBranch: { branch: rawBranch, distanceMeters: 820 },
+  categories,
+  forYou: [{ product: rawProduct(1), reason: 'REPEAT', hint: 'Ya lo pediste', score: 5.25 }],
+  discovery: [{ product: rawProduct(2), reason: 'DISCOVERY', hint: 'Nuevo para vos', score: 1 }],
+  reorder: [
+    {
+      id: 'o2',
+      number: '102',
+      status: 'DELIVERED',
+      createdAt: '2026-11-10T10:00:00Z',
+      total: 2100,
+      branchId: 'b1',
+      branch: rawBranch,
+      items: [{ productId: 'p1', name: 'Producto 1', quantity: 2 }],
+    },
+  ],
+  promotions: [],
+}
+
 const buildClient = ({
   branches = [rawBranch],
   products = Array.from({ length: 9 }, (_, index) => rawProduct(index + 1)),
   orders = [] as unknown[],
+  categoryList = categories,
+  homeFeed,
 }: {
   branches?: unknown[]
   products?: unknown[]
   orders?: unknown[]
+  categoryList?: unknown[]
+  homeFeed?: unknown
 } = {}): TestApolloClient =>
   createTestClient((operation) => {
     switch (operation.operationName) {
@@ -91,11 +165,15 @@ const buildClient = ({
       case 'AvailableBranches':
         return { data: { availableBranches: branches } }
       case 'Categories':
-        return { data: { categories } }
+        return { data: { categories: categoryList } }
       case 'Products':
         return { data: { products } }
       case 'MyOrders':
         return { data: { myOrders: orders } }
+      case 'PublicPromotions':
+        return { data: { publicPromotions: [] } }
+      case 'HomeFeed':
+        return homeFeed instanceof Error ? homeFeed : { data: { homeFeed } }
       default:
         return { data: {} }
     }
@@ -119,6 +197,11 @@ describe('HomePage', () => {
   beforeEach(() => {
     useAddressStore.setState({ selectedAddressId: 'a1' })
     useAuthStore.setState({ user, accessToken: null })
+    useRecentViewsStore.setState({ viewsByUser: {} })
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
 
   it('greets the user and shows a catalog preview when a branch is available', async () => {
@@ -185,5 +268,87 @@ describe('HomePage', () => {
       'href',
       '/catalog',
     )
+  })
+
+  it('keeps the generic catalogue experience for a new user', async () => {
+    renderHome(buildClient())
+
+    expect(await screen.findByText('Los más pedidos')).toBeInTheDocument()
+    expect(screen.queryByText('Volvé a pedir')).not.toBeInTheDocument()
+    expect(screen.queryByText('Para vos')).not.toBeInTheDocument()
+  })
+
+  it('shows reorder suggestions and personalised products for a returning user', async () => {
+    renderHome(buildClient({ orders: [deliveredOrder] }))
+
+    expect(await screen.findByText('Volvé a pedir')).toBeInTheDocument()
+    expect(screen.getByText('Pedido #102')).toBeInTheDocument()
+    expect(screen.getByText('Para vos')).toBeInTheDocument()
+    expect(screen.getAllByText('Ya lo pediste').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Los más pedidos')).not.toBeInTheDocument()
+  })
+
+  it('shows discovery products from categories the user has not explored', async () => {
+    const expandedCategories = [
+      ...categories,
+      { id: 'c3', name: 'Postres', active: true },
+      { id: 'c4', name: 'Ensaladas', active: true },
+    ]
+    const expandedProducts = [
+      ...Array.from({ length: 9 }, (_, index) => rawProduct(index + 1, 'c1')),
+      ...Array.from({ length: 3 }, (_, index) => rawProduct(10 + index, 'c2')),
+      ...Array.from({ length: 3 }, (_, index) => rawProduct(13 + index, 'c3')),
+      ...Array.from({ length: 3 }, (_, index) => rawProduct(16 + index, 'c4')),
+    ]
+
+    renderHome(
+      buildClient({
+        orders: [deliveredOrder],
+        products: expandedProducts,
+        categoryList: expandedCategories,
+      }),
+    )
+
+    expect(await screen.findByText('Para probar')).toBeInTheDocument()
+    expect(screen.getByText('Producto 16')).toBeInTheDocument()
+  })
+
+  it('shows recently viewed products for a user without purchase history', async () => {
+    useRecentViewsStore.setState({
+      viewsByUser: { u1: [{ productId: 'p3', viewedAt: '2026-11-18T10:00:00.000Z' }] },
+    })
+
+    renderHome(buildClient())
+
+    expect(await screen.findByText('Vistos hace poco')).toBeInTheDocument()
+    expect(screen.getByText('Lo estás mirando')).toBeInTheDocument()
+    expect(screen.getByText('Los más pedidos')).toBeInTheDocument()
+  })
+
+  it('uses the server home feed when the feature flag is enabled', async () => {
+    vi.stubEnv('VITE_HOME_FEED', 'true')
+
+    renderHome(buildClient({ homeFeed: remoteFeed }))
+
+    expect(await screen.findByText('Volvé a pedir')).toBeInTheDocument()
+    expect(screen.getByText('Pedido #102')).toBeInTheDocument()
+    expect(screen.getByText('Para vos')).toBeInTheDocument()
+    expect(screen.getByText('Para probar')).toBeInTheDocument()
+    expect(screen.queryByText('Los más pedidos')).not.toBeInTheDocument()
+  })
+
+  it('falls back to the local calculation when the server feed fails', async () => {
+    vi.stubEnv('VITE_HOME_FEED', 'true')
+
+    renderHome(
+      buildClient({
+        orders: [deliveredOrder],
+        homeFeed: new Error('feed no disponible'),
+      }),
+    )
+
+    expect(await screen.findByText('Volvé a pedir')).toBeInTheDocument()
+    expect(screen.getByText('Pedido #102')).toBeInTheDocument()
+    expect(screen.getByText('Para vos')).toBeInTheDocument()
   })
 })

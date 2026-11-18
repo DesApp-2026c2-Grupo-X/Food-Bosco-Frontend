@@ -1,4 +1,5 @@
 export * from './hooks/useCatalog'
+export * from './hooks/useHomeFeed'
 export * from './hooks/useProduct'
 export * from './hooks/useProfile'
 export * from './hooks/useOrder'

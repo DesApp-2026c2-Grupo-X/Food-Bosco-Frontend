@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   Badge,
   Box,
@@ -28,6 +29,7 @@ import {
   PrimaryButton,
   Reveal,
   SecondaryButton,
+  SectionHeader,
   SectionTitle,
   Strong,
   TextLink,
@@ -35,24 +37,43 @@ import {
 } from '@repo/components'
 import { ProductCard } from '../../components/ProductCard'
 import { ActiveOrderCard } from '../../components/ActiveOrderCard'
-import { SectionHeader } from '@repo/components'
+import { PersonalizedProductsSection } from '../../components/PersonalizedProductsSection'
+import { ReorderSection } from '../../components/ReorderSection'
 import { routes } from '../../routes'
 import {
   useAddresses,
   useAvailableBranches,
   useCatalog,
+  useHomeFeed,
   useOrders,
   useProfile,
   usePublicPromotions,
 } from '@repo/api'
+import { isHomeFeedEnabled } from '../../config/featureFlags'
 import { useAddressStore } from '../../stores/addressStore'
-import { describePromotion, isActiveOrder } from '@repo/domain'
+import { useRecentViewsStore, type RecentProductView } from '../../stores/recentViewsStore'
+import {
+  describePromotion,
+  formatDistance,
+  isActiveOrder,
+  isBranchOpenNow,
+  type Category,
+  type PersonalizedProduct,
+  type Promotion,
+} from '@repo/domain'
+import {
+  useHomePersonalization,
+  type FavoriteBranchSummary,
+  type NearestBranch,
+} from './hooks/useHomePersonalization'
 
 const STEPS = [
   { icon: LayoutCells, title: 'Elegí', text: 'Explorá el catálogo y encontrá tu antojo.' },
   { icon: Sliders, title: 'Configurá', text: 'Tamaño, extras y observaciones a tu gusto.' },
   { icon: Flame, title: 'Recibilo caliente', text: 'Te lo llevamos a tu dirección, recién hecho.' },
 ]
+
+const EMPTY_RECENT_VIEWS: RecentProductView[] = []
 
 export const HomePage = () => {
   const { user } = useProfile()
@@ -64,14 +85,91 @@ export const HomePage = () => {
     selected?.longitude,
   )
   const { orders, isLoading: ordersLoading } = useOrders({ pollIntervalMs: 15000 })
-  const activeOrders = orders.filter((order) => isActiveOrder(order.status))
+  const {
+    categories,
+    products,
+    isLoading: catalogLoading,
+  } = useCatalog(selected?.latitude, selected?.longitude)
+  const { promotions, isLoading: promotionsLoading } = usePublicPromotions()
 
+  const homeFeedEnabled = isHomeFeedEnabled()
+  const { feed: homeFeed, error: homeFeedError } = useHomeFeed({
+    enabled: homeFeedEnabled,
+    addressId: user ? selected?.id : null,
+    lat: selected?.latitude,
+    lng: selected?.longitude,
+  })
+  const remoteFeed = homeFeedEnabled && !homeFeedError ? homeFeed : null
+
+  const recentViews = useRecentViewsStore((state) =>
+    user?.id ? (state.viewsByUser[user.id] ?? EMPTY_RECENT_VIEWS) : EMPTY_RECENT_VIEWS,
+  )
+  const recentViewedIds = useMemo(() => recentViews.map((view) => view.productId), [recentViews])
+
+  const personalization = useHomePersonalization({
+    orders,
+    products,
+    categories,
+    branches,
+    promotions,
+    selectedAddress: selected,
+    recentViewedIds,
+  })
+
+  const hasHistory = remoteFeed?.hasHistory ?? personalization.hasHistory
+  // Para usuarios nuevos el backend no devuelve `forYou`; se conserva el
+  // catálogo local como "Los más pedidos".
+  const recommendations =
+    remoteFeed && remoteFeed.hasHistory ? remoteFeed.forYou : personalization.recommendations
+  const discovery = remoteFeed?.discovery ?? personalization.discovery
+  const reorderOrders = remoteFeed?.reorder ?? personalization.reorderOrders
+  const orderedCategories = remoteFeed?.categories ?? personalization.orderedCategories
+  const orderedPromotions = remoteFeed?.promotions ?? personalization.orderedPromotions
+  const nearestBranch = remoteFeed?.nearestBranch ?? personalization.nearestBranch
+  const topCategoryName = remoteFeed
+    ? (remoteFeed.topCategory?.name ?? null)
+    : personalization.topCategoryName
+  const favoriteBranch = remoteFeed
+    ? remoteFeed.favoriteBranch
+      ? {
+          branchId: remoteFeed.favoriteBranch.id,
+          name: remoteFeed.favoriteBranch.name,
+          orders: orders.filter(
+            (order) =>
+              order.status === 'DELIVERED' && order.branchId === remoteFeed.favoriteBranch?.id,
+          ).length,
+        }
+      : null
+    : personalization.favoriteBranch
+
+  const activeOrders = orders.filter((order) => isActiveOrder(order.status))
   const hasAvailableBranch = !branchesLoading && branches.length > 0
+  const reorderLoading = remoteFeed ? false : ordersLoading
+  const catalogIsLoading = remoteFeed ? false : catalogLoading
+  const promotionsAreLoading = remoteFeed ? false : promotionsLoading
+  const recentViewedProducts: PersonalizedProduct[] = personalization.recentViewedProducts.map(
+    (product) => ({
+      product,
+      reason: 'POPULAR',
+      hint: 'Lo estás mirando',
+      score: 0,
+    }),
+  )
+  const deliveryHint = nearestBranch
+    ? `${nearestBranch.branch.name} · ${formatDistance(nearestBranch.distanceMeters)}`
+    : undefined
 
   return (
     <WidePageContainer>
       <Reveal>
-        <Hero userFirstName={user?.firstName} />
+        <Hero
+          userFirstName={user?.firstName}
+          greeting={personalization.greeting}
+          addressLabel={selected?.label}
+          hasHistory={hasHistory}
+          topCategoryName={topCategoryName}
+          deliveryHint={deliveryHint}
+        />
       </Reveal>
 
       {ordersLoading ? (
@@ -92,18 +190,62 @@ export const HomePage = () => {
         </Reveal>
       ) : null}
 
-      {hasAvailableBranch ? (
-        <Reveal delayMs={60}>
-          <HomeCatalog lat={selected?.latitude} lng={selected?.longitude} />
+      {!reorderLoading && reorderOrders.length > 0 ? (
+        <Reveal delayMs={40}>
+          <ReorderSection orders={reorderOrders} />
         </Reveal>
       ) : null}
 
-      <Reveal delayMs={70}>
-        <PromotionsSection />
-      </Reveal>
+      {!hasHistory && recentViewedProducts.length > 0 ? (
+        <Reveal delayMs={50}>
+          <PersonalizedProductsSection
+            label="Seguí explorando"
+            title="Vistos hace poco"
+            products={recentViewedProducts}
+          />
+        </Reveal>
+      ) : null}
+
+      {hasAvailableBranch ? (
+        <Reveal delayMs={60}>
+          <HomeCatalog
+            categories={orderedCategories}
+            isLoading={catalogIsLoading}
+            personalized={hasHistory}
+            recommendations={recommendations}
+          />
+        </Reveal>
+      ) : null}
+
+      {hasHistory && discovery.length > 0 ? (
+        <Reveal delayMs={70}>
+          <PersonalizedProductsSection
+            label="Descubrí algo nuevo"
+            title="Para probar"
+            products={discovery}
+            action={
+              <TextLink to={routes.catalog} fontSize="sm">
+                Explorar el catálogo
+              </TextLink>
+            }
+          />
+        </Reveal>
+      ) : null}
 
       <Reveal delayMs={80}>
-        <DeliveryBanner />
+        <PromotionsSection
+          promotions={orderedPromotions}
+          isLoading={promotionsAreLoading}
+          personalized={hasHistory}
+        />
+      </Reveal>
+
+      <Reveal delayMs={90}>
+        <DeliveryBanner
+          nearestBranch={nearestBranch}
+          favoriteBranch={favoriteBranch}
+          addressLabel={selected?.label}
+        />
       </Reveal>
 
       <Reveal delayMs={100}>
@@ -143,16 +285,27 @@ export const HomePage = () => {
   )
 }
 
-const HomeCatalog = ({ lat, lng }: { lat?: number; lng?: number }) => {
-  const { categories, products, isLoading } = useCatalog(lat, lng)
+interface HomeCatalogProps {
+  categories: Category[]
+  isLoading: boolean
+  personalized: boolean
+  recommendations: PersonalizedProduct[]
+}
+
+const HomeCatalog = ({
+  categories,
+  isLoading,
+  personalized,
+  recommendations,
+}: HomeCatalogProps) => {
   const navigate = useNavigate()
-  const featured = products.slice(0, 8)
+  const popular = recommendations.map((entry) => entry.product)
 
   return (
     <>
       <Box>
         <SectionHeader
-          label="Catálogo"
+          label={personalized ? 'Tus gustos' : 'Catálogo'}
           title="Explorá por categoría"
           action={
             <TextLink to={routes.catalog} fontSize="sm">
@@ -160,6 +313,11 @@ const HomeCatalog = ({ lat, lng }: { lat?: number; lng?: number }) => {
             </TextLink>
           }
         />
+        {personalized ? (
+          <Muted fontSize="sm" marginTop="2">
+            Primero las categorías que más pedís.
+          </Muted>
+        ) : null}
         {isLoading ? (
           <LoadingState variant="list" skeletonCount={1} skeletonHeight="36px" />
         ) : (
@@ -175,35 +333,71 @@ const HomeCatalog = ({ lat, lng }: { lat?: number; lng?: number }) => {
         )}
       </Box>
 
-      <Box>
-        <SectionHeader
-          label="Destacados"
-          title="Los más pedidos"
-          action={
-            <TextLink to={routes.catalog} fontSize="sm">
-              Ver todo el catálogo
-            </TextLink>
-          }
-        />
-        {isLoading ? (
-          <LoadingState variant="skeleton" skeletonCount={4} skeletonHeight="220px" />
+      {personalized ? (
+        isLoading ? (
+          <Box>
+            <SectionHeader label="Según tus pedidos" title="Para vos" />
+            <LoadingState variant="skeleton" skeletonCount={4} skeletonHeight="220px" />
+          </Box>
         ) : (
-          <SimpleGrid
-            columns={{ base: 2, md: 3, lg: 4 }}
-            gap={{ base: '3', md: '5' }}
-            marginTop="6"
-          >
-            {featured.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </SimpleGrid>
-        )}
-      </Box>
+          <PersonalizedProductsSection
+            label="Según tus pedidos"
+            title="Para vos"
+            products={recommendations}
+            action={
+              <TextLink to={routes.catalog} fontSize="sm">
+                Ver todo el catálogo
+              </TextLink>
+            }
+          />
+        )
+      ) : (
+        <Box>
+          <SectionHeader
+            label="Destacados"
+            title="Los más pedidos"
+            action={
+              <TextLink to={routes.catalog} fontSize="sm">
+                Ver todo el catálogo
+              </TextLink>
+            }
+          />
+          {isLoading ? (
+            <LoadingState variant="skeleton" skeletonCount={4} skeletonHeight="220px" />
+          ) : (
+            <SimpleGrid
+              columns={{ base: 2, md: 3, lg: 4 }}
+              gap={{ base: '3', md: '5' }}
+              marginTop="6"
+            >
+              {popular.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </SimpleGrid>
+          )}
+        </Box>
+      )}
     </>
   )
 }
 
-const Hero = ({ userFirstName }: { userFirstName?: string }) => {
+interface HeroProps {
+  userFirstName?: string
+  greeting: string
+  addressLabel?: string
+  hasHistory: boolean
+  topCategoryName?: string | null
+  deliveryHint?: string
+}
+
+const Hero = ({
+  userFirstName,
+  greeting,
+  addressLabel,
+  hasHistory,
+  topCategoryName,
+  deliveryHint,
+}: HeroProps) => {
   return (
     <Card variant="subtle" position="relative" overflow="hidden" borderRadius="3xl" padding="0">
       <Box
@@ -239,7 +433,9 @@ const Hero = ({ userFirstName }: { userFirstName?: string }) => {
         <VStack align="start" gap={{ base: '4', md: '5' }}>
           <HStack gap="2" color="brand.600" fontWeight="semibold" fontSize="sm">
             <GeoPin width={16} height={16} />
-            <Text>Delivery a tu dirección</Text>
+            <Text>
+              {greeting} · Delivery a {addressLabel ?? 'tu dirección'}
+            </Text>
           </HStack>
           <Heading
             as="h1"
@@ -263,8 +459,9 @@ const Hero = ({ userFirstName }: { userFirstName?: string }) => {
             Comé rico, sin esperar.
           </Heading>
           <Lead>
-            Hamburguesas, pizzas y mucho más, listas cuando llegás. Armá tu pedido en minutos y
-            recibilo caliente.
+            {hasHistory && topCategoryName
+              ? `Volvé a pedir tus favoritos o descubrí algo nuevo en ${topCategoryName}. Armá tu pedido en minutos y recibilo caliente.`
+              : 'Hamburguesas, pizzas y mucho más, listas cuando llegás. Armá tu pedido en minutos y recibilo caliente.'}
           </Lead>
           <HStack gap="3" flexWrap="wrap">
             <PrimaryButton asChild paddingX="7">
@@ -307,7 +504,9 @@ const Hero = ({ userFirstName }: { userFirstName?: string }) => {
             <Box color="brand.600" display="inline-flex">
               <Clock width={16} height={16} />
             </Box>
-            <Strong fontSize="sm">Entrega ~35 min</Strong>
+            <Strong fontSize="sm" lineClamp={1}>
+              {deliveryHint ?? 'Entrega ~35 min'}
+            </Strong>
           </Card>
         </Box>
       </Grid>
@@ -315,14 +514,21 @@ const Hero = ({ userFirstName }: { userFirstName?: string }) => {
   )
 }
 
-const PromotionsSection = () => {
-  const { promotions = [], isLoading } = usePublicPromotions()
+interface PromotionsSectionProps {
+  promotions: Promotion[]
+  isLoading: boolean
+  personalized: boolean
+}
 
+const PromotionsSection = ({ promotions, isLoading, personalized }: PromotionsSectionProps) => {
   if (isLoading || promotions.length === 0) return null
 
   return (
     <Box>
-      <SectionHeader label="Beneficios" title="Promociones destacadas" />
+      <SectionHeader
+        label={personalized ? 'Según tus gustos' : 'Beneficios'}
+        title={personalized ? 'Promociones para vos' : 'Promociones destacadas'}
+      />
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap="4" marginTop="6">
         {promotions.map((promo) => (
           <Card key={promo.id} padding="5" interactive variant="subtle">
@@ -353,7 +559,21 @@ const PromotionsSection = () => {
   )
 }
 
-const DeliveryBanner = () => {
+interface DeliveryBannerProps {
+  nearestBranch: NearestBranch | null
+  favoriteBranch: FavoriteBranchSummary | null
+  addressLabel?: string
+}
+
+const DeliveryBanner = ({ nearestBranch, favoriteBranch, addressLabel }: DeliveryBannerProps) => {
+  const branch = nearestBranch?.branch
+  const isOpen = branch ? isBranchOpenNow(branch.hours) : false
+  const title = branch ? `Tu pedido sale de ${branch.name}.` : 'Tu pedido, caliente y a tiempo.'
+  const favoriteText =
+    favoriteBranch?.name && favoriteBranch.orders > 1
+      ? ` Pediste ${favoriteBranch.orders} veces ahí.`
+      : ''
+
   return (
     <Box
       position="relative"
@@ -382,11 +602,15 @@ const DeliveryBanner = () => {
       >
         <VStack align="start" gap="2" maxW="lg">
           <Eyebrow color="brand.100" fontSize="sm">
-            Sin vueltas
+            {branch ? (isOpen ? 'Abierta ahora' : 'Revisá sus horarios') : 'Sin vueltas'}
           </Eyebrow>
-          <SectionTitle>Tu pedido, caliente y a tiempo.</SectionTitle>
+          <SectionTitle>{title}</SectionTitle>
           <Text color="brand.100">
-            Elegimos la sucursal más cercana y abierta para que nada se enfríe de más.
+            {nearestBranch
+              ? `Queda a ${formatDistance(nearestBranch.distanceMeters)} de ${
+                  addressLabel ?? 'tu dirección'
+                } y está ${isOpen ? 'abierta' : 'cerrada'} ahora.${favoriteText} La elegimos automáticamente para que nada se enfríe de más.`
+              : 'Elegimos la sucursal más cercana y abierta para que nada se enfríe de más.'}
           </Text>
         </VStack>
         <InverseButton asChild paddingX="7">
