@@ -31,14 +31,15 @@ Regla general: **el código es la fuente de verdad final**. Si un doc contradice
 
 ## VIGENTE
 
-| Documento                                                                                                  | Qué define                                                            | Fecha      |
-| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------- |
-| [arquitectura/fundamentacion-gateway-graphql-rest.md](arquitectura/fundamentacion-gateway-graphql-rest.md) | Fundamentación de la arquitectura (por qué Gateway GraphQL + REST).   | 2026-08-25 |
-| [qa/BUGS.md](qa/BUGS.md)                                                                                   | Bugs reportados con evidencia y reproduce steps. **BUG-001 abierto.** | 2026-10-06 |
-| [qa/TEST_PLAN.md](qa/TEST_PLAN.md)                                                                         | Plan de pruebas funcionales end-to-end.                               | 2026-10-06 |
-| [qa/TEST_REPORT.md](qa/TEST_REPORT.md)                                                                     | Reporte de la corrida de pruebas.                                     | 2026-10-06 |
-| [qa/auditoria-tests-funcionales.md](qa/auditoria-tests-funcionales.md)                                     | Auditoría de la suite Vitest y problemas detectados.                  | 2026-10-06 |
-| [FRONTEND_DEMO_GUIDE.md](FRONTEND_DEMO_GUIDE.md)                                                           | Guía técnica de defensa/demo (reconstruida leyendo el código).        | 2026-09-19 |
+| Documento                                                                                                  | Qué define                                                              | Fecha      |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------- |
+| [arquitectura/fundamentacion-gateway-graphql-rest.md](arquitectura/fundamentacion-gateway-graphql-rest.md) | Fundamentación de la arquitectura (por qué Gateway GraphQL + REST).     | 2026-08-25 |
+| [qa/BUGS.md](qa/BUGS.md)                                                                                   | Bugs reportados con evidencia y reproduce steps. **BUG-001 abierto.**   | 2026-10-06 |
+| [qa/TEST_PLAN.md](qa/TEST_PLAN.md)                                                                         | Plan de pruebas funcionales end-to-end.                                 | 2026-10-06 |
+| [qa/TEST_REPORT.md](qa/TEST_REPORT.md)                                                                     | Reporte de la corrida de pruebas.                                       | 2026-10-06 |
+| [qa/auditoria-tests-funcionales.md](qa/auditoria-tests-funcionales.md)                                     | Auditoría de la suite Vitest y problemas detectados.                    | 2026-10-06 |
+| [FRONTEND_DEMO_GUIDE.md](FRONTEND_DEMO_GUIDE.md)                                                           | Guía técnica de defensa/demo (reconstruida leyendo el código).          | 2026-09-19 |
+| [planes/plan-promociones-productos.md](planes/plan-promociones-productos.md)                               | Descuentos en tarjetas de producto y página de promociones (propuesta). | 2026-11-19 |
 
 ## HISTÓRICO — Planes e implementaciones ya hechas
 
@@ -66,7 +67,7 @@ docs/
 ├── README.md                 # este índice
 ├── especificaciones/         # OFICIAL: requerimientos funcionales + UI manifesto
 ├── arquitectura/             # VIGENTE: fundamentación de la arquitectura
-├── planes/                   # HISTÓRICO: planes de app (todos implementados)
+├── planes/                   # Planes de app (vigentes e históricos)
 ├── qa/                       # VIGENTE: bugs, test plan, reporte y auditoría (+ evidence/)
 ├── historico/                # HISTÓRICO: sesiones y material superado
 │   └── archive/              # variantes de backend descartadas
