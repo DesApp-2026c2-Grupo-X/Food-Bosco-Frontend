@@ -121,7 +121,8 @@ export const PromotionsPage = () => {
         <Box marginTop="10">
           <SectionHeader label="Descuentos" title="Productos en promoción" />
           <Muted fontSize="sm" marginTop="2">
-            Los precios con descuento se confirman en el carrito.
+            Los precios con descuento se confirman en el carrito. Tocá un producto para ver sus
+            condiciones.
           </Muted>
           <SimpleGrid
             columns={{ base: 2, md: 3, lg: 4 }}
