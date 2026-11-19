@@ -298,6 +298,14 @@ describe('TripOrderDetailPage', () => {
     expect(screen.getByText('Pedido no encontrado')).toBeInTheDocument()
   })
 
+  it('does not use the internal orderId as the visible order number', () => {
+    setup({ order: null })
+    renderPage()
+
+    expect(screen.queryByText('Pedido #o1')).not.toBeInTheDocument()
+    expect(screen.getByText('Pedido')).toBeInTheDocument()
+  })
+
   it('shows a loading state while the trip is loading', () => {
     setup({ tripLoading: true })
     renderPage()
