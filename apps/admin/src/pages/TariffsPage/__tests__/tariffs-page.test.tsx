@@ -36,9 +36,7 @@ const history: DeliveryTariff[] = [
   },
 ]
 
-const mockDeliveryTariff = (
-  overrides: Partial<ReturnType<typeof useDeliveryTariff>> = {},
-) =>
+const mockDeliveryTariff = (overrides: Partial<ReturnType<typeof useDeliveryTariff>> = {}) =>
   vi.mocked(useDeliveryTariff).mockReturnValue({
     data: tariff,
     history,
@@ -70,9 +68,7 @@ describe('TariffsPage', () => {
 
     renderWithProviders(<TariffsPage />)
 
-    await waitFor(() =>
-      expect(screen.getByLabelText(/Tarifa base/)).toHaveValue('600'),
-    )
+    await waitFor(() => expect(screen.getByLabelText(/Tarifa base/)).toHaveValue('600'))
     expect(screen.getByLabelText(/Por km/)).toHaveValue('250')
     expect(screen.getByLabelText(/Por pedido/)).toHaveValue('350')
 

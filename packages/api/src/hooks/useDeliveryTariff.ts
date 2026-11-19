@@ -55,9 +55,8 @@ export const useDeliveryTariff = (): UseDeliveryTariffReturn => {
     fetchPolicy: 'network-only',
   })
 
-  const [publishMutation, { loading: isPublishing, error: publishError }] = useMutation(
-    PUBLISH_DELIVERY_TARIFF,
-  )
+  const [publishMutation, { loading: isPublishing, error: publishError }] =
+    useMutation(PUBLISH_DELIVERY_TARIFF)
 
   const publish = useCallback(
     async (input: PublishDeliveryTariffVariables) => {
