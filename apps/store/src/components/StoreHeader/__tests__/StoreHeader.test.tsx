@@ -70,12 +70,17 @@ describe('StoreHeader', () => {
     expect(await screen.findByText('Mi carrito')).toBeInTheDocument()
   })
 
-  it('only shows the mobile location on home, catalog and cart', async () => {
+  it('only shows the mobile location on home, catalog, promotions and cart', async () => {
     useAddressStore.setState({ selectedAddressId: 'a1' })
     const { unmount } = renderHeader('/catalog')
     await waitFor(() => expect(locationButton()).toBeInTheDocument())
     const shownClass = locationButton().parentElement?.className
     unmount()
+
+    const promotions = renderHeader('/promotions')
+    await waitFor(() => expect(locationButton()).toBeInTheDocument())
+    expect(locationButton().parentElement?.className).toBe(shownClass)
+    promotions.unmount()
 
     renderHeader('/orders')
     const hiddenClass = locationButton().parentElement?.className
@@ -104,6 +109,19 @@ describe('StoreHeader', () => {
     expect(screen.getByRole('link', { name: 'Perfil', hidden: true })).toHaveAttribute(
       'href',
       '/profile',
+    )
+  })
+
+  it('links to promotions and marks the item active', async () => {
+    useAddressStore.setState({ selectedAddressId: 'a1' })
+    renderHeader('/promotions')
+
+    await screen.findByText('Calle 1')
+
+    const link = screen.getByRole('link', { name: 'Promociones', hidden: true })
+    expect(link).toHaveAttribute('href', '/promotions')
+    expect(link.className).not.toBe(
+      (screen.getByRole('link', { name: 'Catálogo', hidden: true }) as HTMLElement).className,
     )
   })
 })

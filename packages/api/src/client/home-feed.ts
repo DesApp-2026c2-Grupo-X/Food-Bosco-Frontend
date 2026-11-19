@@ -10,7 +10,7 @@ import type {
   RecommendationReason,
 } from '@repo/domain'
 import { asBoolean, asList, asNumber, asString, toPromotion, type Raw } from './mappers'
-import { BRANCH_FIELDS, CATEGORY_FIELDS, PRODUCT_DETAIL_FIELDS } from './fragments'
+import { BRANCH_FIELDS, CATEGORY_FIELDS, STORE_PRODUCT_FIELDS } from './fragments'
 import { toBranch, toCategory, toProduct } from './store'
 
 export const HOME_FEED = gql`
@@ -38,7 +38,7 @@ export const HOME_FEED = gql`
         hint
         score
         product {
-          ${PRODUCT_DETAIL_FIELDS}
+          ${STORE_PRODUCT_FIELDS}
         }
       }
       discovery {
@@ -46,7 +46,7 @@ export const HOME_FEED = gql`
         hint
         score
         product {
-          ${PRODUCT_DETAIL_FIELDS}
+          ${STORE_PRODUCT_FIELDS}
         }
       }
       reorder {

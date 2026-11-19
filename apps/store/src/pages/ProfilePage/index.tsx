@@ -1,6 +1,7 @@
 import ChartColumn from '@gravity-ui/icons/ChartColumn'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import House from '@gravity-ui/icons/House'
+import ListUl from '@gravity-ui/icons/ListUl'
 import PencilToSquare from '@gravity-ui/icons/PencilToSquare'
 import { ProfileIdentity, ProfileScreen } from '@repo/components'
 import { useLogout } from '@repo/auth'
@@ -13,6 +14,12 @@ const accountItems = [
     label: 'Mi actividad',
     path: routes.activity,
     icon: <ChartColumn width={18} height={18} />,
+  },
+  {
+    id: 'orders',
+    label: 'Mis pedidos',
+    path: routes.orders,
+    icon: <ListUl width={18} height={18} />,
   },
   {
     id: 'edit',

@@ -14,9 +14,10 @@ describe('MobileStoreNavigation', () => {
 
     expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Catálogo' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Promos' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Carrito' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Pedidos' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Perfil' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Pedidos' })).not.toBeInTheDocument()
     expect(screen.getByText('2')).toBeInTheDocument()
   })
 
@@ -29,13 +30,19 @@ describe('MobileStoreNavigation', () => {
   it('marks home as active on the home route', () => {
     renderWithProviders(<MobileStoreNavigation count={0} />, { route: '/' })
 
-    expect(itemClass('Inicio')).not.toBe(itemClass('Pedidos'))
+    expect(itemClass('Inicio')).not.toBe(itemClass('Promos'))
   })
 
   it('does not mark home as active outside the exact home route', () => {
     renderWithProviders(<MobileStoreNavigation count={0} />, { route: '/catalog' })
 
-    expect(itemClass('Inicio')).toBe(itemClass('Pedidos'))
+    expect(itemClass('Inicio')).toBe(itemClass('Promos'))
     expect(itemClass('Inicio')).not.toBe(itemClass('Catálogo'))
+  })
+
+  it('marks Promos as active on the promotions route', () => {
+    renderWithProviders(<MobileStoreNavigation count={0} />, { route: '/promotions' })
+
+    expect(itemClass('Promos')).not.toBe(itemClass('Inicio'))
   })
 })

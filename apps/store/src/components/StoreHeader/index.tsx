@@ -11,7 +11,12 @@ import logoDark from '../../assets/logo-dark.svg'
 
 const Logo = createLogo(logoLight, logoDark)
 
-const MOBILE_LOCATION_PATHS: string[] = [routes.home, routes.catalog, routes.cart]
+const MOBILE_LOCATION_PATHS: string[] = [
+  routes.home,
+  routes.catalog,
+  routes.promotions,
+  routes.cart,
+]
 
 export const StoreHeader = ({ count, onOpenLocation }: StoreHeaderProps) => {
   const { navItems, isActive } = useDesktopNavigation(desktopNavItems)
