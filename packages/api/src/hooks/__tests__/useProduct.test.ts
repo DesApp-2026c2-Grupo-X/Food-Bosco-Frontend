@@ -14,6 +14,8 @@ const rawProduct = {
   available: true,
   configGroups: [],
   recipe: [],
+  promotion: null,
+  promotions: [],
 }
 
 describe('useProduct', () => {
@@ -41,7 +43,11 @@ describe('useProduct', () => {
 
     expect(result.current.product?.name).toBe('Burger')
     expect(result.current.product?.price).toBe(1000)
-    expect(operationVariables(testClient.lastRequest('Product'))).toEqual({ id: 'p1' })
+    expect(operationVariables(testClient.lastRequest('Product'))).toEqual({
+      id: 'p1',
+      lat: null,
+      lng: null,
+    })
   })
 
   it('falls back to null when the api returns no product', async () => {

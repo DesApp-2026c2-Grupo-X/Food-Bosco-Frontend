@@ -29,9 +29,15 @@ const customer = {
 }
 
 const buildClient = (addresses: unknown[] = []) =>
-  createTestClient((operation) =>
-    operation.operationName === 'MyAddresses' ? { data: { myAddresses: addresses } } : { data: {} },
-  ).client
+  createTestClient((operation) => {
+    if (operation.operationName === 'MyAddresses') {
+      return { data: { myAddresses: addresses } }
+    }
+    if (operation.operationName === 'PromotionCatalog') {
+      return { data: { promotionCatalog: [] } }
+    }
+    return { data: {} }
+  }).client
 
 const renderApp = (route: string, addresses: unknown[] = []) =>
   renderWithProviders(<App />, { route, client: buildClient(addresses) })
@@ -73,5 +79,15 @@ describe('App routing', () => {
 
     expect(await screen.findByText('¡Hola, Ana!')).toBeInTheDocument()
     expect(await screen.findByText('¿A dónde te lo llevamos?')).toBeInTheDocument()
+  })
+
+  it('renders the promotions page inside the address guard', async () => {
+    useAuthStore.setState({ user: customer })
+    useAddressStore.setState({ selectedAddressId: 'a1' })
+
+    renderApp('/promotions', [rawAddress])
+
+    expect(await screen.findByRole('heading', { name: 'Promociones' })).toBeInTheDocument()
+    expect(await screen.findByText('No hay promociones vigentes')).toBeInTheDocument()
   })
 })

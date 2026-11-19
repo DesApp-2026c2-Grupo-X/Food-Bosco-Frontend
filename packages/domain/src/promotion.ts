@@ -1,4 +1,5 @@
-import type { Product } from './catalog'
+import type { Category, Product } from './catalog'
+import { formatPrice } from './format'
 
 export type PromotionType = 'PERCENTAGE' | 'FIXED_AMOUNT' | 'BUY_X_GET_Y'
 export type PromotionScope = 'ORDER' | 'CATEGORY' | 'PRODUCT'
@@ -37,6 +38,52 @@ export interface Promotion {
   maxUsesTotal: number | null
   maxUsesPerCustomer: number | null
   usedCount: number
+}
+
+export type PromotionBadgeKind =
+  'PERCENTAGE' | 'FIXED_AMOUNT' | 'BUY_X_GET_Y' | 'COUPON' | 'INFORMATIONAL'
+
+export interface ProductPromotionPreview {
+  promotionId: string
+  name: string
+  kind: PromotionBadgeKind
+  badge: string
+  originalPrice: number
+  estimatedUnitPrice: number | null
+  discountValue: number | null
+  maxDiscount: number | null
+  minSubtotal: number
+  minQuantity: number
+  conditionsMet: boolean
+  promotionCount: number
+  endsAt: string
+}
+
+export interface PromotionCatalogItem {
+  id: string
+  name: string
+  description: string | null
+  type: PromotionType | null
+  scope: PromotionScope | null
+  kind: PromotionBadgeKind
+  badge: string
+  discountValue: number | null
+  maxDiscount: number | null
+  buyQuantity: number | null
+  payQuantity: number | null
+  startDate: string
+  endDate: string
+  daysOfWeek: number[]
+  startTime: string | null
+  endTime: string | null
+  minSubtotal: number
+  minQuantity: number
+  branchIds: string[]
+  code: string | null
+  categoryIds: string[]
+  productIds: string[]
+  categories: Category[]
+  products: Product[]
 }
 
 export interface PromotionInput {
@@ -105,17 +152,18 @@ export const describePromotion = (
 }
 
 export const isProductPromotion = (
-  promotion: Pick<Promotion, 'scope' | 'productIds'>,
-): boolean => promotion.scope === 'PRODUCT' || promotion.productIds.length > 0
+  promotion: Pick<Promotion, 'scope' | 'productIds' | 'code'>,
+): boolean =>
+  !promotion.code && (promotion.scope === 'PRODUCT' || promotion.productIds.length > 0)
 
 /**
  * Separa cupones generales de promociones que apuntan a productos concretos.
- * Las promociones de producto se muestran como productos, no como cupones.
+ * Las promociones de producto se muestran como productos; los cupones, aunque
+ * afecten productos, se muestran en la sección de cupones con su código.
  */
-export const splitPromotions = (promotions: Promotion[]): {
-  coupons: Promotion[]
-  productPromotions: Promotion[]
-} => ({
+export const splitPromotions = <T extends Pick<Promotion, 'scope' | 'productIds' | 'code'>>(
+  promotions: T[],
+): { coupons: T[]; productPromotions: T[] } => ({
   coupons: promotions.filter((promotion) => !isProductPromotion(promotion)),
   productPromotions: promotions.filter(isProductPromotion),
 })
@@ -153,4 +201,53 @@ export const isPromotionActive = (p: Promotion, now: Date = new Date()): boolean
   const start = new Date(p.startDate)
   const end = new Date(p.endDate)
   return now >= start && now <= end
+}
+
+export const hasEstimatedPrice = (preview: ProductPromotionPreview | null | undefined): boolean =>
+  preview != null && preview.conditionsMet && preview.estimatedUnitPrice != null
+
+export const promotionConditionLabels = (
+  promotion: Pick<
+    Promotion,
+    'minSubtotal' | 'minQuantity' | 'maxDiscount' | 'daysOfWeek' | 'startTime' | 'endTime'
+  >,
+): string[] => {
+  const labels: string[] = []
+
+  if (promotion.minSubtotal > 0) {
+    labels.push(`Compra mínima ${formatPrice(promotion.minSubtotal)}`)
+  }
+  if (promotion.minQuantity > 0) {
+    labels.push(`Mínimo ${promotion.minQuantity} unidades`)
+  }
+  if (promotion.maxDiscount != null) {
+    labels.push(`Tope ${formatPrice(promotion.maxDiscount)}`)
+  }
+  if (promotion.daysOfWeek.length > 0) {
+    const days = promotion.daysOfWeek.map((day) => DAYS_OF_WEEK_LABELS[day]).filter(Boolean)
+    labels.push(`Válida los ${days.join(', ')}`)
+  }
+  if (promotion.startTime && promotion.endTime) {
+    labels.push(`De ${promotion.startTime} a ${promotion.endTime}`)
+  }
+
+  return labels
+}
+
+export const promotionValidityLabel = (startDate: string, endDate: string): string => {
+  const format = (iso: string) =>
+    new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })
+  return `Del ${format(startDate)} al ${format(endDate)}`
+}
+
+export const promotionBadgeAriaLabel = (preview: ProductPromotionPreview): string => {
+  if (preview.kind === 'PERCENTAGE' && preview.discountValue != null) {
+    return `${preview.discountValue}% de descuento`
+  }
+  return preview.badge
+}
+
+export const daysUntilPromotionEnds = (endsAt: string, now: Date = new Date()): number => {
+  const diff = new Date(endsAt).getTime() - now.getTime()
+  return Math.max(0, Math.ceil(diff / (24 * 60 * 60 * 1000)))
 }

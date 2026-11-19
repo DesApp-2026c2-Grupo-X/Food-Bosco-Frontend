@@ -53,6 +53,8 @@ const rawProduct = (index: number, categoryId = 'c1') => ({
   available: true,
   configGroups: [],
   recipe: [],
+  promotion: null,
+  promotions: [],
 })
 
 const categories = [
@@ -150,6 +152,22 @@ const rawPromotion = (overrides: Record<string, unknown> = {}) => ({
   usedCount: 0,
   ...overrides,
 })
+
+const rawPromotionPreview = {
+  promotionId: 'product-promo',
+  name: '2x1 en Producto 1',
+  kind: 'BUY_X_GET_Y',
+  badge: '2x1',
+  originalPrice: 1001,
+  estimatedUnitPrice: null,
+  discountValue: null,
+  maxDiscount: null,
+  minSubtotal: 0,
+  minQuantity: 0,
+  conditionsMet: true,
+  promotionCount: 1,
+  endsAt: '2026-11-30T00:00:00.000Z',
+}
 
 const remoteFeed = {
   generatedAt: '2026-11-18T03:00:00.000Z',
@@ -394,6 +412,10 @@ describe('HomePage', () => {
     renderHome(
       buildClient({
         orders: [deliveredOrder],
+        products: [
+          { ...rawProduct(1), promotion: rawPromotionPreview },
+          ...Array.from({ length: 8 }, (_, index) => rawProduct(index + 2)),
+        ],
         promotions: [
           rawPromotion({ id: 'coupon-1', name: '20% en bebidas', categoryIds: ['c2'] }),
           rawPromotion({
@@ -409,7 +431,7 @@ describe('HomePage', () => {
 
     expect(await screen.findByText('Productos en promoción')).toBeInTheDocument()
     expect(screen.getByText('Cupones para vos')).toBeInTheDocument()
-    expect(screen.getByText('2x1 en Producto 1')).toBeInTheDocument()
+    expect(screen.getAllByText('2x1 en Producto 1').length).toBeGreaterThan(0)
     expect(screen.getByText('20% en bebidas')).toBeInTheDocument()
   })
 

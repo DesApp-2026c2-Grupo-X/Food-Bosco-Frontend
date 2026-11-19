@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react'
 import { getApiErrorMessage, useCart, useProduct } from '@repo/api'
 import { notifyError, notifySuccess } from '@repo/components'
-import type { ProductOptionType } from '@repo/domain'
+import type { Address, ProductOptionType } from '@repo/domain'
 
 type SelectionMap = Record<string, string | string[]>
 
-export const useProductConfig = (productId: string | undefined) => {
-  const { product, isLoading } = useProduct(productId)
-  const { addItem, isMutating } = useCart()
+export const useProductConfig = (productId: string | undefined, address?: Address | null) => {
+  const { product, isLoading } = useProduct(productId, address?.latitude, address?.longitude)
+  const { addItem, isMutating } = useCart(address?.id ?? null)
 
   const [selection, setSelection] = useState<SelectionMap>({})
   const [quantity, setQuantity] = useState(1)
