@@ -258,6 +258,24 @@ describe('HomePage', () => {
     expect(await screen.findByTestId('catalog-route')).toHaveTextContent('?cat=c1')
   })
 
+  it('navigates to the for-you category from the category carousel', async () => {
+    renderHome(buildClient({ orders: [deliveredOrder] }))
+    await screen.findByText('Explorá por categoría')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Para vos' }))
+
+    expect(await screen.findByTestId('catalog-route')).toHaveTextContent('?cat=for-you')
+  })
+
+  it('navigates to the for-you catalog from the Para vos section', async () => {
+    renderHome(buildClient({ orders: [deliveredOrder] }))
+    await screen.findByRole('heading', { name: 'Para vos' })
+
+    await userEvent.click(screen.getByRole('link', { name: 'Ver todo el catálogo' }))
+
+    expect(await screen.findByTestId('catalog-route')).toHaveTextContent('?cat=for-you')
+  })
+
   it('does not render the catalog preview without an available branch', async () => {
     renderHome(buildClient({ branches: [] }))
 
@@ -315,7 +333,7 @@ describe('HomePage', () => {
 
     expect(await screen.findByText('Volvé a pedir')).toBeInTheDocument()
     expect(screen.getByText('Pedido #102')).toBeInTheDocument()
-    expect(screen.getByText('Para vos')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Para vos' })).toBeInTheDocument()
     expect(screen.getAllByText('Ya lo pediste').length).toBeGreaterThan(0)
     expect(screen.queryByText('Los más pedidos')).not.toBeInTheDocument()
   })
@@ -402,7 +420,7 @@ describe('HomePage', () => {
 
     expect(await screen.findByText('Volvé a pedir')).toBeInTheDocument()
     expect(screen.getByText('Pedido #102')).toBeInTheDocument()
-    expect(screen.getByText('Para vos')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Para vos' })).toBeInTheDocument()
     expect(screen.getByText('Para probar')).toBeInTheDocument()
     expect(screen.queryByText('Los más pedidos')).not.toBeInTheDocument()
   })
@@ -419,6 +437,6 @@ describe('HomePage', () => {
 
     expect(await screen.findByText('Volvé a pedir')).toBeInTheDocument()
     expect(screen.getByText('Pedido #102')).toBeInTheDocument()
-    expect(screen.getByText('Para vos')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Para vos' })).toBeInTheDocument()
   })
 })

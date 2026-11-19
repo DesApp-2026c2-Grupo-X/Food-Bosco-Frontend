@@ -39,7 +39,7 @@ import { ProductCard } from '../../components/ProductCard'
 import { ActiveOrderCard } from '../../components/ActiveOrderCard'
 import { PersonalizedProductsSection } from '../../components/PersonalizedProductsSection'
 import { ReorderSection } from '../../components/ReorderSection'
-import { routes } from '../../routes'
+import { catalogForYouPath, FOR_YOU_CATEGORY, routes } from '../../routes'
 import {
   useAddresses,
   useAvailableBranches,
@@ -369,12 +369,24 @@ const HomeCatalog = ({
         ) : (
           <ChipCarousel
             marginTop="4"
-            items={categories.map((category) => ({
-              id: category.id,
-              label: category.name,
-              active: false,
-              onClick: () => navigate(`${routes.catalog}?cat=${category.id}`),
-            }))}
+            items={[
+              ...(personalized
+                ? [
+                    {
+                      id: FOR_YOU_CATEGORY,
+                      label: 'Para vos',
+                      active: false,
+                      onClick: () => navigate(catalogForYouPath),
+                    },
+                  ]
+                : []),
+              ...categories.map((category) => ({
+                id: category.id,
+                label: category.name,
+                active: false,
+                onClick: () => navigate(`${routes.catalog}?cat=${category.id}`),
+              })),
+            ]}
           />
         )}
       </Box>
@@ -391,7 +403,7 @@ const HomeCatalog = ({
             title="Para vos"
             products={recommendations}
             action={
-              <TextLink to={routes.catalog} fontSize="sm">
+              <TextLink to={catalogForYouPath} fontSize="sm">
                 Ver todo el catálogo
               </TextLink>
             }

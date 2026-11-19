@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { useAuthStore } from '@repo/api'
 import { CatalogPage } from '../index'
 import { useAddressStore } from '../../../stores/addressStore'
 import { createTestClient } from '@test/apollo'
@@ -42,7 +43,44 @@ const products = [
   product('p4', 'c1', 'Agotado', 100, false),
 ]
 
-const setup = (branches: unknown[] = [{ id: 'b1', name: 'Centro' }]) => {
+const deliveredOrder = {
+  id: 'o1',
+  number: '0001',
+  clientId: 'u1',
+  branchId: 'b1',
+  deliveryAddress: { text: 'Calle 1', latitude: -34.6, longitude: -58.4 },
+  status: 'DELIVERED',
+  total: 2000,
+  estimatedDeliveryAt: null,
+  createdAt: new Date().toISOString(),
+  items: [
+    {
+      productId: 'p3',
+      name: 'Cola',
+      unitPrice: 500,
+      quantity: 3,
+      observations: null,
+      subtotal: 1500,
+      options: [],
+    },
+    {
+      productId: 'p1',
+      name: 'Burger',
+      unitPrice: 1000,
+      quantity: 1,
+      observations: null,
+      subtotal: 1000,
+      options: [],
+    },
+  ],
+  statusHistory: [],
+  availableTransitions: [],
+}
+
+const setup = (
+  branches: unknown[] = [{ id: 'b1', name: 'Centro' }],
+  orders: unknown[] = [],
+) => {
   const client = createTestClient((operation) => {
     switch (operation.operationName) {
       case 'MyAddresses':
@@ -60,6 +98,8 @@ const setup = (branches: unknown[] = [{ id: 'b1', name: 'Centro' }]) => {
         }
       case 'Products':
         return { data: { products } }
+      case 'MyOrders':
+        return { data: { myOrders: orders } }
       default:
         return { data: {} }
     }
@@ -70,6 +110,11 @@ const setup = (branches: unknown[] = [{ id: 'b1', name: 'Centro' }]) => {
 describe('CatalogPage', () => {
   beforeEach(() => {
     useAddressStore.setState({ selectedAddressId: 'a1' })
+    useAuthStore.setState({ accessToken: 'test-token' })
+  })
+
+  afterEach(() => {
+    useAuthStore.setState({ accessToken: null })
   })
 
   it('lists only available products', async () => {
@@ -99,6 +144,17 @@ describe('CatalogPage', () => {
 
     await waitFor(() => expect(screen.queryByText('Burger')).not.toBeInTheDocument())
     expect(screen.getByText('Cola')).toBeInTheDocument()
+  })
+
+  it('orders the catalog by consumption in the Para vos section', async () => {
+    setup(undefined, [deliveredOrder])
+    await screen.findByText('Burger')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Para vos' }))
+
+    expect(await screen.findByText('Ordenado según tus consumos.')).toBeInTheDocument()
+    const names = screen.getAllByText(/^(Cola|Burger|Pizza)$/).map((node) => node.textContent)
+    expect(names[0]).toBe('Cola')
   })
 
   it('shows the unavailable-branch state when no branch covers the zone', async () => {
