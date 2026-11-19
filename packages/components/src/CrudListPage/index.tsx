@@ -18,6 +18,7 @@ export const CrudListPage = <T,>({
   emptyIcon,
   emptyTitle,
   emptyDescription,
+  pageSize,
   modals,
 }: CrudListPageProps<T>) => (
   <WidePageContainer>
@@ -47,6 +48,7 @@ export const CrudListPage = <T,>({
       emptyIcon={emptyIcon}
       emptyTitle={emptyTitle}
       emptyDescription={emptyDescription}
+      pageSize={pageSize}
     />
 
     {modals}

@@ -8,4 +8,5 @@ export interface OrdersListViewProps {
   orderDetailPath: (id: string) => string
   showBranchFilter?: boolean
   branchColumnHideBelow?: ResponsiveBreakpoint
+  pageSize?: number
 }

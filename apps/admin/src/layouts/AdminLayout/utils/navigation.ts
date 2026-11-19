@@ -2,12 +2,15 @@ import House from '@gravity-ui/icons/House'
 import Tag from '@gravity-ui/icons/Tag'
 import ListUl from '@gravity-ui/icons/ListUl'
 import Layers from '@gravity-ui/icons/Layers'
+import Ticket from '@gravity-ui/icons/Ticket'
 import Receipt from '@gravity-ui/icons/Receipt'
 import MapPin from '@gravity-ui/icons/MapPin'
 import Box from '@gravity-ui/icons/Box'
 import Persons from '@gravity-ui/icons/Persons'
 import Sliders from '@gravity-ui/icons/Sliders'
+import Wallet from '@gravity-ui/icons/Wallet'
 import ChartColumn from '@gravity-ui/icons/ChartColumn'
+import Star from '@gravity-ui/icons/Star'
 import type { DashboardNavSection } from '@repo/components'
 import { routes } from '../../../routes'
 
@@ -23,6 +26,7 @@ export const navSections: DashboardNavSection[] = [
     items: [
       { id: 'categories', label: 'Categorías', path: routes.categories, icon: Tag },
       { id: 'products', label: 'Productos', path: routes.products, icon: ListUl },
+      { id: 'promotions', label: 'Promociones', path: routes.promotions, icon: Ticket },
       { id: 'ingredients', label: 'Ingredientes', path: routes.ingredients, icon: Layers },
     ],
   },
@@ -41,6 +45,7 @@ export const navSections: DashboardNavSection[] = [
     items: [
       { id: 'staff', label: 'Personal', path: routes.staff, icon: Persons },
       { id: 'parameters', label: 'Parámetros', path: routes.parameters, icon: Sliders },
+      { id: 'tariffs', label: 'Tarifas', path: routes.tariffs, icon: Wallet },
     ],
   },
   {
@@ -49,6 +54,7 @@ export const navSections: DashboardNavSection[] = [
     items: [
       { id: 'reports', label: 'Productos', path: routes.reports, icon: ChartColumn },
       { id: 'customerReports', label: 'Clientes', path: routes.reportsCustomers, icon: Persons },
+      { id: 'ratings', label: 'Calificaciones', path: routes.ratings, icon: Star },
     ],
   },
 ]

@@ -1,7 +1,14 @@
 import { useCallback } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import type { AddCartItemInput, Cart, CartItem, UpdateCartItemInput } from '@repo/domain'
-import { ADD_CART_ITEM, MY_CART, REMOVE_CART_ITEM, UPDATE_CART_ITEM, toCart } from '../client/store'
+import {
+  ADD_CART_ITEM,
+  MY_CART,
+  REMOVE_CART_ITEM,
+  SET_CART_PROMOTION_CODE,
+  UPDATE_CART_ITEM,
+  toCart,
+} from '../client/store'
 import { combineLoading } from '../utils/combineLoading'
 
 const sameOptions = (a: string[], b: string[]): boolean => {
@@ -29,20 +36,25 @@ interface UseCartReturn {
   addItem: (input: AddCartItemInput) => Promise<void>
   updateItem: (itemId: string, input: UpdateCartItemInput) => Promise<void>
   removeItem: (itemId: string) => Promise<void>
+  applyPromotionCode: (code: string) => Promise<void>
+  removePromotionCode: () => Promise<void>
+  refetch: () => Promise<unknown>
 }
 
 interface CartResult {
   myCart: Record<string, unknown>
 }
 
-export const useCart = (): UseCartReturn => {
+export const useCart = (addressId?: string | null): UseCartReturn => {
   const { data, loading, refetch } = useQuery<CartResult>(MY_CART, {
+    variables: addressId ? { addressId } : undefined,
     fetchPolicy: 'network-only',
   })
 
   const [addMutation, { loading: adding }] = useMutation(ADD_CART_ITEM)
   const [updateMutation, { loading: updating }] = useMutation(UPDATE_CART_ITEM)
   const [removeMutation, { loading: removing }] = useMutation(REMOVE_CART_ITEM)
+  const [setPromoMutation, { loading: settingPromo }] = useMutation(SET_CART_PROMOTION_CODE)
 
   const cart = data?.myCart ? toCart(data.myCart) : null
 
@@ -80,12 +92,28 @@ export const useCart = (): UseCartReturn => {
     [removeMutation, refetch],
   )
 
+  const applyPromotionCode = useCallback(
+    async (code: string) => {
+      await setPromoMutation({ variables: { code } })
+      await refetch()
+    },
+    [setPromoMutation, refetch],
+  )
+
+  const removePromotionCode = useCallback(async () => {
+    await setPromoMutation({ variables: { code: null } })
+    await refetch()
+  }, [setPromoMutation, refetch])
+
   return {
     cart,
     isLoading: loading,
-    isMutating: combineLoading(adding, updating, removing),
+    isMutating: combineLoading(adding, updating, removing, settingPromo),
     addItem,
     updateItem,
     removeItem,
+    applyPromotionCode,
+    removePromotionCode,
+    refetch,
   }
 }

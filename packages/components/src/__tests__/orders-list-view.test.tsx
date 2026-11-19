@@ -173,4 +173,42 @@ describe('OrdersListView', () => {
     render()
     expect(window.getComputedStyle(screen.getByText('Sucursal')).display).toBe('table-cell')
   })
+
+  it('pagina de a 20 por defecto y encuentra pedidos de páginas siguientes al buscar', async () => {
+    const manyOrders: Order[] = Array.from({ length: 25 }, (_, index) => {
+      const seq = String(index + 1).padStart(6, '0')
+      const isTarget = index === 22
+      return makeOrder({
+        id: `o-${index + 1}`,
+        number: isTarget ? '000755' : seq,
+        clientId: `c-${index + 1}`,
+        client: {
+          id: `c-${index + 1}`,
+          email: `user${index + 1}@test.com`,
+          role: 'customer',
+          firstName: isTarget ? 'Thomas' : `Cliente${index + 1}`,
+          lastName: isTarget ? 'Demo' : 'Prueba',
+          phone: '123',
+          active: true,
+          createdAt: '2025-01-01T00:00:00Z',
+        },
+      })
+    })
+
+    render({ orders: manyOrders })
+
+    expect(screen.getByText('Mostrando 1–20 de 25')).toBeInTheDocument()
+    expect(screen.getByText('Página 1 de 2')).toBeInTheDocument()
+    expect(screen.getByText('#000001')).toBeInTheDocument()
+    expect(screen.queryByText('#000755')).not.toBeInTheDocument()
+
+    const searchInput = screen.getByPlaceholderText('Número o cliente...')
+    await userEvent.type(searchInput, 'thomas')
+    await waitFor(() => expect(screen.getByText('#000755')).toBeInTheDocument())
+    expect(screen.queryByText('#000001')).not.toBeInTheDocument()
+
+    await userEvent.clear(searchInput)
+    await userEvent.type(searchInput, '000755')
+    await waitFor(() => expect(screen.getByText('#000755')).toBeInTheDocument())
+  })
 })

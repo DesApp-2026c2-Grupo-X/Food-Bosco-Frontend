@@ -87,7 +87,12 @@ export const OrderDetailView = () => {
 
           <OrderItemsCard title="Detalle" items={order.items} />
 
-          <OrderTotalCard total={order.total} />
+          <OrderTotalCard
+            total={order.total}
+            subtotal={order.subtotal}
+            discountTotal={order.discountTotal}
+            appliedPromotions={order.appliedPromotions}
+          />
 
           <SectionCard title="Historial de estados">
             {order.statusHistory && order.statusHistory.length > 0 ? (

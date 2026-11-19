@@ -156,7 +156,10 @@ describe('LowStockAlertsSection', () => {
     expect(screen.getByText('Pan · Norte')).toBeInTheDocument()
     expect(screen.getByText('Stock bajo')).toBeInTheDocument()
     expect(screen.getByText('Disponible: 4 un · Mínimo: 20 un')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Ver todo el stock' })).toHaveAttribute('href', '/stock')
+    expect(screen.getByRole('link', { name: 'Ver todo el stock' })).toHaveAttribute(
+      'href',
+      '/stock',
+    )
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Ajustar' })[0] as HTMLElement)
     expect(onAdjust).toHaveBeenCalledWith(alerts[0])

@@ -9,16 +9,20 @@ import { ProfilePage } from './pages/ProfilePage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { ProductsPage } from './pages/ProductsPage'
 import { ProductEditPage } from './pages/ProductEditPage'
+import { PromotionsPage } from './pages/PromotionsPage'
+import { PromotionEditPage } from './pages/PromotionEditPage'
 import { IngredientsPage } from './pages/IngredientsPage'
 import { BranchesPage } from './pages/BranchesPage'
 import { BranchEditPage } from './pages/BranchEditPage'
 import { StaffPage } from './pages/StaffPage'
 import { StaffEditPage } from './pages/StaffEditPage'
 import { ParametersPage } from './pages/ParametersPage'
+import { TariffsPage } from './pages/TariffsPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { StockPage } from './pages/StockPage'
 import { ReportsPage } from './pages/ReportsPage'
 import { CustomerReportsPage } from './pages/CustomerReportsPage'
+import { RatingsPage } from './pages/RatingsPage'
 import logoLight from './assets/logo-light.svg'
 import logoDark from './assets/logo-dark.svg'
 
@@ -46,6 +50,9 @@ export const App = () =>
             { path: routes.products, element: <ProductsPage /> },
             { path: routes.productNew, element: <ProductEditPage /> },
             { path: routes.productEdit, element: <ProductEditPage /> },
+            { path: routes.promotions, element: <PromotionsPage /> },
+            { path: routes.promotionNew, element: <PromotionEditPage /> },
+            { path: routes.promotionEdit, element: <PromotionEditPage /> },
             { path: routes.ingredients, element: <IngredientsPage /> },
             { path: routes.branches, element: <BranchesPage /> },
             { path: routes.branchNew, element: <BranchEditPage /> },
@@ -54,11 +61,13 @@ export const App = () =>
             { path: routes.staffNew, element: <StaffEditPage /> },
             { path: routes.staffEdit, element: <StaffEditPage /> },
             { path: routes.parameters, element: <ParametersPage /> },
+            { path: routes.tariffs, element: <TariffsPage /> },
             { path: routes.orders, element: <OrdersPage /> },
             { path: routes.orderDetail, element: <OrderDetailPage /> },
             { path: routes.stock, element: <StockPage /> },
             { path: routes.reports, element: <ReportsPage /> },
             { path: routes.reportsCustomers, element: <CustomerReportsPage /> },
+            { path: routes.ratings, element: <RatingsPage /> },
             { path: routes.profile, element: <ProfilePage /> },
           ],
         },

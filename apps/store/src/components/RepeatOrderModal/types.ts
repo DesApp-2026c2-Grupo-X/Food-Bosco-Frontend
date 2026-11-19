@@ -1,6 +1,8 @@
-import type { Order } from '@repo/domain'
+import type { HomeFeedReorder } from '@repo/domain'
+
+export type RepeatOrderSource = Pick<HomeFeedReorder, 'id' | 'number' | 'items'>
 
 export interface RepeatOrderModalProps {
-  order: Order
+  order: RepeatOrderSource
   onClose: () => void
 }

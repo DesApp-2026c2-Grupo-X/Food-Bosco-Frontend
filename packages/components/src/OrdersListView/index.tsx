@@ -16,6 +16,8 @@ const ORDER_SEARCH_KEYS = [
   (order: Order) => (order.client ? `${order.client.firstName} ${order.client.lastName}` : null),
 ]
 
+const DEFAULT_PAGE_SIZE = 20
+
 const matchesOrderStatus = (order: Order, status: string) => order.status === status
 
 export const OrdersListView = ({
@@ -25,6 +27,7 @@ export const OrdersListView = ({
   orderDetailPath,
   showBranchFilter = false,
   branchColumnHideBelow,
+  pageSize = DEFAULT_PAGE_SIZE,
 }: OrdersListViewProps) => {
   const [branch, setBranch] = useState('')
 
@@ -131,6 +134,7 @@ export const OrdersListView = ({
       emptyIcon={<ListUl width={40} height={40} />}
       emptyTitle="Sin pedidos"
       emptyDescription="No hay pedidos que coincidan con los filtros."
+      pageSize={pageSize}
     />
   )
 }

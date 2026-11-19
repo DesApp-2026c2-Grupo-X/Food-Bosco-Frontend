@@ -70,6 +70,30 @@ const buildClient = (order: unknown) =>
     return { data: {} }
   })
 
+const rawReview = (overrides: Record<string, unknown> = {}) => ({
+  id: 'rv1',
+  orderId: 'o1',
+  customerId: 'c1',
+  branchId: 'b1',
+  branchRating: 5,
+  branchComment: null,
+  courierId: 'r1',
+  courierRating: 4,
+  courierComment: null,
+  createdAt: '2025-01-02T11:00:00Z',
+  updatedAt: '2025-01-02T11:00:00Z',
+  ...overrides,
+})
+
+const buildReviewClient = (order: unknown, status: unknown) =>
+  createTestClient((operation) => {
+    if (operation.operationName === 'Order') return { data: { order } }
+    if (operation.operationName === 'OrderReviewStatus') {
+      return { data: { orderReviewStatus: status } }
+    }
+    return { data: {} }
+  })
+
 const renderDetail = (client: TestApolloClient) =>
   renderWithProviders(
     <Routes>
@@ -167,5 +191,35 @@ describe('OrderDetailPage', () => {
     renderDetail(buildClient(null))
 
     expect(await screen.findByText('Pedido no encontrado')).toBeInTheDocument()
+  })
+
+  it('offers to rate a delivered order without a review', async () => {
+    renderDetail(buildReviewClient(rawOrder({ status: 'DELIVERED' }), { canReview: true, review: null }))
+
+    expect(await screen.findByRole('button', { name: 'Calificar pedido' })).toBeInTheDocument()
+  })
+
+  it('shows the saved review when the order is already rated', async () => {
+    renderDetail(
+      buildReviewClient(
+        rawOrder({ status: 'DELIVERED' }),
+        { canReview: false, review: rawReview({ branchRating: 4, courierRating: 5 }) },
+      ),
+    )
+
+    expect(await screen.findByText('Pedido calificado')).toBeInTheDocument()
+    expect(
+      screen.getByRole('img', { name: 'Calificación de la sucursal: 4 de 5 estrellas' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('img', { name: 'Calificación del repartidor: 5 de 5 estrellas' }),
+    ).toBeInTheDocument()
+  })
+
+  it('does not offer to rate an order that is not delivered yet', async () => {
+    renderDetail(buildReviewClient(rawOrder(), { canReview: false, review: null }))
+
+    expect(await screen.findByText('Estado del pedido')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Calificar pedido' })).not.toBeInTheDocument()
   })
 })

@@ -7,6 +7,9 @@ export interface DataTableColumn<T> {
   header: string
   render: (row: T) => ReactNode
   hideBelow?: ResponsiveBreakpoint
+  width?: string | number | Record<string, string | number>
+  minWidth?: string | number | Record<string, string | number>
+  maxWidth?: string | number | Record<string, string | number>
 }
 
 export interface DataTableProps<T> {
@@ -20,4 +23,5 @@ export interface DataTableProps<T> {
   emptyIcon?: ReactNode
   onRowClick?: (row: T) => void
   skeletonRows?: number
+  pageSize?: number
 }

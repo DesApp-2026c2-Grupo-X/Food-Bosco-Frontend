@@ -1,4 +1,5 @@
 import type { Product, ProductOption } from './catalog'
+import type { AppliedPromotion } from './promotion'
 
 export interface CartItem {
   id: string
@@ -15,7 +16,11 @@ export interface Cart {
   clientId: string
   status: string
   items: CartItem[]
+  subtotal?: number
+  discountTotal?: number
   total: number
+  promotionCode?: string | null
+  appliedPromotions?: AppliedPromotion[]
 }
 
 export interface AddCartItemInput {
@@ -44,3 +49,5 @@ export const cartItemCount = (items: CartItem[]): number =>
 
 export const cartTotal = (items: CartItem[]): number =>
   items.reduce((sum, item) => sum + cartLineTotal(item), 0)
+
+export const cartPayableTotal = (cart: Cart): number => cart.total

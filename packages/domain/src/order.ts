@@ -1,4 +1,5 @@
 import type { Branch } from './branch'
+import type { AppliedPromotion } from './promotion'
 import type { GeoPoint } from './rider'
 import type { User } from './user'
 
@@ -39,18 +40,29 @@ export interface OrderAddress {
   longitude: number
 }
 
+export interface OrderCourierRef {
+  id: string
+  firstName: string | null
+  lastName: string | null
+}
+
 export interface Order {
   id: string
   number: string
   clientId: string
   riderId?: string | null
+  rider?: OrderCourierRef | null
   riderLocation?: GeoPoint | null
   branchId: string
   branch?: Branch | null
   client?: User | null
   deliveryAddress: OrderAddress
   status: OrderStatus
+  subtotal?: number
+  discountTotal?: number
   total: number
+  promotionCode?: string | null
+  appliedPromotions?: AppliedPromotion[]
   estimatedDeliveryAt: string | null
   createdAt: string
   items: OrderItem[]

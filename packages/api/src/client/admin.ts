@@ -4,6 +4,7 @@ import type {
   BranchStock,
   CustomerInsightsOverview,
   CustomerRegistrationStats,
+  DeliveryTariff,
   OutOfStockRow,
   Parameter,
   ProductReportRow,
@@ -19,6 +20,7 @@ import {
   asNumber,
   asString,
   toIngredient,
+  toPromotion,
   toUser,
 } from './mappers'
 import type { Raw } from './mappers'
@@ -38,6 +40,7 @@ import {
   PRODUCT_DETAIL_FIELDS,
   PRODUCT_LIST_FIELDS,
   PRODUCT_REPORT_ROW_FIELDS,
+  PROMOTION_FIELDS,
   REPORTS_OVERVIEW_FIELDS,
   USER_FIELDS,
 } from './fragments'
@@ -57,6 +60,18 @@ export const toStaffMember = (raw: Raw): StaffMember => ({
   role: ROLE_FROM_API[asString(raw.role)] ?? 'customer',
   active: asBoolean(raw.active),
   branchId: raw.branchId == null ? null : String(raw.branchId),
+})
+
+export const toDeliveryTariff = (raw: Raw): DeliveryTariff => ({
+  id: asString(raw.id),
+  baseFare: asNumber(raw.baseFare),
+  perKm: asNumber(raw.perKm),
+  perOrder: asNumber(raw.perOrder),
+  currency: asString(raw.currency),
+  effectiveFrom: asString(raw.effectiveFrom),
+  active: asBoolean(raw.active),
+  createdBy: asString(raw.createdBy),
+  createdAt: asString(raw.createdAt),
 })
 
 export const toBranchStock = (raw: Raw): BranchStock => ({
@@ -259,6 +274,38 @@ export const ADMIN_PARAMETERS = gql`
   query AdminParameters {
     parameters {
       ${PARAMETER_FIELDS}
+    }
+  }
+`
+
+export const ADMIN_DELIVERY_TARIFF = gql`
+  query AdminDeliveryTariff {
+    deliveryTariff {
+      id
+      baseFare
+      perKm
+      perOrder
+      currency
+      effectiveFrom
+      active
+      createdBy
+      createdAt
+    }
+  }
+`
+
+export const ADMIN_DELIVERY_TARIFFS = gql`
+  query AdminDeliveryTariffs($limit: Int) {
+    deliveryTariffs(limit: $limit) {
+      id
+      baseFare
+      perKm
+      perOrder
+      currency
+      effectiveFrom
+      active
+      createdBy
+      createdAt
     }
   }
 `
@@ -563,6 +610,22 @@ export const UPDATE_PARAMETER = gql`
   }
 `
 
+export const PUBLISH_DELIVERY_TARIFF = gql`
+  mutation PublishDeliveryTariff($input: PublishDeliveryTariffInput!) {
+    publishDeliveryTariff(input: $input) {
+      id
+      baseFare
+      perKm
+      perOrder
+      currency
+      effectiveFrom
+      active
+      createdBy
+      createdAt
+    }
+  }
+`
+
 export const CHANGE_ORDER_STATUS = gql`
   mutation ChangeOrderStatus($orderId: ID!, $status: OrderStatus!) {
     changeOrderStatus(orderId: $orderId, status: $status) {
@@ -579,7 +642,53 @@ export const ADJUST_STOCK = gql`
   }
 `
 
+export const PROMOTIONS = gql`
+  query Promotions($activeOnly: Boolean, $page: PageInput) {
+    promotions(activeOnly: $activeOnly, page: $page) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const PROMOTION = gql`
+  query Promotion($id: ID!) {
+    promotion(id: $id) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const CREATE_PROMOTION = gql`
+  mutation CreatePromotion($input: PromotionInput!) {
+    createPromotion(input: $input) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const UPDATE_PROMOTION = gql`
+  mutation UpdatePromotion($id: ID!, $input: PromotionInput!) {
+    updatePromotion(id: $id, input: $input) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const SET_PROMOTION_ACTIVE = gql`
+  mutation SetPromotionActive($id: ID!, $active: Boolean!) {
+    setPromotionActive(id: $id, active: $active) {
+      ${PROMOTION_FIELDS}
+    }
+  }
+`
+
+export const DELETE_PROMOTION = gql`
+  mutation DeletePromotion($id: ID!) {
+    deletePromotion(id: $id)
+  }
+`
+
 export type { Raw }
 
 // Re-export mappers from the shared store layer for admin consumers.
-export { toBranch, toCategory, toIngredient, toOrder, toProduct }
+export { toBranch, toCategory, toIngredient, toOrder, toProduct, toPromotion }

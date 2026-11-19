@@ -222,17 +222,168 @@ export const branchSchema = z.object({
   phone: z.string().trim().max(50, 'Máximo 50 caracteres').optional(),
 })
 
+const optionalNumber = z.preprocess((val) => {
+  if (val === '' || val === null || val === undefined) return null
+  const num = Number(val)
+  return Number.isNaN(num) ? val : num
+}, z.number().nullable().optional())
+
+const optionalPositiveInt = z.preprocess((val) => {
+  if (val === '' || val === null || val === undefined) return null
+  const num = Number(val)
+  return Number.isNaN(num) ? val : num
+}, z.number().int().positive('Debe ser mayor a 0').nullable().optional())
+
+const coercedNonNegativeNumber = (fallback = 0) =>
+  z.preprocess((val) => {
+    if (val === '' || val === null || val === undefined) return fallback
+    const num = Number(val)
+    return Number.isNaN(num) ? val : num
+  }, z.number().min(0, 'Debe ser mayor o igual a 0').default(fallback))
+
 export const promotionSchema = z
   .object({
     name: nameSchema,
-    description: z.string().trim().max(500, 'Máximo 500 caracteres').optional(),
+    description: z.string().trim().max(500, 'Máximo 500 caracteres').optional().or(z.literal('')),
     startDate: isoDateSchema,
     endDate: isoDateSchema,
+    type: z.enum(['PERCENTAGE', 'FIXED_AMOUNT', 'BUY_X_GET_Y']).nullable().optional(),
+    discountValue: optionalNumber,
+    maxDiscount: optionalNumber,
+    buyQuantity: optionalPositiveInt,
+    payQuantity: optionalPositiveInt,
+    scope: z.enum(['ORDER', 'CATEGORY', 'PRODUCT']).nullable().optional(),
+    categoryIds: z.array(z.string()).default([]),
+    productIds: z.array(z.string()).default([]),
+    branchIds: z.array(z.string()).default([]),
+    minSubtotal: coercedNonNegativeNumber(0),
+    minQuantity: coercedNonNegativeNumber(0),
+    daysOfWeek: z.array(z.number().int().min(0).max(6)).default([]),
+    startTime: z.string().nullable().optional().or(z.literal('')),
+    endTime: z.string().nullable().optional().or(z.literal('')),
+    code: z.string().trim().max(20, 'Máximo 20 caracteres').optional().or(z.literal('')),
+    stackable: z.boolean().default(false),
+    priority: coercedNonNegativeNumber(0),
+    maxUsesTotal: optionalPositiveInt,
+    maxUsesPerCustomer: optionalPositiveInt,
   })
   .refine((data) => Date.parse(data.endDate) >= Date.parse(data.startDate), {
     message: 'La fecha de fin no puede ser anterior a la de inicio',
     path: ['endDate'],
   })
+  .refine(
+    (data) => {
+      if (data.type === 'PERCENTAGE') {
+        return data.discountValue != null && data.discountValue > 0 && data.discountValue <= 100
+      }
+      return true
+    },
+    {
+      message: 'El porcentaje debe estar entre 1 y 100',
+      path: ['discountValue'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.type === 'PERCENTAGE' && data.maxDiscount != null) {
+        return data.maxDiscount > 0
+      }
+      return true
+    },
+    {
+      message: 'El tope de descuento debe ser mayor a 0',
+      path: ['maxDiscount'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.type === 'FIXED_AMOUNT') {
+        return data.discountValue != null && data.discountValue > 0
+      }
+      return true
+    },
+    {
+      message: 'El monto de descuento debe ser mayor a 0',
+      path: ['discountValue'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.type === 'BUY_X_GET_Y') {
+        return (
+          data.buyQuantity != null &&
+          data.buyQuantity >= 2 &&
+          data.payQuantity != null &&
+          data.payQuantity >= 1 &&
+          data.payQuantity < data.buyQuantity
+        )
+      }
+      return true
+    },
+    {
+      message: 'Debe llevar al menos 2 y pagar menos de lo que lleva',
+      path: ['payQuantity'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.type && data.type !== null && !data.scope) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Debe seleccionar el alcance del beneficio',
+      path: ['scope'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.scope === 'CATEGORY') {
+        return data.categoryIds && data.categoryIds.length > 0
+      }
+      return true
+    },
+    {
+      message: 'Debe seleccionar al menos una categoría',
+      path: ['categoryIds'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.scope === 'PRODUCT') {
+        return data.productIds && data.productIds.length > 0
+      }
+      return true
+    },
+    {
+      message: 'Debe seleccionar al menos un producto',
+      path: ['productIds'],
+    },
+  )
+  .refine(
+    (data) => {
+      const hasStart = Boolean(data.startTime && data.startTime.trim())
+      const hasEnd = Boolean(data.endTime && data.endTime.trim())
+      return (hasStart && hasEnd) || (!hasStart && !hasEnd)
+    },
+    {
+      message: 'Debe ingresar tanto hora de inicio como fin, o ninguna',
+      path: ['endTime'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.code && data.code.trim().length > 0) {
+        return data.code.trim().length >= 3
+      }
+      return true
+    },
+    {
+      message: 'El cupón debe tener al menos 3 caracteres',
+      path: ['code'],
+    },
+  )
 
 const staffBase = {
   firstName: nameSchema,

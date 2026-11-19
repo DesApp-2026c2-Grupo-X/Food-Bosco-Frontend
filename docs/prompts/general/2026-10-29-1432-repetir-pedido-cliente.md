@@ -8,7 +8,7 @@
 
 > Trabajá sobre la funcionalidad “Repetir pedido” para el cliente de la aplicación de comida. Antes de implementar, leé los requerimientos funcionales de la carpeta docs y respetalos.
 > Permití que el cliente pueda seleccionar un pedido anterior y volver a realizarlo, validando la disponibilidad de los productos, sus precios actuales y cualquier otra condición necesaria antes de confirmar el nuevo pedido.
-> Finalmente, documentá el análisis, los cambios realizados, las decisiones técnicas y las tareas pendientes en un archivo Markdown llamado planRepetirPedido.md en el escritorio de mi computadora. 
+> Finalmente, documentá el análisis, los cambios realizados, las decisiones técnicas y las tareas pendientes en un archivo Markdown llamado planRepetirPedido.md en el escritorio de mi computadora.
 > https://github.com/DesApp-2026c2-Grupo-X/Food-Bosco-API/pull/38 tene en cuenta esto tambien
 
 ## Informe

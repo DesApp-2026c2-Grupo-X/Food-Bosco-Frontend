@@ -15,12 +15,14 @@ import {
   OrderTimeline,
   OrderTotalCard,
   PrimaryButton,
+  StarRating,
   Strong,
   Subtle,
   type InteractiveMapMarker,
 } from '@repo/components'
-import { useOrder } from '@repo/api'
+import { useOrder, useOrderReviewStatus } from '@repo/api'
 import { RepeatOrderModal } from '../../components/RepeatOrderModal'
+import { ReviewOrderModal } from '../../components/ReviewOrderModal'
 import { routes } from '../../routes'
 import type { Order } from '@repo/domain'
 import { formatEta, formatOrderDate, isActiveOrder } from '@repo/domain'
@@ -31,7 +33,13 @@ const ACTIVE_POLL_INTERVAL_MS = 4000
 export const OrderDetailPage = () => {
   const { orderId } = useParams()
   const { order, isLoading, startPolling, stopPolling } = useOrder(orderId)
+  const {
+    status: reviewStatus,
+    isLoading: reviewStatusLoading,
+    refetch: refetchReviewStatus,
+  } = useOrderReviewStatus(orderId)
   const [repeatOpen, setRepeatOpen] = useState(false)
+  const [reviewOpen, setReviewOpen] = useState(false)
 
   // El estado del pedido cambia del lado del servidor: mientras el pedido esté
   // activo, volvemos a consultarlo para reflejar el progreso (y el rider) en vivo.
@@ -44,8 +52,12 @@ export const OrderDetailPage = () => {
   const orderStatus = order?.status
 
   useEffect(() => {
-    if (orderStatus && !isActiveOrder(orderStatus)) stopPolling()
-  }, [orderStatus, stopPolling])
+    if (!orderStatus || isActiveOrder(orderStatus)) return
+    stopPolling()
+    if (orderStatus === 'DELIVERED') {
+      void refetchReviewStatus()
+    }
+  }, [orderStatus, stopPolling, refetchReviewStatus])
 
   if (isLoading) {
     return <LoadingState variant="list" skeletonCount={4} skeletonHeight="88px" />
@@ -113,6 +125,53 @@ export const OrderDetailPage = () => {
           <Muted fontSize="sm" marginTop="1">
             Recibido el {deliveredAt ? formatOrderDate(deliveredAt) : '—'}
           </Muted>
+
+          {reviewStatus?.review ? (
+            <VStack align="start" gap="3" marginTop="4">
+              <Strong>Pedido calificado</Strong>
+              <VStack align="start" gap="1">
+                <HStack gap="3">
+                  <Muted fontSize="sm" minWidth="70px">
+                    Sucursal
+                  </Muted>
+                  <StarRating
+                    value={reviewStatus.review.branchRating}
+                    readOnly
+                    size="sm"
+                    label="Calificación de la sucursal"
+                  />
+                </HStack>
+                {reviewStatus.review.branchComment ? (
+                  <Muted fontSize="sm">{reviewStatus.review.branchComment}</Muted>
+                ) : null}
+              </VStack>
+              {reviewStatus.review.courierRating != null ? (
+                <VStack align="start" gap="1">
+                  <HStack gap="3">
+                    <Muted fontSize="sm" minWidth="70px">
+                      Repartidor
+                    </Muted>
+                    <StarRating
+                      value={reviewStatus.review.courierRating}
+                      readOnly
+                      size="sm"
+                      label="Calificación del repartidor"
+                    />
+                  </HStack>
+                  {reviewStatus.review.courierComment ? (
+                    <Muted fontSize="sm">{reviewStatus.review.courierComment}</Muted>
+                  ) : null}
+                </VStack>
+              ) : null}
+            </VStack>
+          ) : reviewStatus?.canReview && !reviewStatusLoading ? (
+            <VStack align="start" gap="2" marginTop="4">
+              <Muted fontSize="sm">Contanos cómo fue tu experiencia con este pedido.</Muted>
+              <PrimaryButton type="button" size="md" onClick={() => setReviewOpen(true)}>
+                Calificar pedido
+              </PrimaryButton>
+            </VStack>
+          ) : null}
         </Card>
       ) : null}
 
@@ -132,9 +191,23 @@ export const OrderDetailPage = () => {
 
       <OrderItemsCard items={order.items} />
 
-      <OrderTotalCard total={order.total} subtitle={`Entrega a ${order.deliveryAddress.text}`} />
+      <OrderTotalCard
+        subtotal={order.subtotal ?? order.total}
+        discountTotal={order.discountTotal ?? 0}
+        appliedPromotions={order.appliedPromotions ?? []}
+        total={order.total}
+        subtitle={`Entrega a ${order.deliveryAddress.text}`}
+      />
 
       {repeatOpen ? <RepeatOrderModal order={order} onClose={() => setRepeatOpen(false)} /> : null}
+      {reviewOpen ? (
+        <ReviewOrderModal
+          open={reviewOpen}
+          order={order}
+          onClose={() => setReviewOpen(false)}
+          onSubmitted={() => void refetchReviewStatus()}
+        />
+      ) : null}
     </OrderDetailShell>
   )
 }
