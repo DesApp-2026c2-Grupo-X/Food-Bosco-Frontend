@@ -191,7 +191,7 @@ export const TripOrderDetailPage = () => {
 
   return (
     <OrderDetailShell
-      orderNumber={order?.number || tripOrder.orderId}
+      orderNumber={order?.number}
       status={effectiveStatus}
       description={order?.branch?.name}
       showBack={false}
