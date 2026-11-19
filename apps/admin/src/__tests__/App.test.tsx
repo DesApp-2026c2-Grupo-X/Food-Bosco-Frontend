@@ -50,6 +50,24 @@ const makeClient = () =>
         return { data: { users: { data: [] } } }
       case 'AdminParameters':
         return { data: { parameters: [] } }
+      case 'AdminDeliveryTariff':
+        return {
+          data: {
+            deliveryTariff: {
+              id: 'tar-1',
+              baseFare: 500,
+              perKm: 200,
+              perOrder: 300,
+              currency: 'ARS',
+              effectiveFrom: '2026-01-01T00:00:00.000Z',
+              active: true,
+              createdBy: 'system:bootstrap',
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          },
+        }
+      case 'AdminDeliveryTariffs':
+        return { data: { deliveryTariffs: [] } }
       case 'AdminOrders':
         return { data: { orders: [] } }
       case 'AdminBranchStock':
@@ -127,6 +145,7 @@ describe('App', () => {
     ['/branches', 'Administrá los locales físicos y sus horarios.'],
     ['/staff', 'Creá colaboradores de sucursal y admins globales.'],
     ['/parameters', 'Modificá los valores usados por las decisiones del sistema.'],
+    ['/tariffs', 'Definí cómo se calcula el pago de cada viaje.'],
     ['/orders', 'Consultá y operá los pedidos de todas las sucursales.'],
     ['/stock', 'Controlá el inventario de ingredientes de todas las sucursales.'],
     ['/reports/products', 'Métricas consolidadas de todas las sucursales.'],
