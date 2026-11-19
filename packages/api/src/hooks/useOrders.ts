@@ -13,12 +13,14 @@ interface MyOrdersResult {
 
 interface UseOrdersOptions {
   pollIntervalMs?: number
+  skip?: boolean
 }
 
 export const useOrders = (options?: UseOrdersOptions): UseOrdersReturn => {
   const { data, loading } = useQuery<MyOrdersResult>(MY_ORDERS, {
     fetchPolicy: 'network-only',
     pollInterval: options?.pollIntervalMs,
+    skip: options?.skip,
   })
 
   return {

@@ -1,13 +1,14 @@
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getApiErrorMessage, useCart, useRepeatOrder } from '@repo/api'
-import type { Order, RepeatOrderResult } from '@repo/domain'
+import type { RepeatOrderResult } from '@repo/domain'
+import type { RepeatOrderSource } from '../types'
 import { routes } from '../../../routes'
 
 type RepeatOrderStage = 'confirm' | 'result'
 
 interface UseRepeatOrderActionParams {
-  order: Order
+  order: RepeatOrderSource
   onClose: () => void
 }
 

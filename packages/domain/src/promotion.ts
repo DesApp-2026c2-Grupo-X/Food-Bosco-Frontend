@@ -1,3 +1,5 @@
+import type { Product } from './catalog'
+
 export type PromotionType = 'PERCENTAGE' | 'FIXED_AMOUNT' | 'BUY_X_GET_Y'
 export type PromotionScope = 'ORDER' | 'CATEGORY' | 'PRODUCT'
 
@@ -100,6 +102,45 @@ export const describePromotion = (
     default:
       return 'Promoción'
   }
+}
+
+export const isProductPromotion = (
+  promotion: Pick<Promotion, 'scope' | 'productIds'>,
+): boolean => promotion.scope === 'PRODUCT' || promotion.productIds.length > 0
+
+/**
+ * Separa cupones generales de promociones que apuntan a productos concretos.
+ * Las promociones de producto se muestran como productos, no como cupones.
+ */
+export const splitPromotions = (promotions: Promotion[]): {
+  coupons: Promotion[]
+  productPromotions: Promotion[]
+} => ({
+  coupons: promotions.filter((promotion) => !isProductPromotion(promotion)),
+  productPromotions: promotions.filter(isProductPromotion),
+})
+
+/**
+ * Categoría a la que conviene llevar el CTA de una promoción.
+ * Para promociones por categoría usa el primer `categoryId`; para promociones
+ * por producto resuelve la categoría del primer producto afectado.
+ */
+export const getPromotionCategoryId = (
+  promotion: Pick<Promotion, 'categoryIds' | 'productIds'>,
+  products: Pick<Product, 'id' | 'categoryId'>[],
+): string | null => {
+  const explicitCategory = promotion.categoryIds.find((id) => id.length > 0)
+  if (explicitCategory) return explicitCategory
+
+  if (promotion.productIds.length === 0) return null
+
+  const categoryByProduct = new Map(products.map((product) => [product.id, product.categoryId]))
+  for (const productId of promotion.productIds) {
+    const categoryId = categoryByProduct.get(productId)
+    if (categoryId) return categoryId
+  }
+
+  return null
 }
 
 export const formatDiscount = (amount: number): string => {

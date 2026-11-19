@@ -26,6 +26,8 @@ const api = vi.hoisted(() => ({
   useCart: vi.fn(),
   useProduct: vi.fn(),
   usePublicPromotions: vi.fn().mockReturnValue({ promotions: [], isLoading: false }),
+  useHomeFeed: vi.fn().mockReturnValue({ feed: null, isLoading: false, refetch: vi.fn() }),
+  useAuthStore: vi.fn(() => null),
 }))
 
 vi.mock('@repo/api', () => ({

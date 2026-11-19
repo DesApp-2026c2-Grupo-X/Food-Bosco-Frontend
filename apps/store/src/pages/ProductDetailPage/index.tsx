@@ -17,12 +17,15 @@ import { EmptyState } from '@repo/components'
 import { QuantityStepper } from '@repo/components'
 import { routes } from '../../routes'
 import { formatPrice } from '@repo/domain'
+import { useTrackRecentView } from '../../hooks/useTrackRecentView'
 import { useProductConfig } from './hooks/useProductConfig'
 
 export const ProductDetailPage = () => {
   const { productId } = useParams()
   const navigate = useNavigate()
   const config = useProductConfig(productId)
+
+  useTrackRecentView(config.product?.id)
 
   if (config.isLoading) {
     return (
