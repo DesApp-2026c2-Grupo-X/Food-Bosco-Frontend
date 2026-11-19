@@ -12,6 +12,8 @@ export interface DeliveryTariff {
   createdAt: string
 }
 
+export const DELIVERY_TARIFF_CURRENCY = 'ARS'
+
 const tariffAmount = z
   .string()
   .trim()
@@ -31,5 +33,5 @@ export const deliveryTariffFormToInput = (form: DeliveryTariffForm) => ({
   baseFare: Number(form.baseFare),
   perKm: Number(form.perKm),
   perOrder: Number(form.perOrder),
-  currency: 'ARS',
+  currency: DELIVERY_TARIFF_CURRENCY,
 })

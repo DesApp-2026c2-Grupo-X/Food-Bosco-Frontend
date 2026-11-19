@@ -60,6 +60,7 @@ describe('TariffsPage', () => {
     expect(screen.getByText('system:bootstrap')).toBeInTheDocument()
     expect(screen.getByText('Vigente')).toBeInTheDocument()
     expect(screen.getByText('Histórica')).toBeInTheDocument()
+    expect(screen.getByText('Moneda: ARS')).toBeInTheDocument()
   })
 
   it('precarga el formulario y publica con confirmación', async () => {

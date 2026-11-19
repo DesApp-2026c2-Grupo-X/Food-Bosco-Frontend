@@ -21,6 +21,7 @@ import {
 } from '@repo/components'
 import { getApiErrorMessage, useDeliveryTariff } from '@repo/api'
 import {
+  DELIVERY_TARIFF_CURRENCY,
   deliveryTariffFormToInput,
   deliveryTariffSchema,
   type DeliveryTariff,
@@ -234,7 +235,7 @@ export const TariffsPage = () => {
                   />
                 </SimpleGrid>
                 <HStack justify="space-between" wrap="wrap" gap="3">
-                  <Muted fontSize="sm">Moneda: ARS</Muted>
+                  <Muted fontSize="sm">Moneda: {DELIVERY_TARIFF_CURRENCY}</Muted>
                   <PrimaryButton
                     type="submit"
                     size="md"
@@ -279,9 +280,9 @@ export const TariffsPage = () => {
           {pendingValues ? (
             <VStack align="start" gap="1" fontSize="sm">
               <Strong>
-                Base {formatAmount(Number(pendingValues.baseFare), 'ARS')} ·{' '}
-                {formatAmount(Number(pendingValues.perKm), 'ARS')} por km ·{' '}
-                {formatAmount(Number(pendingValues.perOrder), 'ARS')} por pedido
+                Base {formatAmount(Number(pendingValues.baseFare), DELIVERY_TARIFF_CURRENCY)} ·{' '}
+                {formatAmount(Number(pendingValues.perKm), DELIVERY_TARIFF_CURRENCY)} por km ·{' '}
+                {formatAmount(Number(pendingValues.perOrder), DELIVERY_TARIFF_CURRENCY)} por pedido
               </Strong>
             </VStack>
           ) : null}

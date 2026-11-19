@@ -82,6 +82,39 @@ describe('useDeliveryTariff', () => {
     expect(testClient.requestsByName('AdminDeliveryTariffs').length).toBeGreaterThan(historyBefore)
   })
 
+  it('fuerza la moneda ARS aunque el llamador envíe otra', async () => {
+    const testClient = createTestClient((operation) => {
+      if (operation.operationName === 'AdminDeliveryTariff') {
+        return { data: { deliveryTariff: rawTariff } }
+      }
+      if (operation.operationName === 'AdminDeliveryTariffs') {
+        return { data: { deliveryTariffs: rawHistory } }
+      }
+      return { data: { publishDeliveryTariff: rawTariff } }
+    })
+
+    const { result } = renderHookWithProviders(() => useDeliveryTariff(), {
+      client: testClient.client,
+    })
+
+    await waitFor(() => expect(result.current.data).not.toBeNull())
+
+    const input = {
+      baseFare: 700,
+      perKm: 260,
+      perOrder: 360,
+      currency: 'USD',
+    }
+
+    await act(async () => {
+      await result.current.publish(input)
+    })
+
+    expect(operationVariables(testClient.lastRequest('PublishDeliveryTariff'))).toEqual({
+      input: { baseFare: 700, perKm: 260, perOrder: 360, currency: 'ARS' },
+    })
+  })
+
   it('expone el error de permisos de la consulta', async () => {
     const testClient = createTestClient(() => new Error('No tenés permisos'))
 

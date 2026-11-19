@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
-import type { DeliveryTariff } from '@repo/domain'
+import { DELIVERY_TARIFF_CURRENCY, type DeliveryTariff } from '@repo/domain'
 import {
   ADMIN_DELIVERY_TARIFF,
   ADMIN_DELIVERY_TARIFFS,
@@ -12,7 +12,7 @@ export interface PublishDeliveryTariffVariables {
   baseFare: number
   perKm: number
   perOrder: number
-  currency: string
+  currency?: string
 }
 
 interface DeliveryTariffResult {
@@ -60,7 +60,9 @@ export const useDeliveryTariff = (): UseDeliveryTariffReturn => {
 
   const publish = useCallback(
     async (input: PublishDeliveryTariffVariables) => {
-      await publishMutation({ variables: { input } })
+      await publishMutation({
+        variables: { input: { ...input, currency: DELIVERY_TARIFF_CURRENCY } },
+      })
       await Promise.all([refetchActive(), refetchHistory()])
     },
     [publishMutation, refetchActive, refetchHistory],
