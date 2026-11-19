@@ -351,7 +351,7 @@ const HomeCatalog = ({
     <>
       <Box>
         <SectionHeader
-          label={personalized ? 'Tus gustos' : 'Catálogo'}
+          label="Catálogo"
           title="Explorá por categoría"
           action={
             <TextLink to={routes.catalog} fontSize="sm">
