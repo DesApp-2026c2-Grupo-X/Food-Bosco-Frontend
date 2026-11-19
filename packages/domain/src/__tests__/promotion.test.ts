@@ -4,6 +4,7 @@ import {
   formatDiscount,
   getPromotionCategoryId,
   isPromotionActive,
+  splitPromotions,
   type Promotion,
 } from '../promotion'
 
@@ -52,6 +53,46 @@ describe('promotion helpers', () => {
       getPromotionCategoryId({ categoryIds: [], productIds: ['missing'] }, products),
     ).toBeNull()
     expect(getPromotionCategoryId({ categoryIds: [], productIds: [] }, products)).toBeNull()
+  })
+
+  it('separa cupones de promociones de producto', () => {
+    const base: Promotion = {
+      id: 'p1',
+      name: 'Promo',
+      description: null,
+      startDate: '2026-01-01T00:00:00.000Z',
+      endDate: '2026-12-31T23:59:59.999Z',
+      active: true,
+      type: 'PERCENTAGE',
+      discountValue: 10,
+      maxDiscount: null,
+      buyQuantity: null,
+      payQuantity: null,
+      scope: 'ORDER',
+      categoryIds: [],
+      productIds: [],
+      branchIds: [],
+      minSubtotal: 0,
+      minQuantity: 0,
+      daysOfWeek: [],
+      startTime: null,
+      endTime: null,
+      code: null,
+      stackable: false,
+      priority: 0,
+      maxUsesTotal: null,
+      maxUsesPerCustomer: null,
+      usedCount: 0,
+    }
+
+    const result = splitPromotions([
+      base,
+      { ...base, id: 'p2', scope: 'CATEGORY', categoryIds: ['cat-1'] },
+      { ...base, id: 'p3', scope: 'PRODUCT', productIds: ['prod-1'] },
+    ])
+
+    expect(result.coupons.map((promotion) => promotion.id)).toEqual(['p1', 'p2'])
+    expect(result.productPromotions.map((promotion) => promotion.id)).toEqual(['p3'])
   })
 
   it('evalúa isPromotionActive según active y fechas', () => {

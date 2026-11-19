@@ -104,6 +104,22 @@ export const describePromotion = (
   }
 }
 
+export const isProductPromotion = (
+  promotion: Pick<Promotion, 'scope' | 'productIds'>,
+): boolean => promotion.scope === 'PRODUCT' || promotion.productIds.length > 0
+
+/**
+ * Separa cupones generales de promociones que apuntan a productos concretos.
+ * Las promociones de producto se muestran como productos, no como cupones.
+ */
+export const splitPromotions = (promotions: Promotion[]): {
+  coupons: Promotion[]
+  productPromotions: Promotion[]
+} => ({
+  coupons: promotions.filter((promotion) => !isProductPromotion(promotion)),
+  productPromotions: promotions.filter(isProductPromotion),
+})
+
 /**
  * Categoría a la que conviene llevar el CTA de una promoción.
  * Para promociones por categoría usa el primer `categoryId`; para promociones

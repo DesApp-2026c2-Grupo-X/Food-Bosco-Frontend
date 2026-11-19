@@ -365,27 +365,34 @@ describe('HomePage', () => {
       }),
     )
 
-    expect(await screen.findByText('Promociones para vos')).toBeInTheDocument()
+    expect(await screen.findByText('Cupones para vos')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Ver en el menú' })).toHaveAttribute(
       'href',
       '/catalog?cat=c2',
     )
   })
 
-  it('resolves the category of a product promotion', async () => {
+  it('shows product promotions in their own section', async () => {
     renderHome(
       buildClient({
         orders: [deliveredOrder],
         promotions: [
-          rawPromotion({ scope: 'PRODUCT', categoryIds: [], productIds: ['p1'] }),
+          rawPromotion({ id: 'coupon-1', name: '20% en bebidas', categoryIds: ['c2'] }),
+          rawPromotion({
+            id: 'product-promo',
+            name: '2x1 en Producto 1',
+            scope: 'PRODUCT',
+            categoryIds: [],
+            productIds: ['p1'],
+          }),
         ],
       }),
     )
 
-    expect(await screen.findByRole('link', { name: 'Ver en el menú' })).toHaveAttribute(
-      'href',
-      '/catalog?cat=c1',
-    )
+    expect(await screen.findByText('Productos en promoción')).toBeInTheDocument()
+    expect(screen.getByText('Cupones para vos')).toBeInTheDocument()
+    expect(screen.getByText('2x1 en Producto 1')).toBeInTheDocument()
+    expect(screen.getByText('20% en bebidas')).toBeInTheDocument()
   })
 
   it('uses the server home feed when the feature flag is enabled', async () => {

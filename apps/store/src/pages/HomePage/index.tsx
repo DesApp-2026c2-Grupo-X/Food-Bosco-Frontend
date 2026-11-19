@@ -58,6 +58,7 @@ import {
   getPromotionCategoryId,
   isActiveOrder,
   isBranchOpenNow,
+  splitPromotions,
   type Category,
   type PersonalizedProduct,
   type Product,
@@ -127,6 +128,33 @@ export const HomePage = () => {
   const reorderOrders = remoteFeed?.reorder ?? personalization.reorderOrders
   const orderedCategories = remoteFeed?.categories ?? personalization.orderedCategories
   const orderedPromotions = remoteFeed?.promotions ?? personalization.orderedPromotions
+  const { coupons, productPromotions } = useMemo(
+    () => splitPromotions(orderedPromotions),
+    [orderedPromotions],
+  )
+  const promotedProducts = useMemo(() => {
+    const productsById = new Map(products.map((product) => [product.id, product]))
+    const seen = new Set<string>()
+    const entries: PersonalizedProduct[] = []
+
+    for (const promotion of productPromotions) {
+      for (const productId of promotion.productIds) {
+        if (seen.has(productId)) continue
+        const product = productsById.get(productId)
+        if (!product || !product.available) continue
+
+        seen.add(productId)
+        entries.push({
+          product,
+          reason: 'POPULAR',
+          hint: promotion.name,
+          score: 0,
+        })
+      }
+    }
+
+    return entries
+  }, [productPromotions, products])
   const nearestBranch = remoteFeed?.nearestBranch ?? personalization.nearestBranch
   const topCategoryName = remoteFeed
     ? (remoteFeed.topCategory?.name ?? null)
@@ -234,9 +262,24 @@ export const HomePage = () => {
         </Reveal>
       ) : null}
 
+      {promotedProducts.length > 0 ? (
+        <Reveal delayMs={75}>
+          <PersonalizedProductsSection
+            label="Promociones"
+            title="Productos en promoción"
+            products={promotedProducts}
+            action={
+              <TextLink to={routes.catalog} fontSize="sm">
+                Ver catálogo
+              </TextLink>
+            }
+          />
+        </Reveal>
+      ) : null}
+
       <Reveal delayMs={80}>
         <PromotionsSection
-          promotions={orderedPromotions}
+          promotions={coupons}
           isLoading={promotionsAreLoading}
           personalized={hasHistory}
           products={products}
@@ -536,7 +579,7 @@ const PromotionsSection = ({
     <Box>
       <SectionHeader
         label={personalized ? 'Según tus gustos' : 'Beneficios'}
-        title={personalized ? 'Promociones para vos' : 'Promociones destacadas'}
+        title={personalized ? 'Cupones para vos' : 'Cupones destacados'}
       />
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap="4" marginTop="6">
         {promotions.map((promo) => {
