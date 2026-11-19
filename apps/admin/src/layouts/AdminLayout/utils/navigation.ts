@@ -8,6 +8,7 @@ import MapPin from '@gravity-ui/icons/MapPin'
 import Box from '@gravity-ui/icons/Box'
 import Persons from '@gravity-ui/icons/Persons'
 import Sliders from '@gravity-ui/icons/Sliders'
+import Wallet from '@gravity-ui/icons/Wallet'
 import ChartColumn from '@gravity-ui/icons/ChartColumn'
 import Star from '@gravity-ui/icons/Star'
 import type { DashboardNavSection } from '@repo/components'
@@ -44,6 +45,7 @@ export const navSections: DashboardNavSection[] = [
     items: [
       { id: 'staff', label: 'Personal', path: routes.staff, icon: Persons },
       { id: 'parameters', label: 'Parámetros', path: routes.parameters, icon: Sliders },
+      { id: 'tariffs', label: 'Tarifas', path: routes.tariffs, icon: Wallet },
     ],
   },
   {

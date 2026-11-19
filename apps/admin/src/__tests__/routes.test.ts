@@ -30,6 +30,7 @@ describe('admin routes', () => {
       staffNew: '/staff/new',
       staffEdit: '/staff/:userId/edit',
       parameters: '/parameters',
+      tariffs: '/tariffs',
       orders: '/orders',
       orderDetail: '/orders/:orderId',
       stock: '/stock',

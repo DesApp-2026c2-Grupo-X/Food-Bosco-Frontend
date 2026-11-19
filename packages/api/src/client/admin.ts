@@ -4,6 +4,7 @@ import type {
   BranchStock,
   CustomerInsightsOverview,
   CustomerRegistrationStats,
+  DeliveryTariff,
   OutOfStockRow,
   Parameter,
   ProductReportRow,
@@ -59,6 +60,18 @@ export const toStaffMember = (raw: Raw): StaffMember => ({
   role: ROLE_FROM_API[asString(raw.role)] ?? 'customer',
   active: asBoolean(raw.active),
   branchId: raw.branchId == null ? null : String(raw.branchId),
+})
+
+export const toDeliveryTariff = (raw: Raw): DeliveryTariff => ({
+  id: asString(raw.id),
+  baseFare: asNumber(raw.baseFare),
+  perKm: asNumber(raw.perKm),
+  perOrder: asNumber(raw.perOrder),
+  currency: asString(raw.currency),
+  effectiveFrom: asString(raw.effectiveFrom),
+  active: asBoolean(raw.active),
+  createdBy: asString(raw.createdBy),
+  createdAt: asString(raw.createdAt),
 })
 
 export const toBranchStock = (raw: Raw): BranchStock => ({
@@ -261,6 +274,38 @@ export const ADMIN_PARAMETERS = gql`
   query AdminParameters {
     parameters {
       ${PARAMETER_FIELDS}
+    }
+  }
+`
+
+export const ADMIN_DELIVERY_TARIFF = gql`
+  query AdminDeliveryTariff {
+    deliveryTariff {
+      id
+      baseFare
+      perKm
+      perOrder
+      currency
+      effectiveFrom
+      active
+      createdBy
+      createdAt
+    }
+  }
+`
+
+export const ADMIN_DELIVERY_TARIFFS = gql`
+  query AdminDeliveryTariffs($limit: Int) {
+    deliveryTariffs(limit: $limit) {
+      id
+      baseFare
+      perKm
+      perOrder
+      currency
+      effectiveFrom
+      active
+      createdBy
+      createdAt
     }
   }
 `
@@ -561,6 +606,22 @@ export const UPDATE_PARAMETER = gql`
   mutation UpdateParameter($key: String!, $value: Float!) {
     updateParameter(key: $key, value: $value) {
       ${PARAMETER_FIELDS}
+    }
+  }
+`
+
+export const PUBLISH_DELIVERY_TARIFF = gql`
+  mutation PublishDeliveryTariff($input: PublishDeliveryTariffInput!) {
+    publishDeliveryTariff(input: $input) {
+      id
+      baseFare
+      perKm
+      perOrder
+      currency
+      effectiveFrom
+      active
+      createdBy
+      createdAt
     }
   }
 `

@@ -17,6 +17,7 @@ import { BranchEditPage } from './pages/BranchEditPage'
 import { StaffPage } from './pages/StaffPage'
 import { StaffEditPage } from './pages/StaffEditPage'
 import { ParametersPage } from './pages/ParametersPage'
+import { TariffsPage } from './pages/TariffsPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { StockPage } from './pages/StockPage'
 import { ReportsPage } from './pages/ReportsPage'
@@ -60,6 +61,7 @@ export const App = () =>
             { path: routes.staffNew, element: <StaffEditPage /> },
             { path: routes.staffEdit, element: <StaffEditPage /> },
             { path: routes.parameters, element: <ParametersPage /> },
+            { path: routes.tariffs, element: <TariffsPage /> },
             { path: routes.orders, element: <OrdersPage /> },
             { path: routes.orderDetail, element: <OrderDetailPage /> },
             { path: routes.stock, element: <StockPage /> },
