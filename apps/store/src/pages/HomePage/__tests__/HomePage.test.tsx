@@ -121,6 +121,36 @@ const deliveredOrder = {
   availableTransitions: [],
 }
 
+const rawPromotion = (overrides: Record<string, unknown> = {}) => ({
+  id: 'promo-1',
+  name: '2x1 en bebidas',
+  description: null,
+  startDate: '2026-11-01T00:00:00.000Z',
+  endDate: '2026-11-30T00:00:00.000Z',
+  active: true,
+  type: 'BUY_X_GET_Y',
+  discountValue: null,
+  maxDiscount: null,
+  buyQuantity: 2,
+  payQuantity: 1,
+  scope: 'CATEGORY',
+  categoryIds: ['c2'],
+  productIds: [],
+  branchIds: [],
+  minSubtotal: 0,
+  minQuantity: 0,
+  daysOfWeek: [],
+  startTime: null,
+  endTime: null,
+  code: null,
+  stackable: false,
+  priority: 0,
+  maxUsesTotal: null,
+  maxUsesPerCustomer: null,
+  usedCount: 0,
+  ...overrides,
+})
+
 const remoteFeed = {
   generatedAt: '2026-11-18T03:00:00.000Z',
   hasHistory: true,
@@ -150,12 +180,14 @@ const buildClient = ({
   products = Array.from({ length: 9 }, (_, index) => rawProduct(index + 1)),
   orders = [] as unknown[],
   categoryList = categories,
+  promotions = [] as unknown[],
   homeFeed,
 }: {
   branches?: unknown[]
   products?: unknown[]
   orders?: unknown[]
   categoryList?: unknown[]
+  promotions?: unknown[]
   homeFeed?: unknown
 } = {}): TestApolloClient =>
   createTestClient((operation) => {
@@ -171,7 +203,7 @@ const buildClient = ({
       case 'MyOrders':
         return { data: { myOrders: orders } }
       case 'PublicPromotions':
-        return { data: { publicPromotions: [] } }
+        return { data: { publicPromotions: promotions } }
       case 'HomeFeed':
         return homeFeed instanceof Error ? homeFeed : { data: { homeFeed } }
       default:
@@ -323,6 +355,37 @@ describe('HomePage', () => {
     expect(await screen.findByText('Vistos hace poco')).toBeInTheDocument()
     expect(screen.getByText('Lo estás mirando')).toBeInTheDocument()
     expect(screen.getByText('Los más pedidos')).toBeInTheDocument()
+  })
+
+  it('links the promotion CTA to the category affected by the promotion', async () => {
+    renderHome(
+      buildClient({
+        orders: [deliveredOrder],
+        promotions: [rawPromotion({ categoryIds: ['c2'], productIds: [] })],
+      }),
+    )
+
+    expect(await screen.findByText('Promociones para vos')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Ver en el menú' })).toHaveAttribute(
+      'href',
+      '/catalog?cat=c2',
+    )
+  })
+
+  it('resolves the category of a product promotion', async () => {
+    renderHome(
+      buildClient({
+        orders: [deliveredOrder],
+        promotions: [
+          rawPromotion({ scope: 'PRODUCT', categoryIds: [], productIds: ['p1'] }),
+        ],
+      }),
+    )
+
+    expect(await screen.findByRole('link', { name: 'Ver en el menú' })).toHaveAttribute(
+      'href',
+      '/catalog?cat=c1',
+    )
   })
 
   it('uses the server home feed when the feature flag is enabled', async () => {

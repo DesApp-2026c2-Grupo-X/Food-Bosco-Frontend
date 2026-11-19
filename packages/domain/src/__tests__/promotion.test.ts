@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { describePromotion, formatDiscount, isPromotionActive, type Promotion } from '../promotion'
+import {
+  describePromotion,
+  formatDiscount,
+  getPromotionCategoryId,
+  isPromotionActive,
+  type Promotion,
+} from '../promotion'
 
 describe('promotion helpers', () => {
   it('describe promociones porcentuales con y sin tope', () => {
@@ -28,6 +34,24 @@ describe('promotion helpers', () => {
   it('formatea montos de descuento con signo negativo', () => {
     expect(formatDiscount(0)).toBe('$0')
     expect(formatDiscount(500)).toContain('-$')
+  })
+
+  it('resuelve la categoría de una promoción por categoría o por producto', () => {
+    const products = [
+      { id: 'p1', categoryId: 'cat-burgers' },
+      { id: 'p2', categoryId: 'cat-drinks' },
+    ]
+
+    expect(
+      getPromotionCategoryId({ categoryIds: ['cat-pizzas'], productIds: [] }, products),
+    ).toBe('cat-pizzas')
+    expect(
+      getPromotionCategoryId({ categoryIds: [], productIds: ['p2'] }, products),
+    ).toBe('cat-drinks')
+    expect(
+      getPromotionCategoryId({ categoryIds: [], productIds: ['missing'] }, products),
+    ).toBeNull()
+    expect(getPromotionCategoryId({ categoryIds: [], productIds: [] }, products)).toBeNull()
   })
 
   it('evalúa isPromotionActive según active y fechas', () => {

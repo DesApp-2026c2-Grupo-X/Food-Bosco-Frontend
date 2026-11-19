@@ -55,10 +55,12 @@ import { useRecentViewsStore, type RecentProductView } from '../../stores/recent
 import {
   describePromotion,
   formatDistance,
+  getPromotionCategoryId,
   isActiveOrder,
   isBranchOpenNow,
   type Category,
   type PersonalizedProduct,
+  type Product,
   type Promotion,
 } from '@repo/domain'
 import {
@@ -237,6 +239,7 @@ export const HomePage = () => {
           promotions={orderedPromotions}
           isLoading={promotionsAreLoading}
           personalized={hasHistory}
+          products={products}
         />
       </Reveal>
 
@@ -518,9 +521,15 @@ interface PromotionsSectionProps {
   promotions: Promotion[]
   isLoading: boolean
   personalized: boolean
+  products: Product[]
 }
 
-const PromotionsSection = ({ promotions, isLoading, personalized }: PromotionsSectionProps) => {
+const PromotionsSection = ({
+  promotions,
+  isLoading,
+  personalized,
+  products,
+}: PromotionsSectionProps) => {
   if (isLoading || promotions.length === 0) return null
 
   return (
@@ -530,30 +539,35 @@ const PromotionsSection = ({ promotions, isLoading, personalized }: PromotionsSe
         title={personalized ? 'Promociones para vos' : 'Promociones destacadas'}
       />
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} gap="4" marginTop="6">
-        {promotions.map((promo) => (
-          <Card key={promo.id} padding="5" interactive variant="subtle">
-            <HStack justify="space-between" alignItems="center">
-              <HStack gap="1.5" color="brand.600">
-                <Ticket width={18} height={18} />
-                <Strong fontSize="sm">{describePromotion(promo)}</Strong>
+        {promotions.map((promo) => {
+          const categoryId = getPromotionCategoryId(promo, products)
+          const catalogHref = categoryId ? `${routes.catalog}?cat=${categoryId}` : routes.catalog
+
+          return (
+            <Card key={promo.id} padding="5" interactive variant="subtle">
+              <HStack justify="space-between" alignItems="center">
+                <HStack gap="1.5" color="brand.600">
+                  <Ticket width={18} height={18} />
+                  <Strong fontSize="sm">{describePromotion(promo)}</Strong>
+                </HStack>
+                {promo.code ? (
+                  <Badge colorPalette="brand" size="sm">
+                    {promo.code}
+                  </Badge>
+                ) : null}
               </HStack>
-              {promo.code ? (
-                <Badge colorPalette="brand" size="sm">
-                  {promo.code}
-                </Badge>
-              ) : null}
-            </HStack>
-            <Strong fontSize="md" marginTop="3" display="block">
-              {promo.name}
-            </Strong>
-            <Muted fontSize="xs" marginTop="1" minHeight="36px">
-              {promo.description || describePromotion(promo)}
-            </Muted>
-            <PrimaryButton size="sm" asChild width="full" marginTop="4">
-              <Link to={routes.catalog}>Ver en el menú</Link>
-            </PrimaryButton>
-          </Card>
-        ))}
+              <Strong fontSize="md" marginTop="3" display="block">
+                {promo.name}
+              </Strong>
+              <Muted fontSize="xs" marginTop="1" minHeight="36px">
+                {promo.description || describePromotion(promo)}
+              </Muted>
+              <PrimaryButton size="sm" asChild width="full" marginTop="4">
+                <Link to={catalogHref}>Ver en el menú</Link>
+              </PrimaryButton>
+            </Card>
+          )
+        })}
       </SimpleGrid>
     </Box>
   )
