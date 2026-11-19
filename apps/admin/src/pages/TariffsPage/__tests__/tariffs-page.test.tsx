@@ -63,6 +63,29 @@ describe('TariffsPage', () => {
     expect(screen.getByText('Moneda: ARS')).toBeInTheDocument()
   })
 
+  it('permite editar los montos sin que el formulario se resetee', async () => {
+    mockDeliveryTariff()
+
+    renderWithProviders(<TariffsPage />)
+
+    const baseFare = screen.getByLabelText(/Tarifa base/)
+    const perKm = screen.getByLabelText(/Por km/)
+    const perOrder = screen.getByLabelText(/Por pedido/)
+
+    await waitFor(() => expect(baseFare).toHaveValue('600'))
+
+    await userEvent.clear(baseFare)
+    await userEvent.type(baseFare, '750')
+    await userEvent.clear(perKm)
+    await userEvent.type(perKm, '275')
+    await userEvent.clear(perOrder)
+    await userEvent.type(perOrder, '375')
+
+    expect(baseFare).toHaveValue('750')
+    expect(perKm).toHaveValue('275')
+    expect(perOrder).toHaveValue('375')
+  })
+
   it('precarga el formulario y publica con confirmación', async () => {
     const publish = vi.fn().mockResolvedValue(undefined)
     mockDeliveryTariff({ publish })

@@ -58,15 +58,19 @@ export const TariffsPage = () => {
     reValidateMode: 'onChange',
   })
 
+  const activeBaseFare = data?.baseFare ?? null
+  const activePerKm = data?.perKm ?? null
+  const activePerOrder = data?.perOrder ?? null
+
   useEffect(() => {
-    if (!data) return
+    if (activeBaseFare === null || activePerKm === null || activePerOrder === null) return
 
     form.reset({
-      baseFare: String(data.baseFare),
-      perKm: String(data.perKm),
-      perOrder: String(data.perOrder),
+      baseFare: String(activeBaseFare),
+      perKm: String(activePerKm),
+      perOrder: String(activePerOrder),
     })
-  }, [data, form])
+  }, [activeBaseFare, activePerKm, activePerOrder, form])
 
   const columns: DataTableColumn<DeliveryTariff>[] = [
     {

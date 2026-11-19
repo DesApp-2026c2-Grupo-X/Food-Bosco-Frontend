@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import { DELIVERY_TARIFF_CURRENCY, type DeliveryTariff } from '@repo/domain'
 import {
@@ -72,9 +72,19 @@ export const useDeliveryTariff = (): UseDeliveryTariffReturn => {
     await Promise.all([refetchActive(), refetchHistory()])
   }, [refetchActive, refetchHistory])
 
+  const data = useMemo(
+    () => (activeData?.deliveryTariff ? toDeliveryTariff(activeData.deliveryTariff) : null),
+    [activeData],
+  )
+
+  const history = useMemo(
+    () => (historyData?.deliveryTariffs ?? []).map(toDeliveryTariff),
+    [historyData],
+  )
+
   return {
-    data: activeData?.deliveryTariff ? toDeliveryTariff(activeData.deliveryTariff) : null,
-    history: (historyData?.deliveryTariffs ?? []).map(toDeliveryTariff),
+    data,
+    history,
     loading: activeLoading || historyLoading,
     error: activeError ?? historyError ?? publishError,
     isPublishing,
