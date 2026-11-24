@@ -269,8 +269,10 @@ const ConfigGroup = ({ title, required, type, options, selected, onSelect }: Con
               paddingY="3"
               border="1px solid"
               borderColor={selectedOption ? 'brand.500' : 'border.subtle'}
-              bg={selectedOption ? 'brand.50' : 'bg.panel'}
-              _hover={{ bg: selectedOption ? 'brand.50' : 'bg.muted' }}
+              bg={selectedOption ? { _light: 'brand.50', _dark: 'brand.950' } : 'bg.panel'}
+              _hover={{
+                bg: selectedOption ? { _light: 'brand.50', _dark: 'brand.950' } : 'bg.muted',
+              }}
               onClick={() => onSelect(option.id)}
             >
               <HStack gap="2.5">
@@ -292,7 +294,12 @@ const ConfigGroup = ({ title, required, type, options, selected, onSelect }: Con
                   {option.name}
                 </Text>
               </HStack>
-              <Price color={option.extraPrice > 0 ? 'brand.600' : 'fg.subtle'} fontSize="sm">
+              <Price
+                color={
+                  option.extraPrice > 0 ? { _light: 'brand.600', _dark: 'brand.300' } : 'fg.subtle'
+                }
+                fontSize="sm"
+              >
                 {option.extraPrice > 0 ? `+ ${formatPrice(option.extraPrice)}` : 'Sin cargo'}
               </Price>
             </Button>

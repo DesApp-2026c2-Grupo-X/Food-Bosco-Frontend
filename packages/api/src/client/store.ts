@@ -274,6 +274,13 @@ export const toCart = (raw: Raw): Cart => {
     total,
     promotionCode: raw.promotionCode == null ? null : String(raw.promotionCode),
     appliedPromotions: asList(raw.appliedPromotions, toAppliedPromotion),
+    rejectedPromotionCode:
+      raw.rejectedPromotionCode && typeof raw.rejectedPromotionCode === 'object'
+        ? {
+            code: asString((raw.rejectedPromotionCode as Raw).code),
+            reason: asString((raw.rejectedPromotionCode as Raw).reason),
+          }
+        : null,
   }
 }
 
@@ -374,8 +381,8 @@ export const MY_CART = gql`
 `
 
 export const SET_CART_PROMOTION_CODE = gql`
-  mutation SetCartPromotionCode($code: String) {
-    setCartPromotionCode(code: $code) {
+  mutation SetCartPromotionCode($code: String, $addressId: ID) {
+    setCartPromotionCode(code: $code, addressId: $addressId) {
       ${CART_FIELDS}
     }
   }

@@ -11,6 +11,11 @@ export interface CartItem {
   options: ProductOption[]
 }
 
+export interface RejectedPromotionCode {
+  code: string
+  reason: string
+}
+
 export interface Cart {
   id: string
   clientId: string
@@ -21,6 +26,7 @@ export interface Cart {
   total: number
   promotionCode?: string | null
   appliedPromotions?: AppliedPromotion[]
+  rejectedPromotionCode?: RejectedPromotionCode | null
 }
 
 export interface AddCartItemInput {

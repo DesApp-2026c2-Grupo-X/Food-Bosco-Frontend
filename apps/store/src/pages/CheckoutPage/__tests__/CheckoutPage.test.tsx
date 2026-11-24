@@ -28,7 +28,12 @@ const rawCart = {
   id: 'cart',
   clientId: 'c1',
   status: 'OPEN',
+  subtotal: 2300,
+  discountTotal: 0,
   total: 2300,
+  promotionCode: null,
+  rejectedPromotionCode: null,
+  appliedPromotions: [],
   items: [
     {
       id: 'i1',

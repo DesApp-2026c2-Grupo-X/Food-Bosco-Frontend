@@ -65,9 +65,9 @@ export const PromotionsPage = () => {
     {
       key: 'name',
       header: 'Promoción',
-      maxWidth: { base: '220px', md: '300px' },
+      maxWidth: { base: '200px', md: '240px' },
       render: (promo) => (
-        <VStack align="start" gap="0.5" maxW={{ base: '220px', md: '300px' }} minW="0">
+        <VStack align="start" gap="0.5" maxW={{ base: '200px', md: '240px' }} minW="0">
           <HStack gap="2" wrap="wrap">
             <Strong whiteSpace="normal" wordBreak="break-word">
               {promo.name}
@@ -88,9 +88,9 @@ export const PromotionsPage = () => {
       key: 'type',
       header: 'Beneficio',
       hideBelow: 'sm',
-      maxWidth: { base: '160px', md: '200px' },
+      maxWidth: { base: '140px', md: '170px' },
       render: (promo) => (
-        <VStack align="start" gap="0.5" maxW={{ base: '160px', md: '200px' }} minW="0">
+        <VStack align="start" gap="0.5" maxW={{ base: '140px', md: '170px' }} minW="0">
           <Strong fontSize="sm" whiteSpace="normal" wordBreak="break-word">
             {describePromotion(promo)}
           </Strong>
@@ -103,7 +103,7 @@ export const PromotionsPage = () => {
     {
       key: 'validity',
       header: 'Vigencia',
-      hideBelow: 'md',
+      hideBelow: 'lg',
       render: (promo) => (
         <Muted fontSize="xs" whiteSpace="nowrap">
           {promo.startDate ? promo.startDate.slice(0, 10) : ''} al{' '}
@@ -182,6 +182,7 @@ export const PromotionsPage = () => {
       isLoading={isLoading}
       rows={filteredRows}
       columns={columns}
+      pageSize={20}
       getRowKey={(promo) => promo.id}
       emptyIcon={<Ticket width={40} height={40} />}
       emptyTitle="Sin promociones"

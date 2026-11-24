@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Badge, Grid, HStack, Input, VStack } from '@chakra-ui/react'
+import { Badge, Box, Grid, HStack, Input, Text, VStack } from '@chakra-ui/react'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
 import Tag from '@gravity-ui/icons/Tag'
 import { Link } from 'react-router-dom'
@@ -20,8 +20,28 @@ import {
   notifySuccess,
 } from '@repo/components'
 import { routes } from '../../routes'
-import { getApiErrorMessage, useCart } from '@repo/api'
+import { getApiErrorMessage } from '@repo/api'
+import { useStoreCart } from '../../hooks/useStoreCart'
 import { cartItemCount, cartTotal } from '@repo/domain'
+
+const rejectedCouponHint = (reason: string): string => {
+  switch (reason) {
+    case 'PROMOTION_MIN_SUBTOTAL_NOT_MET':
+      return 'no alcanza el monto mínimo de compra en este momento.'
+    case 'PROMOTION_MIN_QUANTITY_NOT_MET':
+      return 'no alcanza la cantidad mínima de unidades en este momento.'
+    case 'PROMOTION_SCOPE_NOT_MET':
+      return 'no aplica a los productos actuales del carrito.'
+    case 'PROMOTION_BRANCH_NOT_ALLOWED':
+      return 'no aplica para la sucursal de tu dirección seleccionada.'
+    case 'PROMOTION_SCHEDULE_NOT_MET':
+      return 'no está vigente en este día u horario.'
+    case 'PROMOTION_LIMIT_REACHED':
+      return 'alcanzó su límite de usos.'
+    default:
+      return 'no aplica en este momento.'
+  }
+}
 
 export const CartPage = () => {
   const {
@@ -32,7 +52,7 @@ export const CartPage = () => {
     removeItem,
     applyPromotionCode,
     removePromotionCode,
-  } = useCart()
+  } = useStoreCart()
   const [couponInput, setCouponInput] = useState('')
   const lines = cart?.items ?? []
 
@@ -83,37 +103,58 @@ export const CartPage = () => {
                 <Strong fontSize="sm">Cupón de descuento</Strong>
               </HStack>
               {cart?.promotionCode ? (
-                <HStack
-                  justify="space-between"
-                  bg="bg.panel"
-                  padding="2"
-                  borderRadius="md"
-                  border="1px solid"
-                  borderColor="border.subtle"
-                >
-                  <HStack gap="2">
-                    <Badge colorPalette="brand">{cart.promotionCode}</Badge>
-                    <Muted fontSize="xs">Aplicado</Muted>
-                  </HStack>
-                  <GhostButton
-                    size="xs"
-                    disabled={isMutating}
-                    onClick={async () => {
-                      try {
-                        if (removePromotionCode) await removePromotionCode()
-                        notifySuccess({ title: 'Cupón removido' })
-                      } catch (err) {
-                        notifyError({
-                          title: 'Error al quitar cupón',
-                          description: getApiErrorMessage(err),
-                        })
-                      }
-                    }}
-                    aria-label="Quitar cupón"
+                <VStack gap="2" align="stretch">
+                  <HStack
+                    justify="space-between"
+                    bg="bg.panel"
+                    padding="2"
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor={cart.rejectedPromotionCode ? 'warning.border' : 'border.subtle'}
                   >
-                    Quitar
-                  </GhostButton>
-                </HStack>
+                    <HStack gap="2">
+                      <Badge colorPalette={cart.rejectedPromotionCode ? 'warning' : 'brand'}>
+                        {cart.promotionCode}
+                      </Badge>
+                      <Muted fontSize="xs">
+                        {cart.rejectedPromotionCode ? 'No aplica' : 'Aplicado'}
+                      </Muted>
+                    </HStack>
+                    <GhostButton
+                      size="xs"
+                      disabled={isMutating}
+                      onClick={async () => {
+                        try {
+                          if (removePromotionCode) await removePromotionCode()
+                          notifySuccess({ title: 'Cupón removido' })
+                        } catch (err) {
+                          notifyError({
+                            title: 'Error al quitar cupón',
+                            description: getApiErrorMessage(err),
+                          })
+                        }
+                      }}
+                      aria-label="Quitar cupón"
+                    >
+                      Quitar
+                    </GhostButton>
+                  </HStack>
+                  {cart.rejectedPromotionCode ? (
+                    <Box
+                      padding="2"
+                      borderRadius="md"
+                      bg="warning.subtle"
+                      border="1px solid"
+                      borderColor="warning.border"
+                    >
+                      <Text fontSize="xs" color="warning.fg">
+                        El cupón {cart.promotionCode}{' '}
+                        {rejectedCouponHint(cart.rejectedPromotionCode.reason)} Podés agregar más
+                        productos o quitarlo.
+                      </Text>
+                    </Box>
+                  ) : null}
+                </VStack>
               ) : (
                 <HStack gap="2">
                   <Input

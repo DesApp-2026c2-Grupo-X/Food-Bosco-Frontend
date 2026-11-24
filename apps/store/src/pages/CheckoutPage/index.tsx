@@ -20,16 +20,21 @@ import {
 } from '@repo/components'
 import { routes } from '../../routes'
 import { useAddressStore } from '../../stores/addressStore'
-import { getApiErrorMessage, useAddresses, useCart, useCreateOrder } from '@repo/api'
-import { cartLineTotal, cartTotal, formatEta, type Order } from '@repo/domain'
+import { useStoreCart } from '../../hooks/useStoreCart'
+import { getApiErrorMessage, useAddresses, useCreateOrder } from '@repo/api'
+import { cartLineTotal, cartTotal, formatEta, formatPrice, type Order } from '@repo/domain'
 
 export const CheckoutPage = () => {
-  const { cart, isLoading } = useCart()
+  const { cart, isLoading, refetch } = useStoreCart()
   const { createOrder, isLoading: isCreating } = useCreateOrder()
   const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
   const { addresses } = useAddresses()
   const selected = addresses.find((a) => a.id === selectedAddressId)
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null)
+  const [priceChangedNotice, setPriceChangedNotice] = useState<{
+    previous: number
+    current: number
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const lines = cart?.items ?? []
@@ -52,6 +57,22 @@ export const CheckoutPage = () => {
               : 'Estimando tiempo'}
           </Muted>
         </VStack>
+        {priceChangedNotice ? (
+          <Box
+            padding="3"
+            borderRadius="md"
+            bg="warning.subtle"
+            border="1px solid"
+            borderColor="warning.border"
+            maxWidth="md"
+          >
+            <Text fontSize="sm" color="warning.fg">
+              El total se actualizó de {formatPrice(priceChangedNotice.previous)} a{' '}
+              {formatPrice(priceChangedNotice.current)} porque una promoción o precio cambió al
+              momento de confirmar.
+            </Text>
+          </Box>
+        ) : null}
         <HStack gap="3" flexWrap="wrap" justifyContent="center" marginTop="2">
           <PrimaryButton asChild paddingX="7">
             <Link to={routes.orders}>Ver mis pedidos</Link>
@@ -125,6 +146,21 @@ export const CheckoutPage = () => {
         subtitle="La sucursal se asigna automáticamente al confirmar. No se paga en línea."
       />
 
+      {cart?.promotionCode && cart?.rejectedPromotionCode ? (
+        <Box
+          padding="3"
+          borderRadius="md"
+          bg="warning.subtle"
+          border="1px solid"
+          borderColor="warning.border"
+        >
+          <Text fontSize="sm" color="warning.fg">
+            El cupón {cart.promotionCode} ya no cumple las condiciones para este pedido. Volvé al
+            carrito para ajustarlo o quitarlo antes de confirmar.
+          </Text>
+        </Box>
+      ) : null}
+
       {error ? (
         <Text color="danger" fontSize="sm">
           {error}
@@ -133,13 +169,51 @@ export const CheckoutPage = () => {
       <PrimaryButton
         width="full"
         loading={isCreating}
-        disabled={!selectedAddressId || !selected || isCreating}
+        disabled={
+          !selectedAddressId || !selected || isCreating || Boolean(cart?.rejectedPromotionCode)
+        }
         onClick={async () => {
           if (!selectedAddressId || !selected) return
           setError(null)
+          const previousTotal = cart?.total ?? total
           try {
+            try {
+              const refreshed = (await refetch?.()) as
+                | {
+                    data?: {
+                      myCart?: {
+                        total?: number
+                        promotionCode?: string | null
+                        rejectedPromotionCode?: { code: string; reason: string } | null
+                      }
+                    }
+                  }
+                | undefined
+              const freshCart = refreshed?.data?.myCart
+              if (freshCart) {
+                if (freshCart.rejectedPromotionCode) {
+                  const msg = `El cupón ${freshCart.promotionCode ?? freshCart.rejectedPromotionCode.code} ya no aplica para este pedido.`
+                  setError(msg)
+                  notifyError({ title: 'Cupón no válido', description: msg })
+                  return
+                }
+                if (typeof freshCart.total === 'number' && freshCart.total !== previousTotal) {
+                  const msg = `El total cambió de ${formatPrice(previousTotal)} a ${formatPrice(freshCart.total)} por una actualización de precios o promociones. Revisá el nuevo total y volvé a confirmar.`
+                  setError(msg)
+                  notifyError({ title: 'El total fue actualizado', description: msg })
+                  return
+                }
+              }
+            } catch {
+              // Si el pre-chequeo falla, continuamos y dejamos que createOrder valide de forma autoritativa.
+            }
             const order = await createOrder(selectedAddressId)
-            if (order) setConfirmedOrder(order)
+            if (order) {
+              if (order.total !== previousTotal) {
+                setPriceChangedNotice({ previous: previousTotal, current: order.total })
+              }
+              setConfirmedOrder(order)
+            }
           } catch (caught) {
             const message = getApiErrorMessage(
               caught,

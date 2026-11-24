@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -22,6 +22,7 @@ import {
   getApiErrorMessage,
   useAdminCategories,
   useAdminProducts,
+  useAdminPromotion,
   useAdminPromotions,
   useBranches,
 } from '@repo/api'
@@ -78,6 +79,7 @@ const PromotionFormView = ({
     return { today, nextMonth }
   }, [])
 
+  const [activeTab, setActiveTab] = useState('general')
   const [active, setActive] = useState(initialPromotion?.active ?? true)
   const [stackable, setStackable] = useState(initialPromotion?.stackable ?? false)
   const [selectedDays, setSelectedDays] = useState<number[]>(initialPromotion?.daysOfWeek ?? [])
@@ -163,59 +165,106 @@ const PromotionFormView = ({
     })
   }
 
-  const handleSubmit = form.handleSubmit(async (values) => {
-    const input: PromotionInput = {
-      name: values.name.trim(),
-      description: values.description?.trim() || null,
-      active,
-      startDate: new Date(`${values.startDate}T00:00:00.000Z`).toISOString(),
-      endDate: new Date(`${values.endDate}T23:59:59.999Z`).toISOString(),
-      type: values.type as PromotionType,
-      discountValue:
-        values.type === 'BUY_X_GET_Y'
-          ? null
-          : values.discountValue != null
-            ? Number(values.discountValue)
+  const FIELD_TO_TAB: Record<string, string> = {
+    name: 'general',
+    description: 'general',
+    startDate: 'general',
+    endDate: 'general',
+    type: 'benefit',
+    discountValue: 'benefit',
+    maxDiscount: 'benefit',
+    buyQuantity: 'benefit',
+    payQuantity: 'benefit',
+    scope: 'scope',
+    categoryIds: 'scope',
+    productIds: 'scope',
+    branchIds: 'scope',
+    daysOfWeek: 'conditions',
+    startTime: 'conditions',
+    endTime: 'conditions',
+    minSubtotal: 'conditions',
+    minQuantity: 'conditions',
+    code: 'limits',
+    stackable: 'limits',
+    priority: 'limits',
+    maxUsesTotal: 'limits',
+    maxUsesPerCustomer: 'limits',
+  }
+
+  const TAB_ORDER = ['general', 'benefit', 'scope', 'conditions', 'limits']
+
+  const tabHasError = (tab: string) =>
+    Object.keys(form.formState.errors).some((field) => FIELD_TO_TAB[field] === tab)
+
+  const handleSubmit = form.handleSubmit(
+    async (values) => {
+      const input: PromotionInput = {
+        name: values.name.trim(),
+        description: values.description?.trim() || null,
+        active,
+        startDate: new Date(`${values.startDate}T00:00:00.000Z`).toISOString(),
+        endDate: new Date(`${values.endDate}T23:59:59.999Z`).toISOString(),
+        type: values.type as PromotionType,
+        discountValue:
+          values.type === 'BUY_X_GET_Y'
+            ? null
+            : values.discountValue != null
+              ? Number(values.discountValue)
+              : null,
+        maxDiscount:
+          values.type === 'PERCENTAGE' && values.maxDiscount != null
+            ? Number(values.maxDiscount)
             : null,
-      maxDiscount:
-        values.type === 'PERCENTAGE' && values.maxDiscount != null
-          ? Number(values.maxDiscount)
-          : null,
-      buyQuantity:
-        values.type === 'BUY_X_GET_Y' && values.buyQuantity != null
-          ? Number(values.buyQuantity)
-          : null,
-      payQuantity:
-        values.type === 'BUY_X_GET_Y' && values.payQuantity != null
-          ? Number(values.payQuantity)
-          : null,
-      scope: values.scope as PromotionScope,
-      categoryIds: values.scope === 'CATEGORY' ? selectedCategories : [],
-      productIds: values.scope === 'PRODUCT' ? selectedProducts : [],
-      branchIds: selectedBranches,
-      daysOfWeek: selectedDays,
-      startTime: values.startTime?.trim() || null,
-      endTime: values.endTime?.trim() || null,
-      minSubtotal: values.minSubtotal ? Number(values.minSubtotal) : 0,
-      minQuantity: values.minQuantity ? Number(values.minQuantity) : 0,
-      code: values.code ? values.code.trim().toUpperCase() : null,
-      stackable,
-      priority: values.priority ? Number(values.priority) : 0,
-      maxUsesTotal: values.maxUsesTotal ? Number(values.maxUsesTotal) : null,
-      maxUsesPerCustomer: values.maxUsesPerCustomer ? Number(values.maxUsesPerCustomer) : null,
-    }
-    await onSubmit(input)
-  })
+        buyQuantity:
+          values.type === 'BUY_X_GET_Y' && values.buyQuantity != null
+            ? Number(values.buyQuantity)
+            : null,
+        payQuantity:
+          values.type === 'BUY_X_GET_Y' && values.payQuantity != null
+            ? Number(values.payQuantity)
+            : null,
+        scope: values.scope as PromotionScope,
+        categoryIds: values.scope === 'CATEGORY' ? selectedCategories : [],
+        productIds: values.scope === 'PRODUCT' ? selectedProducts : [],
+        branchIds: selectedBranches,
+        daysOfWeek: selectedDays,
+        startTime: values.startTime?.trim() || null,
+        endTime: values.endTime?.trim() || null,
+        minSubtotal: values.minSubtotal ? Number(values.minSubtotal) : 0,
+        minQuantity: values.minQuantity ? Number(values.minQuantity) : 0,
+        code: values.code ? values.code.trim().toUpperCase() : null,
+        stackable,
+        priority: values.priority ? Number(values.priority) : 0,
+        maxUsesTotal: values.maxUsesTotal ? Number(values.maxUsesTotal) : null,
+        maxUsesPerCustomer: values.maxUsesPerCustomer ? Number(values.maxUsesPerCustomer) : null,
+      }
+      await onSubmit(input)
+    },
+    (errors) => {
+      const errorTabs = new Set(Object.keys(errors).map((field) => FIELD_TO_TAB[field]))
+      const firstErrorTab = TAB_ORDER.find((tab) => errorTabs.has(tab))
+      if (firstErrorTab) {
+        setActiveTab(firstErrorTab)
+      }
+      notifyError({
+        title: 'Revisá los campos del formulario',
+        description: 'Hay errores de validación en la pestaña resaltada.',
+      })
+    },
+  )
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <EditPageTabs
           defaultValue="general"
+          value={activeTab}
+          onChange={setActiveTab}
           tabs={[
             {
               value: 'general',
               label: 'General',
+              hasError: tabHasError('general'),
               content: (
                 <FormLayout>
                   <FormField
@@ -257,6 +306,7 @@ const PromotionFormView = ({
             {
               value: 'benefit',
               label: 'Beneficio',
+              hasError: tabHasError('benefit'),
               content: (
                 <FormLayout>
                   <FormSelectField
@@ -318,6 +368,7 @@ const PromotionFormView = ({
             {
               value: 'scope',
               label: 'Alcance',
+              hasError: tabHasError('scope'),
               content: (
                 <FormLayout>
                   <FormSelectField
@@ -394,6 +445,7 @@ const PromotionFormView = ({
             {
               value: 'conditions',
               label: 'Condiciones',
+              hasError: tabHasError('conditions'),
               content: (
                 <FormLayout>
                   <VStack align="start" gap="2" width="full">
@@ -448,6 +500,7 @@ const PromotionFormView = ({
             {
               value: 'limits',
               label: 'Cupón y Límites',
+              hasError: tabHasError('limits'),
               content: (
                 <FormLayout>
                   <FormField
@@ -507,15 +560,11 @@ export const PromotionEditPage = () => {
   const isNew = !promotionId
   const navigate = useNavigate()
 
-  const { promotions = [], isLoading, isMutating, create, update } = useAdminPromotions()
+  const { promotion, isLoading } = useAdminPromotion(promotionId)
+  const { isMutating, create, update } = useAdminPromotions()
   const { categories = [] } = useAdminCategories()
   const { products = [] } = useAdminProducts()
   const { branches = [] } = useBranches()
-
-  const promotion = useMemo(
-    () => (promotionId ? (promotions.find((p) => p.id === promotionId) ?? null) : null),
-    [promotionId, promotions],
-  )
 
   const handleSubmit = async (input: PromotionInput) => {
     try {
