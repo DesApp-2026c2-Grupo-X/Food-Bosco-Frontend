@@ -235,9 +235,16 @@ export const promotionConditionLabels = (
 }
 
 export const promotionValidityLabel = (startDate: string, endDate: string): string => {
-  const format = (iso: string) =>
-    new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })
-  return `Del ${format(startDate)} al ${format(endDate)}`
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  const includeYear = start.getFullYear() !== end.getFullYear()
+  const format = (date: Date) =>
+    date.toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'short',
+      ...(includeYear ? { year: 'numeric' } : {}),
+    })
+  return `Del ${format(start)} al ${format(end)}`
 }
 
 export const promotionBadgeAriaLabel = (preview: ProductPromotionPreview): string => {

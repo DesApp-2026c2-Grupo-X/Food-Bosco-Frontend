@@ -551,6 +551,10 @@ export const CART_FIELDS = `
   discountTotal
   total
   promotionCode
+  rejectedPromotionCode {
+    code
+    reason
+  }
   appliedPromotions {
     ${APPLIED_PROMOTION_FIELDS}
   }

@@ -165,6 +165,12 @@ describe('promotion helpers', () => {
       }),
     ).toBe('20% de descuento')
     expect(promotionValidityLabel('2026-11-01', '2026-11-30')).toContain('al')
+    expect(promotionValidityLabel('2026-11-18T00:00:00.000Z', '2027-11-19T23:59:59.999Z')).toContain(
+      '2026',
+    )
+    expect(promotionValidityLabel('2026-11-18T00:00:00.000Z', '2027-11-19T23:59:59.999Z')).toContain(
+      '2027',
+    )
     expect(
       daysUntilPromotionEnds('2026-11-30T00:00:00.000Z', new Date('2026-11-19T00:00:00.000Z')),
     ).toBe(11)

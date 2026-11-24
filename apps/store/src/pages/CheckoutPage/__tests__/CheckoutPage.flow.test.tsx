@@ -28,7 +28,12 @@ const rawCart = {
   id: 'cart',
   clientId: 'c1',
   status: 'OPEN',
+  subtotal: 2300,
+  discountTotal: 0,
   total: 2300,
+  promotionCode: null,
+  rejectedPromotionCode: null,
+  appliedPromotions: [],
   items: [
     {
       id: 'i1',
@@ -103,7 +108,10 @@ describe('CheckoutPage flow', () => {
 
     act(() => useAddressStore.setState({ selectedAddressId: 'a1' }))
 
-    await waitFor(() => expect(button).toBeEnabled())
+    await waitFor(async () => {
+      const enabledButton = await screen.findByRole('button', { name: 'Confirmar pedido' })
+      expect(enabledButton).toBeEnabled()
+    })
   })
 
   it('confirms the order with the real cart and selected address', async () => {

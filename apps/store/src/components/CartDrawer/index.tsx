@@ -2,14 +2,14 @@ import { HStack, VStack } from '@chakra-ui/react'
 import ShoppingCart from '@gravity-ui/icons/ShoppingCart'
 import { Link } from 'react-router-dom'
 import { routes } from '../../routes'
-import { useCart } from '@repo/api'
+import { useStoreCart } from '../../hooks/useStoreCart'
 import { cartTotal, formatPrice } from '@repo/domain'
 import { CartLineCard } from '../CartLineCard'
 import { EmptyState, LoadingState, Muted, Price, PrimaryButton, SidePanel } from '@repo/components'
 import type { CartDrawerProps } from './types'
 
 export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
-  const { cart, isLoading, isMutating, updateItem, removeItem } = useCart()
+  const { cart, isLoading, isMutating, updateItem, removeItem } = useStoreCart()
   const lines = cart?.items ?? []
   const isEmpty = !isLoading && lines.length === 0
   const hasDiscount = Boolean(cart?.discountTotal && cart.discountTotal > 0)
@@ -52,14 +52,28 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
                     <Muted fontSize="sm">Subtotal</Muted>
                     <Price fontSize="sm">{formatPrice(cart?.subtotal ?? payableTotal)}</Price>
                   </HStack>
-                  <HStack justify="space-between">
-                    <Muted fontSize="sm" color="success.fg">
-                      Descuentos
-                    </Muted>
-                    <Price fontSize="sm" color="success.fg">
-                      -{formatPrice(cart?.discountTotal ?? 0)}
-                    </Price>
-                  </HStack>
+                  {cart?.appliedPromotions && cart.appliedPromotions.length > 0 ? (
+                    cart.appliedPromotions.map((promo) => (
+                      <HStack key={promo.promotionId} justify="space-between">
+                        <Muted fontSize="sm" color="success.fg">
+                          {promo.name}
+                          {promo.code ? ` (${promo.code})` : ''}
+                        </Muted>
+                        <Price fontSize="sm" color="success.fg">
+                          -{formatPrice(promo.amount)}
+                        </Price>
+                      </HStack>
+                    ))
+                  ) : (
+                    <HStack justify="space-between">
+                      <Muted fontSize="sm" color="success.fg">
+                        Descuentos
+                      </Muted>
+                      <Price fontSize="sm" color="success.fg">
+                        -{formatPrice(cart?.discountTotal ?? 0)}
+                      </Price>
+                    </HStack>
+                  )}
                 </>
               ) : null}
               <HStack justify="space-between">

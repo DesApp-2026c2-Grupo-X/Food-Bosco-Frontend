@@ -1,7 +1,9 @@
+import { useQuery } from '@apollo/client'
 import type { Promotion, PromotionInput } from '@repo/domain'
 import {
   CREATE_PROMOTION,
   DELETE_PROMOTION,
+  PROMOTION,
   PROMOTIONS,
   SET_PROMOTION_ACTIVE,
   UPDATE_PROMOTION,
@@ -24,6 +26,7 @@ const useAdminPromotionsResource = createCrudResource({
     document: PROMOTIONS,
     resultKey: 'promotions',
     map: toPromotion,
+    variables: { page: { limit: 100, offset: 0 } },
     fetchPolicy: 'network-only',
   },
   create: {
@@ -45,3 +48,15 @@ const useAdminPromotionsResource = createCrudResource({
 })
 
 export const useAdminPromotions: () => UseAdminPromotionsReturn = useAdminPromotionsResource
+
+export const useAdminPromotion = (id?: string) => {
+  const { data, loading } = useQuery<{ promotion: Record<string, unknown> }>(PROMOTION, {
+    variables: { id },
+    skip: !id,
+    fetchPolicy: 'network-only',
+  })
+  return {
+    promotion: data?.promotion ? toPromotion(data.promotion) : null,
+    isLoading: loading,
+  }
+}

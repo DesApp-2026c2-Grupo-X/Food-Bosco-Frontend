@@ -29,7 +29,7 @@ export const findMatchingCartItem = (
       (item.observations?.trim() || null) === (input.observations?.trim() || null),
   )
 
-interface UseCartReturn {
+export interface UseCartReturn {
   cart: Cart | null
   isLoading: boolean
   isMutating: boolean
@@ -94,16 +94,16 @@ export const useCart = (addressId?: string | null): UseCartReturn => {
 
   const applyPromotionCode = useCallback(
     async (code: string) => {
-      await setPromoMutation({ variables: { code } })
+      await setPromoMutation({ variables: { code, addressId: addressId ?? null } })
       await refetch()
     },
-    [setPromoMutation, refetch],
+    [setPromoMutation, refetch, addressId],
   )
 
   const removePromotionCode = useCallback(async () => {
-    await setPromoMutation({ variables: { code: null } })
+    await setPromoMutation({ variables: { code: null, addressId: addressId ?? null } })
     await refetch()
-  }, [setPromoMutation, refetch])
+  }, [setPromoMutation, refetch, addressId])
 
   return {
     cart,
