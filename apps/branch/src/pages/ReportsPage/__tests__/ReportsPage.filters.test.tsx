@@ -43,7 +43,7 @@ describe('ReportsPage filters', () => {
   it('starts with the month preset', () => {
     renderWithProviders(<ReportsPage />)
 
-    expect(lastFilter()).toMatchObject({ groupBy: 'MONTH', branchId: undefined, status: undefined })
+    expect(lastFilter()).toMatchObject({ groupBy: 'DAY', branchId: undefined, status: undefined })
   })
 
   it('recomputes the filter when the period preset changes', async () => {

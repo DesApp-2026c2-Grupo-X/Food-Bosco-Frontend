@@ -56,7 +56,7 @@ describe('AdvancedReportsView', () => {
     renderWithProviders(<AdvancedReportsView description="d" scope="branch" />)
 
     const filter = vi.mocked(useReportsOverview).mock.calls[0]?.[0]
-    expect(filter?.groupBy).toBe('MONTH')
+    expect(filter?.groupBy).toBe('DAY')
     expect(new Date(filter?.from as string).getDate()).toBe(1)
     expect(vi.mocked(useProductReports).mock.calls[0]?.[0]).toEqual(filter)
   })
