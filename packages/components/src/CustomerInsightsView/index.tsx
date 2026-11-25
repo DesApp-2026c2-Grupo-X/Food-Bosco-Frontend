@@ -3,6 +3,7 @@ import { HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { useCustomerInsights, useCustomerRegistrationStats } from '@repo/api'
 import {
   buildReportRange,
+  countReportRangeDays,
   formatOrderDate,
   formatPrice,
   type CustomerInsightRow,
@@ -223,7 +224,13 @@ export const CustomerInsightsView = ({
           </SimpleGrid>
 
           <SimpleGrid columns={{ base: 1, lg: 2 }} gap="4">
-            <CustomerBuyerTrendChart data={overview?.buyerSeries ?? []} isLoading={isLoading} />
+            <CustomerBuyerTrendChart
+              data={overview?.buyerSeries ?? []}
+              isLoading={isLoading}
+              groupBy={range.groupBy}
+              preset={preset}
+              spanDays={countReportRangeDays(range.from, range.to)}
+            />
             <CustomerDistributionChart
               title="Distribución por cantidad de pedidos"
               description="Cantidad de clientes según sus compras entregadas en el período."
