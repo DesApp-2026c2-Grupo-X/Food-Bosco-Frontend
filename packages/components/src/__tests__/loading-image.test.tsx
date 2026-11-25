@@ -4,16 +4,19 @@ import { LoadingImage } from '../LoadingImage'
 import { renderWithProviders } from '@test/utils'
 
 describe('LoadingImage', () => {
-  it('muestra un skeleton hasta que la imagen carga y luego la revela', () => {
+  it('muestra un skeleton hasta que la imagen carga sin ocultar la imagen con opacidad', () => {
     const { container } = renderWithProviders(
       <LoadingImage src="https://cdn/producto.png" alt="Producto" />,
     )
 
+    const img = screen.getByRole('img', { name: 'Producto' })
     expect(container.querySelector('.chakra-skeleton')).toBeInTheDocument()
+    expect(img).not.toHaveStyle({ opacity: '0' })
 
-    fireEvent.load(screen.getByRole('img', { name: 'Producto' }))
+    fireEvent.load(img)
 
     expect(container.querySelector('.chakra-skeleton')).not.toBeInTheDocument()
+    expect(img).not.toHaveStyle({ opacity: '0' })
   })
 
   it('muestra el fallback cuando no hay imagen', () => {
