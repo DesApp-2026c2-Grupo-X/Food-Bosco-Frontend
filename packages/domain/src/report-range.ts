@@ -20,11 +20,32 @@ export const REPORT_PERIOD_OPTIONS: ReportPeriodOption[] = [
   { value: 'custom', label: 'Personalizado' },
 ]
 
-const GROUP_BY_BY_PRESET: Record<Exclude<ReportPeriodPreset, 'custom'>, ReportGroupBy> = {
-  day: 'DAY',
-  week: 'WEEK',
-  month: 'MONTH',
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+// Límites de legibilidad: hasta un mes conviene ver cada día; hasta medio año,
+// una barra/punto por semana; más allá, un punto por mes.
+const DAY_GRANULARITY_MAX_DAYS = 31
+const WEEK_GRANULARITY_MAX_DAYS = 180
+
+export const countReportRangeDays = (from: Date, to: Date): number => {
+  const start = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())
+  const end = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate())
+  return Math.max(1, Math.round((end - start) / MS_PER_DAY) + 1)
 }
+
+export const resolveReportGroupBy = (from: Date, to: Date): ReportGroupBy => {
+  const days = countReportRangeDays(from, to)
+
+  if (days <= DAY_GRANULARITY_MAX_DAYS) return 'DAY'
+  if (days <= WEEK_GRANULARITY_MAX_DAYS) return 'WEEK'
+  return 'MONTH'
+}
+
+const toReportRange = (from: Date, to: Date): ReportRange => ({
+  from,
+  to,
+  groupBy: resolveReportGroupBy(from, to),
+})
 
 export const startOfDay = (value: Date): Date => {
   const date = new Date(value)
@@ -67,12 +88,6 @@ export const CUSTOMER_REPORT_PERIOD_OPTIONS: CustomerReportPeriodOption[] = [
   { value: 'year', label: 'Último año' },
 ]
 
-const CUSTOMER_GROUP_BY: Record<CustomerReportPreset, ReportGroupBy> = {
-  month: 'DAY',
-  quarter: 'WEEK',
-  year: 'MONTH',
-}
-
 export const buildCustomerReportRange = (
   preset: CustomerReportPreset,
   now: Date = new Date(),
@@ -80,26 +95,14 @@ export const buildCustomerReportRange = (
   const to = endOfDay(now)
 
   if (preset === 'month') {
-    return {
-      from: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)),
-      to,
-      groupBy: CUSTOMER_GROUP_BY.month,
-    }
+    return toReportRange(startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)), to)
   }
 
   if (preset === 'quarter') {
-    return {
-      from: startOfDay(new Date(now.getFullYear(), now.getMonth() - 2, 1)),
-      to,
-      groupBy: CUSTOMER_GROUP_BY.quarter,
-    }
+    return toReportRange(startOfDay(new Date(now.getFullYear(), now.getMonth() - 2, 1)), to)
   }
 
-  return {
-    from: startOfDay(new Date(now.getFullYear(), now.getMonth() - 11, 1)),
-    to,
-    groupBy: CUSTOMER_GROUP_BY.year,
-  }
+  return toReportRange(startOfDay(new Date(now.getFullYear(), now.getMonth() - 11, 1)), to)
 }
 
 export const buildReportRange = (
@@ -109,24 +112,24 @@ export const buildReportRange = (
   now: Date = new Date(),
 ): ReportRange => {
   if (preset === 'day') {
-    return { from: startOfDay(now), to: endOfDay(now), groupBy: GROUP_BY_BY_PRESET.day }
+    return toReportRange(startOfDay(now), endOfDay(now))
   }
 
   if (preset === 'week') {
-    return { from: startOfWeek(now), to: endOfDay(now), groupBy: GROUP_BY_BY_PRESET.week }
+    return toReportRange(startOfWeek(now), endOfDay(now))
   }
 
   if (preset === 'month') {
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-    return { from: startOfDay(firstDay), to: endOfDay(now), groupBy: GROUP_BY_BY_PRESET.month }
+    return toReportRange(startOfDay(firstDay), endOfDay(now))
   }
 
   const rawFrom = customFrom ? startOfDay(parseDateInput(customFrom)) : startOfDay(now)
   const rawTo = customTo ? endOfDay(parseDateInput(customTo)) : endOfDay(now)
 
   if (rawFrom.getTime() <= rawTo.getTime()) {
-    return { from: rawFrom, to: rawTo, groupBy: 'DAY' }
+    return toReportRange(rawFrom, rawTo)
   }
 
-  return { from: startOfDay(rawTo), to: rawTo, groupBy: 'DAY' }
+  return toReportRange(startOfDay(rawTo), rawTo)
 }

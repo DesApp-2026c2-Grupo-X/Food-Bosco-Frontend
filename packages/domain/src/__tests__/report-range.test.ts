@@ -3,7 +3,9 @@ import { formatPercent } from '../format'
 import {
   buildCustomerReportRange,
   buildReportRange,
+  countReportRangeDays,
   endOfDay,
+  resolveReportGroupBy,
   startOfDay,
   startOfWeek,
 } from '../report-range'
@@ -19,18 +21,18 @@ describe('buildReportRange', () => {
     expect(range.to).toEqual(new Date(2024, 0, 10, 23, 59, 59, 999))
   })
 
-  it('week preset starts on Monday and groups by week', () => {
+  it('week preset starts on Monday and groups by day', () => {
     const range = buildReportRange('week', undefined, undefined, NOW)
 
-    expect(range.groupBy).toBe('WEEK')
+    expect(range.groupBy).toBe('DAY')
     expect(range.from).toEqual(new Date(2024, 0, 8, 0, 0, 0, 0))
     expect(range.to).toEqual(new Date(2024, 0, 10, 23, 59, 59, 999))
   })
 
-  it('month preset starts on the first day of the month', () => {
+  it('month preset starts on the first day of the month and groups by day', () => {
     const range = buildReportRange('month', undefined, undefined, NOW)
 
-    expect(range.groupBy).toBe('MONTH')
+    expect(range.groupBy).toBe('DAY')
     expect(range.from).toEqual(new Date(2024, 0, 1, 0, 0, 0, 0))
     expect(range.to).toEqual(new Date(2024, 0, 10, 23, 59, 59, 999))
   })
@@ -63,6 +65,34 @@ describe('buildReportRange', () => {
 
     expect(range.from).toEqual(new Date(2024, 0, 5, 0, 0, 0, 0))
     expect(range.to).toEqual(new Date(2024, 0, 10, 23, 59, 59, 999))
+  })
+
+  it('custom preset groups by weeks for a 60-day range', () => {
+    const range = buildReportRange('custom', '2024-01-01', '2024-02-29', NOW)
+
+    expect(range.groupBy).toBe('WEEK')
+  })
+
+  it('custom preset groups by months for a range longer than six months', () => {
+    const range = buildReportRange('custom', '2024-01-01', '2024-06-29', NOW)
+
+    expect(range.groupBy).toBe('MONTH')
+  })
+})
+
+describe('resolveReportGroupBy', () => {
+  it.each([
+    { days: 1, label: 'un día', expected: 'DAY' },
+    { days: 31, label: 'un mes', expected: 'DAY' },
+    { days: 32, label: 'un mes y un día', expected: 'WEEK' },
+    { days: 180, label: 'medio año', expected: 'WEEK' },
+    { days: 181, label: 'más de medio año', expected: 'MONTH' },
+  ])('agrupa por $expected un rango de $label', ({ days, expected }) => {
+    const from = new Date(2024, 0, 1)
+    const to = new Date(2024, 0, days, 23, 59, 59, 999)
+
+    expect(countReportRangeDays(from, to)).toBe(days)
+    expect(resolveReportGroupBy(from, to)).toBe(expected)
   })
 })
 
