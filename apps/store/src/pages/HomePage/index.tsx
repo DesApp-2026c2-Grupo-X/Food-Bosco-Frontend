@@ -39,7 +39,7 @@ import {
   useProfile,
   usePublicPromotions,
 } from '@repo/api'
-import { isHomeFeedEnabled, isProductPromotionsEnabled } from '../../config/featureFlags'
+import { isHomeFeedEnabled } from '../../config/featureFlags'
 import { useAddressStore } from '../../stores/addressStore'
 import { useRecentViewsStore, type RecentProductView } from '../../stores/recentViewsStore'
 import {
@@ -117,33 +117,7 @@ export const HomePage = () => {
   const reorderOrders = remoteFeed?.reorder ?? personalization.reorderOrders
   const orderedCategories = remoteFeed?.categories ?? personalization.orderedCategories
   const orderedPromotions = remoteFeed?.promotions ?? personalization.orderedPromotions
-  const { coupons, productPromotions } = useMemo(
-    () => splitPromotions(orderedPromotions),
-    [orderedPromotions],
-  )
-  const promotedProducts = useMemo(() => {
-    const productsById = new Map(products.map((product) => [product.id, product]))
-    const seen = new Set<string>()
-    const entries: PersonalizedProduct[] = []
-
-    for (const promotion of productPromotions) {
-      for (const productId of promotion.productIds) {
-        if (seen.has(productId)) continue
-        const product = productsById.get(productId)
-        if (!product || !product.available) continue
-
-        seen.add(productId)
-        entries.push({
-          product,
-          reason: 'POPULAR',
-          hint: null,
-          score: 0,
-        })
-      }
-    }
-
-    return entries
-  }, [productPromotions, products])
+  const { coupons } = useMemo(() => splitPromotions(orderedPromotions), [orderedPromotions])
   const nearestBranch = remoteFeed?.nearestBranch ?? personalization.nearestBranch
   const topCategoryName = remoteFeed
     ? (remoteFeed.topCategory?.name ?? null)
@@ -251,24 +225,9 @@ export const HomePage = () => {
         </Reveal>
       ) : null}
 
-      {isProductPromotionsEnabled() && promotedProducts.length > 0 ? (
-        <Reveal delayMs={75}>
-          <PersonalizedProductsSection
-            label="Promociones"
-            title="Productos en promoción"
-            products={promotedProducts}
-            action={
-              <TextLink to={routes.promotions} fontSize="sm">
-                Ver todas
-              </TextLink>
-            }
-          />
-        </Reveal>
-      ) : null}
-
       <Reveal delayMs={80}>
         <PromotionsSection
-          promotions={coupons}
+          promotions={coupons.slice(0, 2)}
           isLoading={promotionsAreLoading}
           personalized={hasHistory}
           products={products}
@@ -337,7 +296,7 @@ const HomeCatalog = ({
   const popular = recommendations.map((entry) => entry.product)
 
   return (
-    <>
+    <VStack align="stretch" gap={{ base: '8', md: '12' }}>
       <Box>
         <SectionHeader
           label="Catálogo"
@@ -390,7 +349,7 @@ const HomeCatalog = ({
           <PersonalizedProductsSection
             label="Según tus pedidos"
             title="Para vos"
-            products={recommendations}
+            products={recommendations.slice(0, 4)}
             action={
               <TextLink to={catalogForYouPath} fontSize="sm">
                 Ver todo el catálogo
@@ -424,7 +383,7 @@ const HomeCatalog = ({
           )}
         </Box>
       )}
-    </>
+    </VStack>
   )
 }
 
