@@ -39,7 +39,7 @@ export const ReviewStatsPanel = ({
             <HStack gap="2" align="center">
               <Strong fontSize="3xl">{formatAverage(stats.averageRating)}</Strong>
               <StarRating
-                value={Math.round(stats.averageRating)}
+                value={stats.averageRating}
                 readOnly
                 size="sm"
                 label="Promedio de calificaciones"
