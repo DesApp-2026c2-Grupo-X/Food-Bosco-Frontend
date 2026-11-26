@@ -378,7 +378,7 @@ describe('HomePage', () => {
     )
 
     expect(await screen.findByText('Para probar')).toBeInTheDocument()
-    expect(screen.getByText('Producto 16')).toBeInTheDocument()
+    expect(screen.getAllByText('Nuevo para vos').length).toBeGreaterThan(0)
   })
 
   it('shows recently viewed products for a user without purchase history', async () => {
@@ -408,7 +408,7 @@ describe('HomePage', () => {
     )
   })
 
-  it('shows product promotions in their own section', async () => {
+  it('does not show the product promotions section in the home', async () => {
     renderHome(
       buildClient({
         orders: [deliveredOrder],
@@ -429,10 +429,58 @@ describe('HomePage', () => {
       }),
     )
 
-    expect(await screen.findByText('Productos en promoción')).toBeInTheDocument()
-    expect(screen.getByText('Cupones para vos')).toBeInTheDocument()
-    expect(screen.getAllByText('2x1 en Producto 1').length).toBeGreaterThan(0)
+    expect(await screen.findByText('Cupones para vos')).toBeInTheDocument()
     expect(screen.getByText('20% en bebidas')).toBeInTheDocument()
+    expect(screen.queryByText('Productos en promoción')).not.toBeInTheDocument()
+  })
+
+  it('shows at most two coupons in the home', async () => {
+    renderHome(
+      buildClient({
+        orders: [deliveredOrder],
+        promotions: [
+          rawPromotion({ id: 'coupon-1', name: 'Cupón uno', categoryIds: ['c1'] }),
+          rawPromotion({ id: 'coupon-2', name: 'Cupón dos', categoryIds: ['c1'] }),
+          rawPromotion({ id: 'coupon-3', name: 'Cupón tres', categoryIds: ['c1'] }),
+        ],
+      }),
+    )
+
+    expect(await screen.findByText('Cupones para vos')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Ver en el menú' })).toHaveLength(2)
+  })
+
+  it('shows at most four products in the Para vos section', async () => {
+    vi.stubEnv('VITE_HOME_FEED', 'true')
+
+    const forYou = Array.from({ length: 6 }, (_, index) => ({
+      product: rawProduct(index + 1),
+      reason: 'REPEAT',
+      hint: 'Ya lo pediste',
+      score: 10 - index,
+    }))
+
+    renderHome(
+      buildClient({
+        homeFeed: {
+          generatedAt: '2026-11-18T03:00:00.000Z',
+          hasHistory: true,
+          topCategory: categories[0],
+          favoriteBranch: null,
+          nearestBranch: { branch: rawBranch, distanceMeters: 820 },
+          categories,
+          forYou,
+          discovery: [],
+          reorder: [],
+          promotions: [],
+        },
+      }),
+    )
+
+    expect(await screen.findByRole('heading', { name: 'Para vos' })).toBeInTheDocument()
+    expect(screen.getByText('Producto 4')).toBeInTheDocument()
+    expect(screen.queryByText('Producto 5')).not.toBeInTheDocument()
+    expect(screen.queryByText('Producto 6')).not.toBeInTheDocument()
   })
 
   it('uses the server home feed when the feature flag is enabled', async () => {

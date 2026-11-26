@@ -1,4 +1,4 @@
-import { Box, SimpleGrid } from '@chakra-ui/react'
+import { Box, SimpleGrid, VStack } from '@chakra-ui/react'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import Magnifier from '@gravity-ui/icons/Magnifier'
 import { useMemo, useState } from 'react'
@@ -13,13 +13,7 @@ import {
   WidePageContainer,
 } from '@repo/components'
 import { ProductCard } from '../../components/ProductCard'
-import {
-  useAddresses,
-  useAuthStore,
-  useAvailableBranches,
-  useCatalog,
-  useOrders,
-} from '@repo/api'
+import { useAddresses, useAuthStore, useAvailableBranches, useCatalog, useOrders } from '@repo/api'
 import { buildTasteProfile, recommendProducts, type PersonalizedProduct } from '@repo/domain'
 import { useAddressStore } from '../../stores/addressStore'
 import { FOR_YOU_CATEGORY } from '../../routes'
@@ -108,40 +102,40 @@ export const CatalogPage = () => {
       <PageHeader
         title="Catálogo"
         description={
-          isForYou
-            ? 'Ordenado según tus consumos.'
-            : 'Encontrá lo que se te antoje hoy.'
+          isForYou ? 'Ordenado según tus consumos.' : 'Encontrá lo que se te antoje hoy.'
         }
       />
 
-      <SearchInput
-        placeholder="Buscar por nombre..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <VStack align="stretch" gap="4">
+        <SearchInput
+          placeholder="Buscar por nombre..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-      <ChipCarousel
-        items={[
-          {
-            id: FOR_YOU_CATEGORY,
-            label: 'Para vos',
-            active: isForYou,
-            onClick: () => setCategory(FOR_YOU_CATEGORY),
-          },
-          {
-            id: 'all',
-            label: 'Todos',
-            active: selectedCategory === null,
-            onClick: () => setCategory(null),
-          },
-          ...categories.map((category) => ({
-            id: category.id,
-            label: category.name,
-            active: selectedCategory === category.id,
-            onClick: () => setCategory(category.id),
-          })),
-        ]}
-      />
+        <ChipCarousel
+          items={[
+            {
+              id: FOR_YOU_CATEGORY,
+              label: 'Para vos',
+              active: isForYou,
+              onClick: () => setCategory(FOR_YOU_CATEGORY),
+            },
+            {
+              id: 'all',
+              label: 'Todos',
+              active: selectedCategory === null,
+              onClick: () => setCategory(null),
+            },
+            ...categories.map((category) => ({
+              id: category.id,
+              label: category.name,
+              active: selectedCategory === category.id,
+              onClick: () => setCategory(category.id),
+            })),
+          ]}
+        />
+      </VStack>
 
       {isLoading ? (
         <LoadingState variant="skeleton" />
