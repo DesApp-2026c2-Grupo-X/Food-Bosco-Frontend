@@ -11,9 +11,13 @@ interface ProductResult {
   product: Record<string, unknown> | null
 }
 
-export const useProduct = (productId: string | undefined): UseProductReturn => {
+export const useProduct = (
+  productId: string | undefined,
+  lat?: number | null,
+  lng?: number | null,
+): UseProductReturn => {
   const { data, loading } = useQuery<ProductResult>(PRODUCT, {
-    variables: { id: productId },
+    variables: { id: productId, lat: lat ?? null, lng: lng ?? null },
     skip: !productId,
   })
 

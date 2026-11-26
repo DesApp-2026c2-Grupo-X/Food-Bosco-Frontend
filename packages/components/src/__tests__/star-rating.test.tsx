@@ -43,4 +43,52 @@ describe('StarRating', () => {
     await userEvent.click(third)
     expect(onChange).not.toHaveBeenCalled()
   })
+
+  it('pinta medias estrellas en modo lectura para promedios fraccionarios', () => {
+    const { container, rerender } = renderWithProviders(
+      <StarRating value={3.5} readOnly label="Promedio" />,
+    )
+
+    expect(screen.getByRole('img', { name: 'Promedio: 3.5 de 5 estrellas' })).toBeInTheDocument()
+    const states35 = Array.from(container.querySelectorAll('[data-star-state]')).map((el) =>
+      el.getAttribute('data-star-state'),
+    )
+    expect(states35).toEqual(['full', 'full', 'full', 'half', 'empty'])
+
+    rerender(<StarRating value={4.4} readOnly label="Promedio" />)
+    expect(
+      Array.from(container.querySelectorAll('[data-star-state]')).map((el) =>
+        el.getAttribute('data-star-state'),
+      ),
+    ).toEqual(['full', 'full', 'full', 'full', 'half'])
+
+    rerender(<StarRating value={4.0} readOnly label="Promedio" />)
+    expect(
+      Array.from(container.querySelectorAll('[data-star-state]')).map((el) =>
+        el.getAttribute('data-star-state'),
+      ),
+    ).toEqual(['full', 'full', 'full', 'full', 'empty'])
+
+    rerender(<StarRating value={4.1} readOnly label="Promedio" />)
+    expect(
+      Array.from(container.querySelectorAll('[data-star-state]')).map((el) =>
+        el.getAttribute('data-star-state'),
+      ),
+    ).toEqual(['full', 'full', 'full', 'full', 'empty'])
+  })
+
+  it('mantiene únicamente 5 opciones enteras en modo interactivo', () => {
+    const onChange = vi.fn()
+    renderWithProviders(<StarRating value={0} onChange={onChange} label="Repartidor" />)
+
+    const radios = screen.getAllByRole('radio')
+    expect(radios).toHaveLength(5)
+    expect(radios.map((radio) => radio.getAttribute('aria-label'))).toEqual([
+      '1 estrella',
+      '2 estrellas',
+      '3 estrellas',
+      '4 estrellas',
+      '5 estrellas',
+    ])
+  })
 })

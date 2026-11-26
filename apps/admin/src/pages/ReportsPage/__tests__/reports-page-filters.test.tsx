@@ -61,7 +61,7 @@ describe('ReportsPage filters', () => {
   it('refetches the overview when the date preset changes', async () => {
     const { client } = await renderPage()
 
-    expect(lastFilter(client).groupBy).toBe('MONTH')
+    expect(lastFilter(client).groupBy).toBe('DAY')
 
     await userEvent.selectOptions(comboboxes()[0], 'day')
 

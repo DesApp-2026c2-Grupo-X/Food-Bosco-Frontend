@@ -8,6 +8,7 @@ import { useNativeSystemBars } from './hooks/useNativeSystemBars'
 import { routes } from './routes'
 import { HomePage } from './pages/HomePage'
 import { CatalogPage } from './pages/CatalogPage'
+import { PromotionsPage } from './pages/PromotionsPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
 import { CartPage } from './pages/CartPage'
 import { CheckoutPage } from './pages/CheckoutPage'
@@ -46,6 +47,7 @@ export const App = () => {
               element: <RequireAddress redirectPath={routes.home} />,
               children: [
                 { path: routes.catalog, element: <CatalogPage /> },
+                { path: routes.promotions, element: <PromotionsPage /> },
                 { path: routes.product, element: <ProductDetailPage /> },
                 { path: routes.cart, element: <CartPage /> },
                 { path: routes.checkout, element: <CheckoutPage /> },

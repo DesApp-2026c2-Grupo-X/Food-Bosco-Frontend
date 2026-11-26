@@ -1,6 +1,8 @@
-import { Box, Button, Grid, HStack, Image, Skeleton, Text, VStack } from '@chakra-ui/react'
+import { Badge, Box, Button, Grid, HStack, Image, Skeleton, Text, VStack } from '@chakra-ui/react'
 import Check from '@gravity-ui/icons/Check'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useAddresses } from '@repo/api'
+import { useAddressStore } from '../../stores/addressStore'
 import {
   BackButton,
   Card,
@@ -16,14 +18,17 @@ import {
 import { EmptyState } from '@repo/components'
 import { QuantityStepper } from '@repo/components'
 import { routes } from '../../routes'
-import { formatPrice } from '@repo/domain'
+import { formatPrice, hasEstimatedPrice, type Product } from '@repo/domain'
 import { useTrackRecentView } from '../../hooks/useTrackRecentView'
 import { useProductConfig } from './hooks/useProductConfig'
 
 export const ProductDetailPage = () => {
   const { productId } = useParams()
   const navigate = useNavigate()
-  const config = useProductConfig(productId)
+  const selectedAddressId = useAddressStore((state) => state.selectedAddressId)
+  const { addresses } = useAddresses()
+  const selectedAddress = addresses.find((address) => address.id === selectedAddressId)
+  const config = useProductConfig(productId, selectedAddress)
 
   useTrackRecentView(config.product?.id)
 
@@ -56,6 +61,9 @@ export const ProductDetailPage = () => {
   }
 
   const { product } = config
+  const promotion = product.promotion ?? null
+  const estimatedPrice =
+    promotion && hasEstimatedPrice(promotion) ? promotion.estimatedUnitPrice : null
 
   return (
     <WidePageContainer>
@@ -86,7 +94,19 @@ export const ProductDetailPage = () => {
               {product.name}
             </PageTitle>
             <Muted>{product.description}</Muted>
-            <Price fontSize="xl">{formatPrice(product.price)}</Price>
+            {estimatedPrice != null && promotion ? (
+              <HStack gap="2" align="baseline">
+                <Text textDecoration="line-through" color="fg.subtle" aria-label="Precio anterior">
+                  {formatPrice(promotion.originalPrice)}
+                </Text>
+                <Price fontSize="xl">{formatPrice(estimatedPrice)}</Price>
+              </HStack>
+            ) : (
+              <Price fontSize="xl">{formatPrice(product.price)}</Price>
+            )}
+            <Muted fontSize="xs">
+              Precio base. Los extras y el total final se calculan en el carrito.
+            </Muted>
           </VStack>
 
           {product.configGroups.map((group) => (
@@ -143,9 +163,70 @@ export const ProductDetailPage = () => {
               Agregar al carrito
             </PrimaryButton>
           </Card>
+
+          <ProductPromotionsSection promotions={product.promotions ?? []} />
         </VStack>
       </Grid>
     </WidePageContainer>
+  )
+}
+
+interface ProductPromotionsSectionProps {
+  promotions: NonNullable<Product['promotions']>
+}
+
+const previewDescription = (promotion: NonNullable<Product['promotions']>[number]): string => {
+  if (promotion.kind === 'PERCENTAGE') {
+    return `${promotion.discountValue ?? 0}% de descuento`
+  }
+  if (promotion.kind === 'FIXED_AMOUNT') {
+    return 'Descuento de monto fijo'
+  }
+  return 'Promoción por cantidad'
+}
+
+const ProductPromotionsSection = ({ promotions }: ProductPromotionsSectionProps) => {
+  if (promotions.length === 0) return null
+
+  return (
+    <VStack align="stretch" gap="3">
+      <Strong>Promociones aplicables</Strong>
+      {promotions.map((promotion) => {
+        const endsAt = new Date(promotion.endsAt).toLocaleDateString('es-AR', {
+          day: '2-digit',
+          month: 'short',
+        })
+
+        return (
+          <Card key={promotion.promotionId} variant="subtle" padding="4">
+            <HStack justify="space-between" align="start" gap="3">
+              <Badge colorPalette="brand" size="sm">
+                {promotion.badge}
+              </Badge>
+              <Muted fontSize="xs">Hasta el {endsAt}</Muted>
+            </HStack>
+            <Strong fontSize="sm" marginTop="2" display="block">
+              {promotion.name}
+            </Strong>
+            <Muted fontSize="xs" marginTop="1">
+              {previewDescription(promotion)}
+            </Muted>
+            <VStack align="start" gap="1" marginTop="2">
+              {promotion.minSubtotal > 0 ? (
+                <Muted fontSize="xs">Compra mínima {formatPrice(promotion.minSubtotal)}</Muted>
+              ) : null}
+              {promotion.minQuantity > 0 ? (
+                <Muted fontSize="xs">Mínimo {promotion.minQuantity} unidades</Muted>
+              ) : null}
+              {promotion.maxDiscount != null ? (
+                <Muted fontSize="xs">Tope {formatPrice(promotion.maxDiscount)}</Muted>
+              ) : null}
+              <Muted fontSize="xs">El precio final se calcula en el carrito.</Muted>
+            </VStack>
+          </Card>
+        )
+      })}
+    </VStack>
   )
 }
 
@@ -188,8 +269,10 @@ const ConfigGroup = ({ title, required, type, options, selected, onSelect }: Con
               paddingY="3"
               border="1px solid"
               borderColor={selectedOption ? 'brand.500' : 'border.subtle'}
-              bg={selectedOption ? 'brand.50' : 'bg.panel'}
-              _hover={{ bg: selectedOption ? 'brand.50' : 'bg.muted' }}
+              bg={selectedOption ? { _light: 'brand.50', _dark: 'brand.950' } : 'bg.panel'}
+              _hover={{
+                bg: selectedOption ? { _light: 'brand.50', _dark: 'brand.950' } : 'bg.muted',
+              }}
               onClick={() => onSelect(option.id)}
             >
               <HStack gap="2.5">
@@ -211,7 +294,12 @@ const ConfigGroup = ({ title, required, type, options, selected, onSelect }: Con
                   {option.name}
                 </Text>
               </HStack>
-              <Price color={option.extraPrice > 0 ? 'brand.600' : 'fg.subtle'} fontSize="sm">
+              <Price
+                color={
+                  option.extraPrice > 0 ? { _light: 'brand.600', _dark: 'brand.300' } : 'fg.subtle'
+                }
+                fontSize="sm"
+              >
                 {option.extraPrice > 0 ? `+ ${formatPrice(option.extraPrice)}` : 'Sin cargo'}
               </Price>
             </Button>

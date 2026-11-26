@@ -14,7 +14,9 @@ interface CreateOrderResult {
 }
 
 export const useCreateOrder = (): UseCreateOrderReturn => {
-  const [mutate, { loading }] = useMutation<CreateOrderResult>(CREATE_ORDER)
+  const [mutate, { loading }] = useMutation<CreateOrderResult>(CREATE_ORDER, {
+    refetchQueries: ['MyCart', 'MyOrders'],
+  })
   const [isLoading, setIsLoading] = useState(false)
 
   const createOrder = useCallback(

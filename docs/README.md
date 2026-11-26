@@ -42,12 +42,14 @@ Regla general: **el código es la fuente de verdad final**. Si un doc contradice
 
 ## HISTÓRICO — Planes e implementaciones ya hechas
 
-| Documento                                                                    | Qué define                                                                                       | Estado                  |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------- |
-| [planes/plan-branch.md](planes/plan-branch.md)                               | Plan de la app Sucursal (`apps/branch`).                                                         | IMPLEMENTADO            |
-| [planes/plan-admin.md](planes/plan-admin.md)                                 | Plan del Admin global (`apps/admin`). Promociones y Estados de pedido quedaron fuera de alcance. | IMPLEMENTADO (parcial)  |
-| [planes/plan-rider.md](planes/plan-rider.md)                                 | Plan de la app Repartidor (`apps/rider`).                                                        | IMPLEMENTADO            |
-| [historico/plan-auth-store-android.md](historico/plan-auth-store-android.md) | Auth unificado para el APK Android del store.                                                    | IMPLEMENTADO / superado |
+| Documento                                                                        | Qué define                                                                                       | Estado                  |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------- |
+| [planes/plan-branch.md](planes/plan-branch.md)                                   | Plan de la app Sucursal (`apps/branch`).                                                         | IMPLEMENTADO            |
+| [planes/plan-admin.md](planes/plan-admin.md)                                     | Plan del Admin global (`apps/admin`). Promociones y Estados de pedido quedaron fuera de alcance. | IMPLEMENTADO (parcial)  |
+| [planes/plan-rider.md](planes/plan-rider.md)                                     | Plan de la app Repartidor (`apps/rider`).                                                        | IMPLEMENTADO            |
+| [planes/plan-promociones-productos.md](planes/plan-promociones-productos.md)     | Descuentos en tarjetas, detalle de producto y página `/promotions`.                              | IMPLEMENTADO            |
+| [planes/promociones-productos-indice.md](planes/promociones-productos-indice.md) | Índice, decisiones y orden de implementación del plan de promociones.                            | IMPLEMENTADO            |
+| [historico/plan-auth-store-android.md](historico/plan-auth-store-android.md)     | Auth unificado para el APK Android del store.                                                    | IMPLEMENTADO / superado |
 
 ## HISTÓRICO — Sesiones y material obsoleto
 

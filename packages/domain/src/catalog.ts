@@ -1,4 +1,5 @@
 import type { RecipeItem } from './ingredient'
+import type { ProductPromotionPreview } from './promotion'
 
 export interface Category {
   id: string
@@ -35,6 +36,8 @@ export interface Product {
   available: boolean
   configGroups: ProductConfigGroup[]
   recipe: RecipeItem[]
+  promotion?: ProductPromotionPreview | null
+  promotions?: ProductPromotionPreview[]
 }
 
 export interface CategoryInput {

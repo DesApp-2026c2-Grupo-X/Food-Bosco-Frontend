@@ -1,21 +1,10 @@
 import { useMemo } from 'react'
-import {
-  Badge,
-  Box,
-  Grid,
-  Heading,
-  HStack,
-  Image,
-  SimpleGrid,
-  Text,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Grid, Heading, HStack, Image, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import Clock from '@gravity-ui/icons/Clock'
 import Flame from '@gravity-ui/icons/Flame'
 import GeoPin from '@gravity-ui/icons/GeoPin'
 import LayoutCells from '@gravity-ui/icons/LayoutCells'
 import Sliders from '@gravity-ui/icons/Sliders'
-import Ticket from '@gravity-ui/icons/Ticket'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Card,
@@ -36,6 +25,7 @@ import {
   WidePageContainer,
 } from '@repo/components'
 import { ProductCard } from '../../components/ProductCard'
+import { PromotionCard } from '../../components/PromotionCard'
 import { ActiveOrderCard } from '../../components/ActiveOrderCard'
 import { PersonalizedProductsSection } from '../../components/PersonalizedProductsSection'
 import { ReorderSection } from '../../components/ReorderSection'
@@ -49,11 +39,10 @@ import {
   useProfile,
   usePublicPromotions,
 } from '@repo/api'
-import { isHomeFeedEnabled } from '../../config/featureFlags'
+import { isHomeFeedEnabled, isProductPromotionsEnabled } from '../../config/featureFlags'
 import { useAddressStore } from '../../stores/addressStore'
 import { useRecentViewsStore, type RecentProductView } from '../../stores/recentViewsStore'
 import {
-  describePromotion,
   formatDistance,
   getPromotionCategoryId,
   isActiveOrder,
@@ -147,7 +136,7 @@ export const HomePage = () => {
         entries.push({
           product,
           reason: 'POPULAR',
-          hint: promotion.name,
+          hint: null,
           score: 0,
         })
       }
@@ -262,15 +251,15 @@ export const HomePage = () => {
         </Reveal>
       ) : null}
 
-      {promotedProducts.length > 0 ? (
+      {isProductPromotionsEnabled() && promotedProducts.length > 0 ? (
         <Reveal delayMs={75}>
           <PersonalizedProductsSection
             label="Promociones"
             title="Productos en promoción"
             products={promotedProducts}
             action={
-              <TextLink to={routes.catalog} fontSize="sm">
-                Ver catálogo
+              <TextLink to={routes.promotions} fontSize="sm">
+                Ver todas
               </TextLink>
             }
           />
@@ -599,28 +588,12 @@ const PromotionsSection = ({
           const catalogHref = categoryId ? `${routes.catalog}?cat=${categoryId}` : routes.catalog
 
           return (
-            <Card key={promo.id} padding="5" interactive variant="subtle">
-              <HStack justify="space-between" alignItems="center">
-                <HStack gap="1.5" color="brand.600">
-                  <Ticket width={18} height={18} />
-                  <Strong fontSize="sm">{describePromotion(promo)}</Strong>
-                </HStack>
-                {promo.code ? (
-                  <Badge colorPalette="brand" size="sm">
-                    {promo.code}
-                  </Badge>
-                ) : null}
-              </HStack>
-              <Strong fontSize="md" marginTop="3" display="block">
-                {promo.name}
-              </Strong>
-              <Muted fontSize="xs" marginTop="1" minHeight="36px">
-                {promo.description || describePromotion(promo)}
-              </Muted>
-              <PrimaryButton size="sm" asChild width="full" marginTop="4">
-                <Link to={catalogHref}>Ver en el menú</Link>
-              </PrimaryButton>
-            </Card>
+            <PromotionCard
+              key={promo.id}
+              promotion={promo}
+              ctaPath={catalogHref}
+              ctaLabel="Ver en el menú"
+            />
           )
         })}
       </SimpleGrid>

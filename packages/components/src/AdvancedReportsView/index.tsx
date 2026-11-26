@@ -4,6 +4,7 @@ import { useReportsOverview } from '@repo/api'
 import {
   ORDER_STATUS_OPTIONS,
   buildReportRange,
+  countReportRangeDays,
   formatPrice,
   type OrderStatus,
   type ReportFilter,
@@ -119,7 +120,13 @@ export const AdvancedReportsView = ({
           </SimpleGrid>
 
           <SimpleGrid columns={{ base: 1, lg: 2 }} gap="4">
-            <SalesTrendChart data={overview?.salesSeries ?? []} isLoading={isLoading} />
+            <SalesTrendChart
+              data={overview?.salesSeries ?? []}
+              isLoading={isLoading}
+              groupBy={range.groupBy}
+              preset={preset}
+              spanDays={countReportRangeDays(range.from, range.to)}
+            />
             <OrderStatusChart data={overview?.ordersByStatus ?? []} isLoading={isLoading} />
           </SimpleGrid>
 

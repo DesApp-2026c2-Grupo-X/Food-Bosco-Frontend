@@ -2,11 +2,18 @@ import { screen, waitFor } from '@testing-library/react'
 import { Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import type { Category, Promotion } from '@repo/domain'
-import { useAdminCategories, useAdminProducts, useAdminPromotions, useBranches } from '@repo/api'
+import {
+  useAdminCategories,
+  useAdminProducts,
+  useAdminPromotion,
+  useAdminPromotions,
+  useBranches,
+} from '@repo/api'
 import { renderWithProviders } from '@test/utils'
 import { PromotionEditPage } from '../index'
 
 vi.mock('@repo/api', () => ({
+  useAdminPromotion: vi.fn(),
   useAdminPromotions: vi.fn(),
   useAdminCategories: vi.fn(),
   useAdminProducts: vi.fn(),
@@ -51,6 +58,11 @@ const cat2: Category = { id: 'cat-2', name: 'Bebidas', active: true }
 const setupMocks = (overrides?: Partial<ReturnType<typeof useAdminPromotions>>) => {
   const create = vi.fn().mockResolvedValue(undefined)
   const update = vi.fn().mockResolvedValue(undefined)
+
+  vi.mocked(useAdminPromotion).mockReturnValue({
+    promotion: existingPromo,
+    isLoading: false,
+  })
 
   vi.mocked(useAdminPromotions).mockReturnValue({
     promotions: [existingPromo],

@@ -1,5 +1,5 @@
 import { Box, Image, Skeleton } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePrefersReducedMotion } from '../usePrefersReducedMotion'
 import type { LoadingImageProps } from './types'
 
@@ -13,10 +13,22 @@ export const LoadingImage = ({
   ...props
 }: LoadingImageProps) => {
   const reducedMotion = usePrefersReducedMotion()
+  const imageRef = useRef<HTMLImageElement>(null)
   const [status, setStatus] = useState<ImageStatus>(src ? 'loading' : 'error')
 
   useEffect(() => {
-    setStatus(src ? 'loading' : 'error')
+    if (!src) {
+      setStatus('error')
+      return
+    }
+
+    const img = imageRef.current
+    if (img?.complete && img.naturalWidth > 0) {
+      setStatus('loaded')
+      return
+    }
+
+    setStatus('loading')
   }, [src])
 
   return (
@@ -39,14 +51,13 @@ export const LoadingImage = ({
 
       {src && status !== 'error' ? (
         <Image
+          ref={imageRef}
           src={src}
           alt={alt}
+          position="relative"
           width="100%"
           height="100%"
           objectFit="cover"
-          opacity={status === 'loaded' ? 1 : 0}
-          transitionProperty={reducedMotion ? undefined : 'opacity'}
-          transitionDuration={reducedMotion ? undefined : '180ms'}
           onLoad={() => setStatus('loaded')}
           onError={() => setStatus('error')}
           {...props}

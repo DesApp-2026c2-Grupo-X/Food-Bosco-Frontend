@@ -52,6 +52,8 @@ const rawProduct = {
     },
   ],
   recipe: [],
+  promotion: null,
+  promotions: [],
 }
 
 const deferred = <T,>() => {
@@ -69,6 +71,8 @@ const setup = (options: { product?: unknown; productLoading?: boolean; addError?
       case 'Product':
         if (options.productLoading) return pendingProduct.promise
         return { data: { product: options.product === undefined ? rawProduct : options.product } }
+      case 'MyAddresses':
+        return { data: { myAddresses: [] } }
       case 'MyCart':
         return {
           data: { myCart: { id: 'cart', clientId: 'c1', status: 'OPEN', total: 0, items: [] } },
@@ -196,5 +200,36 @@ describe('ProductDetailPage', () => {
       'href',
       '/catalog',
     )
+  })
+
+  it('shows applicable promotions and the estimated price', async () => {
+    const preview = {
+      promotionId: 'pr1',
+      name: '20% en burgers',
+      kind: 'PERCENTAGE',
+      badge: '-20%',
+      originalPrice: 1000,
+      estimatedUnitPrice: 800,
+      discountValue: 20,
+      maxDiscount: null,
+      minSubtotal: 0,
+      minQuantity: 0,
+      conditionsMet: true,
+      promotionCount: 1,
+      endsAt: '2026-11-30T00:00:00.000Z',
+    }
+    setup({
+      product: {
+        ...rawProduct,
+        promotion: preview,
+        promotions: [preview],
+      },
+    })
+
+    expect(await screen.findByText('Promociones aplicables')).toBeInTheDocument()
+    expect(screen.getByText('20% en burgers')).toBeInTheDocument()
+    expect(screen.getByText('20% de descuento')).toBeInTheDocument()
+    expect(screen.getByText('El precio final se calcula en el carrito.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Precio anterior')).toBeInTheDocument()
   })
 })

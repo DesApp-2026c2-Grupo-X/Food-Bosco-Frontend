@@ -69,6 +69,75 @@ export const PRODUCT_LIST_FIELDS = `
   }
 `
 
+export const PRODUCT_PROMOTION_FIELDS = `
+  promotion {
+    promotionId
+    name
+    kind
+    badge
+    originalPrice
+    estimatedUnitPrice
+    discountValue
+    maxDiscount
+    minSubtotal
+    minQuantity
+    conditionsMet
+    promotionCount
+    endsAt
+  }
+  promotions {
+    promotionId
+    name
+    kind
+    badge
+    originalPrice
+    estimatedUnitPrice
+    discountValue
+    maxDiscount
+    minSubtotal
+    minQuantity
+    conditionsMet
+    promotionCount
+    endsAt
+  }
+`
+
+export const STORE_PRODUCT_FIELDS = `
+  ${PRODUCT_DETAIL_FIELDS}
+  ${PRODUCT_PROMOTION_FIELDS}
+`
+
+export const PROMOTION_CATALOG_FIELDS = `
+  id
+  name
+  description
+  type
+  scope
+  kind
+  badge
+  discountValue
+  maxDiscount
+  buyQuantity
+  payQuantity
+  startDate
+  endDate
+  daysOfWeek
+  startTime
+  endTime
+  minSubtotal
+  minQuantity
+  branchIds
+  code
+  categoryIds
+  productIds
+  categories {
+    ${CATEGORY_FIELDS}
+  }
+  products {
+    ${STORE_PRODUCT_FIELDS}
+  }
+`
+
 export const BRANCH_HOURS_FIELDS = `
   dayOfWeek
   opening
@@ -482,6 +551,10 @@ export const CART_FIELDS = `
   discountTotal
   total
   promotionCode
+  rejectedPromotionCode {
+    code
+    reason
+  }
   appliedPromotions {
     ${APPLIED_PROMOTION_FIELDS}
   }

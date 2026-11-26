@@ -16,7 +16,7 @@ export interface OutOfStockRow {
   quantity: number
 }
 
-export type ReportGroupBy = 'DAY' | 'WEEK' | 'MONTH'
+export type ReportGroupBy = 'HOUR' | 'DAY' | 'WEEK' | 'MONTH'
 
 export interface ReportFilter {
   from?: string

@@ -21,22 +21,61 @@ export const StarRating = ({
   const interactive = !readOnly && Boolean(onChange)
 
   if (!interactive) {
+    const clamped = Math.min(5, Math.max(0, value))
+    const rounded = Math.round(clamped * 2) / 2
+    const formattedValue = Number.isInteger(clamped) ? String(clamped) : clamped.toFixed(1)
+
     return (
       <HStack
         gap="0.5"
         role="img"
-        aria-label={`${label}: ${value} de 5 estrellas`}
+        aria-label={`${label}: ${formattedValue} de 5 estrellas`}
         display="inline-flex"
       >
         {RATINGS.map((rating) => {
-          const Icon = rating <= value ? StarFill : Star
+          const state = rating <= rounded ? 'full' : rating - 0.5 === rounded ? 'half' : 'empty'
+
+          if (state === 'half') {
+            return (
+              <Box
+                key={rating}
+                as="span"
+                position="relative"
+                display="inline-flex"
+                width={`${iconSize}px`}
+                height={`${iconSize}px`}
+                aria-hidden="true"
+                data-star-state="half"
+              >
+                <Box as="span" color="border.emphasized" display="inline-flex">
+                  <Star width={iconSize} height={iconSize} />
+                </Box>
+                <Box
+                  as="span"
+                  position="absolute"
+                  inset="0"
+                  width="50%"
+                  overflow="hidden"
+                  color="accent.400"
+                  display="inline-flex"
+                >
+                  <Box as="span" display="inline-flex" flexShrink={0}>
+                    <StarFill width={iconSize} height={iconSize} />
+                  </Box>
+                </Box>
+              </Box>
+            )
+          }
+
+          const Icon = state === 'full' ? StarFill : Star
           return (
             <Box
               key={rating}
               as="span"
-              color={rating <= value ? 'accent.400' : 'border.emphasized'}
+              color={state === 'full' ? 'accent.400' : 'border.emphasized'}
               aria-hidden="true"
               display="inline-flex"
+              data-star-state={state}
             >
               <Icon width={iconSize} height={iconSize} />
             </Box>

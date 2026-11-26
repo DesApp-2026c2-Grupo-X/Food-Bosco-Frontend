@@ -14,6 +14,11 @@ import type {
   Product,
   ProductConfigGroup,
   ProductOption,
+  ProductPromotionPreview,
+  PromotionBadgeKind,
+  PromotionCatalogItem,
+  PromotionScope,
+  PromotionType,
   RepeatOrderResult,
   RepeatPriceChange,
   RepeatSkipReason,
@@ -33,9 +38,10 @@ import {
   CART_FIELDS,
   CATEGORY_FIELDS,
   CUSTOMER_REPORTS_OVERVIEW_FIELDS,
-  PRODUCT_DETAIL_FIELDS,
+  PROMOTION_CATALOG_FIELDS,
   PROMOTION_FIELDS,
   STORE_ORDER_FIELDS,
+  STORE_PRODUCT_FIELDS,
 } from './fragments'
 
 type Raw = Record<string, unknown>
@@ -65,6 +71,22 @@ export const toConfigGroup = (raw: Raw): ProductConfigGroup => ({
   options: asList(raw.options, toConfigOption),
 })
 
+export const toProductPromotionPreview = (raw: Raw): ProductPromotionPreview => ({
+  promotionId: asString(raw.promotionId),
+  name: asString(raw.name),
+  kind: (asString(raw.kind) as PromotionBadgeKind) || 'PERCENTAGE',
+  badge: asString(raw.badge),
+  originalPrice: asNumber(raw.originalPrice),
+  estimatedUnitPrice: raw.estimatedUnitPrice == null ? null : asNumber(raw.estimatedUnitPrice),
+  discountValue: raw.discountValue == null ? null : asNumber(raw.discountValue),
+  maxDiscount: raw.maxDiscount == null ? null : asNumber(raw.maxDiscount),
+  minSubtotal: asNumber(raw.minSubtotal),
+  minQuantity: asNumber(raw.minQuantity),
+  conditionsMet: asBoolean(raw.conditionsMet),
+  promotionCount: asNumber(raw.promotionCount),
+  endsAt: asString(raw.endsAt),
+})
+
 export const toProduct = (raw: Raw): Product => ({
   id: asString(raw.id),
   categoryId: asString(raw.categoryId),
@@ -75,6 +97,35 @@ export const toProduct = (raw: Raw): Product => ({
   available: asBoolean(raw.available),
   configGroups: asList(raw.configGroups, toConfigGroup),
   recipe: asList(raw.recipe, (entry) => toRecipeItem(entry, true)),
+  promotion: raw.promotion ? toProductPromotionPreview(raw.promotion as Raw) : null,
+  promotions: asList(raw.promotions, toProductPromotionPreview),
+})
+
+export const toPromotionCatalogItem = (raw: Raw): PromotionCatalogItem => ({
+  id: asString(raw.id),
+  name: asString(raw.name),
+  description: raw.description == null ? null : asString(raw.description),
+  type: (raw.type as PromotionType) ?? null,
+  scope: (raw.scope as PromotionScope) ?? null,
+  kind: (asString(raw.kind) as PromotionBadgeKind) || 'INFORMATIONAL',
+  badge: asString(raw.badge),
+  discountValue: raw.discountValue == null ? null : asNumber(raw.discountValue),
+  maxDiscount: raw.maxDiscount == null ? null : asNumber(raw.maxDiscount),
+  buyQuantity: raw.buyQuantity == null ? null : asNumber(raw.buyQuantity),
+  payQuantity: raw.payQuantity == null ? null : asNumber(raw.payQuantity),
+  startDate: asString(raw.startDate),
+  endDate: asString(raw.endDate),
+  daysOfWeek: Array.isArray(raw.daysOfWeek) ? raw.daysOfWeek.map((d) => asNumber(d)) : [],
+  startTime: raw.startTime == null ? null : asString(raw.startTime),
+  endTime: raw.endTime == null ? null : asString(raw.endTime),
+  minSubtotal: asNumber(raw.minSubtotal),
+  minQuantity: asNumber(raw.minQuantity),
+  branchIds: Array.isArray(raw.branchIds) ? raw.branchIds.map((b) => asString(b)) : [],
+  code: raw.code == null ? null : asString(raw.code),
+  categoryIds: Array.isArray(raw.categoryIds) ? raw.categoryIds.map((c) => asString(c)) : [],
+  productIds: Array.isArray(raw.productIds) ? raw.productIds.map((p) => asString(p)) : [],
+  categories: asList(raw.categories, toCategory),
+  products: asList(raw.products, toProduct),
 })
 
 export const toBranchHours = (raw: Raw): BranchHours => ({
@@ -223,6 +274,13 @@ export const toCart = (raw: Raw): Cart => {
     total,
     promotionCode: raw.promotionCode == null ? null : String(raw.promotionCode),
     appliedPromotions: asList(raw.appliedPromotions, toAppliedPromotion),
+    rejectedPromotionCode:
+      raw.rejectedPromotionCode && typeof raw.rejectedPromotionCode === 'object'
+        ? {
+            code: asString((raw.rejectedPromotionCode as Raw).code),
+            reason: asString((raw.rejectedPromotionCode as Raw).reason),
+          }
+        : null,
   }
 }
 
@@ -257,15 +315,23 @@ export const CATEGORIES = gql`
 export const PRODUCTS = gql`
   query Products($filter: ProductFilterInput) {
     products(filter: $filter) {
-      ${PRODUCT_DETAIL_FIELDS}
+      ${STORE_PRODUCT_FIELDS}
     }
   }
 `
 
 export const PRODUCT = gql`
-  query Product($id: ID!) {
-    product(id: $id) {
-      ${PRODUCT_DETAIL_FIELDS}
+  query Product($id: ID!, $lat: Float, $lng: Float) {
+    product(id: $id, lat: $lat, lng: $lng) {
+      ${STORE_PRODUCT_FIELDS}
+    }
+  }
+`
+
+export const PROMOTION_CATALOG = gql`
+  query PromotionCatalog($lat: Float, $lng: Float) {
+    promotionCatalog(lat: $lat, lng: $lng) {
+      ${PROMOTION_CATALOG_FIELDS}
     }
   }
 `
@@ -315,8 +381,8 @@ export const MY_CART = gql`
 `
 
 export const SET_CART_PROMOTION_CODE = gql`
-  mutation SetCartPromotionCode($code: String) {
-    setCartPromotionCode(code: $code) {
+  mutation SetCartPromotionCode($code: String, $addressId: ID) {
+    setCartPromotionCode(code: $code, addressId: $addressId) {
       ${CART_FIELDS}
     }
   }
